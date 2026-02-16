@@ -22,11 +22,9 @@ trait Auditable
             $model->logAudit('deleted');
         });
 
-        if (method_exists(static::class, 'restored')) {
-            static::restored(function ($model) {
-                $model->logAudit('restored');
-            });
-        }
+        static::restored(function ($model) {
+            $model->logAudit('restored');
+        });
     }
 
     protected function logAudit(string $event)

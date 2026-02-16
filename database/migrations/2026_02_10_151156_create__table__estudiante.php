@@ -11,15 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('personas', function (Blueprint $table) {
+        Schema::create('estudiantes', function (Blueprint $table) {
             $table->id();
-            $table->string('dni', 20)->index();
-            $table->string('nombre', 100);
-            $table->string('apellido', 100);
-            $table->date('fecha_nacimiento');
-            $table->enum('sexo', ['M', 'F']);
-            $table->string('telefono', 20)->nullable();
-            $table->string('email', 255)->nullable()->index();
+            $table->string('cuenta');
+            $table->foreignId('persona_id')->constrained('personas')->cascadeOnDelete();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('deleted_by')->nullable()->constrained('users')->nullOnDelete();
@@ -33,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('personas');
+        Schema::dropIfExists('estudiantes');
     }
 };

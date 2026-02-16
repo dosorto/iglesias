@@ -1,24 +1,19 @@
 <?php
 
-use App\Livewire\Roles\RolesIndex;
-use App\Livewire\Users\UsersIndex;
+use App\Http\Controllers\EstudianteController;
+use App\Http\Controllers\PersonaController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
+use Spatie\Permission\Models\Role;
 
 Route::view('/', 'welcome');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
-
-Route::view('profile', 'profile')
-    ->middleware(['auth'])
-    ->name('profile');
-
-
 Route::middleware(['auth'])->group(function () {
-
-    Route::get('/dashboard', fn () => view('dashboard'))
+    Route::view('dashboard', 'dashboard')
+        ->middleware('verified')
         ->name('dashboard');
+
+    Route::view('profile', 'profile')->name('profile');
 
     Route::middleware('permission:users.view')
         ->get('/users', fn () => view('users.index'))
@@ -29,7 +24,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('users.create');
 
     Route::middleware('permission:users.edit')
-        ->get('/users/{user}/edit', fn (\App\Models\User $user) => view('users.edit', compact('user')))
+        ->get('/users/{user}/edit', fn (User $user) => view('users.edit', compact('user')))
         ->name('users.edit');
 
     Route::middleware('permission:roles.view')
@@ -41,7 +36,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('roles.create');
 
     Route::middleware('permission:roles.edit')
-        ->get('/roles/{role}/edit', fn (\Spatie\Permission\Models\Role $role) => view('roles.edit', compact('role')))
+        ->get('/roles/{role}/edit', fn (Role $role) => view('roles.edit', compact('role')))
         ->name('roles.edit');
 
     Route::middleware('permission:roles.view')
@@ -55,32 +50,37 @@ Route::middleware(['auth'])->group(function () {
 
     // Personas CRUD
     Route::middleware('permission:personas.view')
-        ->get('/personas', [\App\Http\Controllers\PersonaController::class, 'index'])
+        ->get('/personas', [PersonaController::class, 'index'])
         ->name('personas.index');
 
     Route::middleware('permission:personas.create')
-        ->get('/personas/create', [\App\Http\Controllers\PersonaController::class, 'create'])
+        ->get('/personas/create', [PersonaController::class, 'create'])
         ->name('personas.create');
 
     Route::middleware('permission:personas.create')
-        ->post('/personas', [\App\Http\Controllers\PersonaController::class, 'store'])
+        ->post('/personas', [PersonaController::class, 'store'])
         ->name('personas.store');
 
     Route::middleware('permission:personas.view')
-        ->get('/personas/{persona}', [\App\Http\Controllers\PersonaController::class, 'show'])
+        ->get('/personas/{persona}', [PersonaController::class, 'show'])
         ->name('personas.show');
 
     Route::middleware('permission:personas.edit')
-        ->get('/personas/{persona}/edit', [\App\Http\Controllers\PersonaController::class, 'edit'])
+        ->get('/personas/{persona}/edit', [PersonaController::class, 'edit'])
         ->name('personas.edit');
 
     Route::middleware('permission:personas.edit')
-        ->put('/personas/{persona}', [\App\Http\Controllers\PersonaController::class, 'update'])
+        ->put('/personas/{persona}', [PersonaController::class, 'update'])
         ->name('personas.update');
 
     Route::middleware('permission:personas.delete')
-        ->delete('/personas/{persona}', [\App\Http\Controllers\PersonaController::class, 'destroy'])
+        ->delete('/personas/{persona}', [PersonaController::class, 'destroy'])
         ->name('personas.destroy');
+
+    // Estudiantes
+    Route::middleware('permission:estudiantes.view')
+        ->get('/estudiantes', [EstudianteController::class, 'index'])
+        ->name('estudiantes.index');
 });
 
 require __DIR__.'/auth.php';

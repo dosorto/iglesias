@@ -22,7 +22,8 @@ class UpdatePersonaRequest extends FormRequest
      */
     public function rules(): array
     {
-        $personaId = $this->route('persona');
+        $persona = $this->route('persona');
+        $personaId = $persona?->id ?? $persona;
 
         return [
             'dni' => [

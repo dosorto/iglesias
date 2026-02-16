@@ -3,18 +3,16 @@
 namespace App\Exports;
 
 use App\Models\Persona;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class PersonasExport implements FromCollection, WithHeadings, WithMapping
+class PersonasExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize
 {
-    /**
-    * @return \Illuminate\Support\Collection
-    */
-    public function collection()
+    public function query()
     {
-        return Persona::all();
+        return Persona::query()->latest('id');
     }
 
     /**

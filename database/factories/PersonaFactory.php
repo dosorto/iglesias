@@ -24,7 +24,6 @@ class PersonaFactory extends Factory
             'sexo' => $this->faker->randomElement(['M', 'F']),
             'telefono' => $this->faker->phoneNumber(),
             'email' => $this->faker->unique()->safeEmail(),
-            'created_by' => 1, // Asumimos que el admin existe
         ];
     }
 }

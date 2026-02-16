@@ -3,12 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Persona extends BaseModel
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'dni',
@@ -30,5 +29,10 @@ class Persona extends BaseModel
     public function getNombreCompletoAttribute(): string
     {
         return "{$this->nombre} {$this->apellido}";
+    }
+
+    public function estudiante(): HasOne
+    {
+        return $this->hasOne(Estudiante::class, 'persona_id');
     }
 }

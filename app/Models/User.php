@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,7 +13,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles, SoftDeletes, \App\Traits\Auditable;
+    use HasFactory, Notifiable, HasRoles, SoftDeletes, \App\Traits\Auditable, \App\Traits\TracksAuditMetadata;
 
     /**
      * The attributes that are mass assignable.
@@ -20,6 +21,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'organization_id',
         'name',
         'email',
         'password',
@@ -51,27 +53,9 @@ class User extends Authenticatable
         ];
     }
 
-    protected static function boot()
+    public function organization(): BelongsTo
     {
-        parent::boot();
-
-        static::creating(function ($model) {
-            if (!$model->created_by && auth()->user()) {
-                $model->created_by = auth()->user()->id;
-            }
-        });
-
-        static::deleting(function ($model) {
-            if (!$model->deleted_by && auth()->user()) {
-                $model->deleted_by = auth()->user()->id;
-                $model->save();
-            }
-        });
-
-        static::updating(function ($model) {
-            if (!$model->updated_by && auth()->user()) {
-                $model->updated_by = auth()->user()->id;
-            }
-        });
+        return $this->belongsTo(Organization::class);
     }
+
 }

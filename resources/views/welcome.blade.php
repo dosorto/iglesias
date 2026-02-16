@@ -28,6 +28,25 @@
                     </header>
 
                     <main class="mt-6">
+                        @guest
+                            <div class="mb-6 rounded-lg bg-white p-6 shadow-[0px_14px_34px_0px_rgba(0,0,0,0.08)] ring-1 ring-white/[0.05] dark:bg-zinc-900 dark:ring-zinc-800">
+                                <h1 class="text-2xl font-semibold text-black dark:text-white">Comienza creando tu organización</h1>
+                                <p class="mt-2 text-sm text-black/70 dark:text-white/70">
+                                    Registra tu organización en 2 pasos, crea tu usuario administrador y accede al sistema inmediatamente.
+                                </p>
+                                <div class="mt-4 flex flex-wrap gap-3">
+                                    <a href="{{ route('register.organization') }}"
+                                       class="inline-flex items-center rounded-md bg-[#FF2D20] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#e7271c] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF2D20]">
+                                        Crear cuenta de organización
+                                    </a>
+                                    <a href="{{ route('login') }}"
+                                       class="inline-flex items-center rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800">
+                                        Iniciar sesión
+                                    </a>
+                                </div>
+                            </div>
+                        @endguest
+
                         <div class="grid gap-6 lg:grid-cols-2 lg:gap-8">
                             <a
                                 href="https://laravel.com/docs"

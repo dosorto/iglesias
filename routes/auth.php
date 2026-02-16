@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Auth;
 
 
 Route::middleware('guest')->group(function () {
+    Volt::route('registro-organizacion', 'pages.auth.register-organization')
+        ->name('register.organization');
+
     Volt::route('register', 'pages.auth.register')
         ->name('register');
 
