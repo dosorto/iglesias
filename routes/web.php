@@ -81,6 +81,34 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:estudiantes.view')
         ->get('/estudiantes', [EstudianteController::class, 'index'])
         ->name('estudiantes.index');
+    // Iglesias CRUD
+    Route::middleware('permission:iglesias.view')
+        ->get('/iglesias', [\App\Http\Controllers\IglesiaController::class, 'index'])
+        ->name('iglesias.index');
+
+    Route::middleware('permission:iglesias.create')
+        ->get('/iglesias/create', [\App\Http\Controllers\IglesiaController::class, 'create'])
+        ->name('iglesias.create');
+
+    Route::middleware('permission:iglesias.create')
+        ->post('/iglesias', [\App\Http\Controllers\IglesiaController::class, 'store'])
+        ->name('iglesias.store');
+
+    Route::middleware('permission:iglesias.view')
+        ->get('/iglesias/{iglesia}', [\App\Http\Controllers\IglesiaController::class, 'show'])
+        ->name('iglesias.show');
+
+    Route::middleware('permission:iglesias.edit')
+        ->get('/iglesias/{iglesia}/edit', [\App\Http\Controllers\IglesiaController::class, 'edit'])
+        ->name('iglesias.edit');
+
+    Route::middleware('permission:iglesias.edit')
+        ->put('/iglesias/{iglesia}', [\App\Http\Controllers\IglesiaController::class, 'update'])
+        ->name('iglesias.update');
+
+    Route::middleware('permission:iglesias.delete')
+        ->delete('/iglesias/{iglesia}', [\App\Http\Controllers\IglesiaController::class, 'destroy'])
+        ->name('iglesias.destroy');    
 });
 
 require __DIR__.'/auth.php';
