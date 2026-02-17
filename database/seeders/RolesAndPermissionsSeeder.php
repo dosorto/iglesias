@@ -43,6 +43,17 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'audit.view', 'display_name' => 'Ver Logs del Sistema'],
             ['name' => 'audit.export', 'display_name' => 'Exportar Logs del Sistema'],
 
+            // iglesias
+            ['name' => 'iglesias.view', 'display_name' => 'Ver iglesias'],
+            ['name' => 'iglesias.create', 'display_name' => 'Crear iglesias'],
+            ['name' => 'iglesias.edit', 'display_name' => 'Editar iglesias'],
+            ['name' => 'iglesias.delete', 'display_name' => 'Eliminar iglesias'],
+            ['name' => 'iglesias.export', 'display_name' => 'Exportar iglesias (Excel)'],
+            ['name' => 'audit.view', 'display_name' => 'Ver Logs del Sistema'],
+            ['name' => 'audit.export', 'display_name' => 'Exportar Logs del Sistema'],
+
+
+
             ['name' => 'religion.view', 'display_name' => 'Ver Religion'],
             ['name' => 'religion.create', 'display_name' => 'Crear Religion'],
             ['name' => 'religion.edit', 'display_name' => 'Editar Religion'],
