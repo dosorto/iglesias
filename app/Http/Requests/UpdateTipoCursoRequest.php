@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class UpdateTipoCursoRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        $id = $this->route('tipocurso')->id;
+
+        return [
+            'nombre_curso' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('tipo_curso', 'nombre_curso')
+                    ->ignore($id)
+                    ->whereNull('deleted_at'),
+            ],
+            'descripcion_curso' => ['nullable', 'string', 'max:1000'],
+            'estado_curso' => ['required', 'in:activo,inactivo'],
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'nombre_curso' => 'nombre del curso',
+            'descripcion_curso' => 'descripción del curso',
+            'estado_curso' => 'estado del curso',
+        ];
+    }
+}

@@ -81,6 +81,35 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:estudiantes.view')
         ->get('/estudiantes', [EstudianteController::class, 'index'])
         ->name('estudiantes.index');
+
+    // TipoCurso CRUD
+    Route::middleware('permission:tipocurso.view')
+        ->get('/tipocurso', [\App\Http\Controllers\TipoCursoController::class, 'index'])
+        ->name('tipocurso.index');
+
+    Route::middleware('permission:tipocurso.create')
+        ->get('/tipocurso/create', [\App\Http\Controllers\TipoCursoController::class, 'create'])
+        ->name('tipocurso.create');
+
+    Route::middleware('permission:tipocurso.create')
+        ->post('/tipocurso', [\App\Http\Controllers\TipoCursoController::class, 'store'])
+        ->name('tipocurso.store');
+
+    Route::middleware('permission:tipocurso.view')
+        ->get('/tipocurso/{tipocurso}', [\App\Http\Controllers\TipoCursoController::class, 'show'])
+        ->name('tipocurso.show');
+
+    Route::middleware('permission:tipocurso.edit')
+        ->get('/tipocurso/{tipocurso}/edit', [\App\Http\Controllers\TipoCursoController::class, 'edit'])
+        ->name('tipocurso.edit');
+
+    Route::middleware('permission:tipocurso.edit')
+        ->put('/tipocurso/{tipocurso}', [\App\Http\Controllers\TipoCursoController::class, 'update'])
+        ->name('tipocurso.update');
+
+    Route::middleware('permission:tipocurso.delete')
+        ->delete('/tipocurso/{tipocurso}', [\App\Http\Controllers\TipoCursoController::class, 'destroy'])
+        ->name('tipocurso.destroy');
 });
 
 require __DIR__.'/auth.php';

@@ -61,6 +61,21 @@
                         </li>
                     @endcan
 
+                    @can('tipocurso.view')
+                        <li>
+                            <a href="{{ route('tipocurso.index') }}"
+                               class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }} rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group"
+                               title="{{ $isCollapsed ? 'Tipos de Cursos' : '' }}">
+                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-200" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M4 3a1 1 0 000 2h8a1 1 0 100-2H4zM4 7a1 1 0 000 2h8a1 1 0 100-2H4zM4 11a1 1 0 000 2h8a1 1 0 100-2H4zM4 15a1 1 0 000 2h8a1 1 0 100-2H4z"></path>
+                                </svg>
+                                @if(!$isCollapsed)
+                                    <span class="ml-3">Tipos de Cursos</span>
+                                @endif
+                            </a>
+                        </li>
+                    @endcan
+
                     @can('users.view')
                         <li>
                             <a href="{{ route('users.index') }}"

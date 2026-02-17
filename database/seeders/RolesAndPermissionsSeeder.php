@@ -42,6 +42,12 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'personas.export', 'display_name' => 'Exportar Personas (Excel)'],
             ['name' => 'audit.view', 'display_name' => 'Ver Logs del Sistema'],
             ['name' => 'audit.export', 'display_name' => 'Exportar Logs del Sistema'],
+
+             ['name' => 'tipocurso.view', 'display_name' => 'Ver Tipos de Cursos'],
+            ['name' => 'tipocurso.create', 'display_name' => 'Crear Tipos de Cursos'],
+            ['name' => 'tipocurso.edit', 'display_name' => 'Editar Tipos de Cursos'],
+            ['name' => 'tipocurso.delete', 'display_name' => 'Eliminar Tipos de Cursos'],
+            ['name' => 'tipocurso.export', 'display_name' => 'Exportar Tipos de Cursos (Excel)'],
         ];
 
         foreach ($permissions as $permissionData) {
