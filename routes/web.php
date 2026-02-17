@@ -81,6 +81,36 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:estudiantes.view')
         ->get('/estudiantes', [EstudianteController::class, 'index'])
         ->name('estudiantes.index');
+
+
+    // Religion
+        Route::middleware('permission:religion.view')
+        ->get('/religion', [\App\Http\Controllers\ReligionController::class, 'index'])
+        ->name('religion.index');   
+
+    Route::middleware('permission:religion.create')
+        ->get('/religion/create', [\App\Http\Controllers\ReligionController::class, 'create'])
+        ->name('religion.create');
+
+    Route::middleware('permission:religion.create')
+        ->post('/religion', [\App\Http\Controllers\ReligionController::class, 'store'])
+        ->name('religion.store');
+
+    Route::middleware('permission:religion.view')
+        ->get('/religion/{religion}', [\App\Http\Controllers\ReligionController::class, 'show'])
+        ->name('religion.show');
+
+    Route::middleware('permission:religion.edit')
+        ->get('/religion/{religion}/edit', [\App\Http\Controllers\ReligionController::class, 'edit'])
+        ->name('religion.edit');
+
+    Route::middleware('permission:religion.edit')
+        ->put('/religion/{religion}', [\App\Http\Controllers\ReligionController::class, 'update'])
+        ->name('religion.update');
+
+    Route::middleware('permission:religion.delete')
+        ->delete('/religion/{religion}', [\App\Http\Controllers\ReligionController::class, 'destroy'])
+        ->name('religion.destroy');
 });
 
 require __DIR__.'/auth.php';
