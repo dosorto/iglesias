@@ -15,8 +15,68 @@ class TipoCursoSeeder extends Seeder
     {
         //generar un tipo de curso de ejemplo
         TipoCurso::create([
-            "nombre_curso" => "Curso de Programación",
-            "descripcion_curso" => "Aprende los fundamentos de la programación con este curso introductorio.",
+            "nombre_curso" => "Curso Bautismo",
+            "descripcion_curso" => "Primeros pasos hacia el Bautismo.",
+            "estado_curso" => "activo"
+        ]);
+
+        TipoCurso::create([
+        "nombre_curso" => "Curso Bautismo",
+        "descripcion_curso" => "Primeros pasos hacia el Bautismo.",
+        "estado_curso" => "activo"
+        ]);
+
+        TipoCurso::create([
+            "nombre_curso" => "Curso Primera Comunión",
+            "descripcion_curso" => "Preparación para recibir el sacramento de la Primera Comunión.",
+            "estado_curso" => "activo"
+        ]);
+
+        TipoCurso::create([
+            "nombre_curso" => "Curso Confirmación",
+            "descripcion_curso" => "Formación espiritual para el sacramento de la Confirmación.",
+            "estado_curso" => "activo"
+        ]);
+
+        TipoCurso::create([
+            "nombre_curso" => "Curso Prematrimonial",
+            "descripcion_curso" => "Preparación para el sacramento del Matrimonio.",
+            "estado_curso" => "activo"
+        ]);
+
+        TipoCurso::create([
+            "nombre_curso" => "Curso para Padrinos",
+            "descripcion_curso" => "Formación y responsabilidad de padrinos en los sacramentos.",
+            "estado_curso" => "activo"
+        ]);
+
+        TipoCurso::create([
+            "nombre_curso" => "Catequesis Infantil",
+            "descripcion_curso" => "Enseñanza básica de la fe católica para niños.",
+            "estado_curso" => "activo"
+        ]);
+
+        TipoCurso::create([
+            "nombre_curso" => "Catequesis Juvenil",
+            "descripcion_curso" => "Formación cristiana dirigida a adolescentes y jóvenes.",
+            "estado_curso" => "activo"
+        ]);
+
+        TipoCurso::create([
+            "nombre_curso" => "Escuela Bíblica",
+            "descripcion_curso" => "Estudio y reflexión de las Sagradas Escrituras.",
+            "estado_curso" => "activo"
+        ]);
+
+        TipoCurso::create([
+            "nombre_curso" => "Formación de Líderes Pastorales",
+            "descripcion_curso" => "Capacitación para servidores y líderes de la comunidad parroquial.",
+            "estado_curso" => "activo"
+        ]);
+
+        TipoCurso::create([
+            "nombre_curso" => "Curso de Liturgia",
+            "descripcion_curso" => "Formación sobre el significado y práctica de la liturgia.",
             "estado_curso" => "activo"
         ]);
     }

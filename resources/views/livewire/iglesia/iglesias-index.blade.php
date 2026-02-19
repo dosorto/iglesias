@@ -8,7 +8,7 @@
 
         <div class="flex flex-wrap gap-2">
             @can('iglesias.export')
-                <button 
+                <button
                     wire:click="export"
                     class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center shadow-sm"
                 >
@@ -46,7 +46,7 @@
     {{-- Table Container --}}
     <div class="content-container mx-auto w-full max-w-7xl">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-            
+
             {{-- Table Header with Search --}}
             <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
                 <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
@@ -79,6 +79,7 @@
                             <option value="10">10</option>
                             <option value="25">25</option>
                             <option value="50">50</option>
+                            <option value="100">100</option>
                         </select>
                     </div>
                 </div>
@@ -89,7 +90,10 @@
                     <thead class="bg-gray-100 dark:bg-gray-900">
                         <tr>
                             <th class="px-6 py-3 text-left">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Iglesia / Estado</span>
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Iglesia</span>
+                            </th>
+                            <th class="px-6 py-3 text-left">
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</span>
                             </th>
                             <th class="px-6 py-3 text-left">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Párroco Responsable</span>
@@ -105,36 +109,72 @@
                             </th>
                         </tr>
                     </thead>
+
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                         @forelse($iglesias as $iglesia)
-                            <tr 
+                            @php
+                                $estado = $iglesia->estado ?? 'Activa';
+                                $activo = in_array(strtolower($estado), ['activa', 'activo', 'habilitada', 'habilitado']);
+                            @endphp
+
+                            <tr
                                 class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer group"
                                 onclick="window.location='{{ route('iglesias.show', $iglesia) }}'"
                             >
+                                {{-- Iglesia --}}
                                 <td class="px-6 py-4">
-                                    <div class="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">{{ $iglesia->nombre }}</div>
-                                    <div class="flex items-center mt-1">
-                                        <span class="w-2 h-2 rounded-full {{ $iglesia->estado == 'Activo' ? 'bg-green-500' : 'bg-red-500' }} mr-2"></span>
-                                        <span class="text-xs text-gray-500 dark:text-gray-400">{{ $iglesia->estado }}</span>
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3 shadow-sm group-hover:scale-110 transition-transform">
+                                            <span class="text-white text-xs font-bold">
+                                                {{ strtoupper(substr($iglesia->nombre ?? 'I', 0, 1)) }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white">
+                                                {{ $iglesia->nombre }}
+                                            </div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">
+                                                ID: {{ $iglesia->id }}
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
+
+                                {{-- Estado --}}
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $activo ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' }}">
+                                        {{ $estado }}
+                                    </span>
+                                </td>
+
+                                {{-- Párroco --}}
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center mr-3 shadow-sm group-hover:scale-110 transition-transform">
-                                            <span class="text-white text-xs font-bold">{{ strtoupper(substr($iglesia->parroco_nombre, 0, 1)) }}</span>
+                                            <span class="text-white text-xs font-bold">
+                                                {{ strtoupper(substr($iglesia->parroco_nombre ?? 'P', 0, 1)) }}
+                                            </span>
                                         </div>
-                                        <span class="text-sm text-gray-900 dark:text-white">{{ $iglesia->parroco_nombre }}</span>
+                                        <span class="text-sm text-gray-900 dark:text-white">
+                                            {{ $iglesia->parroco_nombre ?? 'N/A' }}
+                                        </span>
                                     </div>
                                 </td>
+
+                                {{-- Ubicación --}}
                                 <td class="px-6 py-4">
                                     <div class="text-sm text-gray-900 dark:text-white truncate max-w-xs">
-                                        {{ $iglesia->direccion }}
+                                        {{ $iglesia->direccion ?? 'N/A' }}
                                     </div>
                                 </td>
+
+                                {{-- Contacto --}}
                                 <td class="px-6 py-4">
                                     <div class="text-sm text-gray-900 dark:text-white">{{ $iglesia->telefono ?? 'N/A' }}</div>
                                     <div class="text-xs text-gray-500 dark:text-gray-400">{{ $iglesia->email ?? '-' }}</div>
                                 </td>
+
+                                {{-- Acciones --}}
                                 <td class="px-6 py-4" onclick="event.stopPropagation()">
                                     <div class="flex items-center space-x-2">
                                         @can('iglesias.view')
@@ -147,7 +187,7 @@
                                                 </svg>
                                             </a>
                                         @endcan
-                                        
+
                                         @can('iglesias.edit')
                                             <a href="{{ route('iglesias.edit', $iglesia) }}"
                                                class="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
@@ -160,7 +200,7 @@
 
                                         @can('iglesias.delete')
                                             <button
-                                                wire:click="confirmIglesiaDeletion('{{ $iglesia->id }}', '{{ $iglesia->nombre }}')"
+                                                wire:click="confirmIglesiaDeletion({{ $iglesia->id }}, '{{ addslashes($iglesia->nombre ?? '') }}')"
                                                 class="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
                                                 title="Eliminar iglesia">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,7 +213,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-16 text-center">
+                                <td colspan="6" class="px-6 py-16 text-center">
                                     <div class="flex flex-col items-center">
                                         <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
                                             <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -181,11 +221,28 @@
                                             </svg>
                                         </div>
                                         <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                                            {{ $search ? 'No se encontraron resultados' : 'No hay iglesias registradas' }}
+                                            @if($search)
+                                                No se encontraron resultados
+                                            @else
+                                                No hay iglesias registradas
+                                            @endif
                                         </h3>
                                         <p class="text-gray-500 dark:text-gray-400 mb-4 max-w-sm">
-                                            {{ $search ? 'No hay registros que coincidan con "'.$search.'".' : 'Comienza registrando las iglesias de la diócesis para gestionar sus datos.' }}
+                                            @if($search)
+                                                No hay registros que coincidan con tu búsqueda "{{ $search }}".
+                                            @else
+                                                Comienza registrando las iglesias para gestionar sus datos.
+                                            @endif
                                         </p>
+                                        @if(!$search && auth()->user()->can('iglesias.create'))
+                                            <a href="{{ route('iglesias.create') }}"
+                                               class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                                </svg>
+                                                Crear primera iglesia
+                                            </a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -211,25 +268,25 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                         </svg>
                     </div>
-                    
+
                     <div class="text-center">
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">¿Eliminar Iglesia?</h3>
                         <p class="text-gray-600 dark:text-gray-400">
-                            Estás a punto de eliminar la iglesia <span class="font-semibold text-gray-900 dark:text-white">{{ $iglesiaNameBeingDeleted }}</span>. 
+                            Estás a punto de eliminar la iglesia <span class="font-semibold text-gray-900 dark:text-white">{{ $iglesiaNameBeingDeleted }}</span>.
                             Esta acción es permanente y afectará a los registros vinculados.
                         </p>
                     </div>
                 </div>
 
                 <div class="bg-gray-50 dark:bg-gray-700/50 px-6 py-4 flex justify-end space-x-3">
-                    <button 
+                    <button
                         wire:click="$set('showDeleteModal', false)"
                         class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
                     >
                         Cancelar
                     </button>
-                    
-                    <button 
+
+                    <button
                         wire:click="delete"
                         class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 flex items-center shadow-lg active:scale-95"
                     >
@@ -244,9 +301,7 @@
     @endif
 
     <style>
-        .anim-scale-in {
-            animation: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
+        .anim-scale-in { animation: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes scale-in {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
