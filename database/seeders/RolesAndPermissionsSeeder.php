@@ -48,7 +48,7 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'tipocurso.edit', 'display_name' => 'Editar Tipos de Cursos'],
             ['name' => 'tipocurso.delete', 'display_name' => 'Eliminar Tipos de Cursos'],
             ['name' => 'tipocurso.export', 'display_name' => 'Exportar Tipos de Cursos (Excel)'],
-            // iglesias
+
             ['name' => 'iglesias.view', 'display_name' => 'Ver iglesias'],
             ['name' => 'iglesias.create', 'display_name' => 'Crear iglesias'],
             ['name' => 'iglesias.edit', 'display_name' => 'Editar iglesias'],
