@@ -16,5 +16,18 @@ class ReligionSeeder extends Seeder
         Religion::create([
             'religion' => 'Catolica',
         ]);
+
+        Religion::create([
+            'religion' => 'Evangelica',
+        ]);
+
+        Religion::create([
+            'religion' => 'Mormones',
+        ]);
+
+        Religion::create([
+            'religion' => 'Testigos de jehova',
+        ]);
+
     }
 }
