@@ -114,7 +114,7 @@
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3 shadow-sm group-hover:scale-110 transition-transform">
-                                            <span class="text-white text-xs font-bold">{{ strtoupper(substr($persona->nombre, 0, 1) . substr($persona->apellido, 0, 1)) }}</span>
+                                            <span class="text-white text-xs font-bold">{{ strtoupper(substr($persona->primer_nombre, 0, 1) . substr($persona->primer_apellido, 0, 1)) }}</span>
                                         </div>
                                         <div>
                                             <div class="font-medium text-gray-900 dark:text-white">{{ $persona->nombre_completo }}</div>

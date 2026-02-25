@@ -24,22 +24,42 @@
                     @enderror
                 </div>
 
-                {{-- Nombre --}}
+                {{-- Primer Nombre --}}
                 <div>
-                    <label for="nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre *</label>
-                    <input type="text" name="nombre" id="nombre" value="{{ old('nombre', $persona->nombre) }}" required
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('nombre') border-red-500 @enderror">
-                    @error('nombre')
+                    <label for="primer_nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Primer Nombre *</label>
+                    <input type="text" name="primer_nombre" id="primer_nombre" value="{{ old('primer_nombre', $persona->primer_nombre) }}" required
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('primer_nombre') border-red-500 @enderror">
+                    @error('primer_nombre')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
 
-                {{-- Apellido --}}
+                {{-- Segundo Nombre --}}
                 <div>
-                    <label for="apellido" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Apellido *</label>
-                    <input type="text" name="apellido" id="apellido" value="{{ old('apellido', $persona->apellido) }}" required
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('apellido') border-red-500 @enderror">
-                    @error('apellido')
+                    <label for="segundo_nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Segundo Nombre</label>
+                    <input type="text" name="segundo_nombre" id="segundo_nombre" value="{{ old('segundo_nombre', $persona->segundo_nombre) }}"
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('segundo_nombre') border-red-500 @enderror">
+                    @error('segundo_nombre')
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Primer Apellido --}}
+                <div>
+                    <label for="primer_apellido" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Primer Apellido *</label>
+                    <input type="text" name="primer_apellido" id="primer_apellido" value="{{ old('primer_apellido', $persona->primer_apellido) }}" required
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('primer_apellido') border-red-500 @enderror">
+                    @error('primer_apellido')
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Segundo Apellido --}}
+                <div>
+                    <label for="segundo_apellido" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Segundo Apellido</label>
+                    <input type="text" name="segundo_apellido" id="segundo_apellido" value="{{ old('segundo_apellido', $persona->segundo_apellido) }}"
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('segundo_apellido') border-red-500 @enderror">
+                    @error('segundo_apellido')
                         <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
