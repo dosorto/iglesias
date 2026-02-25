@@ -22,16 +22,17 @@ class InitializeTenantFromSession
         }
 
         $centralConnection = config('tenancy.central_connection', 'mysql');
-        $tenantConnection = config('tenancy.tenant_connection', 'tenant');
+        $tenantConnection  = config('tenancy.tenant_connection', 'tenant');
 
         $baseConfig = config("database.connections.{$centralConnection}");
+
         if (!$baseConfig) {
             return $next($request);
         }
 
         $tenantConfig = array_merge($baseConfig, [
-            'host' => $tenant['host'] ?? $baseConfig['host'] ?? null,
-            'port' => $tenant['port'] ?? $baseConfig['port'] ?? null,
+            'host'     => $tenant['host']     ?? $baseConfig['host']     ?? null,
+            'port'     => $tenant['port']      ?? $baseConfig['port']     ?? null,
             'database' => $tenant['database'],
             'username' => $tenant['username'] ?? $baseConfig['username'] ?? null,
             'password' => $tenant['password'] ?? $baseConfig['password'] ?? null,
@@ -39,7 +40,7 @@ class InitializeTenantFromSession
 
         config([
             "database.connections.{$tenantConnection}" => $tenantConfig,
-            'database.default' => $tenantConnection,
+            'database.default'                          => $tenantConnection,
         ]);
 
         DB::purge($tenantConnection);
