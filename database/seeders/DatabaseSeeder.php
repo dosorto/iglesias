@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Persona;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -25,5 +26,7 @@ class DatabaseSeeder extends Seeder
         $this->call(TipoCursoSeeder::class);
         $this->call(IglesiaSeeder::class);
         $this->call(ReligionSeeder::class);
+        $this->call(PersonaSeeder::class);
+        $this->call(FeligresSeeder::class);
     }
 }

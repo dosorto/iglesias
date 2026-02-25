@@ -6,18 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('personas', function (Blueprint $table) {
             $table->id();
             $table->string('dni', 20)->index();
-            $table->string('nombre', 100);
-            $table->string('apellido', 100);
-            $table->date('fecha_nacimiento');
-            $table->enum('sexo', ['M', 'F']);
+            $table->string('primer_nombre', 150);
+            $table->string('segundo_nombre', 150)->nullable();
+            $table->string('primer_apellido', 100);
+            $table->string('segundo_apellido', 100)->nullable();
+            $table->date('fecha_nacimiento')->nullable();
+            $table->enum('sexo', ['M', 'F'])->nullable();
             $table->string('telefono', 20)->nullable();
             $table->string('email', 255)->nullable()->index();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
@@ -28,9 +27,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('personas');

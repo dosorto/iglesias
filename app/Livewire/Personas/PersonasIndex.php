@@ -55,8 +55,10 @@ class PersonasIndex extends Component
     {
         $personas = Persona::query()
             ->where(function($query) {
-                $query->where('nombre', 'like', '%' . $this->search . '%')
-                    ->orWhere('apellido', 'like', '%' . $this->search . '%')
+                $query->where('primer_nombre', 'like', '%' . $this->search . '%')
+                    ->orWhere('segundo_nombre', 'like', '%' . $this->search . '%')
+                    ->orWhere('primer_apellido', 'like', '%' . $this->search . '%')
+                    ->orWhere('segundo_apellido', 'like', '%' . $this->search . '%')
                     ->orWhere('dni', 'like', '%' . $this->search . '%')
                     ->orWhere('email', 'like', '%' . $this->search . '%');
             })
