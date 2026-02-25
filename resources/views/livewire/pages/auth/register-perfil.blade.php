@@ -54,7 +54,7 @@ new #[Layout('layouts.guest')] class extends Component
 
     public function register(): void
     {
-        dd(session('tenant'), config('database.default'));
+        
         $this->validateStepOne();
         $this->validateStepThree();
 
