@@ -9,7 +9,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Encargado extends BaseModel
 {
+
     use HasFactory, SoftDeletes;
+
+    protected $table = 'encargado'; 
 
      protected $fillable = [
         'id_feligres',
