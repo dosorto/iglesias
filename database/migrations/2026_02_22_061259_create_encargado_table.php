@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tipos_curso', function (Blueprint $table) {
+        Schema::create('encargado', function (Blueprint $table) {
             $table->id();
-            $table->string("nombre_curso", 150);
-            $table->text("descripcion_curso")->nullable();
-            $table->string("estado_curso", 50)->default("activo");
+            $table->foreignId('id_feligres')->constrained('feligres');
+            $table->string('path_firma_principal')->nullable();
             $table->integer("created_by")->nullable();
             $table->integer("deleted_by")->nullable();
             $table->integer("updated_by")->nullable();
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tipo_curso');
+        Schema::dropIfExists('encargado');
     }
 };

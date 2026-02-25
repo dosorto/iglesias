@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tipos_curso', function (Blueprint $table) {
+        Schema::create('feligres', function (Blueprint $table) {
             $table->id();
-            $table->string("nombre_curso", 150);
-            $table->text("descripcion_curso")->nullable();
-            $table->string("estado_curso", 50)->default("activo");
+            $table->foreignId('id_persona')->constrained('personas');
+            $table->foreignId('id_iglesia')->constrained('iglesias');
+            $table->date('fecha_ingreso')->nullable();
+            $table->string('estado', 20)->default('Activo');
             $table->integer("created_by")->nullable();
             $table->integer("deleted_by")->nullable();
             $table->integer("updated_by")->nullable();
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tipo_curso');
+        Schema::dropIfExists('feligres');
     }
 };

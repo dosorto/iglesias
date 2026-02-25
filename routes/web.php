@@ -5,6 +5,7 @@ use App\Http\Controllers\PersonaController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
+use Livewire\Volt\Volt;
 
 Route::view('/', 'welcome');
 
@@ -47,6 +48,7 @@ Route::middleware(['auth'])->group(function () {
         ->get('/audit', fn () => view('admin.audit'))
         ->name('audit.index');
 
+    Volt::route('register-perfil', 'pages.auth.register-perfil')->name('register-perfil');
 
     // Personas CRUD
     Route::middleware('permission:personas.view')
