@@ -32,8 +32,10 @@ class UpdatePersonaRequest extends FormRequest
                 'max:20', 
                 Rule::unique('personas', 'dni')->ignore($personaId)->whereNull('deleted_at')
             ],
-            'nombre' => ['required', 'string', 'max:100'],
-            'apellido' => ['required', 'string', 'max:100'],
+            'primer_nombre'    => ['required', 'string', 'max:150'],
+            'segundo_nombre'   => ['nullable', 'string', 'max:150'],
+            'primer_apellido'  => ['required', 'string', 'max:100'],
+            'segundo_apellido' => ['nullable', 'string', 'max:100'],
             'fecha_nacimiento' => ['required', 'date', 'before:today'],
             'sexo' => ['required', 'in:M,F'],
             'telefono' => ['nullable', 'string', 'max:20'],
@@ -53,8 +55,10 @@ class UpdatePersonaRequest extends FormRequest
     {
         return [
             'dni' => 'DNI',
-            'nombre' => 'nombre',
-            'apellido' => 'apellido',
+            'primer_nombre'    => 'primer nombre',
+            'segundo_nombre'   => 'segundo nombre',
+            'primer_apellido'  => 'primer apellido',
+            'segundo_apellido' => 'segundo apellido',
             'fecha_nacimiento' => 'fecha de nacimiento',
             'sexo' => 'sexo',
             'telefono' => 'teléfono',

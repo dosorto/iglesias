@@ -11,8 +11,10 @@ class Persona extends BaseModel
 
     protected $fillable = [
         'dni',
-        'nombre',
-        'apellido',
+        'primer_nombre',
+        'segundo_nombre',
+        'primer_apellido',
+        'segundo_apellido',
         'fecha_nacimiento',
         'sexo',
         'telefono',
@@ -28,7 +30,9 @@ class Persona extends BaseModel
      */
     public function getNombreCompletoAttribute(): string
     {
-        return "{$this->nombre} {$this->apellido}";
+        return trim(
+            "{$this->primer_nombre} {$this->segundo_nombre} {$this->primer_apellido} {$this->segundo_apellido}"
+        );
     }
 
     public function estudiante(): HasOne

@@ -5,6 +5,7 @@ use App\Http\Controllers\PersonaController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
+use Livewire\Volt\Volt;
 
 Route::view('/', 'welcome');
 
@@ -47,6 +48,7 @@ Route::middleware(['auth'])->group(function () {
         ->get('/audit', fn () => view('admin.audit'))
         ->name('audit.index');
 
+    Volt::route('register-perfil', 'pages.auth.register-perfil')->name('register-perfil');
 
     // Personas CRUD
     Route::middleware('permission:personas.view')
@@ -81,6 +83,34 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:estudiantes.view')
         ->get('/estudiantes', [EstudianteController::class, 'index'])
         ->name('estudiantes.index');
+    // Iglesias CRUD
+    Route::middleware('permission:iglesias.view')
+        ->get('/iglesias', [\App\Http\Controllers\IglesiaController::class, 'index'])
+        ->name('iglesias.index');
+
+    Route::middleware('permission:iglesias.create')
+        ->get('/iglesias/create', [\App\Http\Controllers\IglesiaController::class, 'create'])
+        ->name('iglesias.create');
+
+    Route::middleware('permission:iglesias.create')
+        ->post('/iglesias', [\App\Http\Controllers\IglesiaController::class, 'store'])
+        ->name('iglesias.store');
+
+    Route::middleware('permission:iglesias.view')
+        ->get('/iglesias/{iglesia}', [\App\Http\Controllers\IglesiaController::class, 'show'])
+        ->name('iglesias.show');
+
+    Route::middleware('permission:iglesias.edit')
+        ->get('/iglesias/{iglesia}/edit', [\App\Http\Controllers\IglesiaController::class, 'edit'])
+        ->name('iglesias.edit');
+
+    Route::middleware('permission:iglesias.edit')
+        ->put('/iglesias/{iglesia}', [\App\Http\Controllers\IglesiaController::class, 'update'])
+        ->name('iglesias.update');
+
+    Route::middleware('permission:iglesias.delete')
+        ->delete('/iglesias/{iglesia}', [\App\Http\Controllers\IglesiaController::class, 'destroy'])
+        ->name('iglesias.destroy');    
 
 
     // Religion
@@ -111,6 +141,35 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:religion.delete')
         ->delete('/religion/{religion}', [\App\Http\Controllers\ReligionController::class, 'destroy'])
         ->name('religion.destroy');
+
+    // TipoCurso CRUD
+    Route::middleware('permission:tipocurso.view')
+        ->get('/tipocurso', [\App\Http\Controllers\TipoCursoController::class, 'index'])
+        ->name('tipocurso.index');
+
+    Route::middleware('permission:tipocurso.create')
+        ->get('/tipocurso/create', [\App\Http\Controllers\TipoCursoController::class, 'create'])
+        ->name('tipocurso.create');
+
+    Route::middleware('permission:tipocurso.create')
+        ->post('/tipocurso', [\App\Http\Controllers\TipoCursoController::class, 'store'])
+        ->name('tipocurso.store');
+
+    Route::middleware('permission:tipocurso.view')
+        ->get('/tipocurso/{tipocurso}', [\App\Http\Controllers\TipoCursoController::class, 'show'])
+        ->name('tipocurso.show');
+
+    Route::middleware('permission:tipocurso.edit')
+        ->get('/tipocurso/{tipocurso}/edit', [\App\Http\Controllers\TipoCursoController::class, 'edit'])
+        ->name('tipocurso.edit');
+
+    Route::middleware('permission:tipocurso.edit')
+        ->put('/tipocurso/{tipocurso}', [\App\Http\Controllers\TipoCursoController::class, 'update'])
+        ->name('tipocurso.update');
+
+    Route::middleware('permission:tipocurso.delete')
+        ->delete('/tipocurso/{tipocurso}', [\App\Http\Controllers\TipoCursoController::class, 'destroy'])
+        ->name('tipocurso.destroy');
 });
 
 require __DIR__.'/auth.php';

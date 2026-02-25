@@ -17,17 +17,28 @@
     <!-- Contenedor central -->
     <div class="relative w-full max-w-md p-8 bg-white dark:bg-zinc-800 rounded-xl shadow-xl flex flex-col gap-6 z-10">
 
-        <h1 class="text-3xl font-bold text-black dark:text-white text-center">Sistema de Iglesias UNAH</h1>
+        <!-- 🔵 LOGO -->
+        <div class="flex justify-center">
+            <img src="{{ asset('image/Logo_guest.png') }}"
+                 alt="Logo Iglesia"
+                 class="w-24 h-24 object-contain" />
+        </div>
+
+        <h1 class="text-3xl font-bold text-black dark:text-white text-center">
+            Sistema de Iglesias UNAH
+        </h1>
+
         <p class="text-sm text-black/70 dark:text-white/70 text-center">
-            Registra tu organización o inicia sesión para comenzar.
+            Registra tu iglesia o inicia sesión para comenzar.
         </p>
 
         @guest
         <div class="flex flex-col gap-3">
             <a href="{{ route('register.organization') }}"
                class="inline-flex items-center justify-center rounded-md bg-[#4B3FBD] px-4 py-2 text-sm font-semibold text-white hover:bg-[#3A2EA0] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4B3FBD]">
-                Crear cuenta de organización
+                Crear cuenta de Iglesia
             </a>
+
             <a href="{{ route('login') }}"
                class="inline-flex items-center justify-center rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800">
                 Iniciar sesión
