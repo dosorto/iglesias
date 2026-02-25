@@ -79,6 +79,35 @@ Route::middleware(['auth'])->group(function () {
         ->delete('/personas/{persona}', [PersonaController::class, 'destroy'])
         ->name('personas.destroy');
 
+    // Feligreses CRUD
+    Route::middleware('permission:feligres.view')
+        ->get('/feligres', [\App\Http\Controllers\FeligresController::class, 'index'])
+        ->name('feligres.index');
+
+    Route::middleware('permission:feligres.create')
+        ->get('/feligres/create', [\App\Http\Controllers\FeligresController::class, 'create'])
+        ->name('feligres.create');
+
+    Route::middleware('permission:feligres.create')
+        ->post('/feligres', [\App\Http\Controllers\FeligresController::class, 'store'])
+        ->name('feligres.store');
+
+    Route::middleware('permission:feligres.view')
+        ->get('/feligres/{feligre}', [\App\Http\Controllers\FeligresController::class, 'show'])
+        ->name('feligres.show');
+
+    Route::middleware('permission:feligres.edit')
+        ->get('/feligres/{feligre}/edit', [\App\Http\Controllers\FeligresController::class, 'edit'])
+        ->name('feligres.edit');
+
+    Route::middleware('permission:feligres.edit')
+        ->put('/feligres/{feligre}', [\App\Http\Controllers\FeligresController::class, 'update'])
+        ->name('feligres.update');
+
+    Route::middleware('permission:feligres.delete')
+        ->delete('/feligres/{feligre}', [\App\Http\Controllers\FeligresController::class, 'destroy'])
+        ->name('feligres.destroy');
+
     // Estudiantes
     Route::middleware('permission:estudiantes.view')
         ->get('/estudiantes', [EstudianteController::class, 'index'])

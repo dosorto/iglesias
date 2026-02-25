@@ -64,6 +64,11 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'religion.edit', 'display_name' => 'Editar Religion'],
             ['name' => 'religion.delete', 'display_name' => 'Eliminar Religion'],
             ['name' => 'religion.export', 'display_name' => 'Exportar Religion (Excel)'],
+
+            ['name' => 'feligres.view', 'display_name' => 'Ver Feligreses'],
+            ['name' => 'feligres.create', 'display_name' => 'Crear Feligreses'],
+            ['name' => 'feligres.edit', 'display_name' => 'Editar Feligreses'],
+            ['name' => 'feligres.delete', 'display_name' => 'Eliminar Feligreses'],
         ];
 
         foreach ($permissions as $permissionData) {
