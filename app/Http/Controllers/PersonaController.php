@@ -41,6 +41,8 @@ class PersonaController extends Controller
      */
     public function show(Persona $persona)
     {
+        $persona->load(['feligres.iglesia', 'auditLogs']);
+
         return view('personas.show', compact('persona'));
     }
 

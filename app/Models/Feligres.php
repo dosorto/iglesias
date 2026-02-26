@@ -18,6 +18,10 @@ class Feligres extends BaseModel
         'estado',
     ];
 
+    protected $casts = [
+        'fecha_ingreso' => 'date',
+    ];
+
     public function persona()
     {
         return $this->belongsTo(Persona::class, 'id_persona');

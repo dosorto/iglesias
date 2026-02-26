@@ -62,6 +62,35 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Feligrés Card --}}
+            @if($persona->feligres)
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-indigo-200 dark:border-indigo-700 overflow-hidden">
+                <div class="px-6 py-4 bg-indigo-50 dark:bg-indigo-900/30 border-b border-indigo-200 dark:border-indigo-700 flex items-center justify-between">
+                    <h2 class="text-sm font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-widest">Feligrés</h2>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $persona->feligres->estado === 'Activo' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' }}">
+                        {{ $persona->feligres->estado }}
+                    </span>
+                </div>
+                <div class="p-6 space-y-3">
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Iglesia</label>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $persona->feligres->iglesia->nombre }}</p>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Fecha de Ingreso</label>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">
+                            {{ $persona->feligres->fecha_ingreso ? $persona->feligres->fecha_ingreso->format('d/m/Y') : 'N/A' }}
+                        </p>
+                    </div>
+                </div>
+                @can('feligres.view')
+                <div class="px-6 py-3 bg-indigo-50 dark:bg-indigo-900/20 border-t border-indigo-200 dark:border-indigo-700">
+                    <a href="{{ route('feligres.show', $persona->feligres) }}" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline">Ver detalles del feligrés →</a>
+                </div>
+                @endcan
+            </div>
+            @endif
         </div>
 
         {{-- Timeline Column --}}

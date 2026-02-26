@@ -70,6 +70,25 @@
                         </li>
                     @endcan
 
+                    {{-- Feligreses --}}
+                    @can('feligres.view')
+                        <li>
+                            <a href="{{ route('feligres.index') }}"
+                               class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
+                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-indigo-100 dark:hover:bg-indigo-900
+                                      hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-200 group"
+                               title="{{ $isCollapsed ? 'Feligreses' : '' }}">
+                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-200"
+                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                @if(!$isCollapsed)
+                                    <span class="ml-3">Feligreses</span>
+                                @endif
+                            </a>
+                        </li>
+                    @endcan
+
                     {{-- Iglesias --}}
                     @can('iglesias.view')
                         <li>

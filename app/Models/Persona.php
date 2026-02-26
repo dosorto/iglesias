@@ -39,4 +39,9 @@ class Persona extends BaseModel
     {
         return $this->hasOne(Estudiante::class, 'persona_id');
     }
+
+    public function feligres(): HasOne
+    {
+        return $this->hasOne(\App\Models\Feligres::class, 'id_persona');
+    }
 }
