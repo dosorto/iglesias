@@ -36,4 +36,10 @@ class Feligres extends BaseModel
     {
         return $this->hasOne(Encargado::class, 'id_feligres');
     }
+
+    public function instructor()
+    {
+        return $this->hasOne(Instructor::class, 'feligres_id');
+    }
+
 }

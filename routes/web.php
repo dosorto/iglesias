@@ -137,6 +137,35 @@ Route::middleware(['auth'])->group(function () {
         ->delete('/encargado/{encargado}', [\App\Http\Controllers\EncargadoController::class, 'destroy'])
         ->name('encargado.destroy');
 
+    // Instructores CRUD
+    Route::middleware('permission:instructor.view')
+        ->get('/instructor', [\App\Http\Controllers\InstructorController::class, 'index'])
+        ->name('instructor.index');
+
+    Route::middleware('permission:instructor.create')
+        ->get('/instructor/create', [\App\Http\Controllers\InstructorController::class, 'create'])
+        ->name('instructor.create');
+
+    Route::middleware('permission:instructor.create')
+        ->post('/instructor', [\App\Http\Controllers\InstructorController::class, 'store'])
+        ->name('instructor.store');
+
+    Route::middleware('permission:instructor.view')
+        ->get('/instructor/{instructor}', [\App\Http\Controllers\InstructorController::class, 'show'])
+        ->name('instructor.show');
+
+    Route::middleware('permission:instructor.edit')
+        ->get('/instructor/{instructor}/edit', [\App\Http\Controllers\InstructorController::class, 'edit'])
+        ->name('instructor.edit');
+
+    Route::middleware('permission:instructor.edit')
+        ->put('/instructor/{instructor}', [\App\Http\Controllers\InstructorController::class, 'update'])
+        ->name('instructor.update');
+
+    Route::middleware('permission:instructor.delete')
+        ->delete('/instructor/{instructor}', [\App\Http\Controllers\InstructorController::class, 'destroy'])
+        ->name('instructor.destroy');
+
     // Estudiantes
     Route::middleware('permission:estudiantes.view')
         ->get('/estudiantes', [EstudianteController::class, 'index'])
