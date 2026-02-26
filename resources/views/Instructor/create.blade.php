@@ -5,7 +5,7 @@
 @section('content')
 <div class="container-fluid max-w-4xl">
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Registrarr Nuevo Instructor</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Registrar Nuevo Instructor</h1>
     </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
