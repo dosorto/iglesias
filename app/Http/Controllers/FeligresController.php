@@ -33,7 +33,7 @@ class FeligresController extends Controller
 
     public function show(Feligres $feligre)
     {
-        $feligre->load(['persona', 'iglesia', 'auditLogs']);
+        $feligre->load(['persona', 'iglesia', 'encargado', 'auditLogs']);
 
         return view('feligres.show', compact('feligre'));
     }

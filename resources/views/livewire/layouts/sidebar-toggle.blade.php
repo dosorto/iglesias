@@ -89,6 +89,25 @@
                         </li>
                     @endcan
 
+                    {{-- Encargados --}}
+                    @can('encargado.view')
+                        <li>
+                            <a href="{{ route('encargado.index') }}"
+                               class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
+                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-amber-100 dark:hover:bg-amber-900
+                                      hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 group"
+                               title="{{ $isCollapsed ? 'Encargados' : '' }}">
+                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-200"
+                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                @if(!$isCollapsed)
+                                    <span class="ml-3">Encargados</span>
+                                @endif
+                            </a>
+                        </li>
+                    @endcan
+
                     {{-- Iglesias --}}
                     @can('iglesias.view')
                         <li>
