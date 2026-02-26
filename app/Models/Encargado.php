@@ -12,9 +12,9 @@ class Encargado extends BaseModel
 
     use HasFactory, SoftDeletes;
 
-    protected $table = 'encargado'; 
+    protected $table = 'encargado';
 
-     protected $fillable = [
+    protected $fillable = [
         'id_feligres',
         'path_firma_principal',
     ];

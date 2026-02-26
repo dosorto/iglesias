@@ -69,6 +69,11 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'feligres.create', 'display_name' => 'Crear Feligreses'],
             ['name' => 'feligres.edit', 'display_name' => 'Editar Feligreses'],
             ['name' => 'feligres.delete', 'display_name' => 'Eliminar Feligreses'],
+
+            ['name' => 'encargado.view', 'display_name' => 'Ver Encargados'],
+            ['name' => 'encargado.create', 'display_name' => 'Crear Encargados'],
+            ['name' => 'encargado.edit', 'display_name' => 'Editar Encargados'],
+            ['name' => 'encargado.delete', 'display_name' => 'Eliminar Encargados'],
         ];
 
         foreach ($permissions as $permissionData) {
