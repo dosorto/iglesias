@@ -31,4 +31,9 @@ class Feligres extends BaseModel
     {
         return $this->belongsTo(Iglesias::class, 'id_iglesia');
     }
+
+    public function encargado()
+    {
+        return $this->hasOne(Encargado::class, 'id_feligres');
+    }
 }
