@@ -1,21 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'Detalle de Feligrés')
+@section('title', 'Detalle de Encargado')
 
 @section('content')
 <div class="container-fluid max-w-7xl mx-auto">
     {{-- Header --}}
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-wider">Detalle de Feligrés</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Información completa del feligrés e historial de cambios.</p>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-wider">Detalle de Encargado</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Información completa del encargado e historial de cambios.</p>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('feligres.index') }}" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 text-sm font-medium">
+            <a href="{{ route('encargado.index') }}" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 text-sm font-medium">
                 Volver
             </a>
-            @can('feligres.edit')
-                <a href="{{ route('feligres.edit', $feligre) }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium">
+            @can('encargado.edit')
+                <a href="{{ route('encargado.edit', $encargado) }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium">
                     Editar
                 </a>
             @endcan
@@ -31,56 +31,52 @@
                 </div>
                 <div class="p-6 space-y-4">
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Persona</label>
-                        <p class="text-lg font-bold text-gray-900 dark:text-white">{{ $feligre->persona->nombre_completo }}</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">DNI: {{ $feligre->persona->dni }}</p>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Persona (Feligrés)</label>
+                        <p class="text-lg font-bold text-gray-900 dark:text-white">{{ $encargado->feligres->persona->nombre_completo }}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">DNI: {{ $encargado->feligres->persona->dni }}</p>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Iglesia</label>
-                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $feligre->iglesia->nombre }}</p>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $encargado->feligres->iglesia->nombre }}</p>
                     </div>
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Fecha de Ingreso</label>
-                        <p class="text-md font-medium text-gray-900 dark:text-white">
-                            {{ $feligre->fecha_ingreso ? $feligre->fecha_ingreso->format('d/m/Y') : 'N/A' }}
-                        </p>
-                    </div>
-                    <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Estado</label>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $feligre->estado === 'Activo' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' }}">
-                            {{ $feligre->estado }}
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Estado Feligrés</label>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $encargado->feligres->estado === 'Activo' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' }}">
+                            {{ $encargado->feligres->estado }}
                         </span>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Firma Principal</label>
+                        @if($encargado->path_firma_principal)
+                            <p class="text-sm font-mono text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded mt-1 break-all">
+                                {{ $encargado->path_firma_principal }}
+                            </p>
+                        @else
+                            <p class="text-sm text-gray-400 dark:text-gray-500 italic">Sin firma registrada</p>
+                        @endif
                     </div>
                 </div>
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-200 dark:border-gray-700">
                     <div class="text-[10px] text-gray-400 flex flex-col gap-1">
-                        <span>Creado: {{ $feligre->created_at->format('d/m/Y H:i') }} por {{ $feligre->creator->name ?? 'Sistema' }}</span>
-                        <span>Actualizado: {{ $feligre->updated_at->format('d/m/Y H:i') }}</span>
+                        <span>Creado: {{ $encargado->created_at->format('d/m/Y H:i') }} por {{ $encargado->creator->name ?? 'Sistema' }}</span>
+                        <span>Actualizado: {{ $encargado->updated_at->format('d/m/Y H:i') }}</span>
                     </div>
                 </div>
             </div>
 
-            {{-- Encargado Card --}}
-            @if($feligre->encargado)
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-amber-200 dark:border-amber-700 overflow-hidden">
-                <div class="px-6 py-4 bg-amber-50 dark:bg-amber-900/30 border-b border-amber-200 dark:border-amber-700 flex items-center justify-between">
-                    <h2 class="text-sm font-bold text-amber-700 dark:text-amber-300 uppercase tracking-widest">Encargado</h2>
+            {{-- Link al feligrés --}}
+            @can('feligres.view')
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-indigo-200 dark:border-indigo-700 overflow-hidden">
+                <div class="px-6 py-4 bg-indigo-50 dark:bg-indigo-900/30 border-b border-indigo-200 dark:border-indigo-700">
+                    <h2 class="text-sm font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-widest">Registro de Feligrés</h2>
                 </div>
-                <div class="p-6 space-y-3">
-                    <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Firma Principal</label>
-                        <p class="text-sm font-mono text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded mt-1 break-all">
-                            {{ $feligre->encargado->path_firma_principal ?? 'Sin firma registrada' }}
-                        </p>
-                    </div>
+                <div class="px-6 py-4">
+                    <a href="{{ route('feligres.show', $encargado->feligres) }}" class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
+                        Ver ficha de feligrés →
+                    </a>
                 </div>
-                @can('encargado.view')
-                <div class="px-6 py-3 bg-amber-50 dark:bg-amber-900/20 border-t border-amber-200 dark:border-amber-700">
-                    <a href="{{ route('encargado.show', $feligre->encargado) }}" class="text-xs font-medium text-amber-600 dark:text-amber-400 hover:underline">Ver detalles del encargado →</a>
-                </div>
-                @endcan
             </div>
-            @endif
+            @endcan
         </div>
 
         {{-- Timeline Column --}}
@@ -91,7 +87,7 @@
                 </div>
                 <div class="p-6">
                     <ul role="list" class="-mb-8">
-                        @forelse($feligre->auditLogs as $log)
+                        @forelse($encargado->auditLogs as $log)
                             <li>
                                 <div class="relative pb-8">
                                     @if(!$loop->last)

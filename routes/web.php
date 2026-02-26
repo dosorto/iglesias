@@ -108,6 +108,35 @@ Route::middleware(['auth'])->group(function () {
         ->delete('/feligres/{feligre}', [\App\Http\Controllers\FeligresController::class, 'destroy'])
         ->name('feligres.destroy');
 
+    // Encargados CRUD
+    Route::middleware('permission:encargado.view')
+        ->get('/encargado', [\App\Http\Controllers\EncargadoController::class, 'index'])
+        ->name('encargado.index');
+
+    Route::middleware('permission:encargado.create')
+        ->get('/encargado/create', [\App\Http\Controllers\EncargadoController::class, 'create'])
+        ->name('encargado.create');
+
+    Route::middleware('permission:encargado.create')
+        ->post('/encargado', [\App\Http\Controllers\EncargadoController::class, 'store'])
+        ->name('encargado.store');
+
+    Route::middleware('permission:encargado.view')
+        ->get('/encargado/{encargado}', [\App\Http\Controllers\EncargadoController::class, 'show'])
+        ->name('encargado.show');
+
+    Route::middleware('permission:encargado.edit')
+        ->get('/encargado/{encargado}/edit', [\App\Http\Controllers\EncargadoController::class, 'edit'])
+        ->name('encargado.edit');
+
+    Route::middleware('permission:encargado.edit')
+        ->put('/encargado/{encargado}', [\App\Http\Controllers\EncargadoController::class, 'update'])
+        ->name('encargado.update');
+
+    Route::middleware('permission:encargado.delete')
+        ->delete('/encargado/{encargado}', [\App\Http\Controllers\EncargadoController::class, 'destroy'])
+        ->name('encargado.destroy');
+
     // Estudiantes
     Route::middleware('permission:estudiantes.view')
         ->get('/estudiantes', [EstudianteController::class, 'index'])
