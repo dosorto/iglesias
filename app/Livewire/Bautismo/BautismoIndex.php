@@ -13,9 +13,31 @@ class BautismoIndex extends Component
     public string $search  = '';
     public int    $perPage = 10;
 
+    public bool   $showDeleteModal         = false;
+    public ?int   $bautismoIdBeingDeleted  = null;
+    public string $bautismoNameBeingDeleted = '';
+
     public function updatingSearch(): void
     {
         $this->resetPage();
+    }
+
+    public function confirmBautismoDeletion(int $id, string $name): void
+    {
+        $this->bautismoIdBeingDeleted  = $id;
+        $this->bautismoNameBeingDeleted = $name;
+        $this->showDeleteModal          = true;
+    }
+
+    public function delete(): void
+    {
+        if ($this->bautismoIdBeingDeleted) {
+            Bautismo::findOrFail($this->bautismoIdBeingDeleted)->delete();
+            session()->flash('success', 'Bautismo eliminado correctamente.');
+        }
+        $this->showDeleteModal         = false;
+        $this->bautismoIdBeingDeleted  = null;
+        $this->bautismoNameBeingDeleted = '';
     }
 
     public function render()
