@@ -15,21 +15,25 @@ class StoreInstructorRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'feligres_id' => [
+            'feligres_id'    => [
                 'required',
                 'integer',
                 'exists:feligres,id',
                 Rule::unique('instructores', 'feligres_id')->whereNull('deleted_at'),
             ],
-            'path_firma' => ['required', 'string', 'max:200'],
+            'fecha_ingreso'  => ['nullable', 'date'],
+            'estado'         => ['required', 'in:Activo,Inactivo'],
+            'path_firma'     => ['nullable', 'string', 'max:200'],
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'feligres_id' => 'feligrés',
-            'path_firma'  => 'firma',
+            'feligres_id'    => 'feligrés',
+            'fecha_ingreso'  => 'fecha de ingreso',
+            'estado'         => 'estado',
+            'path_firma'     => 'firma',
         ];
     }
 

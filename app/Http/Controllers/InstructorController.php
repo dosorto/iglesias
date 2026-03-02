@@ -6,6 +6,7 @@ use App\Http\Requests\StoreInstructorRequest;
 use App\Http\Requests\UpdateInstructorRequest;
 use App\Models\Instructor;
 use App\Models\Feligres;
+use App\Models\Persona;
 
 class InstructorController extends Controller
 {
@@ -17,12 +18,12 @@ class InstructorController extends Controller
     public function create()
     {
         // Solo feligreses que aún no son instructores
-        $feligres = Feligres::with('persona')
+        $feligreses = Feligres::with('persona')
             ->whereDoesntHave('instructor')
             ->orderBy('id')
             ->get();
 
-        return view('instructor.create', compact('feligres'));
+        return view('instructor.create', compact('feligreses'));
     }
 
     public function store(StoreInstructorRequest $request)
@@ -46,8 +47,8 @@ class InstructorController extends Controller
 
     public function edit(Instructor $instructor)
     {
-        // Feligreses sin instructor o el asignado actualmente
-        $feligres = Feligres::with('persona')
+        // Listado de feligreses sin instructor o el asignado actualmente
+        $feligreses = Feligres::with('persona')
             ->where(function ($q) use ($instructor) {
                 $q->whereDoesntHave('instructor')
                   ->orWhere('id', $instructor->feligres_id);
@@ -55,7 +56,7 @@ class InstructorController extends Controller
             ->orderBy('id')
             ->get();
 
-        return view('instructor.edit', compact('instructor', 'feligres'));
+        return view('instructor.edit', compact('instructor', 'feligreses'));
     }
 
     public function update(UpdateInstructorRequest $request, Instructor $instructor)
