@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -10,34 +9,32 @@ use App\Models\User;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // 🔹 Crear permisos
+        // ── Todos los permisos ──────────────────────────────────────────
         $permissions = [
-            ['name' => 'roles.view', 'display_name' => 'Ver Roles'],
-            ['name' => 'roles.create', 'display_name' => 'Crear Roles'],
-            ['name' => 'roles.edit', 'display_name' => 'Editar Roles'],
-            ['name' => 'roles.delete', 'display_name' => 'Eliminar Roles'],
+            // Roles
+            ['name' => 'roles.view',    'display_name' => 'Ver Roles'],
+            ['name' => 'roles.create',  'display_name' => 'Crear Roles'],
+            ['name' => 'roles.edit',    'display_name' => 'Editar Roles'],
+            ['name' => 'roles.delete',  'display_name' => 'Eliminar Roles'],
 
-            ['name' => 'users.view', 'display_name' => 'Ver Usuarios'],
-            ['name' => 'users.create', 'display_name' => 'Crear Usuarios'],
-            ['name' => 'users.edit', 'display_name' => 'Editar Usuarios'],
-            ['name' => 'users.delete', 'display_name' => 'Eliminar Usuarios'],
+            // Usuarios
+            ['name' => 'users.view',    'display_name' => 'Ver Usuarios'],
+            ['name' => 'users.create',  'display_name' => 'Crear Usuarios'],
+            ['name' => 'users.edit',    'display_name' => 'Editar Usuarios'],
+            ['name' => 'users.delete',  'display_name' => 'Eliminar Usuarios'],
 
-            ['name' => 'estudiantes.view', 'display_name' => 'Ver Estudiantes'],
-            ['name' => 'estudiantes.create', 'display_name' => 'Crear Estudiantes'],
-            ['name' => 'estudiantes.edit', 'display_name' => 'Editar Estudiantes'],
-            ['name' => 'estudiantes.delete', 'display_name' => 'Eliminar Estudiantes'],
-            ['name' => 'estudiantes.export', 'display_name' => 'Exportar Estudiantes (Excel)'],
+            // Audit
+            ['name' => 'audit.view',    'display_name' => 'Ver Logs del Sistema'],
+            ['name' => 'audit.export',  'display_name' => 'Exportar Logs del Sistema'],
 
-            ['name' => 'personas.view', 'display_name' => 'Ver Personas'],
+            // Personas (solo ROOT)
+            ['name' => 'personas.view',   'display_name' => 'Ver Personas'],
             ['name' => 'personas.create', 'display_name' => 'Crear Personas'],
-            ['name' => 'personas.edit', 'display_name' => 'Editar Personas'],
+            ['name' => 'personas.edit',   'display_name' => 'Editar Personas'],
             ['name' => 'personas.delete', 'display_name' => 'Eliminar Personas'],
             ['name' => 'personas.export', 'display_name' => 'Exportar Personas (Excel)'],
             ['name' => 'audit.view', 'display_name' => 'Ver Logs del Sistema'],
@@ -57,31 +54,31 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'audit.view', 'display_name' => 'Ver Logs del Sistema'],
             ['name' => 'audit.export', 'display_name' => 'Exportar Logs del Sistema'],
 
+
+
             ['name' => 'religion.view', 'display_name' => 'Ver Religion'],
             ['name' => 'religion.create', 'display_name' => 'Crear Religion'],
-            ['name' => 'religion.edit', 'display_name' => 'Editar Religion'],
+            ['name' => 'religion.edit',   'display_name' => 'Editar Religion'],
             ['name' => 'religion.delete', 'display_name' => 'Eliminar Religion'],
-            ['name' => 'religion.export', 'display_name' => 'Exportar Religion (Excel)'],
+            ['name' => 'religion.export', 'display_name' => 'Exportar Religion'],
 
-            ['name' => 'feligres.view', 'display_name' => 'Ver Feligreses'],
+            // Feligreses (ADMIN)
+            ['name' => 'feligres.view',   'display_name' => 'Ver Feligreses'],
             ['name' => 'feligres.create', 'display_name' => 'Crear Feligreses'],
-            ['name' => 'feligres.edit', 'display_name' => 'Editar Feligreses'],
+            ['name' => 'feligres.edit',   'display_name' => 'Editar Feligreses'],
             ['name' => 'feligres.delete', 'display_name' => 'Eliminar Feligreses'],
 
-            ['name' => 'encargado.view', 'display_name' => 'Ver Encargados'],
+            // Encargados (ADMIN)
+            ['name' => 'encargado.view',   'display_name' => 'Ver Encargados'],
             ['name' => 'encargado.create', 'display_name' => 'Crear Encargados'],
-            ['name' => 'encargado.edit', 'display_name' => 'Editar Encargados'],
+            ['name' => 'encargado.edit',   'display_name' => 'Editar Encargados'],
             ['name' => 'encargado.delete', 'display_name' => 'Eliminar Encargados'],
 
-            ['name' => 'instructor.view', 'display_name' => 'Ver Instructores'],
+            // Instructores (ADMIN)
+            ['name' => 'instructor.view',   'display_name' => 'Ver Instructores'],
             ['name' => 'instructor.create', 'display_name' => 'Crear Instructores'],
-            ['name' => 'instructor.edit', 'display_name' => 'Editar Instructores'],
+            ['name' => 'instructor.edit',   'display_name' => 'Editar Instructores'],
             ['name' => 'instructor.delete', 'display_name' => 'Eliminar Instructores'],
-
-            ['name' => 'bautismo.view',   'display_name' => 'Ver Bautismos'],
-            ['name' => 'bautismo.create', 'display_name' => 'Registrar Bautismos'],
-            ['name' => 'bautismo.edit',   'display_name' => 'Editar Bautismos'],
-            ['name' => 'bautismo.delete', 'display_name' => 'Eliminar Bautismos'],
         ];
 
         foreach ($permissions as $permissionData) {
@@ -90,17 +87,16 @@ class RolesAndPermissionsSeeder extends Seeder
                 ['display_name' => $permissionData['display_name']]
             );
         }
-        // 🔹 Crear rol admin
+        // Crear rol admin
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
 
-        // 🔹 Asignar TODOS los permisos al admin
-        $adminRole->syncPermissions(Permission::all());
+        $rootRole->syncPermissions($rootPermissions);
+        $adminRole->syncPermissions($adminPermissions);
 
-        // 🔹 Asignar rol admin al usuario ID = 1
-        $user = User::find(1);
-
-        if ($user) {
-            $user->assignRole($adminRole);
+        // ── Asignar root al usuario test@example.com ────────────────────
+        $rootUser = User::where('email', 'test@example.com')->first();
+        if ($rootUser) {
+            $rootUser->syncRoles($rootRole);
         }
     }
 }
