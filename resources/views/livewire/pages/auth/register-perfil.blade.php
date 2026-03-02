@@ -25,21 +25,13 @@ new #[Layout('layouts.guest')] class extends Component
     public string $dni = '';
     public string $email = '';
 
-    // --- Paso 2: Datos Feligrés ---
-    public string $fecha_ingreso = '';
-    public string $estado = 'Activo';
-
-    // --- Paso 3: Encargado / Firma ---
+    // --- Paso 2: Encargado / Firma ---
     public $path_firma_principal = null;
 
     public function nextStep(): void
     {
         if ($this->step === 1) {
             $this->validateStepOne();
-        }
-
-        if ($this->step === 2) {
-            $this->validateStepTwo();
         }
 
         $this->step++;
@@ -54,7 +46,6 @@ new #[Layout('layouts.guest')] class extends Component
     {
         $this->validateStepOne();
         $this->validateStepTwo();
-        $this->validateStepThree();
 
         $firmaPath = null;
         if ($this->path_firma_principal) {
@@ -62,7 +53,6 @@ new #[Layout('layouts.guest')] class extends Component
         }
 
         DB::transaction(function () use ($firmaPath) {
-            // 1. Crear persona
             $persona = Persona::create([
                 'primer_nombre'    => $this->primer_nombre,
                 'segundo_nombre'   => $this->segundo_nombre ?: null,
@@ -75,15 +65,13 @@ new #[Layout('layouts.guest')] class extends Component
                 'email'            => $this->email ?: null,
             ]);
 
-            // 2. Crear feligrés con los datos de esa persona
             $feligres = Feligres::create([
-            'id_persona'    => $persona->id,
-            'id_iglesia'    => DB::table('iglesias')->first()->id, // ← toma el id de la iglesia en el tenant
-            'fecha_ingreso' => $this->fecha_ingreso ?: null,
-            'estado'        => $this->estado,
+                'id_persona'    => $persona->id,
+                'id_iglesia'    => DB::table('iglesias')->first()->id,
+                'fecha_ingreso' => now()->toDateString(),
+                'estado'        => 'Activo',
             ]);
 
-            // 3. Crear encargado con ese feligrés
             Encargado::create([
                 'id_feligres'          => $feligres->id,
                 'path_firma_principal' => $firmaPath,
@@ -115,14 +103,6 @@ new #[Layout('layouts.guest')] class extends Component
     private function validateStepTwo(): void
     {
         $this->validate([
-            'fecha_ingreso' => ['nullable', 'date'],
-            'estado'        => ['required', 'in:Activo,Inactivo'],
-        ]);
-    }
-
-    private function validateStepThree(): void
-    {
-        $this->validate([
             'path_firma_principal' => ['nullable', 'image', 'max:2048'],
         ], [
             'path_firma_principal.image' => 'El archivo debe ser una imagen.',
@@ -134,20 +114,20 @@ new #[Layout('layouts.guest')] class extends Component
 <div class="space-y-6">
     <div class="text-center">
         <h1 class="text-2xl font-bold text-gray-900">Registrar Encargado</h1>
-        <p class="mt-2 text-sm text-gray-600">Completa los 3 pasos para registrar un nuevo encargado.</p>
+        <p class="mt-2 text-sm text-gray-600">Completa los 2 pasos para registrar un nuevo encargado.</p>
     </div>
 
     {{-- Stepper --}}
     <div class="flex items-center gap-2">
-        @foreach ([1 => 'Persona', 2 => 'Feligrés', 3 => 'Firma'] as $num => $label)
-            <div class="flex items-center gap-2 {{ $num < 3 ? 'flex-1' : '' }}">
+        @foreach ([1 => 'Persona', 2 => 'Firma'] as $num => $label)
+            <div class="flex items-center gap-2 {{ $num < 2 ? 'flex-1' : '' }}">
                 <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold
                     {{ $step > $num ? 'bg-green-500 text-white' : ($step === $num ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500') }}">
                     {{ $step > $num ? '✓' : $num }}
                 </span>
                 <span class="text-sm {{ $step >= $num ? 'text-gray-900 font-medium' : 'text-gray-400' }}">{{ $label }}</span>
             </div>
-            @if ($num < 3)
+            @if ($num < 2)
                 <div class="h-px flex-1 bg-gray-200"></div>
             @endif
         @endforeach
@@ -227,43 +207,8 @@ new #[Layout('layouts.guest')] class extends Component
         </form>
     @endif
 
-    {{-- PASO 2: Datos Feligrés --}}
+    {{-- PASO 2: Firma --}}
     @if ($step === 2)
-        <form wire:submit="nextStep" class="space-y-4">
-            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Datos de Feligrés</p>
-
-            {{-- Resumen persona --}}
-            <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700 space-y-1">
-                <div>Persona: <span class="font-semibold">{{ $primer_nombre }} {{ $primer_apellido }}</span></div>
-                @if($dni) <div>DNI: <span class="font-semibold">{{ $dni }}</span></div> @endif
-                @if($fecha_nacimiento) <div>Nacimiento: <span class="font-semibold">{{ $fecha_nacimiento }}</span></div> @endif
-            </div>
-
-            <div>
-                <x-input-label for="fecha_ingreso" value="Fecha de Ingreso" />
-                <x-text-input wire:model="fecha_ingreso" id="fecha_ingreso" class="mt-1 block w-full" type="date" />
-                <x-input-error :messages="$errors->get('fecha_ingreso')" class="mt-1" />
-            </div>
-
-            <div>
-                <x-input-label for="estado" value="Estado *" />
-                <select wire:model="estado" id="estado"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
-                    <option value="Activo">Activo</option>
-                    <option value="Inactivo">Inactivo</option>
-                </select>
-                <x-input-error :messages="$errors->get('estado')" class="mt-1" />
-            </div>
-
-            <div class="flex items-center justify-between">
-                <x-secondary-button type="button" wire:click="previousStep">← Volver</x-secondary-button>
-                <x-primary-button>Siguiente →</x-primary-button>
-            </div>
-        </form>
-    @endif
-
-    {{-- PASO 3: Firma --}}
-    @if ($step === 3)
         <form wire:submit="register" class="space-y-4">
             <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Firma del Encargado</p>
 
@@ -271,8 +216,7 @@ new #[Layout('layouts.guest')] class extends Component
             <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700 space-y-1">
                 <div>Persona: <span class="font-semibold">{{ $primer_nombre }} {{ $primer_apellido }}</span></div>
                 @if($dni) <div>DNI: <span class="font-semibold">{{ $dni }}</span></div> @endif
-                <div>Fecha ingreso: <span class="font-semibold">{{ $fecha_ingreso ?: 'No especificada' }}</span></div>
-                <div>Estado: <span class="font-semibold">{{ $estado }}</span></div>
+                @if($fecha_nacimiento) <div>Nacimiento: <span class="font-semibold">{{ $fecha_nacimiento }}</span></div> @endif
             </div>
 
             <div>
