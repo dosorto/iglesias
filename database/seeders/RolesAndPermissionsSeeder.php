@@ -36,27 +36,17 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'personas.create', 'display_name' => 'Crear Personas'],
             ['name' => 'personas.edit',   'display_name' => 'Editar Personas'],
             ['name' => 'personas.delete', 'display_name' => 'Eliminar Personas'],
-            ['name' => 'personas.export', 'display_name' => 'Exportar Personas (Excel)'],
-            ['name' => 'audit.view', 'display_name' => 'Ver Logs del Sistema'],
-            ['name' => 'audit.export', 'display_name' => 'Exportar Logs del Sistema'],
+            ['name' => 'personas.export', 'display_name' => 'Exportar Personas'],
 
-             ['name' => 'tipocurso.view', 'display_name' => 'Ver Tipos de Cursos'],
-            ['name' => 'tipocurso.create', 'display_name' => 'Crear Tipos de Cursos'],
-            ['name' => 'tipocurso.edit', 'display_name' => 'Editar Tipos de Cursos'],
-            ['name' => 'tipocurso.delete', 'display_name' => 'Eliminar Tipos de Cursos'],
-            ['name' => 'tipocurso.export', 'display_name' => 'Exportar Tipos de Cursos (Excel)'],
+            // Iglesias (solo ROOT)
+            ['name' => 'iglesias.view',   'display_name' => 'Ver Iglesias'],
+            ['name' => 'iglesias.create', 'display_name' => 'Crear Iglesias'],
+            ['name' => 'iglesias.edit',   'display_name' => 'Editar Iglesias'],
+            ['name' => 'iglesias.delete', 'display_name' => 'Eliminar Iglesias'],
+            ['name' => 'iglesias.export', 'display_name' => 'Exportar Iglesias'],
 
-            ['name' => 'iglesias.view', 'display_name' => 'Ver iglesias'],
-            ['name' => 'iglesias.create', 'display_name' => 'Crear iglesias'],
-            ['name' => 'iglesias.edit', 'display_name' => 'Editar iglesias'],
-            ['name' => 'iglesias.delete', 'display_name' => 'Eliminar iglesias'],
-            ['name' => 'iglesias.export', 'display_name' => 'Exportar iglesias (Excel)'],
-            ['name' => 'audit.view', 'display_name' => 'Ver Logs del Sistema'],
-            ['name' => 'audit.export', 'display_name' => 'Exportar Logs del Sistema'],
-
-
-
-            ['name' => 'religion.view', 'display_name' => 'Ver Religion'],
+            // Religion (solo ROOT)
+            ['name' => 'religion.view',   'display_name' => 'Ver Religion'],
             ['name' => 'religion.create', 'display_name' => 'Crear Religion'],
             ['name' => 'religion.edit',   'display_name' => 'Editar Religion'],
             ['name' => 'religion.delete', 'display_name' => 'Eliminar Religion'],
@@ -79,15 +69,40 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'instructor.create', 'display_name' => 'Crear Instructores'],
             ['name' => 'instructor.edit',   'display_name' => 'Editar Instructores'],
             ['name' => 'instructor.delete', 'display_name' => 'Eliminar Instructores'],
+
+            // Tipo Cursos (ADMIN)
+            ['name' => 'tipocurso.view',   'display_name' => 'Ver Tipos de Cursos'],
+            ['name' => 'tipocurso.create', 'display_name' => 'Crear Tipos de Cursos'],
+            ['name' => 'tipocurso.edit',   'display_name' => 'Editar Tipos de Cursos'],
+            ['name' => 'tipocurso.delete', 'display_name' => 'Eliminar Tipos de Cursos'],
+            ['name' => 'tipocurso.export', 'display_name' => 'Exportar Tipos de Cursos'],
+
+            // Estudiantes (ADMIN)
+            ['name' => 'estudiantes.view',   'display_name' => 'Ver Estudiantes'],
+            ['name' => 'estudiantes.create', 'display_name' => 'Crear Estudiantes'],
+            ['name' => 'estudiantes.edit',   'display_name' => 'Editar Estudiantes'],
+            ['name' => 'estudiantes.delete', 'display_name' => 'Eliminar Estudiantes'],
+            ['name' => 'estudiantes.export', 'display_name' => 'Exportar Estudiantes'],
         ];
 
-        foreach ($permissions as $permissionData) {
-            Permission::updateOrCreate(
-                ['name' => $permissionData['name']],
-                ['display_name' => $permissionData['display_name']]
-            );
+        foreach ($permissions as $p) {
+            Permission::updateOrCreate(['name' => $p['name']], ['display_name' => $p['display_name']]);
         }
-        // Crear rol admin
+
+        // ── Permisos por rol ────────────────────────────────────────────
+
+        // ROOT: acceso total (personas, iglesias, religion + todo lo demás)
+        $rootPermissions = Permission::all();
+
+        // ADMIN: solo lo de su iglesia (NO personas, iglesias, religion)
+        $adminPermissions = Permission::whereNotIn('name', [
+            'personas.view',   'personas.create',  'personas.edit',   'personas.delete',  'personas.export',
+            'iglesias.view',   'iglesias.create',  'iglesias.edit',   'iglesias.delete',  'iglesias.export',
+            'religion.view',   'religion.create',  'religion.edit',   'religion.delete',  'religion.export',
+        ])->get();
+
+        // ── Crear roles ─────────────────────────────────────────────────
+        $rootRole  = Role::firstOrCreate(['name' => 'root']);
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
 
         $rootRole->syncPermissions($rootPermissions);
