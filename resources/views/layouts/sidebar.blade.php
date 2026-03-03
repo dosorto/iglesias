@@ -183,7 +183,7 @@
         <!-- Footer -->
         <div class="absolute bottom-4 left-3 right-3">
             <div class="p-3 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                <p class="text-xs text-gray-600 dark:text-gray-400 text-center">Sistema de Gestión DAO</p>
+                <p class="text-xs text-gray-600 dark:text-gray-400 text-center">Sistema de Gestión Iglesia</p>
             </div>
         </div>
     </div>
