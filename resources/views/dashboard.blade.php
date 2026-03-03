@@ -14,4 +14,5 @@
             <p class="text-3xl font-bold">{{ \Spatie\Permission\Models\Role::count() }}</p>
         </div>
     </div>
+    
 @endsection

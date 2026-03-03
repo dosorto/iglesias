@@ -39,7 +39,7 @@ class ConfirmacionSeeder extends Seeder
             'partida_numero' => 'PK-0002',
             'observaciones' => 'Confirmación de prueba (seed).',
 
-            'created_at' => now(),
+            'created_at' => now(),  
             'updated_at' => now(),
         ]);
     }
