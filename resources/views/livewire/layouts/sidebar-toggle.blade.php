@@ -128,26 +128,26 @@
                         </li>
                     @endcan
 
-                    {{-- Bautismos --}}
-                    @can('bautismo.view')
+                   
+                    {{-- Encargado --}}
+                    @can('encargado.view')
                         <li>
-                            <a href="{{ route('bautismo.index') }}"
-                               class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
-                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-sky-100 dark:hover:bg-sky-900
-                                      hover:text-sky-600 dark:hover:text-sky-400 transition-colors duration-200 group"
-                               title="{{ $isCollapsed ? 'Bautismos' : '' }}">
-                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors duration-200"
-                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+                            <a href="{{ route('encargado.index') }}"
+                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
+                                    rounded-xl text-gray-700 dark:text-gray-200 hover:bg-purple-100 dark:hover:bg-purple-900
+                                    hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200 group"
+                                title="{{ $isCollapsed ? 'Encargado' : '' }}">
+                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200"
+                                    fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
                                 </svg>
                                 @if(!$isCollapsed)
-                                    <span class="ml-3">Bautismos</span>
+                                    <span class="ml-3">Encargado</span>
                                 @endif
                             </a>
                         </li>
                     @endcan
-
+                    
                     {{-- Iglesias --}}
                     @can('iglesias.view')
                         <li>
