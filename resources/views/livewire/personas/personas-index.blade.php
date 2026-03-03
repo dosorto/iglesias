@@ -239,7 +239,7 @@
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">¿Eliminar Persona?</h3>
                         <p class="text-gray-600 dark:text-gray-400">
                             Estás a punto de eliminar a <span class="font-semibold text-gray-900 dark:text-white">{{ $personaNameBeingDeleted }}</span>. 
-                            Esta acción es permanente y no se podrá recuperar.
+                            Esta acción es permanente y no se podrá recuperar..
                         </p>
                     </div>
                 </div>
