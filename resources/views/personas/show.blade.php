@@ -40,7 +40,7 @@
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Fecha de Nacimiento</label>
-                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $persona->fecha_nacimiento->format('d/m/Y') }} ({{ \Carbon\Carbon::parse($persona->fecha_nacimiento)->age }} años)</p>
+                        <p class="text-md font-medium text-gray-900 dark:text-white">{{ $persona->fecha_nacimiento ? $persona->fecha_nacimiento->format('d/m/Y') : '—' }} ({{ \Carbon\Carbon::parse($persona->fecha_nacimiento)->age }} años)</p>
                     </div>
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Sexo</label>

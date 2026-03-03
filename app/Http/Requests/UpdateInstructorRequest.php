@@ -17,7 +17,7 @@ class UpdateInstructorRequest extends FormRequest
         $instructorId = $this->route('instructor')?->id ?? $this->route('instructor');
 
         return [
-            'feligres_id' => [
+            'feligres_id'    => [
                 'required',
                 'integer',
                 'exists:feligres,id',
@@ -25,15 +25,19 @@ class UpdateInstructorRequest extends FormRequest
                     ->ignore($instructorId)
                     ->whereNull('deleted_at'),
             ],
-            'path_firma' => ['required', 'string', 'max:200'],
+            'fecha_ingreso'  => ['nullable', 'date'],
+            'estado'         => ['required', 'in:Activo,Inactivo'],
+            'path_firma'     => ['nullable', 'string', 'max:200'],
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'feligres_id' => 'feligrés',
-            'path_firma'  => 'firma',
+            'feligres_id'    => 'feligrés',
+            'fecha_ingreso'  => 'fecha de ingreso',
+            'estado'         => 'estado',
+            'path_firma'     => 'firma',
         ];
     }
 

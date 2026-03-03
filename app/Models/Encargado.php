@@ -14,7 +14,8 @@ class Encargado extends BaseModel
 
     protected $table = 'encargado'; 
 
-     protected $fillable = [
+    
+    protected $fillable = [
         'id_feligres',
         'path_firma_principal',
     ];

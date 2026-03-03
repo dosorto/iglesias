@@ -20,7 +20,7 @@
                     <select name="feligres_id" id="feligres_id" required
                             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('feligres_id') border-red-500 @enderror">
                         <option value="">Seleccione un feligrés...</option>
-                        @foreach($feligres as $item)
+                        @foreach($feligreses as $item)
                             <option value="{{ $item->id }}" {{ old('feligres_id', $instructor->feligres_id) == $item->id ? 'selected' : '' }}>
                                 {{ $item->persona->nombre_completo }} — {{ $item->persona->dni }} ({{ $item->iglesia->nombre ?? '' }})
                             </option>
