@@ -131,7 +131,7 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex flex-col">
-                                        <span class="text-sm text-gray-900 dark:text-white">{{ $persona->fecha_nacimiento?->format('d/m/Y') ?? '—' }}</span>
+                                        <span class="text-sm text-gray-900 dark:text-white">{{ $persona->fecha_nacimiento ? $persona->fecha_nacimiento->format('d/m/Y') : '—' }}</span>
                                         <span class="text-xs text-gray-500 dark:text-gray-400">{{ $persona->sexo == 'M' ? 'Masculino' : 'Femenino' }}</span>
                                     </div>
                                 </td>
