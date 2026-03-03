@@ -293,23 +293,6 @@
                             </div>
                         </div>
                         
-                        <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Iglesia <span class="text-red-500">*</span>
-                            </label>
-
-                            <select wire:model="id_iglesia"
-                                    class="w-full mt-1 px-3 py-2 border rounded-lg">
-                                <option value="">Seleccione una iglesia…</option>
-                                @foreach ($iglesias as $ig)
-                                    <option value="{{ $ig->id }}">{{ $ig->nombre }}</option>
-                                @endforeach
-                            </select>
-
-                            @error('id_iglesia')
-                                <span class="text-red-600 text-sm">{{ $message }}</span>
-                            @enderror
-                        </div>
 
                         <div class="flex justify-end pt-1">
                             <button type="button"

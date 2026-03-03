@@ -3,5 +3,5 @@
 @section('title', 'Nuevo Instructor')
 
 @section('content')
-    <livewire:instructor.instructor-create />
+    <livewire:instructor.instructor-wizard />
 @endsection

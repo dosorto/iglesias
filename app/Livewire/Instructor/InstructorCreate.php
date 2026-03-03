@@ -9,7 +9,6 @@ use App\Models\Instructor;
 use App\Models\Feligres;
 use Illuminate\Validation\Rule;
 use Livewire\WithFileUploads;
-use App\Models\Iglesias;
 
 class InstructorCreate extends Component
 {
@@ -36,7 +35,6 @@ class InstructorCreate extends Component
     // ── Datos del instructor / feligrés ────────────────────────────
     public ?int   $feligres_id = null;
     public string $fecha_ingreso = '';
-    public ?int   $id_iglesia  = null; // ✅ agregarx
     public string $estado        = 'Activo';
 
 
@@ -182,21 +180,15 @@ class InstructorCreate extends Component
             'firma'      => ['required', 'image', 'max:2048'], // validar imagen <=2MB
             'fecha_ingreso' => ['nullable', 'date'],
             'estado'        => ['required', 'in:Activo,Inactivo'],
-            'id_iglesia' => ['required', 'exists:iglesias,id'],
         ]);
 
         // 2️⃣ Crear o recuperar feligrés
-        $feligres = Feligres::firstOrCreate(
-            [
-                'id_persona' => $this->persona_id,
-                'id_iglesia' => $this->id_iglesia,
-            ],
-            [
-                'fecha_ingreso' => $this->fecha_ingreso,
-                'id_iglesia'    => $this->id_iglesia, // agregar
-                'estado'        => $this->estado,
-            ]
-        );
+        $feligres = Feligres::where('id_persona', $this->persona_id)->first();
+
+        if (!$feligres) {
+            $this->addError('persona_id', 'La persona debe estar registrada como feligrés primero.');
+            return;
+        }
 
         // 3️⃣ Revisar si ya tiene instructor
         if (Instructor::where('feligres_id', $feligres->id)->exists()) {
@@ -221,8 +213,6 @@ class InstructorCreate extends Component
 
     public function render()
     {
-        return view('livewire.instructor.instructor-create', [
-            'iglesias' => Iglesias::where('estado', 'Activo')->orderBy('nombre')->get(),
-        ]); 
+        return view('livewire.instructor.instructor-create');
     }
 }

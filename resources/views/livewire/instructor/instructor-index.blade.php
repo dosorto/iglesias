@@ -80,9 +80,6 @@
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Persona</span>
                             </th>
                             <th class="px-6 py-3 text-left">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Iglesia</span>
-                            </th>
-                            <th class="px-6 py-3 text-left">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado Feligrés</span>
                             </th>
                             <th class="px-6 py-3 text-left">
@@ -109,9 +106,6 @@
                                             <div class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ $item->feligres->persona->dni }}</div>
                                         </div>
                                     </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="text-sm text-gray-900 dark:text-white">{{ $item->feligres->iglesia->nombre }}</span>
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $item->feligres->estado === 'Activo' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' }}">
@@ -161,7 +155,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-16 text-center">
+                                <td colspan="4" class="px-6 py-16 text-center">
                                     <div class="flex flex-col items-center">
                                         <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
                                             <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
