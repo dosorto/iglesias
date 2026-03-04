@@ -2,10 +2,13 @@
 
 namespace App\Livewire\Tipocurso;
 
+use App\Exports\TipoCursoExport;
 use App\Models\TipoCurso as TipoCursoModel;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TipocursoIndex extends Component
 {
@@ -47,6 +50,12 @@ class TipocursoIndex extends Component
 
         session()->flash('success', 'Tipo de Curso eliminado exitosamente.');
         $this->resetPage();
+    }
+
+    public function export()
+    {
+        Gate::authorize('tipocurso.export');
+        return Excel::download(new TipoCursoExport, 'tipos_curso_' . now()->format('Y_m_d_His') . '.xlsx');
     }
 
     public function render()

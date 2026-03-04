@@ -11,12 +11,9 @@ class BautismoEdit extends Component
 {
     public Bautismo $bautismo;
 
-    // Paso 1
-    public $iglesia_id     = null;
-    public $encargado_id   = null;
-    public string  $fecha_bautismo = '';
-
-    // Libro
+    public ?int   $iglesia_id     = null;
+    public ?int   $encargado_id   = null;
+    public string $fecha_bautismo = '';
     public string $libro_bautismo = '';
     public string $folio          = '';
     public string $partida_numero = '';
@@ -24,8 +21,7 @@ class BautismoEdit extends Component
 
     public function mount(Bautismo $bautismo): void
     {
-        $this->bautismo = $bautismo;
-
+        $this->bautismo       = $bautismo;
         $this->iglesia_id     = $bautismo->iglesia_id;
         $this->encargado_id   = $bautismo->encargado_id;
         $this->fecha_bautismo = $bautismo->fecha_bautismo?->format('Y-m-d') ?? '';
@@ -35,17 +31,44 @@ class BautismoEdit extends Component
         $this->observaciones  = $bautismo->observaciones ?? '';
     }
 
-    public function save(): void
+    protected function rules(): array
     {
-        $this->validate([
-            'iglesia_id'     => ['required'],
-            'encargado_id'   => ['required'],
-            'fecha_bautismo' => ['required', 'date'],
+        return [
+            'iglesia_id'     => ['required', 'integer', 'exists:iglesias,id'],
+            'encargado_id'   => ['required', 'integer', 'exists:encargados,id'],
+            'fecha_bautismo' => ['required', 'date', 'before_or_equal:today'],
             'libro_bautismo' => ['nullable', 'string', 'max:100'],
             'folio'          => ['nullable', 'string', 'max:50'],
             'partida_numero' => ['nullable', 'string', 'max:50'],
             'observaciones'  => ['nullable', 'string', 'max:500'],
-        ]);
+        ];
+    }
+
+    protected function messages(): array
+    {
+        return [
+            'iglesia_id.required'           => 'Debes seleccionar una iglesia.',
+            'iglesia_id.exists'             => 'La iglesia seleccionada no existe.',
+            'encargado_id.required'         => 'Debes seleccionar un encargado.',
+            'encargado_id.exists'           => 'El encargado seleccionado no existe.',
+            'fecha_bautismo.required'       => 'La fecha de bautismo es obligatoria.',
+            'fecha_bautismo.date'           => 'La fecha de bautismo no es válida.',
+            'fecha_bautismo.before_or_equal'=> 'La fecha de bautismo no puede ser futura.',
+            'libro_bautismo.max'            => 'El libro no puede superar los 100 caracteres.',
+            'folio.max'                     => 'El folio no puede superar los 50 caracteres.',
+            'partida_numero.max'            => 'La partida no puede superar los 50 caracteres.',
+            'observaciones.max'             => 'Las observaciones no pueden superar los 500 caracteres.',
+        ];
+    }
+
+    public function updated(string $field): void
+    {
+        $this->validateOnly($field);
+    }
+
+    public function guardar(): void
+    {
+        $this->validate();
 
         $this->bautismo->update([
             'iglesia_id'     => $this->iglesia_id,
@@ -58,7 +81,7 @@ class BautismoEdit extends Component
         ]);
 
         session()->flash('success', 'Bautismo actualizado correctamente.');
-        $this->redirect(route('bautismo.index'), navigate: true);
+        $this->redirect(route('bautismo.index'), navigate: false);
     }
 
     public function render()
