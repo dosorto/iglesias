@@ -10,7 +10,7 @@
         </div>
 
         <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
-            <h5 class="text-sm text-gray-500">Roles</h5>
+            <h5 class="text-sm text-gray-500">Roless</h5>
             <p class="text-3xl font-bold">{{ \Spatie\Permission\Models\Role::count() }}</p>
         </div>
     </div>
