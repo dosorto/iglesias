@@ -107,7 +107,8 @@
                         @forelse($tipocursos as $tipocurso)
                             <tr
                                 class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer group"
-                                onclick="window.location='{{ route('tipocurso.show', $tipocurso) }}'"
+                                data-href="{{ route('tipocurso.show', $tipocurso->id) }}"
+                                onclick="window.location=this.dataset.href"
                             >
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">

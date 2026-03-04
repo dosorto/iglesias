@@ -19,7 +19,8 @@ class StoreTipoCursoRequest extends FormRequest
                 'required',
                 'string',
                 'max:100',
-                Rule::unique('tipo_curso', 'nombre_curso')->whereNull('deleted_at'),
+                'regex:/[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]/',
+                Rule::unique('tipos_curso', 'nombre_curso')->whereNull('deleted_at'),
             ],
             'descripcion_curso' => ['nullable', 'string', 'max:1000'],
             'estado_curso' => ['required', 'string', Rule::in(['activo', 'inactivo'])],
@@ -29,9 +30,16 @@ class StoreTipoCursoRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'nombre_curso' => 'nombre del curso',
+            'nombre_curso'      => 'nombre del curso',
             'descripcion_curso' => 'descripción del curso',
-            'estado_curso' => 'estado del curso',
+            'estado_curso'      => 'estado del curso',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'nombre_curso.regex' => 'El nombre debe contener al menos una letra.',
         ];
     }
 }
