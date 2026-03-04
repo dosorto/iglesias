@@ -90,6 +90,13 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'bautismo.edit',   'display_name' => 'Editar Bautismos'],
             ['name' => 'bautismo.delete', 'display_name' => 'Eliminar Bautismos'],
             ['name' => 'bautismo.export', 'display_name' => 'Exportar Bautismos'],
+
+            // Primera Comunion 
+            ['name' => 'primera-comunion.view',   'display_name' => 'Ver Primera Comunion'],
+            ['name' => 'primera-comunion.create', 'display_name' => 'Crear Primera Comunion'],
+            ['name' => 'primera-comunion.edit',   'display_name' => 'Editar Primera Comunion'],
+            ['name' => 'primera-comunion.delete', 'display_name' => 'Eliminar Primera Comunion'],
+            ['name' => 'primera-comunion.export', 'display_name' => 'Exportar Primera Comunion'],
         ];
 
         foreach ($permissions as $p) {
