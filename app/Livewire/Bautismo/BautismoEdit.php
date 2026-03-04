@@ -12,8 +12,8 @@ class BautismoEdit extends Component
     public Bautismo $bautismo;
 
     // Paso 1
-    public ?int    $iglesia_id     = null;
-    public ?int    $encargado_id   = null;
+    public $iglesia_id     = null;
+    public $encargado_id   = null;
     public string  $fecha_bautismo = '';
 
     // Libro
@@ -38,13 +38,13 @@ class BautismoEdit extends Component
     public function save(): void
     {
         $this->validate([
-            'iglesia_id'     => 'required|exists:iglesias,id',
-            'encargado_id'   => 'required|exists:encargados,id',
-            'fecha_bautismo' => 'required|date',
-            'libro_bautismo' => 'nullable|string|max:100',
-            'folio'          => 'nullable|string|max:50',
-            'partida_numero' => 'nullable|string|max:50',
-            'observaciones'  => 'nullable|string|max:500',
+            'iglesia_id'     => ['required'],
+            'encargado_id'   => ['required'],
+            'fecha_bautismo' => ['required', 'date'],
+            'libro_bautismo' => ['nullable', 'string', 'max:100'],
+            'folio'          => ['nullable', 'string', 'max:50'],
+            'partida_numero' => ['nullable', 'string', 'max:50'],
+            'observaciones'  => ['nullable', 'string', 'max:500'],
         ]);
 
         $this->bautismo->update([
@@ -63,7 +63,8 @@ class BautismoEdit extends Component
 
     public function render()
     {
-        $iglesias   = Iglesias::orderBy('nombre')->get();
+        $centralConn = config('tenancy.central_connection', 'mysql');
+        $iglesias   = Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get();
         $encargados = Encargado::with('feligres.persona')->get();
 
         return view('livewire.bautismo.bautismo-edit', compact('iglesias', 'encargados'));
