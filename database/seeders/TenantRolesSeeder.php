@@ -5,15 +5,15 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use App\Models\User;
 
-class RolesAndPermissionsSeeder extends Seeder
+class TenantRolesSeeder extends Seeder
 {
     public function run(): void
     {
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $permissions = [
+        // Solo permisos que admin puede tener en el tenant
+        $adminPermisos = [
             ['name' => 'roles.view',    'display_name' => 'Ver Roles'],
             ['name' => 'roles.create',  'display_name' => 'Crear Roles'],
             ['name' => 'roles.edit',    'display_name' => 'Editar Roles'],
@@ -26,24 +26,6 @@ class RolesAndPermissionsSeeder extends Seeder
 
             ['name' => 'audit.view',    'display_name' => 'Ver Logs del Sistema'],
             ['name' => 'audit.export',  'display_name' => 'Exportar Logs del Sistema'],
-
-            ['name' => 'personas.view',   'display_name' => 'Ver Personas'],
-            ['name' => 'personas.create', 'display_name' => 'Crear Personas'],
-            ['name' => 'personas.edit',   'display_name' => 'Editar Personas'],
-            ['name' => 'personas.delete', 'display_name' => 'Eliminar Personas'],
-            ['name' => 'personas.export', 'display_name' => 'Exportar Personas'],
-
-            ['name' => 'iglesias.view',   'display_name' => 'Ver Iglesias'],
-            ['name' => 'iglesias.create', 'display_name' => 'Crear Iglesias'],
-            ['name' => 'iglesias.edit',   'display_name' => 'Editar Iglesias'],
-            ['name' => 'iglesias.delete', 'display_name' => 'Eliminar Iglesias'],
-            ['name' => 'iglesias.export', 'display_name' => 'Exportar Iglesias'],
-
-            ['name' => 'religion.view',   'display_name' => 'Ver Religion'],
-            ['name' => 'religion.create', 'display_name' => 'Crear Religion'],
-            ['name' => 'religion.edit',   'display_name' => 'Editar Religion'],
-            ['name' => 'religion.delete', 'display_name' => 'Eliminar Religion'],
-            ['name' => 'religion.export', 'display_name' => 'Exportar Religion'],
 
             ['name' => 'feligres.view',   'display_name' => 'Ver Feligreses'],
             ['name' => 'feligres.create', 'display_name' => 'Crear Feligreses'],
@@ -85,18 +67,12 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'primera-comunion.export', 'display_name' => 'Exportar Primera Comunion'],
         ];
 
-        foreach ($permissions as $p) {
+        foreach ($adminPermisos as $p) {
             Permission::updateOrCreate(['name' => $p['name']], ['display_name' => $p['display_name']]);
         }
 
-        // ROOT: todos los permisos
-        $rootRole = Role::firstOrCreate(['name' => 'root']);
-        $rootRole->syncPermissions(Permission::all());
-
-        // Asignar root a test@example.com
-        $rootUser = User::where('email', 'test@example.com')->first();
-        if ($rootUser) {
-            $rootUser->syncRoles($rootRole);
-        }
+        // Admin solo tiene estos permisos — SIN personas, iglesias, religion
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $adminRole->syncPermissions(Permission::all());
     }
 }

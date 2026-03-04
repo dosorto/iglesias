@@ -12,7 +12,7 @@ class TenantProvisioner
 {
     public function provisionDatabase(Iglesias $iglesia): array
     {
-        set_time_limit(300); // ← Agregar
+        set_time_limit(300);
 
         $centralConnection = config('tenancy.central_connection') ?: config('database.default');
         $tenantConnection  = config('tenancy.tenant_connection', 'tenant');
@@ -73,13 +73,28 @@ class TenantProvisioner
             ]);
             logger('TenantProvisioner: migraciones completadas');
 
+            // ── CAMBIO: seeder sin --database, reconfigurar conexión después ──
             foreach (config('tenancy.seeders', []) as $seederClass) {
                 logger('TenantProvisioner: corriendo seeder', ['seeder' => $seederClass]);
+
+                // Asegurar que default apunta al tenant antes del seeder
+                config(["database.connections.{$tenantConnection}" => $tenantConfig]);
+                DB::purge($tenantConnection);
+                DB::reconnect($tenantConnection);
+                \Illuminate\Support\Facades\Config::set('database.default', $tenantConnection);
+
                 Artisan::call('db:seed', [
-                    '--database' => $tenantConnection,
-                    '--class'    => $seederClass,
-                    '--force'    => true,
+                    '--class' => $seederClass,
+                    '--force' => true,
                 ]);
+
+                // Reconfigurar después porque Artisan puede resetear conexiones
+                config(["database.connections.{$tenantConnection}" => $tenantConfig]);
+                DB::purge($tenantConnection);
+                DB::reconnect($tenantConnection);
+                \Illuminate\Support\Facades\Config::set('database.default', $tenantConnection);
+
+                logger('TenantProvisioner: seeder completado', ['seeder' => $seederClass]);
             }
         }
 
