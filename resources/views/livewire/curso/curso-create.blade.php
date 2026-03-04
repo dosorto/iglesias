@@ -159,7 +159,8 @@
 
     @if($paso === 2)
 
-        <div class="bg-white rounded-xl shadow border p-6 space-y-4">
+        <div class="bg-white rounded-xl shadow border p-6 space-y-4">   
+            
 
             <h2 class="font-semibold text-gray-700">
                 Tipo de Curso
