@@ -90,6 +90,13 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'bautismo.edit',   'display_name' => 'Editar Bautismos'],
             ['name' => 'bautismo.delete', 'display_name' => 'Eliminar Bautismos'],
             ['name' => 'bautismo.export', 'display_name' => 'Exportar Bautismos'],
+
+            // Cursos 
+            ['name' => 'curso.view',   'display_name' => 'Ver Cursos'],
+            ['name' => 'curso.create', 'display_name' => 'Crear Cursos'],
+            ['name' => 'curso.edit',   'display_name' => 'Editar Cursos'],
+            ['name' => 'curso.delete', 'display_name' => 'Eliminar Cursos'],
+            ['name' => 'curso.export', 'display_name' => 'Exportar Cursos'],
         ];
 
         foreach ($permissions as $p) {
