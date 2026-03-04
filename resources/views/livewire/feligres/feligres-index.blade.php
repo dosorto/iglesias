@@ -97,7 +97,8 @@
                         @forelse($feligres as $item)
                             <tr
                                 class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer group"
-                                onclick="window.location='{{ route('feligres.show', $item) }}'"
+                                onclick="window.location=this.dataset.href"
+                                data-href="{{ route('feligres.show', $item) }}"
                             >
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
