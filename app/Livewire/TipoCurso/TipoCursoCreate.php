@@ -15,7 +15,6 @@ class TipoCursoCreate extends Component
     protected function rules(): array
     {
         return [
-            
             'nombre_curso'      => [
                 'required',
                 'string',
