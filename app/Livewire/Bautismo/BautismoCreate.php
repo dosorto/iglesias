@@ -222,13 +222,13 @@ class BautismoCreate extends Component
     {
         $this->validate([
             'mini_p_dni'              => ['required', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
-            'mini_p_primer_nombre'    => ['required', 'string', 'max:150'],
-            'mini_p_primer_apellido'  => ['required', 'string', 'max:100'],
-            'mini_p_segundo_nombre'   => ['nullable', 'string', 'max:150'],
-            'mini_p_segundo_apellido' => ['nullable', 'string', 'max:100'],
+            'mini_p_primer_nombre'    => ['required', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
+            'mini_p_primer_apellido'  => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
+            'mini_p_segundo_nombre'   => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
+            'mini_p_segundo_apellido' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_fecha_nacimiento' => ['nullable', 'date', 'before:today'],
             'mini_p_sexo'             => ['nullable', 'in:M,F'],
-            'mini_p_telefono'         => ['nullable', 'string', 'max:20'],
+            'mini_p_telefono'         => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
             'mini_p_email'            => ['nullable', 'email', 'max:255'],
             'mini_f_fecha_ingreso'    => ['nullable', 'date'],
             'mini_f_estado'           => ['required', 'in:Activo,Inactivo'],
@@ -236,8 +236,12 @@ class BautismoCreate extends Component
             'mini_p_dni.required'             => 'El numero de identidad es obligatorio.',
             'mini_p_dni.min'                  => 'El DNI debe tener al menos 8 caracteres.',
             'mini_p_dni.unique'               => 'Ya existe una persona con ese DNI.',
-            'mini_p_primer_nombre.required'   => 'El primer nombre es obligatorio.',
-            'mini_p_primer_apellido.required' => 'El primer apellido es obligatorio.',
+            'mini_p_primer_nombre.required'        => 'El primer nombre es obligatorio.',
+            'mini_p_primer_nombre.regex'           => 'El primer nombre solo puede contener letras, espacios, guiones y apóstrofes.',
+            'mini_p_primer_apellido.required'      => 'El primer apellido es obligatorio.',
+            'mini_p_primer_apellido.regex'         => 'El primer apellido solo puede contener letras, espacios, guiones y apóstrofes.',
+            'mini_p_segundo_nombre.regex'          => 'El segundo nombre solo puede contener letras, espacios, guiones y apóstrofes.',
+            'mini_p_segundo_apellido.regex'        => 'El segundo apellido solo puede contener letras, espacios, guiones y apóstrofes.',
         ]);
 
         $rol = $this->mini_rol;
