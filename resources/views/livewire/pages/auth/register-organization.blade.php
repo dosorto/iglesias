@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Organization;
 use App\Models\Iglesias;
 use App\Models\User;
 use App\Services\Tenancy\TenantProvisioner;
@@ -9,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -23,7 +21,6 @@ new #[Layout('layouts.guest')] class extends Component
     // Datos de la iglesia
     public string $nombre = '';
     public string $direccion = '';
-    public string $parroco_nombre = '';
     public string $email_iglesia = '';
     public string $telefono_iglesia = '';
 
@@ -44,118 +41,116 @@ new #[Layout('layouts.guest')] class extends Component
         $this->step = 1;
     }
 
-   public function registerOrganization(): void
-{
-    $this->validateStepOne();
-    $validated = $this->validate([
-        'name'     => ['required', 'string', 'min:3', 'max:255'],
-        'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-        'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
-    ]);
+    public function registerOrganization(): void
+    {
+        $this->validateStepOne();
+        $validated = $this->validate([
+            'name'     => ['required', 'string', 'min:3', 'max:255'],
+            'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+        ]);
 
-    $provisioner = app(TenantProvisioner::class);
+        $provisioner = app(TenantProvisioner::class);
 
-    // 1. Crear registro en BD central SOLO con credenciales (sin datos de iglesia aún)
-    $iglesia = Iglesias::create([
-        'nombre'         => $this->nombre,
-        'direccion'      => $this->direccion,
-        'parroco_nombre' => $this->parroco_nombre,
-        'telefono'       => $this->telefono_iglesia ?: null,
-        'email'          => $this->email_iglesia ?: null,
-        'estado'         => 'Activa',
-    ]);
+        // 1. Crear registro en BD central
+        $iglesia = Iglesias::create([
+            'nombre'         => $this->nombre,
+            'direccion'      => $this->direccion,
+            'parroco_nombre' => $validated['name'], // ← usa el nombre del usuario
+            'telefono'       => $this->telefono_iglesia ?: null,
+            'email'          => $this->email_iglesia ?: null,
+            'estado'         => 'Activa',
+        ]);
 
-    // 2. Crear BD tenant y correr migraciones
-    $tenant = $provisioner->provisionDatabase($iglesia);
+        // 2. Crear BD tenant y correr migraciones
+        $tenant = $provisioner->provisionDatabase($iglesia);
 
-    // 3. Guardar credenciales del tenant en BD central
-    $iglesia->update([
-        'db_connection' => $tenant['connection'],
-        'db_host'       => $tenant['host'],
-        'db_port'       => $tenant['port'],
-        'db_database'   => $tenant['database'],
-        'db_username'   => $tenant['username'],
-        'db_password'   => $tenant['password'],
-    ]);
+        // 3. Guardar credenciales del tenant en BD central
+        $iglesia->update([
+            'db_connection' => $tenant['connection'],
+            'db_host'       => $tenant['host'],
+            'db_port'       => $tenant['port'],
+            'db_database'   => $tenant['database'],
+            'db_username'   => $tenant['username'],
+            'db_password'   => $tenant['password'],
+        ]);
 
-    $tenantConnection = $tenant['connection'];
-    $previousDefault  = config('database.default');
+        $tenantConnection = $tenant['connection'];
+        $previousDefault  = config('database.default');
 
-    Config::set('database.default', $tenantConnection);
-    DB::purge($tenantConnection);
-    DB::reconnect($tenantConnection);
+        Config::set('database.default', $tenantConnection);
+        DB::purge($tenantConnection);
+        DB::reconnect($tenantConnection);
 
-    try {
-        $user = DB::transaction(function () use ($validated, $iglesia, $tenantConnection) {
+        try {
+            $user = DB::transaction(function () use ($validated, $iglesia, $tenantConnection) {
 
-            // 4. Insertar iglesia en BD tenant
-            DB::connection($tenantConnection)->table('iglesias')->insert([
-                'nombre'         => $iglesia->nombre,
-                'direccion'      => $iglesia->direccion,
-                'parroco_nombre' => $iglesia->parroco_nombre,
-                'telefono'       => $iglesia->telefono,
-                'email'          => $iglesia->email,
-                'estado'         => $iglesia->estado,
-                'created_at'     => now(),
-                'updated_at'     => now(),
-            ]);
+                // 4. Insertar iglesia en BD tenant
+                DB::connection($tenantConnection)->table('iglesias')->insert([
+                    'nombre'         => $iglesia->nombre,
+                    'direccion'      => $iglesia->direccion,
+                    'parroco_nombre' => $iglesia->parroco_nombre,
+                    'telefono'       => $iglesia->telefono,
+                    'email'          => $iglesia->email,
+                    'estado'         => $iglesia->estado,
+                    'created_at'     => now(),
+                    'updated_at'     => now(),
+                ]);
 
-            // 5. Crear rol admin en BD tenant
-            $adminRole = Role::firstOrCreate([
-                'name'       => 'admin',
-                'guard_name' => 'web',
-            ]);
+                // 5. Crear rol admin en BD tenant
+                $adminRole = Role::firstOrCreate([
+                    'name'       => 'admin',
+                    'guard_name' => 'web',
+                ]);
 
-            // 6. Crear usuario en BD tenant
-            $user = User::create([
-                'id_iglesia'        => $iglesia->id,
-                'name'              => $validated['name'],
-                'email'             => strtolower($validated['email']),
-                'email_verified_at' => now(),
-                'password'          => Hash::make($validated['password']),
-            ]);
+                // 6. Crear usuario en BD tenant
+                $user = User::create([
+                    'id_iglesia'        => $iglesia->id,
+                    'name'              => $validated['name'],
+                    'email'             => strtolower($validated['email']),
+                    'email_verified_at' => now(),
+                    'password'          => Hash::make($validated['password']),
+                ]);
 
-            $user->assignRole($adminRole);
+                $user->assignRole($adminRole);
 
-            return $user;
-        });
+                return $user;
+            });
 
-        app(PermissionRegistrar::class)->forgetCachedPermissions();
+            app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-    } finally {
-        Config::set('database.default', $previousDefault);
-        DB::purge($previousDefault);
-        DB::reconnect($previousDefault);
+        } finally {
+            Config::set('database.default', $previousDefault);
+            DB::purge($previousDefault);
+            DB::reconnect($previousDefault);
+        }
+
+        session()->put('tenant', [
+            'id_iglesia' => $iglesia->id,
+            'connection' => $tenantConnection,
+            'host'       => $tenant['host'],
+            'port'       => $tenant['port'],
+            'database'   => $tenant['database'],
+            'username'   => $tenant['username'],
+            'password'   => $tenant['password'],
+        ]);
+
+        event(new Registered($user));
+        Auth::login($user);
+
+        $this->redirect(route('register-perfil', absolute: false), navigate: true);
     }
-
-    session()->put('tenant', [
-        'id_iglesia' => $iglesia->id,
-        'connection' => $tenantConnection,
-        'host'       => $tenant['host'],
-        'port'       => $tenant['port'],
-        'database'   => $tenant['database'],
-        'username'   => $tenant['username'],
-        'password'   => $tenant['password'],
-    ]);
-
-    event(new Registered($user));
-    Auth::login($user);
-
-    $this->redirect(route('register-perfil', absolute: false), navigate: true);
-}
 
     private function validateStepOne(): void
     {
         $this->validate([
             'nombre'           => ['required', 'string', 'min:3', 'max:200'],
             'direccion'        => ['required', 'string', 'min:5'],
-            'parroco_nombre'   => ['required', 'string', 'min:3', 'max:200'],
             'email_iglesia'    => ['nullable', 'email', 'max:200'],
             'telefono_iglesia' => ['nullable', 'string', 'max:20'],
         ], [
-            'nombre.required'         => 'El nombre de la iglesia es obligatorio.',
-            'parroco_nombre.required' => 'Debe ingresar el nombre del párroco responsable.',
-            'direccion.required'      => 'La ubicación física es necesaria.',
+            'nombre.required'    => 'El nombre de la iglesia es obligatorio.',
+            'direccion.required' => 'La ubicación física es necesaria.',
         ]);
     }
 }; ?>
@@ -200,12 +195,6 @@ new #[Layout('layouts.guest')] class extends Component
                 <x-input-error :messages="$errors->get('direccion')" class="mt-1" />
             </div>
 
-            <div>
-                <x-input-label for="parroco_nombre" value="Nombre del Párroco / Encargado *" />
-                <x-text-input wire:model="parroco_nombre" id="parroco_nombre" class="mt-1 block w-full" type="text" required />
-                <x-input-error :messages="$errors->get('parroco_nombre')" class="mt-1" />
-            </div>
-
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <x-input-label for="telefono_iglesia" value="Teléfono" />
@@ -233,7 +222,6 @@ new #[Layout('layouts.guest')] class extends Component
             {{-- Resumen iglesia --}}
             <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700 space-y-1">
                 <div>Iglesia: <span class="font-semibold">{{ $nombre }}</span></div>
-                <div>Párroco: <span class="font-semibold">{{ $parroco_nombre }}</span></div>
                 @if($telefono_iglesia)
                     <div>Teléfono: <span class="font-semibold">{{ $telefono_iglesia }}</span></div>
                 @endif

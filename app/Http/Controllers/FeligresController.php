@@ -17,10 +17,7 @@ class FeligresController extends Controller
 
     public function create()
     {
-        $personas = Persona::orderBy('primer_apellido')->orderBy('primer_nombre')->get();
-        $iglesias = Iglesias::where('estado', 'Activo')->orderBy('nombre')->get();
-
-        return view('feligres.create', compact('personas', 'iglesias'));
+        return view('feligres.create');
     }
 
     public function store(StoreFeligresRequest $request)

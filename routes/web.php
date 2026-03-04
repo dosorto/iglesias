@@ -229,6 +229,23 @@ Route::middleware(['auth'])->group(function () {
         ->delete('/religion/{religion}', [\App\Http\Controllers\ReligionController::class, 'destroy'])
         ->name('religion.destroy');
 
+    // Bautismo CRUD
+    Route::middleware('permission:bautismo.view')
+        ->get('/bautismo', [\App\Http\Controllers\BautismoController::class, 'index'])
+        ->name('bautismo.index');
+
+    Route::middleware('permission:bautismo.create')
+        ->get('/bautismo/create', [\App\Http\Controllers\BautismoController::class, 'create'])
+        ->name('bautismo.create');
+
+    Route::middleware('permission:bautismo.view')
+        ->get('/bautismo/{bautismo}', [\App\Http\Controllers\BautismoController::class, 'show'])
+        ->name('bautismo.show');
+
+    Route::middleware('permission:bautismo.edit')
+        ->get('/bautismo/{bautismo}/edit', [\App\Http\Controllers\BautismoController::class, 'edit'])
+        ->name('bautismo.edit');
+
     // TipoCurso CRUD
     Route::middleware('permission:tipocurso.view')
         ->get('/tipocurso', [\App\Http\Controllers\TipoCursoController::class, 'index'])
