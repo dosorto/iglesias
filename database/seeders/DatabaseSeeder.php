@@ -50,5 +50,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ConstanciaSeeder::class);
         $this->call(EmisionDetalleSeeder::class);
         $this->call(CertificadoCursoSeeder::class);
+
+        $this->call(TenantRolesSeeder::class);
     }
 }

@@ -120,6 +120,11 @@ class BautismoCreate extends Component
             return;
         }
 
+        if (! ctype_digit($dni)) {
+            $this->addError("{$rol}_dni", 'El DNI solo puede contener números.');
+            return;
+        }
+
         $persona = Persona::where('dni', $dni)->first();
 
         if (! $persona) {
