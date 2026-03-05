@@ -8,6 +8,7 @@ use App\Models\Persona;
 use App\Models\Feligres;
 use App\Models\Iglesias;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class FeligresCreate extends Component
 {
@@ -32,9 +33,15 @@ class FeligresCreate extends Component
     public string $estado        = 'Activo';
 
     public function mount(): void
-    {
-        $this->fecha_ingreso = now()->format('Y-m-d');
+{
+    $this->fecha_ingreso = now()->format('Y-m-d');
+
+    // En tenant, preseleccionar la iglesia local automáticamente
+    if (session('tenant')) {
+        $iglesiaLocal   = DB::table('iglesias')->first();
+        $this->id_iglesia = $iglesiaLocal?->id;
     }
+}
 
     // ── Resultados en vivo ──────────────────────────────────────────
     #[Computed]
@@ -202,9 +209,15 @@ class FeligresCreate extends Component
     }
 
     public function render()
-    {
-        return view('livewire.feligres.feligres-create', [
-            'iglesias' => Iglesias::where('estado', 'Activo')->orderBy('nombre')->get(),
-        ]);
+{
+    if (session('tenant')) {
+        $iglesias = collect([DB::table('iglesias')->first()])->filter();
+    } else {
+        $iglesias = Iglesias::where('estado', 'Activo')->orderBy('nombre')->get();
     }
+
+    return view('livewire.feligres.feligres-create', [
+        'iglesias' => $iglesias,
+    ]);
+}
 }

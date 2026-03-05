@@ -63,12 +63,17 @@ class PrimeraComunionCreate extends Component
     public string $partida_numero = '';
     public string $observaciones  = '';
 
-    public function mount(): void
-    {
-        $this->fecha_primera_comunion = now()->format('Y-m-d');
-        $this->mini_f_fecha_ingreso   = now()->format('Y-m-d');
-    }
+   public function mount(): void
+{
+    $this->fecha_primera_comunion = now()->format('Y-m-d');
+    $this->mini_f_fecha_ingreso   = now()->format('Y-m-d');
 
+    // En tenant, tomar el id de la iglesia local automáticamente
+    if (session('tenant')) {
+        $iglesiaLocal     = DB::table('iglesias')->first();
+        $this->iglesia_id = $iglesiaLocal?->id;
+    }
+}
     // Navegacion
 
     public function siguientePaso(): void
@@ -326,10 +331,17 @@ class PrimeraComunionCreate extends Component
     }
 
     public function render()
-    {
-        $centralConn = config('tenancy.central_connection', 'mysql');
-        return view('livewire.primera-comunion.primera-comunion-create', [
-            'iglesias' => Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get(),
-        ]);
+{
+    $centralConn = config('tenancy.central_connection', 'mysql');
+
+    if (session('tenant')) {
+        $iglesias = collect([DB::table('iglesias')->first()])->filter();
+    } else {
+        $iglesias = Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get();
     }
+
+    return view('livewire.primera-comunion.primera-comunion-create', [
+        'iglesias' => $iglesias,
+    ]);
+}
 }

@@ -74,6 +74,12 @@ class BautismoCreate extends Component
     {
         $this->fecha_bautismo       = now()->format('Y-m-d');
         $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
+
+        // En tenant, tomar el id de la iglesia local automáticamente
+        if (session('tenant')) {
+            $iglesiaLocal     = DB::table('iglesias')->first();
+            $this->iglesia_id = $iglesiaLocal?->id;
+        }
     }
 
     // Navegacion
@@ -236,12 +242,12 @@ class BautismoCreate extends Component
             'mini_p_dni.required'             => 'El numero de identidad es obligatorio.',
             'mini_p_dni.min'                  => 'El DNI debe tener al menos 8 caracteres.',
             'mini_p_dni.unique'               => 'Ya existe una persona con ese DNI.',
-            'mini_p_primer_nombre.required'        => 'El primer nombre es obligatorio.',
-            'mini_p_primer_nombre.regex'           => 'El primer nombre solo puede contener letras, espacios, guiones y apóstrofes.',
-            'mini_p_primer_apellido.required'      => 'El primer apellido es obligatorio.',
-            'mini_p_primer_apellido.regex'         => 'El primer apellido solo puede contener letras, espacios, guiones y apóstrofes.',
-            'mini_p_segundo_nombre.regex'          => 'El segundo nombre solo puede contener letras, espacios, guiones y apóstrofes.',
-            'mini_p_segundo_apellido.regex'        => 'El segundo apellido solo puede contener letras, espacios, guiones y apóstrofes.',
+            'mini_p_primer_nombre.required'   => 'El primer nombre es obligatorio.',
+            'mini_p_primer_nombre.regex'      => 'El primer nombre solo puede contener letras, espacios, guiones y apóstrofes.',
+            'mini_p_primer_apellido.required' => 'El primer apellido es obligatorio.',
+            'mini_p_primer_apellido.regex'    => 'El primer apellido solo puede contener letras, espacios, guiones y apóstrofes.',
+            'mini_p_segundo_nombre.regex'     => 'El segundo nombre solo puede contener letras, espacios, guiones y apóstrofes.',
+            'mini_p_segundo_apellido.regex'   => 'El segundo apellido solo puede contener letras, espacios, guiones y apóstrofes.',
         ]);
 
         $rol = $this->mini_rol;
@@ -341,8 +347,15 @@ class BautismoCreate extends Component
     public function render()
     {
         $centralConn = config('tenancy.central_connection', 'mysql');
+
+        if (session('tenant')) {
+            $iglesias = collect([DB::table('iglesias')->first()])->filter();
+        } else {
+            $iglesias = Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get();
+        }
+
         return view('livewire.bautismo.bautismo-create', [
-            'iglesias'   => Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get(),
+            'iglesias'   => $iglesias,
             'encargados' => Encargado::with('feligres.persona')->get(),
         ]);
     }

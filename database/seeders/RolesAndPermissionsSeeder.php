@@ -93,6 +93,16 @@ class RolesAndPermissionsSeeder extends Seeder
         $rootRole = Role::firstOrCreate(['name' => 'root']);
         $rootRole->syncPermissions(Permission::all());
 
+        // ADMIN: sin personas, iglesias, religion
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $adminRole->syncPermissions(
+            Permission::whereNotIn('name', [
+                'personas.view',   'personas.create', 'personas.edit',   'personas.delete', 'personas.export',
+                'iglesias.view',   'iglesias.create', 'iglesias.edit',   'iglesias.delete', 'iglesias.export',
+                'religion.view',   'religion.create', 'religion.edit',   'religion.delete', 'religion.export',
+            ])->get()
+        );
+
         // Asignar root a test@example.com
         $rootUser = User::where('email', 'test@example.com')->first();
         if ($rootUser) {
