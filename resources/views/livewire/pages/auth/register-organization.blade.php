@@ -18,13 +18,11 @@ new #[Layout('layouts.guest')] class extends Component
 {
     public int $step = 1;
 
-    // Datos de la iglesia
     public string $nombre = '';
     public string $direccion = '';
     public string $email_iglesia = '';
     public string $telefono_iglesia = '';
 
-    // Datos del usuario
     public string $name = '';
     public string $email = '';
     public string $password = '';
@@ -52,20 +50,20 @@ new #[Layout('layouts.guest')] class extends Component
 
         $provisioner = app(TenantProvisioner::class);
 
-        // 1. Crear registro en BD central
+        // 1. Crear iglesia en BD central
         $iglesia = Iglesias::create([
             'nombre'         => $this->nombre,
             'direccion'      => $this->direccion,
-            'parroco_nombre' => $validated['name'], // ← usa el nombre del usuario
+            'parroco_nombre' => $validated['name'],
             'telefono'       => $this->telefono_iglesia ?: null,
             'email'          => $this->email_iglesia ?: null,
             'estado'         => 'Activa',
         ]);
 
-        // 2. Crear BD tenant y correr migraciones
+        // 2. Crear BD tenant, migrar y correr TenantRolesSeeder automáticamente
         $tenant = $provisioner->provisionDatabase($iglesia);
 
-        // 3. Guardar credenciales del tenant en BD central
+        // 3. Guardar credenciales en BD central
         $iglesia->update([
             'db_connection' => $tenant['connection'],
             'db_host'       => $tenant['host'],
@@ -78,44 +76,50 @@ new #[Layout('layouts.guest')] class extends Component
         $tenantConnection = $tenant['connection'];
         $previousDefault  = config('database.default');
 
+        // 4. Reconfigurar conexión tenant (el provisioner puede haberla reseteado)
+        $centralConfig = config('database.connections.mysql');
+        config(["database.connections.{$tenantConnection}" => array_merge($centralConfig, [
+            'database' => $tenant['database'],
+        ])]);
+
         Config::set('database.default', $tenantConnection);
         DB::purge($tenantConnection);
         DB::reconnect($tenantConnection);
 
+        $iglesiaTenantId = null;
+
         try {
-            $user = DB::transaction(function () use ($validated, $iglesia, $tenantConnection) {
+            // 5. Insertar iglesia en BD tenant
+            DB::connection($tenantConnection)->table('iglesias')->insert([
+                'nombre'         => $iglesia->nombre,
+                'direccion'      => $iglesia->direccion,
+                'parroco_nombre' => $iglesia->parroco_nombre,
+                'telefono'       => $iglesia->telefono,
+                'email'          => $iglesia->email,
+                'estado'         => $iglesia->estado,
+                'created_at'     => now(),
+                'updated_at'     => now(),
+            ]);
 
-                // 4. Insertar iglesia en BD tenant
-                DB::connection($tenantConnection)->table('iglesias')->insert([
-                    'nombre'         => $iglesia->nombre,
-                    'direccion'      => $iglesia->direccion,
-                    'parroco_nombre' => $iglesia->parroco_nombre,
-                    'telefono'       => $iglesia->telefono,
-                    'email'          => $iglesia->email,
-                    'estado'         => $iglesia->estado,
-                    'created_at'     => now(),
-                    'updated_at'     => now(),
-                ]);
+            $iglesiaTenantId = DB::connection($tenantConnection)
+                ->table('iglesias')
+                ->latest('id')
+                ->first()
+                ->id;
 
-                // 5. Crear rol admin en BD tenant
-                $adminRole = Role::firstOrCreate([
-                    'name'       => 'admin',
-                    'guard_name' => 'web',
-                ]);
+            // 6. El TenantRolesSeeder ya creó el rol admin con permisos limitados
+            $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
 
-                // 6. Crear usuario en BD tenant
-                $user = User::create([
-                    'id_iglesia'        => $iglesia->id,
-                    'name'              => $validated['name'],
-                    'email'             => strtolower($validated['email']),
-                    'email_verified_at' => now(),
-                    'password'          => Hash::make($validated['password']),
-                ]);
+            // 7. Crear usuario admin y asignar rol
+            $user = User::create([
+                'id_iglesia'        => $iglesia->id,
+                'name'              => $validated['name'],
+                'email'             => strtolower($validated['email']),
+                'email_verified_at' => now(),
+                'password'          => Hash::make($validated['password']),
+            ]);
 
-                $user->assignRole($adminRole);
-
-                return $user;
-            });
+            $user->assignRole($adminRole);
 
             app(PermissionRegistrar::class)->forgetCachedPermissions();
 
@@ -126,13 +130,14 @@ new #[Layout('layouts.guest')] class extends Component
         }
 
         session()->put('tenant', [
-            'id_iglesia' => $iglesia->id,
-            'connection' => $tenantConnection,
-            'host'       => $tenant['host'],
-            'port'       => $tenant['port'],
-            'database'   => $tenant['database'],
-            'username'   => $tenant['username'],
-            'password'   => $tenant['password'],
+            'id_iglesia'        => $iglesia->id,
+            'id_iglesia_tenant' => $iglesiaTenantId,
+            'connection'        => $tenantConnection,
+            'host'              => $tenant['host'],
+            'port'              => $tenant['port'],
+            'database'          => $tenant['database'],
+            'username'          => $tenant['username'],
+            'password'          => $tenant['password'],
         ]);
 
         event(new Registered($user));
@@ -161,7 +166,6 @@ new #[Layout('layouts.guest')] class extends Component
         <p class="mt-2 text-sm text-gray-600">Completa 2 pasos para iniciar con tu cuenta administradora.</p>
     </div>
 
-    {{-- Stepper --}}
     <div class="flex items-center gap-3">
         <div class="flex items-center gap-2">
             <span class="inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold
@@ -178,7 +182,6 @@ new #[Layout('layouts.guest')] class extends Component
         </div>
     </div>
 
-    {{-- PASO 1: Datos de la Iglesia --}}
     @if ($step === 1)
         <form wire:submit="nextStep" class="space-y-4">
             <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Datos de la Iglesia</p>
@@ -214,12 +217,10 @@ new #[Layout('layouts.guest')] class extends Component
         </form>
     @endif
 
-    {{-- PASO 2: Datos del Usuario --}}
     @if ($step === 2)
         <form wire:submit="registerOrganization" class="space-y-4">
             <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Datos del Usuario Administrador</p>
 
-            {{-- Resumen iglesia --}}
             <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700 space-y-1">
                 <div>Iglesia: <span class="font-semibold">{{ $nombre }}</span></div>
                 @if($telefono_iglesia)

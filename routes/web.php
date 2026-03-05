@@ -275,22 +275,34 @@ Route::middleware(['auth'])->group(function () {
         ->delete('/tipocurso/{tipocurso}', [\App\Http\Controllers\TipoCursoController::class, 'destroy'])
         ->name('tipocurso.destroy');
 
-    // Cursos 
-    Route::middleware('permission:curso.view')
-    ->get('/curso', [\App\Http\Controllers\CursoController::class, 'index'])
-    ->name('curso.index');
+        // PrimeraComunion CRUD
+    Route::middleware('permission:primera-comunion.view')
+        ->get('/primera-comunion', [\App\Http\Controllers\PrimeraComunionController::class, 'index'])
+        ->name('primera-comunion.index');
 
-    Route::middleware('permission:curso.create')
-        ->get('/curso/create', [\App\Http\Controllers\CursoController::class, 'create'])
-        ->name('curso.create');
+    Route::middleware('permission:primera-comunion.create')
+        ->get('/primera-comunion/create', [\App\Http\Controllers\PrimeraComunionController::class, 'create'])
+        ->name('primera-comunion.create');
 
-    Route::middleware('permission:curso.view')
-        ->get('/curso/{curso}', [\App\Http\Controllers\CursoController::class, 'show'])
-        ->name('curso.show');
+    Route::middleware('permission:primera-comunion.create')
+        ->post('/primera-comunion', [\App\Http\Controllers\PrimeraComunionController::class, 'store'])
+        ->name('primera-comunion.store');
 
-    Route::middleware('permission:curso.edit')
-        ->get('/curso/{curso}/edit', [\App\Http\Controllers\CursoController::class, 'edit'])
-        ->name('curso.edit');
+    Route::middleware('permission:primera-comunion.view')
+        ->get('/primera-comunion/{primeraComunion}', [\App\Http\Controllers\PrimeraComunionController::class, 'show'])
+        ->name('primera-comunion.show');
+
+    Route::middleware('permission:primera-comunion.edit')
+        ->get('/primera-comunion/{primeraComunion}/edit', [\App\Http\Controllers\PrimeraComunionController::class, 'edit'])
+        ->name('primera-comunion.edit');
+
+    Route::middleware('permission:primera-comunion.edit')
+        ->put('/primera-comunion/{primeraComunion}', [\App\Http\Controllers\PrimeraComunionController::class, 'update'])
+        ->name('primera-comunion.update');
+
+    Route::middleware('permission:primera-comunion.delete')
+        ->delete('/primera-comunion/{primeraComunion}', [\App\Http\Controllers\PrimeraComunionController::class, 'destroy'])
+        ->name('primera-comunion.destroy');    
 });
 
 require __DIR__.'/auth.php';

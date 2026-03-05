@@ -37,6 +37,6 @@ return [
     |
     */
     'seeders' => [
-        Database\Seeders\RolesAndPermissionsSeeder::class,
+    Database\Seeders\TenantRolesSeeder::class,
     ],
 ];
