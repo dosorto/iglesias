@@ -233,8 +233,6 @@ class PrimeraComunionCreate extends Component
             'mini_p_sexo'             => ['nullable', 'in:M,F'],
             'mini_p_telefono'         => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
             'mini_p_email'            => ['nullable', 'email', 'max:255'],
-            'mini_f_fecha_ingreso'    => ['nullable', 'date'],
-            'mini_f_estado'           => ['required', 'in:Activo,Inactivo'],
         ], [
             'mini_p_dni.required'                  => 'El numero de identidad es obligatorio.',
             'mini_p_dni.min'                       => 'El DNI debe tener al menos 8 caracteres.',
@@ -257,7 +255,7 @@ class PrimeraComunionCreate extends Component
                 'primer_apellido'  => $this->mini_p_primer_apellido,
                 'segundo_apellido' => $this->mini_p_segundo_apellido ?: null,
                 'fecha_nacimiento' => $this->mini_p_fecha_nacimiento ?: null,
-                'sexo'             => $this->mini_p_sexo             ?: null,
+                'sexo'             => $this->mini_p_sexo === 'Masculino' ? 'M' : ($this->mini_p_sexo === 'Femenino' ? 'F' : null),
                 'telefono'         => $this->mini_p_telefono ?: null,
                 'email'            => $this->mini_p_email    ?: null,
             ]);

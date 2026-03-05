@@ -63,10 +63,70 @@
             </h2>
         </div>
 
-        <div class="p-6">
+        <div class="p-5 space-y-4">
 
-            {{-- ── Persona ya seleccionada ────────────────────────────── --}}
-            @if ($personaSeleccionada)
+            {{-- ── IDLE: Ingresar DNI y buscar ─────────────────────────── --}}
+            @if ($persona_estado === 'idle' && ! $showCrearPersona)
+                <div class="flex gap-3">
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0"/>
+                            </svg>
+                        </div>
+                        <input type="text"
+                               wire:model="persona_dni"
+                               wire:keydown.enter="buscarPersona"
+                               placeholder="Ingresa el número de identidad…"
+                               autocomplete="off"
+                               inputmode="numeric"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                               class="block w-full pl-10 pr-4 py-2.5 text-sm rounded-lg transition-colors
+                                      border border-gray-300 dark:border-gray-600
+                                      bg-gray-50 dark:bg-gray-700/60
+                                      text-gray-900 dark:text-white dark:placeholder-gray-400
+                                      focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                    </div>
+                    <button type="button"
+                            wire:click="buscarPersona"
+                            wire:loading.attr="disabled"
+                            wire:target="buscarPersona"
+                            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold
+                                   bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all disabled:opacity-60">
+                        <svg wire:loading.remove wire:target="buscarPersona"
+                             class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <svg wire:loading wire:target="buscarPersona"
+                             class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                        </svg>
+                        Buscar
+                    </button>
+                </div>
+                @error('persona_dni')
+                    <p class="text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01"/>
+                        </svg>
+                        {{ $message }}
+                    </p>
+                @enderror
+                @error('persona_id')
+                    <p class="text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        {{ $message }}
+                    </p>
+                @enderror
+            @endif
+
+            {{-- ── FOUND: Persona encontrada ───────────────────────────── --}}
+            @if ($persona_estado === 'found')
                 <div class="flex items-center justify-between p-4 rounded-xl
                             bg-emerald-50 dark:bg-emerald-900/20
                             border border-emerald-200 dark:border-emerald-700/50">
@@ -104,148 +164,77 @@
                         Cambiar
                     </button>
                 </div>
+            @endif
 
-            {{-- ── Buscador + resultados ────────────────────────────────── --}}
-            @else
-                {{-- Input de búsqueda --}}
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                        <svg wire:loading.remove wire:target="search"
-                             class="h-4 w-4 text-gray-400 dark:text-gray-500"
-                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            {{-- ── SIN_PERSONA: No se encontró ─────────────────────────── --}}
+            @if ($persona_estado === 'sin_persona')
+                <div class="p-4 rounded-xl bg-red-50 dark:bg-red-900/20
+                            border border-red-200 dark:border-red-700/50 space-y-3">
+                    <div class="flex items-start gap-2.5">
+                        <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
-                        <svg wire:loading wire:target="search"
-                             class="h-4 w-4 text-emerald-500 animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-                        </svg>
+                        <div>
+                            <p class="text-sm font-medium text-red-700 dark:text-red-300">No se encontró ninguna persona</p>
+                            <p class="text-xs text-red-600 dark:text-red-400 mt-0.5">
+                                DNI <strong>"{{ $persona_dni }}"</strong> no existe en la base de datos.
+                            </p>
+                        </div>
                     </div>
-                    <input type="text"
-                           wire:model.live.debounce.300ms="search"
-                           placeholder="Buscar por nombre, apellido o DNI…"
-                           autocomplete="off"
-                           class="block w-full pl-10 pr-4 py-2.5 text-sm rounded-lg
-                                  border border-gray-300 dark:border-gray-600
-                                  bg-gray-50 dark:bg-gray-700/60
-                                  text-gray-900 dark:text-white dark:placeholder-gray-400
-                                  focus:ring-2 focus:ring-emerald-500 focus:border-transparent
-                                  transition-colors" />
-                </div>
-
-                @error('persona_id')
-                    <p class="mt-2 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        {{ $message }}
-                    </p>
-                @enderror
-
-                {{-- Resultados inline --}}
-                @if (strlen(trim($search)) >= 2)
-                    @if ($this->resultados->count() > 0)
-                        <div class="mt-3 rounded-xl border border-gray-200 dark:border-gray-600/60 overflow-hidden shadow-sm">
-                            <ul class="divide-y divide-gray-100 dark:divide-gray-700/50">
-                                @foreach ($this->resultados as $p)
-                                    <li>
-                                        <button type="button"
-                                                wire:click="seleccionarPersona({{ $p->id }})"
-                                                class="w-full flex items-center gap-3 px-4 py-3 text-left
-                                                       hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors group">
-                                            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600
-                                                        flex items-center justify-center flex-shrink-0 shadow-sm">
-                                                <span class="text-white font-bold text-sm">
-                                                    {{ strtoupper(substr($p->primer_nombre, 0, 1)) }}
-                                                </span>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                                                    {{ $p->nombre_completo }}
-                                                </p>
-                                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                                    DNI: {{ $p->dni }}
-                                                    @if ($p->telefono) <span class="mx-1 opacity-40">·</span>{{ $p->telefono }} @endif
-                                                    @if ($p->email) <span class="mx-1 opacity-40">·</span>{{ $p->email }} @endif
-                                                </p>
-                                            </div>
-                                            <span class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex-shrink-0
-                                                         opacity-0 group-hover:opacity-100 transition-opacity">
-                                                Seleccionar →
-                                            </span>
-                                        </button>
-                                    </li>
-                                @endforeach
-                            </ul>
-                            {{-- Opción crear al pie --}}
-                            <div class="flex items-center gap-2 px-4 py-2.5
-                                        bg-gray-50 dark:bg-gray-900/40
-                                        border-t border-gray-100 dark:border-gray-700/50">
-                                <span class="text-xs text-gray-400 dark:text-gray-500">¿No aparece?</span>
-                                <button type="button"
-                                        wire:click="toggleCrearPersona"
-                                        class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">
-                                    Crear nueva persona
-                                </button>
-                            </div>
-                        </div>
-                    @else
-                        {{-- Sin resultados --}}
-                        <div class="mt-3 flex items-start justify-between gap-3 p-4 rounded-xl
-                                    bg-amber-50 dark:bg-amber-900/20
-                                    border border-amber-200 dark:border-amber-700/50">
-                            <div class="flex items-start gap-2.5">
-                                <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                <div>
-                                    <p class="text-sm font-medium text-amber-800 dark:text-amber-300">
-                                        No se encontró ninguna persona
-                                    </p>
-                                    <p class="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
-                                        No se encontró ning una persona con <strong>"{{ $search }}"</strong>.
-                                        ¿Deseas crear una nueva?
-                                    </p>
-                                </div>
-                            </div>
-                            <button type="button"
-                                    wire:click="toggleCrearPersona"
-                                    class="flex-shrink-0 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700
-                                           text-white text-xs font-semibold transition-colors shadow-sm">
-                                Crear Nueva Persona
-                            </button>
-                        </div>
+                    <div class="flex gap-3">
+                        <input type="text"
+                               wire:model="persona_dni"
+                               wire:keydown.enter="buscarPersona"
+                               class="flex-1 px-3 py-2 text-sm rounded-lg transition-colors
+                                      border border-gray-300 dark:border-gray-600
+                                      bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                      focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                        <button type="button"
+                                wire:click="buscarPersona"
+                                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                            Buscar
+                        </button>
+                    </div>
+                    @if (! $showCrearPersona)
+                        <button type="button"
+                                wire:click="abrirCrearPersona"
+                                class="w-full py-2.5 text-sm font-semibold
+                                       text-emerald-700 dark:text-emerald-300
+                                       border border-emerald-300 dark:border-emerald-600 rounded-xl
+                                       hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all">
+                            + Crear Nueva Persona
+                        </button>
                     @endif
-                @endif
+                </div>
+            @endif
 
-                {{-- ── Form crear persona ──────────────────────────────── --}}
-                @if ($showCrearPersona)
-                    <div class="mt-5 rounded-xl border border-emerald-200 dark:border-emerald-700/50
-                                bg-gradient-to-b from-emerald-50/80 to-transparent
-                                dark:from-emerald-900/15 dark:to-transparent
-                                overflow-hidden">
+            {{-- ── Form crear persona ──────────────────────────────────── --}}
+            @if ($showCrearPersona)
+                <div class="rounded-xl border border-emerald-200 dark:border-emerald-700/50
+                            bg-gradient-to-b from-emerald-50/80 to-transparent
+                            dark:from-emerald-900/15 dark:to-transparent
+                            overflow-hidden">
 
-                        {{-- Sub-header del form --}}
-                        <div class="flex items-center justify-between px-5 py-3
-                                    border-b border-emerald-100 dark:border-emerald-800/40
-                                    bg-emerald-50 dark:bg-emerald-900/20">
-                            <h3 class="text-sm font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                                </svg>
-                                Nueva Persona
-                            </h3>
-                            <button type="button"
-                                    wire:click="toggleCrearPersona"
-                                    class="p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-200
-                                           hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
-                        </div>
+                    {{-- Sub-header del form --}}
+                    <div class="flex items-center justify-between px-5 py-3
+                                border-b border-emerald-100 dark:border-emerald-800/40
+                                bg-emerald-50 dark:bg-emerald-900/20">
+                        <h3 class="text-sm font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                            </svg>
+                            Nueva Persona
+                        </h3>
+                        <button type="button"
+                                wire:click="cancelarCrearPersona"
+                                class="p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-200
+                                       hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
 
                         <div class="p-5 space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -276,6 +265,7 @@
                                     </label>
                                     <input type="text"
                                            wire:model.defer="p_primer_nombre"
+                                           oninput="this.value = this.value.replace(/[^a-zA-Z\u00C0-\u024FñÑ\s]/g, '')"
                                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                   border border-gray-300 dark:border-gray-600
                                                   bg-white dark:bg-gray-700/60
@@ -294,6 +284,7 @@
                                     </label>
                                     <input type="text"
                                            wire:model.defer="p_segundo_nombre"
+                                           oninput="this.value = this.value.replace(/[^a-zA-Z\u00C0-\u024FñÑ\s]/g, '')"
                                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                   border border-gray-300 dark:border-gray-600
                                                   bg-white dark:bg-gray-700/60
@@ -308,6 +299,7 @@
                                     </label>
                                     <input type="text"
                                            wire:model.defer="p_primer_apellido"
+                                           oninput="this.value = this.value.replace(/[^a-zA-Z\u00C0-\u024FñÑ\s]/g, '')"
                                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                   border border-gray-300 dark:border-gray-600
                                                   bg-white dark:bg-gray-700/60
@@ -326,11 +318,51 @@
                                     </label>
                                     <input type="text"
                                            wire:model.defer="p_segundo_apellido"
+                                           oninput="this.value = this.value.replace(/[^a-zA-Z\u00C0-\u024FñÑ\s]/g, '')"
                                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                   border border-gray-300 dark:border-gray-600
                                                   bg-white dark:bg-gray-700/60
                                                   text-gray-900 dark:text-white
                                                   focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                                </div>
+
+                                {{-- Sexo --}}
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                        Sexo <span class="text-red-500">*</span>
+                                    </label>
+                                    <select wire:model.defer="p_sexo"
+                                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                                   border border-gray-300 dark:border-gray-600
+                                                   bg-white dark:bg-gray-700/60
+                                                   text-gray-900 dark:text-white
+                                                   focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                                   @error('p_sexo') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror">
+                                        <option value="">-- Seleccionar --</option>
+                                        <option value="Masculino">Masculino</option>
+                                        <option value="Femenino">Femenino</option>
+                                    </select>
+                                    @error('p_sexo')
+                                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                {{-- Fecha de Nacimiento --}}
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                        Fecha de Nacimiento <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="date"
+                                           wire:model.defer="p_fecha_nacimiento"
+                                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                                  border border-gray-300 dark:border-gray-600
+                                                  bg-white dark:bg-gray-700/60
+                                                  text-gray-900 dark:text-white
+                                                  focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                                  @error('p_fecha_nacimiento') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror" />
+                                    @error('p_fecha_nacimiento')
+                                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
                                 {{-- Teléfono --}}
@@ -341,11 +373,14 @@
                                     <input type="text"
                                            wire:model.defer="p_telefono"
                                            placeholder="+504 0000-0000"
+                                           inputmode="tel"
+                                           oninput="this.value = this.value.replace(/[^0-9+\-\s]/g, '')"
                                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                   border border-gray-300 dark:border-gray-600
                                                   bg-white dark:bg-gray-700/60
                                                   text-gray-900 dark:text-white placeholder-gray-400
-                                                  focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                                                  focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                                  @error('p_telefono') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror" />
                                     @error('p_telefono')
                                         <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                                     @enderror
@@ -363,7 +398,8 @@
                                                   border border-gray-300 dark:border-gray-600
                                                   bg-white dark:bg-gray-700/60
                                                   text-gray-900 dark:text-white placeholder-gray-400
-                                                  focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                                                  focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                                  @error('p_email') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror" />
                                     @error('p_email')
                                         <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                                     @enderror
@@ -391,7 +427,6 @@
                             </div>
                         </div>
                     </div>
-                @endif
             @endif
 
         </div>
@@ -429,46 +464,34 @@
         </div>
 
         <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
                 {{-- Iglesia --}}
-                <div class="md:col-span-1">
+                <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                         Iglesia <span class="text-red-500">*</span>
                     </label>
-                    <select wire:model="id_iglesia"
-                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                                   border border-gray-300 dark:border-gray-600
-                                   bg-white dark:bg-gray-700/60
-                                   text-gray-900 dark:text-white
-                                   focus:ring-2 focus:ring-emerald-500 focus:border-transparent
-                                   @error('id_iglesia') border-red-400 @enderror">
-                        <option value="">Seleccionar Iglesia</option>
-                        @foreach ($iglesias as $ig)
-                            <option value="{{ $ig->id }}">{{ $ig->nombre }}</option>
-                        @endforeach
-                    </select>
+                    <div class="relative">
+                        <select wire:model="id_iglesia"
+                                disabled
+                                class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                       border border-gray-200 dark:border-gray-600/60
+                                       bg-gray-100 dark:bg-gray-700/40
+                                       text-gray-700 dark:text-gray-300
+                                       cursor-not-allowed opacity-80
+                                       @error('id_iglesia') border-red-400 @enderror">
+                            <option value="">Seleccionar Iglesia</option>
+                            @foreach ($iglesias as $ig)
+                                <option value="{{ $ig->id }}">{{ $ig->nombre }}</option>
+                            @endforeach
+                        </select>
+                        <div class="absolute inset-y-0 right-8 flex items-center pointer-events-none">
+                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                    </div>
                     @error('id_iglesia')
-                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                {{-- Estado --}}
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                        Estado <span class="text-red-500">*</span>
-                    </label>
-                    <select wire:model="estado"
-                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                                   border border-gray-300 dark:border-gray-600
-                                   bg-white dark:bg-gray-700/60
-                                   text-gray-900 dark:text-white
-                                   focus:ring-2 focus:ring-emerald-500 focus:border-transparent
-                                   @error('estado') border-red-400 @enderror">
-                        <option value="Activo">Activo</option>
-                        <option value="Inactivo">Inactivo</option>
-                    </select>
-                    @error('estado')
                         <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
@@ -478,14 +501,22 @@
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                         Fecha de Ingreso
                     </label>
-                    <input type="date"
-                           wire:model="fecha_ingreso"
-                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                                  border border-gray-300 dark:border-gray-600
-                                  bg-white dark:bg-gray-700/60
-                                  text-gray-900 dark:text-white
-                                  focus:ring-2 focus:ring-emerald-500 focus:border-transparent
-                                  @error('fecha_ingreso') border-red-400 @enderror" />
+                    <div class="relative">
+                        <input type="date"
+                               wire:model="fecha_ingreso"
+                               readonly
+                               class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                      border border-gray-200 dark:border-gray-600/60
+                                      bg-gray-100 dark:bg-gray-700/40
+                                      text-gray-700 dark:text-gray-300
+                                      cursor-not-allowed opacity-80
+                                      @error('fecha_ingreso') border-red-400 @enderror" />
+                        <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                    </div>
                     @error('fecha_ingreso')
                         <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror

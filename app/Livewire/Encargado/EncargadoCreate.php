@@ -160,7 +160,7 @@ class EncargadoCreate extends Component
             'telefono'         => $this->p_telefono ?: null,
             'email'            => $this->p_email ?: null,
             'fecha_nacimiento' => $this->p_fecha_nacimiento ?: null,
-            'sexo'             => $this->p_sexo ?: null,
+            'sexo'             => $this->p_sexo === 'Masculino' ? 'M' : ($this->p_sexo === 'Femenino' ? 'F' : null),
         ]);
 
         $this->seleccionarPersona($persona->id);

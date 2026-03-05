@@ -20,6 +20,14 @@ return Application::configure(basePath: dirname(__DIR__))
             InitializeTenantFromSession::class,
         ]);
 
+        // Ensure tenant DB is initialized AFTER the session starts
+        // but BEFORE SubstituteBindings resolves route-model bindings.
+        $middleware->priority([
+            \Illuminate\Session\Middleware\StartSession::class,
+            InitializeTenantFromSession::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ]);
+
         $middleware->alias([
             'permission' => PermissionMiddleware::class,
             'role' => RoleMiddleware::class,

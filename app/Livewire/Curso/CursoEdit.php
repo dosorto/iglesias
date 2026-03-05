@@ -76,7 +76,7 @@ class CursoEdit extends Component
         return view('livewire.curso.curso-edit',[
 
             'iglesias' => Iglesias::orderBy('nombre')->get(),
-            'tipos' => TipoCurso::orderBy('nombre')->get(),
+            'tipos' => TipoCurso::orderBy('nombre_curso')->get(),
             'instructores' => Instructor::with('feligres.persona')->get()
 
         ]);
