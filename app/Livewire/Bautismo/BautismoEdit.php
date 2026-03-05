@@ -35,7 +35,7 @@ class BautismoEdit extends Component
     {
         return [
             'iglesia_id'     => ['required', 'integer', 'exists:iglesias,id'],
-            'encargado_id'   => ['required', 'integer', 'exists:encargados,id'],
+            'encargado_id'   => ['required', 'integer', 'exists:encargado,id'],
             'fecha_bautismo' => ['required', 'date', 'before_or_equal:today'],
             'libro_bautismo' => ['nullable', 'string', 'max:100'],
             'folio'          => ['nullable', 'string', 'max:50'],

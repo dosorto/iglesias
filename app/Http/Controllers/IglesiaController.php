@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreIglesiaRequest;
 use App\Http\Requests\UpdateIglesiaRequest;
 use App\Models\Iglesias;
+use App\Services\Tenancy\TenantProvisioner;
 use Illuminate\Http\Request;
 
 class IglesiaController extends Controller
@@ -30,7 +31,7 @@ class IglesiaController extends Controller
      */
     public function store(StoreIglesiaRequest $request)
     {
-        Iglesias::create([
+        $iglesia = Iglesias::create([
             'nombre' => $request->nombre,
             'direccion' => $request->direccion,
             'telefono' => $request->telefono,
@@ -39,8 +40,23 @@ class IglesiaController extends Controller
             'estado' => $request->estado,
         ]);
 
+        try {
+            $provisioner = app(TenantProvisioner::class);
+            $tenant = $provisioner->provisionDatabase($iglesia);
+            $iglesia->update([
+                'db_connection' => $tenant['connection'],
+                'db_host'       => $tenant['host'],
+                'db_port'       => $tenant['port'],
+                'db_database'   => $tenant['database'],
+                'db_username'   => $tenant['username'],
+                'db_password'   => $tenant['password'],
+            ]);
+        } catch (\Throwable $e) {
+            logger()->error('TenantProvisioner falló para iglesia #' . $iglesia->id, ['error' => $e->getMessage()]);
+        }
+
         return redirect()->route('iglesias.index')
-            ->with('sucess', 'Iglesia Creada Exitosamente. ');
+            ->with('success', 'Iglesia Creada Exitosamente.');
     }
 
     /**
@@ -74,8 +90,7 @@ class IglesiaController extends Controller
         ]);
 
         return redirect()->route('iglesias.index')
-            ->with('sucess', 'Iglesia Actualizada Exitosamente. ');
-
+            ->with('success', 'Iglesia Actualizada Exitosamente.');
     }
 
     /**

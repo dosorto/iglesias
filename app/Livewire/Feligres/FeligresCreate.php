@@ -3,7 +3,6 @@
 namespace App\Livewire\Feligres;
 
 use Livewire\Component;
-use Livewire\Attributes\Computed;
 use App\Models\Persona;
 use App\Models\Feligres;
 use App\Models\Iglesias;
@@ -12,9 +11,10 @@ use Illuminate\Support\Facades\DB;
 
 class FeligresCreate extends Component
 {
-    // ── Búsqueda live ──────────────────────────────────────────────
-    public string $search = '';
-    public ?int   $persona_id = null;
+    // ── Búsqueda por DNI ───────────────────────────────────────────
+    public string $persona_dni    = '';
+    public string $persona_estado = 'idle'; // idle | found | sin_persona
+    public ?int   $persona_id     = null;
     public ?array $personaSeleccionada = null;
 
     // ── Crear persona inline ────────────────────────────────────────
@@ -24,8 +24,10 @@ class FeligresCreate extends Component
     public string $p_segundo_nombre  = '';
     public string $p_primer_apellido  = '';
     public string $p_segundo_apellido = '';
-    public string $p_telefono = '';
-    public string $p_email    = '';
+    public string $p_telefono         = '';
+    public string $p_email            = '';
+    public string $p_sexo             = '';
+    public string $p_fecha_nacimiento = '';
 
     // ── Datos feligrés ──────────────────────────────────────────────
     public ?int   $id_iglesia    = null;
@@ -33,63 +35,36 @@ class FeligresCreate extends Component
     public string $estado        = 'Activo';
 
     public function mount(): void
-{
-    $this->fecha_ingreso = now()->format('Y-m-d');
-
-    // En tenant, preseleccionar la iglesia local automáticamente
-    if (session('tenant')) {
-        $iglesiaLocal   = DB::table('iglesias')->first();
-        $this->id_iglesia = $iglesiaLocal?->id;
-    }
-}
-
-    // ── Resultados en vivo ──────────────────────────────────────────
-    #[Computed]
-    public function resultados(): \Illuminate\Support\Collection
     {
-        $q = trim($this->search);
+        $this->fecha_ingreso = now()->format('Y-m-d');
 
-        if (strlen($q) < 2) {
-            return collect();
+        // En tenant, preseleccionar la iglesia local automáticamente
+        if (session('tenant')) {
+            $iglesiaLocal     = DB::table('iglesias')->first();
+            $this->id_iglesia = $iglesiaLocal?->id;
         }
-
-        return Persona::where(function ($query) use ($q) {
-                $query->where('dni', 'like', "%{$q}%")
-                      ->orWhere('primer_nombre',    'like', "%{$q}%")
-                      ->orWhere('segundo_nombre',   'like', "%{$q}%")
-                      ->orWhere('primer_apellido',  'like', "%{$q}%")
-                      ->orWhere('segundo_apellido', 'like', "%{$q}%");
-            })
-            ->orderBy('primer_apellido')
-            ->orderBy('primer_nombre')
-            ->limit(10)
-            ->get();
     }
 
-    // Auto-abrir form crear cuando la búsqueda no encuentra resultados
-    public function updatedSearch(): void
+    // ── Buscar persona por DNI ─────────────────────────────────────
+    public function buscarPersona(): void
     {
-        unset($this->resultados);
+        $dni = trim($this->persona_dni);
 
-        $q = trim($this->search);
-
-        if (strlen($q) < 2) {
-            $this->showCrearPersona = false;
+        if (empty($dni)) {
+            $this->addError('persona_dni', 'Ingresa un número de identidad para buscar.');
             return;
         }
 
-        // Si no hay resultados, mostrar el form automáticamente y pre-llenar DNI
-        if ($this->resultados->isEmpty()) {
-            if (! $this->showCrearPersona) {
-                $this->showCrearPersona = true;
-                $this->p_dni = ctype_digit($q) ? $q : '';
-                $this->reset(['p_primer_nombre', 'p_segundo_nombre', 'p_primer_apellido',
-                              'p_segundo_apellido', 'p_telefono', 'p_email']);
-            }
-        } else {
-            // Hay resultados: ocultar el form crear
-            $this->showCrearPersona = false;
+        $persona = Persona::where('dni', $dni)->first();
+
+        if (! $persona) {
+            $this->persona_id          = null;
+            $this->personaSeleccionada = null;
+            $this->persona_estado      = 'sin_persona';
+            return;
         }
+
+        $this->seleccionarPersona($persona->id);
     }
 
     // ── Seleccionar persona del listado ─────────────────────────────
@@ -106,10 +81,8 @@ class FeligresCreate extends Component
             'email'           => $persona->email,
         ];
 
-        $this->search           = '';
+        $this->persona_estado   = 'found';
         $this->showCrearPersona = false;
-
-        unset($this->resultados);
     }
 
     // ── Deseleccionar persona ───────────────────────────────────────
@@ -117,29 +90,24 @@ class FeligresCreate extends Component
     {
         $this->persona_id          = null;
         $this->personaSeleccionada = null;
-        $this->search              = '';
+        $this->persona_dni         = '';
+        $this->persona_estado      = 'idle';
         $this->showCrearPersona    = false;
-        unset($this->resultados);
     }
 
-    // ── Mostrar / ocultar form crear persona ────────────────────────
-    public function toggleCrearPersona(): void
+    // ── Abrir / cancelar form crear persona ─────────────────────────
+    public function abrirCrearPersona(): void
     {
-        if ($this->showCrearPersona) {
-            // Cerrar: limpiar todo para volver al buscador vacío
-            $this->showCrearPersona = false;
-            $this->search = '';
-            unset($this->resultados);
-        } else {
-            // Abrir manualmente (desde el pie de la lista de resultados)
-            $q = trim($this->search);
-            $this->p_dni = ctype_digit($q) ? $q : '';
-            $this->reset(['p_primer_nombre', 'p_segundo_nombre', 'p_primer_apellido',
-                          'p_segundo_apellido', 'p_telefono', 'p_email']);
-            $this->search = '';
-            unset($this->resultados);
-            $this->showCrearPersona = true;
-        }
+        $this->p_dni = ctype_digit(trim($this->persona_dni)) ? trim($this->persona_dni) : '';
+        $this->reset(['p_primer_nombre', 'p_segundo_nombre', 'p_primer_apellido',
+                      'p_segundo_apellido', 'p_telefono', 'p_email', 'p_sexo', 'p_fecha_nacimiento']);
+        $this->resetErrorBag();
+        $this->showCrearPersona = true;
+    }
+
+    public function cancelarCrearPersona(): void
+    {
+        $this->showCrearPersona = false;
     }
 
     // ── Crear persona inline ─────────────────────────────────────────
@@ -147,28 +115,43 @@ class FeligresCreate extends Component
     {
         $this->validate([
             'p_dni'             => ['required', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
-            'p_primer_nombre'   => ['required', 'string', 'max:150'],
-            'p_primer_apellido' => ['required', 'string', 'max:100'],
-            'p_segundo_nombre'  => ['nullable', 'string', 'max:150'],
-            'p_segundo_apellido'=> ['nullable', 'string', 'max:100'],
-            'p_telefono'        => ['nullable', 'string', 'max:20'],
-            'p_email'           => ['nullable', 'email', 'max:255'],
+            'p_primer_nombre'    => ['required', 'string', 'max:150', 'regex:/^[a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s]+$/u'],
+            'p_primer_apellido'  => ['required', 'string', 'max:100', 'regex:/^[a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s]+$/u'],
+            'p_segundo_nombre'   => ['nullable', 'string', 'max:150', 'regex:/^[a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s]+$/u'],
+            'p_segundo_apellido' => ['nullable', 'string', 'max:100', 'regex:/^[a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s]+$/u'],
+            'p_sexo'             => ['required', 'in:Masculino,Femenino'],
+            'p_fecha_nacimiento' => ['required', 'date', 'before:today'],
+            'p_telefono'         => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-\s]+$/'],
+            'p_email'            => ['nullable', 'email:rfc,dns', 'max:255'],
         ], [
             'p_dni.required'             => 'El número de identidad es obligatorio.',
             'p_dni.min'                  => 'El DNI debe tener al menos 8 caracteres.',
             'p_dni.unique'               => 'Ya existe una persona con ese DNI.',
-            'p_primer_nombre.required'   => 'El primer nombre es obligatorio.',
-            'p_primer_apellido.required' => 'El primer apellido es obligatorio.',
+            'p_primer_nombre.required'    => 'El primer nombre es obligatorio.',
+            'p_primer_nombre.regex'        => 'El primer nombre solo puede contener letras.',
+            'p_primer_apellido.required'   => 'El primer apellido es obligatorio.',
+            'p_primer_apellido.regex'      => 'El primer apellido solo puede contener letras.',
+            'p_segundo_nombre.regex'       => 'El segundo nombre solo puede contener letras.',
+            'p_segundo_apellido.regex'     => 'El segundo apellido solo puede contener letras.',
+            'p_sexo.required'             => 'El sexo es obligatorio.',
+            'p_sexo.in'                   => 'El sexo debe ser Masculino o Femenino.',
+            'p_fecha_nacimiento.required' => 'La fecha de nacimiento es obligatoria.',
+            'p_fecha_nacimiento.date'     => 'La fecha de nacimiento no es válida.',
+            'p_fecha_nacimiento.before'   => 'La fecha de nacimiento debe ser anterior a hoy.',
+            'p_telefono.regex'            => 'El teléfono solo puede contener números, +, - y espacios.',
+            'p_email.email'               => 'El formato del correo electrónico no es válido.',
         ]);
 
         $persona = Persona::create([
-            'dni'              => $this->p_dni,
-            'primer_nombre'    => $this->p_primer_nombre,
-            'segundo_nombre'   => $this->p_segundo_nombre ?: null,
-            'primer_apellido'  => $this->p_primer_apellido,
-            'segundo_apellido' => $this->p_segundo_apellido ?: null,
-            'telefono'         => $this->p_telefono ?: null,
-            'email'            => $this->p_email ?: null,
+            'dni'               => $this->p_dni,
+            'primer_nombre'     => $this->p_primer_nombre,
+            'segundo_nombre'    => $this->p_segundo_nombre ?: null,
+            'primer_apellido'   => $this->p_primer_apellido,
+            'segundo_apellido'  => $this->p_segundo_apellido ?: null,
+            'sexo'              => $this->p_sexo === 'Masculino' ? 'M' : ($this->p_sexo === 'Femenino' ? 'F' : null),
+            'fecha_nacimiento'  => $this->p_fecha_nacimiento,
+            'telefono'          => $this->p_telefono ?: null,
+            'email'             => $this->p_email ?: null,
         ]);
 
         $this->seleccionarPersona($persona->id);
@@ -209,15 +192,15 @@ class FeligresCreate extends Component
     }
 
     public function render()
-{
-    if (session('tenant')) {
-        $iglesias = collect([DB::table('iglesias')->first()])->filter();
-    } else {
-        $iglesias = Iglesias::where('estado', 'Activo')->orderBy('nombre')->get();
-    }
+    {
+        if (session('tenant')) {
+            $iglesias = collect([DB::table('iglesias')->first()])->filter();
+        } else {
+            $iglesias = Iglesias::where('estado', 'Activo')->orderBy('nombre')->get();
+        }
 
-    return view('livewire.feligres.feligres-create', [
-        'iglesias' => $iglesias,
-    ]);
-}
+        return view('livewire.feligres.feligres-create', [
+            'iglesias' => $iglesias,
+        ]);
+    }
 }

@@ -265,7 +265,7 @@ class BautismoCreate extends Component
                 'primer_apellido'  => $this->mini_p_primer_apellido,
                 'segundo_apellido' => $this->mini_p_segundo_apellido ?: null,
                 'fecha_nacimiento' => $this->mini_p_fecha_nacimiento ?: null,
-                'sexo'             => $this->mini_p_sexo             ?: null,
+                'sexo'             => $this->mini_p_sexo === 'Masculino' ? 'M' : ($this->mini_p_sexo === 'Femenino' ? 'F' : null),
                 'telefono'         => $this->mini_p_telefono ?: null,
                 'email'            => $this->mini_p_email    ?: null,
             ]);

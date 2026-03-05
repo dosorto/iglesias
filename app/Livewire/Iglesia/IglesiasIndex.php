@@ -43,6 +43,11 @@ class IglesiasIndex extends Component
         session()->flash('success', 'Iglesia eliminada exitosamente.');
     }
 
+    public function verIglesia(int $id): void
+    {
+        $this->redirect(route('iglesias.show', $id), navigate: true);
+    }
+
     public function render()
     {
         $iglesias = Iglesias::query()
