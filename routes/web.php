@@ -302,7 +302,36 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware('permission:primera-comunion.delete')
         ->delete('/primera-comunion/{primeraComunion}', [\App\Http\Controllers\PrimeraComunionController::class, 'destroy'])
-        ->name('primera-comunion.destroy');    
+        ->name('primera-comunion.destroy');
+
+    // Curso CRUD
+    Route::middleware('permission:curso.view')
+        ->get('/curso', [\App\Http\Controllers\CursoController::class, 'index'])
+        ->name('curso.index');
+
+    Route::middleware('permission:curso.create')
+        ->get('/curso/create', [\App\Http\Controllers\CursoController::class, 'create'])
+        ->name('curso.create');
+
+    Route::middleware('permission:curso.create')
+        ->post('/curso', [\App\Http\Controllers\CursoController::class, 'store'])
+        ->name('curso.store');
+
+    Route::middleware('permission:curso.view')
+        ->get('/curso/{curso}', [\App\Http\Controllers\CursoController::class, 'show'])
+        ->name('curso.show');
+
+    Route::middleware('permission:curso.edit')
+        ->get('/curso/{curso}/edit', [\App\Http\Controllers\CursoController::class, 'edit'])
+        ->name('curso.edit');
+
+    Route::middleware('permission:curso.edit')
+        ->put('/curso/{curso}', [\App\Http\Controllers\CursoController::class, 'update'])
+        ->name('curso.update');
+
+    Route::middleware('permission:curso.delete')
+        ->delete('/curso/{curso}', [\App\Http\Controllers\CursoController::class, 'destroy'])
+        ->name('curso.destroy');
 });
 
 require __DIR__.'/auth.php';
