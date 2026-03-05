@@ -65,6 +65,12 @@ class TenantRolesSeeder extends Seeder
             ['name' => 'primera-comunion.edit',   'display_name' => 'Editar Primera Comunion'],
             ['name' => 'primera-comunion.delete', 'display_name' => 'Eliminar Primera Comunion'],
             ['name' => 'primera-comunion.export', 'display_name' => 'Exportar Primera Comunion'],
+
+            ['name' => 'curso.view',   'display_name' => 'Ver Cursos'],
+            ['name' => 'curso.create', 'display_name' => 'Crear Cursos'],
+            ['name' => 'curso.edit',   'display_name' => 'Editar Cursos'],
+            ['name' => 'curso.delete', 'display_name' => 'Eliminar Cursos'],
+            ['name' => 'curso.export', 'display_name' => 'Exportar Cursos'],
         ];
 
         foreach ($adminPermisos as $p) {
