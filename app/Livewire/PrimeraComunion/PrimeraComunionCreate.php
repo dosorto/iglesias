@@ -63,12 +63,17 @@ class PrimeraComunionCreate extends Component
     public string $partida_numero = '';
     public string $observaciones  = '';
 
-    public function mount(): void
-    {
-        $this->fecha_primera_comunion = now()->format('Y-m-d');
-        $this->mini_f_fecha_ingreso   = now()->format('Y-m-d');
-    }
+   public function mount(): void
+{
+    $this->fecha_primera_comunion = now()->format('Y-m-d');
+    $this->mini_f_fecha_ingreso   = now()->format('Y-m-d');
 
+    // En tenant, tomar el id de la iglesia local automáticamente
+    if (session('tenant')) {
+        $iglesiaLocal     = DB::table('iglesias')->first();
+        $this->iglesia_id = $iglesiaLocal?->id;
+    }
+}
     // Navegacion
 
     public function siguientePaso(): void
@@ -228,8 +233,6 @@ class PrimeraComunionCreate extends Component
             'mini_p_sexo'             => ['nullable', 'in:M,F'],
             'mini_p_telefono'         => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
             'mini_p_email'            => ['nullable', 'email', 'max:255'],
-            'mini_f_fecha_ingreso'    => ['nullable', 'date'],
-            'mini_f_estado'           => ['required', 'in:Activo,Inactivo'],
         ], [
             'mini_p_dni.required'                  => 'El numero de identidad es obligatorio.',
             'mini_p_dni.min'                       => 'El DNI debe tener al menos 8 caracteres.',
@@ -252,7 +255,7 @@ class PrimeraComunionCreate extends Component
                 'primer_apellido'  => $this->mini_p_primer_apellido,
                 'segundo_apellido' => $this->mini_p_segundo_apellido ?: null,
                 'fecha_nacimiento' => $this->mini_p_fecha_nacimiento ?: null,
-                'sexo'             => $this->mini_p_sexo             ?: null,
+                'sexo'             => $this->mini_p_sexo === 'Masculino' ? 'M' : ($this->mini_p_sexo === 'Femenino' ? 'F' : null),
                 'telefono'         => $this->mini_p_telefono ?: null,
                 'email'            => $this->mini_p_email    ?: null,
             ]);
@@ -335,10 +338,17 @@ class PrimeraComunionCreate extends Component
     }
 
     public function render()
-    {
-        $centralConn = config('tenancy.central_connection', 'mysql');
-        return view('livewire.primera-comunion.primera-comunion-create', [
-            'iglesias' => Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get(),
-        ]);
+{
+    $centralConn = config('tenancy.central_connection', 'mysql');
+
+    if (session('tenant')) {
+        $iglesias = collect([DB::table('iglesias')->first()])->filter();
+    } else {
+        $iglesias = Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get();
     }
+
+    return view('livewire.primera-comunion.primera-comunion-create', [
+        'iglesias' => $iglesias,
+    ]);
+}
 }

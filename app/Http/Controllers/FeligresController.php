@@ -37,10 +37,9 @@ class FeligresController extends Controller
 
     public function edit(Feligres $feligre)
     {
-        $personas = Persona::orderBy('primer_apellido')->orderBy('primer_nombre')->get();
         $iglesias = Iglesias::where('estado', 'Activo')->orderBy('nombre')->get();
 
-        return view('feligres.edit', compact('feligre', 'personas', 'iglesias'));
+        return view('feligres.edit', compact('feligre', 'iglesias'));
     }
 
     public function update(UpdateFeligresRequest $request, Feligres $feligre)

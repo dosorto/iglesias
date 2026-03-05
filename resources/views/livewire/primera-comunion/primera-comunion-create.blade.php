@@ -90,18 +90,26 @@
                 <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                     Iglesia <span class="text-red-500">*</span>
                 </label>
-                <select wire:model.defer="iglesia_id"
-                        class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                               border border-gray-300 dark:border-gray-600
-                               bg-gray-50 dark:bg-gray-700/60
-                               text-gray-900 dark:text-white
-                               focus:ring-2 focus:ring-sky-500 focus:border-transparent
-                               @error('iglesia_id') border-red-400 @enderror">
-                    <option value="">Selecciona una iglesia</option>
-                    @foreach ($iglesias as $ig)
-                        <option value="{{ $ig->id }}">{{ $ig->nombre }}</option>
-                    @endforeach
-                </select>
+                <div class="relative">
+                    <select wire:model.defer="iglesia_id"
+                            disabled
+                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                   border border-gray-200 dark:border-gray-600/60
+                                   bg-gray-100 dark:bg-gray-700/40
+                                   text-gray-700 dark:text-gray-300
+                                   cursor-not-allowed opacity-80
+                                   @error('iglesia_id') border-red-400 @enderror">
+                        <option value="">Selecciona una iglesia</option>
+                        @foreach ($iglesias as $ig)
+                            <option value="{{ $ig->id }}">{{ $ig->nombre }}</option>
+                        @endforeach
+                    </select>
+                    <div class="absolute inset-y-0 right-8 flex items-center pointer-events-none">
+                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                    </div>
+                </div>
                 @error('iglesia_id')
                     <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                 @enderror
@@ -209,6 +217,9 @@
                                 <input type="text"
                                        wire:model="{{ $key }}_dni"
                                        placeholder="Ingresa el DNI del {{ strtolower($rc['label']) }}..."
+                                       inputmode="numeric"
+                                       autocomplete="off"
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                        class="block w-full pl-10 pr-4 py-2.5 text-sm rounded-lg transition-colors
                                               border border-gray-300 dark:border-gray-600
                                               bg-gray-50 dark:bg-gray-700/60
@@ -326,6 +337,9 @@
                             <div class="flex gap-3">
                                 <input type="text"
                                        wire:model="{{ $key }}_dni"
+                                       inputmode="numeric"
+                                       autocomplete="off"
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                        class="flex-1 px-3 py-2 text-sm rounded-lg transition-colors
                                               border border-gray-300 dark:border-gray-600
                                               bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
@@ -404,6 +418,7 @@
                                                 Primer Nombre <span class="text-red-500">*</span>
                                             </label>
                                             <input type="text" wire:model="mini_p_primer_nombre"
+                                                   oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/gu, '')"
                                                    class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                           border border-gray-300 dark:border-gray-600
                                                           bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
@@ -419,6 +434,7 @@
                                                 Segundo Nombre
                                             </label>
                                             <input type="text" wire:model="mini_p_segundo_nombre"
+                                                   oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/gu, '')"
                                                    class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                           border border-gray-300 dark:border-gray-600
                                                           bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
@@ -430,6 +446,7 @@
                                                 Primer Apellido <span class="text-red-500">*</span>
                                             </label>
                                             <input type="text" wire:model="mini_p_primer_apellido"
+                                                   oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/gu, '')"
                                                    class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                           border border-gray-300 dark:border-gray-600
                                                           bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
@@ -445,6 +462,7 @@
                                                 Segundo Apellido
                                             </label>
                                             <input type="text" wire:model="mini_p_segundo_apellido"
+                                                   oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/gu, '')"
                                                    class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                           border border-gray-300 dark:border-gray-600
                                                           bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
@@ -486,6 +504,7 @@
                                                 Teléfono
                                             </label>
                                             <input type="text" wire:model="mini_p_telefono" placeholder="+504 0000-0000"
+                                                   oninput="this.value = this.value.replace(/[^0-9+\-]/g, '')"
                                                    class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                           border border-gray-300 dark:border-gray-600
                                                           bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
@@ -510,39 +529,7 @@
                                     </div>
                                 </div>
 
-                                <div>
-                                    <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3
-                                               flex items-center gap-2
-                                               before:content-[''] before:flex-1 before:h-px before:bg-gray-200 dark:before:bg-gray-700
-                                               after:content-['']  after:flex-1  after:h-px  after:bg-gray-200 dark:after:bg-gray-700">
-                                        Registro Feligrés
-                                    </p>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div>
-                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                                                Fecha de Ingreso
-                                            </label>
-                                            <input type="date" wire:model="mini_f_fecha_ingreso"
-                                                   class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                                                          border border-gray-300 dark:border-gray-600
-                                                          bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
-                                                          focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                                                Estado <span class="text-red-500">*</span>
-                                            </label>
-                                            <select wire:model="mini_f_estado"
-                                                    class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                                                           border border-gray-300 dark:border-gray-600
-                                                           bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
-                                                           focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
-                                                <option value="Activo">Activo</option>
-                                                <option value="Inactivo">Inactivo</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
+
 
                                 <div class="flex justify-end gap-3 pt-2 border-t border-emerald-100 dark:border-emerald-800/40">
                                     <button type="button" wire:click="cancelarMini"

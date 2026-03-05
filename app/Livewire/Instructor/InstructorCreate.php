@@ -3,7 +3,6 @@
 namespace App\Livewire\Instructor;
 
 use Livewire\Component;
-use Livewire\Attributes\Computed;
 use App\Models\Persona;
 use App\Models\Instructor;
 use App\Models\Feligres;
@@ -17,8 +16,9 @@ class InstructorCreate extends Component
 
     // ── Nueva propiedad para la firma ─────────────────────────────
     public $firma; // para subir la imagen
-    // ── Búsqueda live ──────────────────────────────────────────────
-    public string $search = '';
+    // ── Búsqueda por DNI ───────────────────────────────────────────
+    public string $persona_dni    = '';
+    public string $persona_estado = 'idle'; // idle | found | sin_persona
     public ?int   $persona_id = null;
     public ?array $personaSeleccionada = null;
 
@@ -45,55 +45,27 @@ class InstructorCreate extends Component
         $this->fecha_ingreso = now()->format('Y-m-d');
     }
 
-    // ── Resultados de búsqueda en vivo ─────────────────────────────
-    #[Computed]
-    public function resultados(): \Illuminate\Support\Collection
+    // ── Buscar persona por DNI ──────────────────────────────────────
+    public function buscarPersona(): void
     {
-        $q = trim($this->search);
+        $dni = trim($this->persona_dni);
 
-        if (strlen($q) < 2) {
-            return collect();
-        }
-
-        return Persona::where(function ($query) use ($q) {
-                $query->where('dni', 'like', "%{$q}%")
-                      ->orWhere('primer_nombre',    'like', "%{$q}%")
-                      ->orWhere('segundo_nombre',   'like', "%{$q}%")
-                      ->orWhere('primer_apellido',  'like', "%{$q}%")
-                      ->orWhere('segundo_apellido', 'like', "%{$q}%");
-            })
-            ->orderBy('primer_apellido')
-            ->orderBy('primer_nombre')
-            ->limit(10)
-            ->get();
-    }
-
-    // Auto-abrir form crear cuando no hay resultados
-    public function updatedSearch(): void
-    {
-        unset($this->resultados);
-
-        $q = trim($this->search);
-
-        if (strlen($q) < 2) {
-            $this->showCrearPersona = false;
+        if (! $dni) {
+            $this->addError('persona_dni', 'Ingresa un DNI para buscar.');
             return;
         }
 
-        if ($this->resultados->isEmpty()) {
-            if (! $this->showCrearPersona) {
-                $this->showCrearPersona = true;
-                $this->p_dni = ctype_digit($q) ? $q : '';
-                $this->reset(['p_primer_nombre', 'p_segundo_nombre', 'p_primer_apellido',
-                              'p_segundo_apellido', 'p_telefono', 'p_email',
-                              'p_fecha_nacimiento', 'p_sexo']);
-            }
-        } else {
-            $this->showCrearPersona = false;
+        $persona = Persona::where('dni', $dni)->first();
+
+        if (! $persona) {
+            $this->persona_estado = 'sin_persona';
+            return;
         }
+
+        $this->seleccionarPersona($persona->id);
     }
 
-    // ── Seleccionar persona del listado ─────────────────────────────
+    // ── Seleccionar persona ─────────────────────────────────────────
     public function seleccionarPersona(int $id): void
     {
         $persona = Persona::findOrFail($id);
@@ -107,10 +79,8 @@ class InstructorCreate extends Component
             'email'           => $persona->email,
         ];
 
-        $this->search           = '';
+        $this->persona_estado   = 'found';
         $this->showCrearPersona = false;
-
-        unset($this->resultados);
     }
 
     // ── Deseleccionar persona ───────────────────────────────────────
@@ -118,28 +88,26 @@ class InstructorCreate extends Component
     {
         $this->persona_id          = null;
         $this->personaSeleccionada = null;
-        $this->search              = '';
+        $this->persona_dni         = '';
+        $this->persona_estado      = 'idle';
         $this->showCrearPersona    = false;
-        unset($this->resultados);
     }
 
-    // ── Mostrar / ocultar form crear persona ────────────────────────
-    public function toggleCrearPersona(): void
+    // ── Abrir / cancelar form crear persona ─────────────────────────
+    public function abrirCrearPersona(): void
     {
-        if ($this->showCrearPersona) {
-            $this->showCrearPersona = false;
-            $this->search = '';
-            unset($this->resultados);
-        } else {
-            $q = trim($this->search);
-            $this->p_dni = ctype_digit($q) ? $q : '';
-            $this->reset(['p_primer_nombre', 'p_segundo_nombre', 'p_primer_apellido',
-                          'p_segundo_apellido', 'p_telefono', 'p_email',
-                          'p_fecha_nacimiento', 'p_sexo']);
-            $this->search = '';
-            unset($this->resultados);
-            $this->showCrearPersona = true;
-        }
+        $this->p_dni = ctype_digit(trim($this->persona_dni)) ? trim($this->persona_dni) : '';
+        $this->reset(['p_primer_nombre', 'p_segundo_nombre', 'p_primer_apellido',
+                      'p_segundo_apellido', 'p_telefono', 'p_email',
+                      'p_fecha_nacimiento', 'p_sexo']);
+        $this->showCrearPersona = true;
+        $this->resetErrorBag();
+    }
+
+    public function cancelarCrearPersona(): void
+    {
+        $this->showCrearPersona = false;
+        $this->resetErrorBag();
     }
         // ── Crear persona inline ─────────────────────────────────────────
     public function crearPersona(): void
@@ -171,7 +139,7 @@ class InstructorCreate extends Component
             'telefono'          => $this->p_telefono ?: null,
             'email'             => $this->p_email ?: null,
             'fecha_nacimiento'  => $this->p_fecha_nacimiento ?: null,
-            'sexo'              => $this->p_sexo ?: null,
+            'sexo'              => $this->p_sexo === 'Masculino' ? 'M' : ($this->p_sexo === 'Femenino' ? 'F' : null),
         ]);
 
         $this->seleccionarPersona($persona->id);
