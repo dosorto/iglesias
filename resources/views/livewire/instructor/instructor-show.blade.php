@@ -4,7 +4,7 @@
     <div class="flex justify-between items-center">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-                Detalle del Curso
+                Detalle del Instructor
             </h1>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 Viendo la información detallada y el historial de actividad.
@@ -12,13 +12,13 @@
         </div>
 
         <div class="flex gap-2">
-            <a href="{{ route('curso.index') }}"
+            <a href="{{ route('instructor.index') }}"
                class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 text-sm font-medium">
                 Volver
             </a>
 
-            @can('curso.edit')
-                <a href="{{ route('curso.edit', $curso) }}"
+            @can('instructor.edit')
+                <a href="{{ route('instructor.edit', $instructor) }}"
                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium">
                     Editar
                 </a>
@@ -27,7 +27,7 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {{-- Data Column --}}
+        {{-- ── Data Column ─────────────────────────────────────────────── --}}
         <div class="lg:col-span-1 space-y-6">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
@@ -38,71 +38,83 @@
 
                 <div class="p-6 space-y-4">
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Nombre</label>
-                        <p class="text-lg font-bold text-gray-900 dark:text-white">{{ $curso->nombre }}</p>
-                    </div>
-
-                    <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Estado</label>
-                        @php
-                            $badgeClass = match(strtolower($curso->estado ?? '')) {
-                                'activo'     => 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
-                                'finalizado' => 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
-                                'cancelado'  => 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200',
-                                default      => 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200',
-                            };
-                        @endphp
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $badgeClass }}">
-                            {{ $curso->estado }}
-                        </span>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Persona</label>
+                        <p class="text-lg font-bold text-gray-900 dark:text-white">{{ $instructor->feligres?->persona?->nombre_completo ?? 'N/A' }}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">DNI: {{ $instructor->feligres?->persona?->dni ?? '—' }}</p>
                     </div>
 
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Iglesia</label>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $curso->iglesia?->nombre ?? 'N/A' }}</p>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $instructor->feligres?->iglesia?->nombre ?? 'N/A' }}</p>
                     </div>
 
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Tipo de Curso</label>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $curso->tipoCurso?->nombre_curso ?? 'N/A' }}</p>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Estado Feligrés</label>
+                        @php $estadoFel = $instructor->feligres?->estado; @endphp
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {{ $estadoFel === 'Activo' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' }}">
+                            {{ $estadoFel ?? '—' }}
+                        </span>
                     </div>
 
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Instructor</label>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $curso->instructor?->feligres?->persona?->nombre_completo ?? 'N/A' }}</p>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Estado Instructor</label>
+                        @php $estadoInst = $instructor->estado; @endphp
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {{ $estadoInst === 'Activo' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' }}">
+                            {{ $estadoInst ?? '—' }}
+                        </span>
                     </div>
 
-                    <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Encargado</label>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $curso->encargado?->feligres?->persona?->nombre_completo ?? 'N/A' }}</p>
-                    </div>
-
-                    @if($curso->fecha_inicio || $curso->fecha_fin)
+                    @if ($instructor->fecha_ingreso)
                         <div>
-                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Fechas</label>
+                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Fecha de Ingreso</label>
                             <p class="text-sm font-medium text-gray-900 dark:text-white">
-                                @if($curso->fecha_inicio)
-                                    {{ \Carbon\Carbon::parse($curso->fecha_inicio)->format('d/m/Y') }}
-                                @endif
-                                @if($curso->fecha_fin)
-                                    — {{ \Carbon\Carbon::parse($curso->fecha_fin)->format('d/m/Y') }}
-                                @endif
+                                {{ \Carbon\Carbon::parse($instructor->fecha_ingreso)->format('d/m/Y') }}
                             </p>
                         </div>
                     @endif
+
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Firma</label>
+                        @if ($instructor->path_firma)
+                            <img src="{{ asset('storage/' . $instructor->path_firma) }}"
+                                 alt="Firma"
+                                 class="mt-1 h-16 object-contain rounded border border-gray-200 dark:border-gray-600 bg-white p-1"
+                                 onerror="this.style.display='none'">
+                            <p class="mt-1 text-[11px] font-mono text-gray-400 dark:text-gray-500 break-all">{{ $instructor->path_firma }}</p>
+                        @else
+                            <p class="text-sm text-gray-400 dark:text-gray-500 italic">Sin firma registrada</p>
+                        @endif
+                    </div>
                 </div>
 
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-200 dark:border-gray-700">
                     <div class="text-[10px] text-gray-400 flex flex-col gap-1">
-                        <span>Creado: {{ optional($curso->created_at)->format('d/m/Y H:i') ?? 'N/A' }}
-                            por {{ optional($curso->creator)->name ?? 'Sistema' }}</span>
-                        <span>Actualizado: {{ optional($curso->updated_at)->format('d/m/Y H:i') ?? 'N/A' }}</span>
+                        <span>Creado: {{ optional($instructor->created_at)->format('d/m/Y H:i') ?? 'N/A' }}
+                            por {{ optional($instructor->creator)->name ?? 'Sistema' }}</span>
+                        <span>Actualizado: {{ optional($instructor->updated_at)->format('d/m/Y H:i') ?? 'N/A' }}</span>
                     </div>
                 </div>
             </div>
+
+            {{-- Link al feligrés --}}
+            @can('feligres.view')
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-indigo-200 dark:border-indigo-700 overflow-hidden">
+                    <div class="px-6 py-4 bg-indigo-50 dark:bg-indigo-900/30 border-b border-indigo-200 dark:border-indigo-700">
+                        <h2 class="text-sm font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-widest">Registro de Feligrés</h2>
+                    </div>
+                    <div class="px-6 py-4">
+                        <a href="{{ route('feligres.show', $instructor->feligres) }}"
+                           class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
+                            Ver ficha de feligrés →
+                        </a>
+                    </div>
+                </div>
+            @endcan
         </div>
 
-        {{-- Timeline Column --}}
+        {{-- ── Timeline Column ─────────────────────────────────────────── --}}
         <div class="lg:col-span-2">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
@@ -114,10 +126,10 @@
                 <div class="p-6">
                     <div class="flow-root">
                         <ul role="list" class="-mb-8">
-                            @forelse($curso->auditLogs as $log)
+                            @forelse($instructor->auditLogs as $log)
                                 <li>
                                     <div class="relative pb-8">
-                                        @if(!$loop->last)
+                                        @if (!$loop->last)
                                             <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-700" aria-hidden="true"></span>
                                         @endif
 
@@ -131,11 +143,11 @@
                                                     ];
                                                 @endphp
                                                 <span class="h-8 w-8 rounded-full {{ $colors[$log->event] ?? 'bg-gray-500' }} flex items-center justify-center ring-8 ring-white dark:ring-gray-800">
-                                                    @if($log->event === 'created')
+                                                    @if ($log->event === 'created')
                                                         <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                                         </svg>
-                                                    @elseif($log->event === 'updated')
+                                                    @elseif ($log->event === 'updated')
                                                         <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                                                         </svg>
@@ -164,9 +176,9 @@
                                                         $oldValues = is_array($log->old_values ?? null) ? $log->old_values : [];
                                                     @endphp
 
-                                                    @if($log->event === 'updated' && is_array($newValues) && count($newValues))
+                                                    @if ($log->event === 'updated' && is_array($newValues) && count($newValues))
                                                         <div class="mt-2 text-[11px] bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded border border-gray-200 dark:border-gray-700">
-                                                            @foreach($newValues as $key => $value)
+                                                            @foreach ($newValues as $key => $value)
                                                                 <div class="flex items-center gap-2">
                                                                     <span class="font-bold text-gray-400 uppercase tracking-tighter">
                                                                         {{ str_replace('_', ' ', $key) }}:

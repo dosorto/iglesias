@@ -30,16 +30,41 @@ class PrimeraComunionEdit extends Component
         $this->observaciones          = $primeraComunion->observaciones  ?? '';
     }
 
-    public function save(): void
+    protected function rules(): array
     {
-        $this->validate([
-            'iglesia_id'             => ['required'],
-            'fecha_primera_comunion' => ['required', 'date'],
+        return [
+            'iglesia_id'             => ['required', 'integer', 'exists:iglesias,id'],
+            'fecha_primera_comunion' => ['required', 'date', 'before_or_equal:today'],
             'libro_comunion'         => ['nullable', 'string', 'max:100'],
             'folio'                  => ['nullable', 'string', 'max:50'],
             'partida_numero'         => ['nullable', 'string', 'max:50'],
             'observaciones'          => ['nullable', 'string', 'max:500'],
-        ]);
+        ];
+    }
+
+    protected function messages(): array
+    {
+        return [
+            'iglesia_id.required'                    => 'Debes seleccionar una iglesia.',
+            'iglesia_id.exists'                      => 'La iglesia seleccionada no existe.',
+            'fecha_primera_comunion.required'        => 'La fecha de primera comunión es obligatoria.',
+            'fecha_primera_comunion.date'            => 'La fecha de primera comunión no es válida.',
+            'fecha_primera_comunion.before_or_equal' => 'La fecha de primera comunión no puede ser futura.',
+            'libro_comunion.max'                     => 'El libro no puede superar los 100 caracteres.',
+            'folio.max'                              => 'El folio no puede superar los 50 caracteres.',
+            'partida_numero.max'                     => 'La partida no puede superar los 50 caracteres.',
+            'observaciones.max'                      => 'Las observaciones no pueden superar los 500 caracteres.',
+        ];
+    }
+
+    public function updated(string $field): void
+    {
+        $this->validateOnly($field);
+    }
+
+    public function save(): void
+    {
+        $this->validate();
 
         $this->primeraComunion->update([
             'iglesia_id'             => $this->iglesia_id,

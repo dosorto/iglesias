@@ -53,8 +53,10 @@ class CursoCreate extends Component
         if($this->paso === 1){
 
             $this->validate([
-                'nombre'=>'required|max:200',
+                'nombre'=>['required','max:200','regex:/[a-zA-ZáéíóúüÁÉÍÓÚÜñÑ]/'],
                 'iglesia_id'=>'required'
+            ],[
+                'nombre.regex'=>'El nombre del curso debe contener al menos una letra.',
             ]);
 
         }
@@ -97,14 +99,18 @@ class CursoCreate extends Component
 
     public function seleccionarTipoCurso($id)
     {
-
         $tipo = TipoCurso::find($id);
 
         $this->tipo_curso_id = $tipo->id;
         $this->buscar_tipo_curso = $tipo->nombre_curso;
-
         $this->tipoCursoResultados = [];
+    }
 
+    public function resetTipoCurso()
+    {
+        $this->tipo_curso_id = null;
+        $this->buscar_tipo_curso = '';
+        $this->tipoCursoResultados = [];
     }
 
     // ======================
@@ -130,16 +136,18 @@ class CursoCreate extends Component
 
     public function seleccionarInstructor($id)
     {
-
         $inst = Instructor::with('feligres.persona')->find($id);
 
         $this->instructor_id = $inst->id;
-
-        $this->buscar_instructor =
-            $inst->feligres->persona->nombre_completo;
-
+        $this->buscar_instructor = $inst->feligres->persona->nombre_completo;
         $this->instructorResultados = [];
+    }
 
+    public function resetInstructor()
+    {
+        $this->instructor_id = null;
+        $this->buscar_instructor = '';
+        $this->instructorResultados = [];
     }
 
     // ======================

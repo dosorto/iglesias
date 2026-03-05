@@ -42,11 +42,13 @@ class CursoEdit extends Component
     {
 
         $this->validate([
-            'nombre' => 'required|max:200',
+            'nombre' => ['required','max:200','regex:/[a-zA-ZáéíóúüÁÉÍÓÚÜñÑ]/'],
             'estado' => 'required',
             'iglesia_id' => 'required',
             'tipo_curso_id' => 'required',
             'instructor_id' => 'required',
+        ],[
+            'nombre.regex' => 'El nombre del curso debe contener al menos una letra.',
         ]);
 
         $this->curso->update([

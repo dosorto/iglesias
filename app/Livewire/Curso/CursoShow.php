@@ -16,7 +16,8 @@ class CursoShow extends Component
             'iglesia',
             'tipoCurso',
             'instructor.feligres.persona',
-            'encargado.feligres.persona'
+            'encargado.feligres.persona',
+            'auditLogs',
         ]);
     }
 
