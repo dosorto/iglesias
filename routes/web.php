@@ -274,6 +274,23 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:tipocurso.delete')
         ->delete('/tipocurso/{tipocurso}', [\App\Http\Controllers\TipoCursoController::class, 'destroy'])
         ->name('tipocurso.destroy');
+
+    // Cursos 
+    Route::middleware('permission:curso.view')
+    ->get('/curso', [\App\Http\Controllers\CursoController::class, 'index'])
+    ->name('curso.index');
+
+    Route::middleware('permission:curso.create')
+        ->get('/curso/create', [\App\Http\Controllers\CursoController::class, 'create'])
+        ->name('curso.create');
+
+    Route::middleware('permission:curso.view')
+        ->get('/curso/{curso}', [\App\Http\Controllers\CursoController::class, 'show'])
+        ->name('curso.show');
+
+    Route::middleware('permission:curso.edit')
+        ->get('/curso/{curso}/edit', [\App\Http\Controllers\CursoController::class, 'edit'])
+        ->name('curso.edit');
 });
 
 require __DIR__.'/auth.php';
