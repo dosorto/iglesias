@@ -125,7 +125,7 @@
                             </div>
                             <div>
                                 <p class="text-sm font-semibold text-gray-700 dark:text-gray-200 group-hover:text-indigo-600 transition-colors">
-                                    Haz clic para subir la firma
+                                    Haz clic para subir la firmas
                                 </p>
                                 <p class="text-xs text-gray-400 mt-1">o arrastra y suelta la imagen aquí</p>
                             </div>
