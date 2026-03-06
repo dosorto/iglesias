@@ -19,6 +19,7 @@ class Iglesias extends Model
         'telefono',
         'email',
         'estado',
+        'id_religion',
         'db_connection',
         'db_host',
         'db_port',
@@ -31,4 +32,8 @@ class Iglesias extends Model
     {
         return $this->hasMany(User::class, 'id_iglesia');
     }
+    public function religion()
+{
+    return $this->belongsTo(Religion::class, 'id_religion');
+}
 }

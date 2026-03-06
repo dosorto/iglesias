@@ -80,7 +80,7 @@
                 <div class="p-6">
                     <div class="flow-root">
                         <ul role="list" class="-mb-8">
-                            @forelse($iglesia->auditLogs as $log)
+                            @forelse($iglesia->auditLogs ?? [] as $log)
                                 <li>
                                     <div class="relative pb-8">
                                         @if(!$loop->last)

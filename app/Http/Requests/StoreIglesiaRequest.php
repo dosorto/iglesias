@@ -34,6 +34,7 @@ class StoreIglesiaRequest extends FormRequest
             ],
             'parroco_nombre' => ['nullable', 'string', 'max:200'],
             'estado' => ['required', 'string', 'max:20'],
+            'id_religion'   => ['nullable', 'exists:religion,id'],
         ];
     }
 
@@ -56,7 +57,7 @@ class StoreIglesiaRequest extends FormRequest
             'nombre.string' => 'El nombre de debe ser texto ',
             'nombre.max' => 'El nombre no puede tener mas de 200 caracteres  ',
             'nombre.unique' => 'ya existe una iglesia con ese nombre  ',
-
+            
         ];
     }
 }
