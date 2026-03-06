@@ -9,6 +9,7 @@ use App\Models\Encargado;
 use App\Models\TipoCurso;
 use App\Models\Instructor;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CursoCreate extends Component
 {
@@ -40,6 +41,10 @@ class CursoCreate extends Component
 
         if ($encargado) {
             $this->encargado_id = $encargado->id;
+        }
+
+        if (session('tenant')) {
+            $this->iglesia_id = DB::table('iglesias')->value('id');
         }
     }
 
@@ -189,12 +194,14 @@ class CursoCreate extends Component
 
         $centralConn = config('tenancy.central_connection','mysql');
 
-        return view('livewire.curso.curso-create',[
+        if (session('tenant')) {
+            $iglesias = collect([DB::table('iglesias')->first()])->filter();
+        } else {
+            $iglesias = Iglesias::on($centralConn)->where('estado','Activo')->orderBy('nombre')->get();
+        }
 
-            'iglesias'=>Iglesias::on($centralConn)
-                ->where('estado','Activo')
-                ->orderBy('nombre')
-                ->get(),
+        return view('livewire.curso.curso-create',[
+            'iglesias' => $iglesias,
 
             'encargados'=>Encargado::with('feligres.persona')->get()
 

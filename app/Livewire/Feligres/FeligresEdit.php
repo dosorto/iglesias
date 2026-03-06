@@ -8,6 +8,7 @@ use App\Models\Feligres;
 use App\Models\Persona;
 use App\Models\Iglesias;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class FeligresEdit extends Component
 {
@@ -152,8 +153,14 @@ class FeligresEdit extends Component
 
     public function render()
     {
+        if (session('tenant')) {
+            $iglesias = collect([DB::table('iglesias')->first()])->filter();
+        } else {
+            $iglesias = Iglesias::where('estado', 'Activo')->orderBy('nombre')->get();
+        }
+
         return view('livewire.feligres.feligres-edit', [
-            'iglesias' => Iglesias::where('estado', 'Activo')->orderBy('nombre')->get(),
+            'iglesias' => $iglesias,
         ]);
     }
 }

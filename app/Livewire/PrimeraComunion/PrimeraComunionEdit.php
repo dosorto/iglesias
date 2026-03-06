@@ -4,6 +4,7 @@ namespace App\Livewire\PrimeraComunion;
 
 use App\Models\PrimeraComunion;
 use App\Models\Iglesias;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class PrimeraComunionEdit extends Component
@@ -22,7 +23,7 @@ class PrimeraComunionEdit extends Component
     {
         $this->primeraComunion = $primeraComunion;
 
-        $this->iglesia_id             = $primeraComunion->iglesia_id;
+        $this->iglesia_id             = $primeraComunion->id_iglesia;
         $this->fecha_primera_comunion = $primeraComunion->fecha_primera_comunion?->format('Y-m-d') ?? '';
         $this->libro_comunion         = $primeraComunion->libro_comunion ?? '';
         $this->folio                  = $primeraComunion->folio          ?? '';
@@ -67,7 +68,7 @@ class PrimeraComunionEdit extends Component
         $this->validate();
 
         $this->primeraComunion->update([
-            'iglesia_id'             => $this->iglesia_id,
+            'id_iglesia'             => $this->iglesia_id,
             'fecha_primera_comunion' => $this->fecha_primera_comunion,
             'libro_comunion'         => $this->libro_comunion ?: null,
             'folio'                  => $this->folio          ?: null,
@@ -82,7 +83,12 @@ class PrimeraComunionEdit extends Component
     public function render()
     {
         $centralConn = config('tenancy.central_connection', 'mysql');
-        $iglesias    = Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get();
+
+        if (session('tenant')) {
+            $iglesias = collect([DB::table('iglesias')->first()])->filter();
+        } else {
+            $iglesias = Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get();
+        }
 
         return view('livewire.primera-comunion.primera-comunion-edit', compact('iglesias'));
     }
