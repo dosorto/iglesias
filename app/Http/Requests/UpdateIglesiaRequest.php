@@ -39,6 +39,7 @@ class UpdateIglesiaRequest extends FormRequest
         ],
         'parroco_nombre' => ['nullable', 'string', 'max:200'],
         'estado' => ['required', 'string', 'max:20'],
+        'id_religion'   => ['nullable', 'exists:religion,id'],
         ];
     }
 

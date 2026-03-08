@@ -12,14 +12,12 @@ class TipoCursoEdit extends Component
 
     public string $nombre_curso      = '';
     public string $descripcion_curso = '';
-    public string $estado_curso      = 'activo';
 
     public function mount(TipoCursoModel $tipocurso): void
     {
         $this->tipoCurso       = $tipocurso;
         $this->nombre_curso      = $tipocurso->nombre_curso;
         $this->descripcion_curso = $tipocurso->descripcion_curso ?? '';
-        $this->estado_curso      = $tipocurso->estado_curso;
     }
 
     protected function rules(): array
@@ -35,7 +33,6 @@ class TipoCursoEdit extends Component
                     ->whereNull('deleted_at'),
             ],
             'descripcion_curso' => ['nullable', 'string', 'max:1000'],
-            'estado_curso'      => ['required', 'string', Rule::in(['activo', 'inactivo'])],
         ];
     }
 
@@ -46,8 +43,6 @@ class TipoCursoEdit extends Component
             'nombre_curso.max'      => 'El nombre no puede superar los 100 caracteres.',
             'nombre_curso.regex'    => 'El nombre debe contener al menos una letra.',
             'nombre_curso.unique'   => 'Ya existe un tipo de curso con ese nombre.',
-            'estado_curso.required' => 'El estado es obligatorio.',
-            'estado_curso.in'       => 'El estado debe ser Activo o Inactivo.',
         ];
     }
 

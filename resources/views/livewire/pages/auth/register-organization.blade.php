@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Iglesias;
+use App\Models\Religion;
 use App\Models\User;
 use App\Services\Tenancy\TenantProvisioner;
 use Illuminate\Auth\Events\Registered;
@@ -18,14 +19,15 @@ new #[Layout('layouts.guest')] class extends Component
 {
     public int $step = 1;
 
-    public string $nombre = '';
-    public string $direccion = '';
-    public string $email_iglesia = '';
+    public string $nombre           = '';
+    public string $direccion        = '';
+    public string $email_iglesia    = '';
     public string $telefono_iglesia = '';
+    public ?int   $id_religion      = null;
 
-    public string $name = '';
-    public string $email = '';
-    public string $password = '';
+    public string $name                  = '';
+    public string $email                 = '';
+    public string $password              = '';
     public string $password_confirmation = '';
 
     public function nextStep(): void
@@ -56,11 +58,12 @@ new #[Layout('layouts.guest')] class extends Component
             'direccion'      => $this->direccion,
             'parroco_nombre' => $validated['name'],
             'telefono'       => $this->telefono_iglesia ?: null,
-            'email'          => $this->email_iglesia ?: null,
+            'email'          => $this->email_iglesia    ?: null,
             'estado'         => 'Activa',
+            'id_religion'    => $this->id_religion      ?: null,
         ]);
 
-        // 2. Crear BD tenant, migrar y correr TenantRolesSeeder automáticamente
+        // 2. Crear BD tenant
         $tenant = $provisioner->provisionDatabase($iglesia);
 
         // 3. Guardar credenciales en BD central
@@ -76,7 +79,6 @@ new #[Layout('layouts.guest')] class extends Component
         $tenantConnection = $tenant['connection'];
         $previousDefault  = config('database.default');
 
-        // 4. Reconfigurar conexión tenant (el provisioner puede haberla reseteado)
         $centralConfig = config('database.connections.mysql');
         config(["database.connections.{$tenantConnection}" => array_merge($centralConfig, [
             'database' => $tenant['database'],
@@ -89,7 +91,7 @@ new #[Layout('layouts.guest')] class extends Component
         $iglesiaTenantId = null;
 
         try {
-            // 5. Insertar iglesia en BD tenant
+            // 4. Insertar iglesia en BD tenant (con id_religion)
             DB::connection($tenantConnection)->table('iglesias')->insert([
                 'nombre'         => $iglesia->nombre,
                 'direccion'      => $iglesia->direccion,
@@ -97,6 +99,7 @@ new #[Layout('layouts.guest')] class extends Component
                 'telefono'       => $iglesia->telefono,
                 'email'          => $iglesia->email,
                 'estado'         => $iglesia->estado,
+                'id_religion'    => $iglesia->id_religion,
                 'created_at'     => now(),
                 'updated_at'     => now(),
             ]);
@@ -107,10 +110,8 @@ new #[Layout('layouts.guest')] class extends Component
                 ->first()
                 ->id;
 
-            // 6. El TenantRolesSeeder ya creó el rol admin con permisos limitados
             $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
 
-            // 7. Crear usuario admin y asignar rol
             $user = User::create([
                 'id_iglesia'        => $iglesia->id,
                 'name'              => $validated['name'],
@@ -120,7 +121,6 @@ new #[Layout('layouts.guest')] class extends Component
             ]);
 
             $user->assignRole($adminRole);
-
             app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         } finally {
@@ -153,9 +153,12 @@ new #[Layout('layouts.guest')] class extends Component
             'direccion'        => ['required', 'string', 'min:5'],
             'email_iglesia'    => ['nullable', 'email', 'max:200'],
             'telefono_iglesia' => ['nullable', 'string', 'max:20'],
+            'id_religion'      => ['required', 'exists:religion,id'],
         ], [
-            'nombre.required'    => 'El nombre de la iglesia es obligatorio.',
-            'direccion.required' => 'La ubicación física es necesaria.',
+            'nombre.required'      => 'El nombre de la iglesia es obligatorio.',
+            'direccion.required'   => 'La ubicación física es necesaria.',
+            'id_religion.required' => 'Debes seleccionar una religión.',
+            'id_religion.exists'   => 'La religión seleccionada no es válida.',
         ]);
     }
 }; ?>
@@ -166,6 +169,7 @@ new #[Layout('layouts.guest')] class extends Component
         <p class="mt-2 text-sm text-gray-600">Completa 2 pasos para iniciar con tu cuenta administradora.</p>
     </div>
 
+    {{-- Stepper --}}
     <div class="flex items-center gap-3">
         <div class="flex items-center gap-2">
             <span class="inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold
@@ -182,6 +186,7 @@ new #[Layout('layouts.guest')] class extends Component
         </div>
     </div>
 
+    {{-- PASO 1 --}}
     @if ($step === 1)
         <form wire:submit="nextStep" class="space-y-4">
             <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Datos de la Iglesia</p>
@@ -196,6 +201,24 @@ new #[Layout('layouts.guest')] class extends Component
                 <x-input-label for="direccion" value="Dirección *" />
                 <x-text-input wire:model="direccion" id="direccion" class="mt-1 block w-full" type="text" required />
                 <x-input-error :messages="$errors->get('direccion')" class="mt-1" />
+            </div>
+
+            {{-- Religión --}}
+            <div>
+                <x-input-label for="id_religion" value="Religión *" />
+                <select wire:model="id_religion" id="id_religion" required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm
+                               focus:border-indigo-500 focus:ring-indigo-500 text-sm
+                               dark:bg-gray-700 dark:border-gray-600 dark:text-white
+                               @error('id_religion') border-red-500 @enderror">
+                    <option value="">— Selecciona una religión —</option>
+                    @foreach (\App\Models\Religion::orderBy('religion')->get() as $rel)
+                        <option value="{{ $rel->id }}" {{ $id_religion == $rel->id ? 'selected' : '' }}>
+                            {{ $rel->religion }}
+                        </option>
+                    @endforeach
+                </select>
+                <x-input-error :messages="$errors->get('id_religion')" class="mt-1" />
             </div>
 
             <div class="grid grid-cols-2 gap-4">
@@ -217,6 +240,7 @@ new #[Layout('layouts.guest')] class extends Component
         </form>
     @endif
 
+    {{-- PASO 2 --}}
     @if ($step === 2)
         <form wire:submit="registerOrganization" class="space-y-4">
             <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Datos del Usuario Administrador</p>
@@ -225,6 +249,13 @@ new #[Layout('layouts.guest')] class extends Component
                 <div>Iglesia: <span class="font-semibold">{{ $nombre }}</span></div>
                 @if($telefono_iglesia)
                     <div>Teléfono: <span class="font-semibold">{{ $telefono_iglesia }}</span></div>
+                @endif
+                @if($id_religion)
+                    <div>Religión:
+                        <span class="font-semibold">
+                            {{ \App\Models\Religion::find($id_religion)?->religion ?? '—' }}
+                        </span>
+                    </div>
                 @endif
             </div>
 

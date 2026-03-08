@@ -210,24 +210,7 @@
                         </li>
                     @endcan
 
-                    {{-- Encargado --}}
-                    @can('encargado.view')
-                        <li>
-                            <a href="{{ route('encargado.index') }}"
-                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
-                                    rounded-xl text-gray-700 dark:text-gray-200 hover:bg-purple-100 dark:hover:bg-purple-900
-                                    hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200 group"
-                                title="{{ $isCollapsed ? 'Encargado' : '' }}">
-                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200"
-                                    fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
-                                </svg>
-                                @if(!$isCollapsed)
-                                    <span class="ml-3">Encargado</span>
-                                @endif
-                            </a>
-                        </li>
-                    @endcan
+                    
 
                     {{-- Tipos de Cursos --}}
                     @can('tipocurso.view')

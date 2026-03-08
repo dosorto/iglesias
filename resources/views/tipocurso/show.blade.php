@@ -68,21 +68,6 @@
                         </p>
                     </div>
 
-                    <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">
-                            Estado
-                        </label>
-
-                        @php
-                            $estado = strtolower($tipocurso->estado_curso ?? '');
-                            $esActivo = $estado === 'activo';
-                        @endphp
-
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                            {{ $esActivo ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' }}">
-                            {{ $esActivo ? 'Activo' : 'Inactivo' }}
-                        </span>
-                    </div>
                 </div>
 
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-200 dark:border-gray-700">

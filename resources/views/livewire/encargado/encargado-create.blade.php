@@ -368,22 +368,75 @@
 
         <div class="p-6">
 
-            {{-- Firma --}}
+           {{-- Firma --}}
             <div class="max-w-sm">
                 <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                     Firma Principal
                 </label>
-                <input type="file"
-                       wire:model="firma"
-                       accept="image/*"
-                       class="block w-full text-sm text-gray-700 dark:text-gray-300
-                              file:mr-4 file:py-2 file:px-4
-                              file:rounded-lg file:border-0
-                              file:text-sm file:font-semibold
-                              file:bg-indigo-50 file:text-indigo-700
-                              dark:file:bg-indigo-900/30 dark:file:text-indigo-300
-                              hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900/50
-                              transition-colors" />
+
+                <label for="firma"
+                       class="group relative flex flex-col items-center justify-center w-full
+                              rounded-xl border-2 border-dashed cursor-pointer transition-all duration-200
+                              {{ $firma
+                                  ? 'border-green-400 bg-green-50 dark:bg-green-900/10'
+                                  : 'border-gray-300 bg-gray-50 hover:border-indigo-400 hover:bg-indigo-50 dark:bg-gray-700/40 dark:border-gray-600 dark:hover:border-indigo-500' }}
+                              min-h-[180px] p-6">
+
+                    @if ($firma)
+                        <div class="flex flex-col items-center gap-3 w-full">
+                            <img src="{{ $firma->temporaryUrl() }}"
+                                 alt="Vista previa firma"
+                                 class="max-h-36 w-auto rounded-lg border border-green-200 object-contain shadow-sm" />
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span class="text-sm font-medium text-green-600">Imagen cargada correctamente</span>
+                            </div>
+                            <span class="text-xs text-gray-400 underline group-hover:text-indigo-500 transition-colors">
+                                Haz clic para cambiar la imagen
+                            </span>
+                        </div>
+                    @else
+                        <div class="flex flex-col items-center gap-3 text-center">
+                            <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center
+                                        group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30 transition-colors">
+                                <svg class="w-8 h-8 text-gray-400 group-hover:text-indigo-500 transition-colors"
+                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                          d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.414.586H8v-2.414a2 2 0 01.586-1.414z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                          d="M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-700 dark:text-gray-200 group-hover:text-indigo-600 transition-colors">
+                                    Haz clic para subir la firma
+                                </p>
+                                <p class="text-xs text-gray-400 mt-1">o arrastra y suelta la imagen aquí</p>
+                            </div>
+                            <div class="flex items-center gap-2 flex-wrap justify-center">
+                                <span class="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-xs text-gray-500">PNG</span>
+                                <span class="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-xs text-gray-500">JPG</span>
+                                <span class="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-xs text-gray-500">JPEG</span>
+                                <span class="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-xs text-gray-500">Máx. 2MB</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    <input wire:model="firma" id="firma" type="file" accept="image/*"
+                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                </label>
+
+                {{-- Loading --}}
+                <div wire:loading wire:target="firma" class="mt-2 flex items-center gap-2 text-sm text-indigo-600">
+                    <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                    </svg>
+                    Cargando imagen...
+                </div>
+
                 @error('firma')
                     <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
                         <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -392,15 +445,8 @@
                         {{ $message }}
                     </p>
                 @enderror
-                @if ($firma)
-                    <div class="mt-3">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Vista previa:</p>
-                        <img src="{{ $firma->temporaryUrl() }}" alt="Vista previa firma"
-                             class="h-16 object-contain rounded border border-indigo-200 dark:border-indigo-700 bg-white p-1">
-                    </div>
-                @endif
             </div>
-
+            
             {{-- Barra de acciones --}}
             <div class="flex items-center justify-between mt-8 pt-5 border-t border-gray-100 dark:border-gray-700/50">
                 <a href="{{ route('encargado.index') }}"

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('email', 200)->nullable()->index();
             $table->string('parroco_nombre', 200);
             $table->string('estado', 20);
+            $table->unsignedBigInteger('id_religion')->nullable();
             $table->integer("created_by")->nullable();
             $table->integer("deleted_by")->nullable();
             $table->integer("updated_by")->nullable();

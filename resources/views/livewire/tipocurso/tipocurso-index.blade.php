@@ -94,9 +94,6 @@
                             <th class="px-6 py-3 text-left">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Descripción</span>
                             </th>
-                            <th class="px-6 py-3 text-left">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</span>
-                            </th>
                             <th class="px-6 py-3 text-left w-40">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</span>
                             </th>
@@ -131,19 +128,6 @@
                                 <td class="px-6 py-4">
                                     <span class="text-sm text-gray-900 dark:text-white">
                                         {{ $tipocurso->descripcion_curso ?? $tipocurso->descripcion ?? 'N/A' }}
-                                    </span>
-                                </td>
-
-                                <td class="px-6 py-4">
-                                    @php
-                                        // soporta estado boolean o estado_curso string
-                                        $activo = isset($tipocurso->estado_curso)
-                                            ? ($tipocurso->estado_curso === 'activo')
-                                            : (bool)($tipocurso->estado ?? false);
-                                    @endphp
-
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $activo ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' }}">
-                                        {{ $activo ? 'Activo' : 'Inactivo' }}
                                     </span>
                                 </td>
 
@@ -185,7 +169,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-6 py-16 text-center">
+                                <td colspan="3" class="px-6 py-16 text-center">
                                     <div class="flex flex-col items-center">
                                         <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
                                             <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

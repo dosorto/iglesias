@@ -21,7 +21,6 @@ class TipoCursoExport implements FromQuery, WithHeadings, WithMapping, ShouldAut
             'ID',
             'Nombre del Curso',
             'Descripción',
-            'Estado',
             'Fecha de Registro',
         ];
     }
@@ -32,7 +31,6 @@ class TipoCursoExport implements FromQuery, WithHeadings, WithMapping, ShouldAut
             $tipoCurso->id,
             $tipoCurso->nombre_curso,
             $tipoCurso->descripcion_curso ?? '',
-            ucfirst($tipoCurso->estado_curso),
             $tipoCurso->created_at->format('d/m/Y H:i'),
         ];
     }
