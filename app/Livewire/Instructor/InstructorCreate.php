@@ -185,7 +185,7 @@ class InstructorCreate extends Component
         $this->redirect(route('instructor.index'), navigate: false);
     }
 
-    public function render()
+    public function render()   
     {
         return view('livewire.instructor.instructor-create');
     }
