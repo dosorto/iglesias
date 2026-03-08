@@ -174,7 +174,7 @@ class InstructorCreate extends Component
             ->first();
 
         if ($instructorExistente) { 
-  
+    
             if ($instructorExistente->trashed()) {
                 $instructorExistente->restore();
             }
@@ -182,7 +182,7 @@ class InstructorCreate extends Component
             session()->flash('success', 'Instructor restaurado correctamente.');
 
             $this->redirect(route('instructor.index'), navigate: false);
-            return;
+            return;   
         }
 
         // Guardar firma
