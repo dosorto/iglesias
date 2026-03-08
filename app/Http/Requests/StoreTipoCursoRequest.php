@@ -23,7 +23,6 @@ class StoreTipoCursoRequest extends FormRequest
                 Rule::unique('tipos_curso', 'nombre_curso')->whereNull('deleted_at'),
             ],
             'descripcion_curso' => ['nullable', 'string', 'max:1000'],
-            'estado_curso' => ['required', 'string', Rule::in(['activo', 'inactivo'])],
         ];
     }
 
@@ -32,7 +31,6 @@ class StoreTipoCursoRequest extends FormRequest
         return [
             'nombre_curso'      => 'nombre del curso',
             'descripcion_curso' => 'descripción del curso',
-            'estado_curso'      => 'estado del curso',
         ];
     }
 

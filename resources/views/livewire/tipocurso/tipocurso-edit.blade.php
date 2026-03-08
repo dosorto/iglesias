@@ -110,46 +110,6 @@
                     </p>
                 </div>
 
-                {{-- ── Estado ──────────────────────────────────────────── --}}
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                        Estado <span class="text-red-500">*</span>
-                    </label>
-                    <select wire:model.live="estado_curso"
-                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                                   border border-gray-300 dark:border-gray-600
-                                   bg-white dark:bg-gray-700/60
-                                   text-gray-900 dark:text-white
-                                   focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                                   @error('estado_curso') border-red-400 @enderror">
-                        <option value="activo">Activo</option>
-                        <option value="inactivo">Inactivo</option>
-                    </select>
-                    @error('estado_curso')
-                        <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            {{ $message }}
-                        </p>
-                    @enderror
-                </div>
-
-                {{-- ── Vista previa badge ──────────────────────────────── --}}
-                <div class="flex items-end pb-0.5">
-                    <div>
-                        <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1.5">
-                            Vista previa
-                        </p>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                     {{ $estado_curso === 'activo'
-                                         ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300'
-                                         : 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300' }}">
-                            {{ $estado_curso === 'activo' ? 'Activo' : 'Inactivo' }}
-                        </span>
-                    </div>
-                </div>
 
             </div>
 

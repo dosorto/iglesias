@@ -10,7 +10,6 @@ class TipoCursoCreate extends Component
 {
     public string $nombre_curso     = '';
     public string $descripcion_curso = '';
-    public string $estado_curso     = 'activo';
 
     protected function rules(): array
     {
@@ -23,7 +22,6 @@ class TipoCursoCreate extends Component
                 Rule::unique('tipos_curso', 'nombre_curso')->whereNull('deleted_at'),
             ],
             'descripcion_curso' => ['nullable', 'string', 'max:1000'],
-            'estado_curso'      => ['required', 'string', Rule::in(['activo', 'inactivo'])],
         ];
     }
 
@@ -34,8 +32,6 @@ class TipoCursoCreate extends Component
             'nombre_curso.max'       => 'El nombre no puede superar los 100 caracteres.',
             'nombre_curso.regex'     => 'El nombre debe contener al menos una letra.',
             'nombre_curso.unique'    => 'Ya existe un tipo de curso con ese nombre.',
-            'estado_curso.required'  => 'El estado es obligatorio.',
-            'estado_curso.in'        => 'El estado debe ser Activo o Inactivo.',
         ];
     }
 
