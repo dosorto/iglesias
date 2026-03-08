@@ -65,7 +65,7 @@
 
         <div class="p-5 space-y-4">
 
-            {{-- ── IDLE: Ingresar DNI y buscar ─────────────────────────── --}}
+            {{-- ── IDLE: Ingresar DNI / nombre y buscar ────────────────── --}}
             @if ($persona_estado === 'idle' && ! $showCrearPersona)
                 <div class="flex gap-3">
                     <div class="relative flex-1">
@@ -78,10 +78,8 @@
                         <input type="text"
                                wire:model="persona_dni"
                                wire:keydown.enter="buscarPersona"
-                               placeholder="Ingresa el número de identidad…"
+                               placeholder="Buscar por DNI, nombre o apellido…"
                                autocomplete="off"
-                               inputmode="numeric"
-                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                class="block w-full pl-10 pr-4 py-2.5 text-sm rounded-lg transition-colors
                                       border border-gray-300 dark:border-gray-600
                                       bg-gray-50 dark:bg-gray-700/60
@@ -166,6 +164,52 @@
                 </div>
             @endif
 
+            {{-- ── MULTIPLE: Lista de resultados ──────────────────────── --}}
+            @if ($persona_estado === 'multiple')
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                            Se encontraron <strong>{{ count($resultadosBusqueda) }}</strong> personas. Selecciona una:
+                        </p>
+                        <button type="button" wire:click="limpiarPersona"
+                                class="text-xs text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors">
+                            Cancelar
+                        </button>
+                    </div>
+                    <div class="divide-y divide-gray-100 dark:divide-gray-700/60 rounded-xl border border-gray-200 dark:border-gray-700/60 overflow-hidden">
+                        @foreach ($resultadosBusqueda as $r)
+                            <button type="button"
+                                    wire:click="seleccionarPersona({{ $r['id'] }})"
+                                    class="w-full flex items-center gap-3 px-4 py-3
+                                           bg-white dark:bg-gray-800/60
+                                           hover:bg-emerald-50 dark:hover:bg-emerald-900/20
+                                           text-left transition-colors">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600
+                                            flex items-center justify-center flex-shrink-0">
+                                    <span class="text-white font-bold text-xs">
+                                        {{ strtoupper(substr($r['nombre_completo'], 0, 1)) }}
+                                    </span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                                        {{ $r['nombre_completo'] }}
+                                    </p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        DNI: {{ $r['dni'] }}
+                                        @if ($r['telefono'])
+                                            <span class="mx-1 opacity-40">·</span>{{ $r['telefono'] }}
+                                        @endif
+                                    </p>
+                                </div>
+                                <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             {{-- ── SIN_PERSONA: No se encontró ─────────────────────────── --}}
             @if ($persona_estado === 'sin_persona')
                 <div class="p-4 rounded-xl bg-red-50 dark:bg-red-900/20
@@ -185,6 +229,7 @@
                         <input type="text"
                                wire:model="persona_dni"
                                wire:keydown.enter="buscarPersona"
+                               placeholder="Buscar por DNI, nombre o apellido…"
                                class="flex-1 px-3 py-2 text-sm rounded-lg transition-colors
                                       border border-gray-300 dark:border-gray-600
                                       bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
@@ -368,7 +413,7 @@
                                 {{-- Teléfono --}}
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                                        Teléfono
+                                        Teléfono <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text"
                                            wire:model.defer="p_telefono"
@@ -466,57 +511,19 @@
         <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-                {{-- Iglesia --}}
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                        Iglesia <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <select wire:model="id_iglesia"
-                                disabled
-                                class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                                       border border-gray-200 dark:border-gray-600/60
-                                       bg-gray-100 dark:bg-gray-700/40
-                                       text-gray-700 dark:text-gray-300
-                                       cursor-not-allowed opacity-80
-                                       @error('id_iglesia') border-red-400 @enderror">
-                            <option value="">Seleccionar Iglesia</option>
-                            @foreach ($iglesias as $ig)
-                                <option value="{{ $ig->id }}">{{ $ig->nombre }}</option>
-                            @endforeach
-                        </select>
-                        <div class="absolute inset-y-0 right-8 flex items-center pointer-events-none">
-                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    @error('id_iglesia')
-                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
-                </div>
-
                 {{-- Fecha de Ingreso --}}
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                         Fecha de Ingreso
                     </label>
-                    <div class="relative">
-                        <input type="date"
-                               wire:model="fecha_ingreso"
-                               readonly
-                               class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                                      border border-gray-200 dark:border-gray-600/60
-                                      bg-gray-100 dark:bg-gray-700/40
-                                      text-gray-700 dark:text-gray-300
-                                      cursor-not-allowed opacity-80
-                                      @error('fecha_ingreso') border-red-400 @enderror" />
-                        <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                            </svg>
-                        </div>
-                    </div>
+                    <input type="date"
+                           wire:model="fecha_ingreso"
+                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                  border border-gray-300 dark:border-gray-600
+                                  bg-white dark:bg-gray-700/60
+                                  text-gray-900 dark:text-white
+                                  focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                  @error('fecha_ingreso') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror" />
                     @error('fecha_ingreso')
                         <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
