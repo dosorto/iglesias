@@ -18,6 +18,7 @@ class Encargado extends BaseModel
     protected $fillable = [
         'id_feligres',
         'path_firma_principal',
+        'estado',
     ];
 
     public function feligres()
