@@ -129,16 +129,10 @@
                     </label>
 
                     {{-- Firma actual --}}
-                    @if ($instructor->path_firma)
-                        <div class="mb-3 flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600">
-                            <img src="{{ asset('storage/' . $instructor->path_firma) }}"
-                                 alt="Firma actual"
-                                 class="h-14 object-contain rounded border border-gray-200 dark:border-gray-600 bg-white p-1"
-                                 onerror="this.style.display='none'">
-                            <span class="text-xs text-gray-500 dark:text-gray-400 font-mono truncate">
-                                {{ $instructor->path_firma }}
-                            </span>
-                        </div>
+                    @if($instructor->path_firma)
+                        <img src="{{ asset('storage/' . $instructor->path_firma) }}" 
+                            alt="Firma actual"
+                            style="max-height:150px;">
                     @endif
 
                     <input type="file"

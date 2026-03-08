@@ -1,3 +1,4 @@
+
 <div class="space-y-6">
 
     {{-- HEADER --}}
@@ -38,6 +39,19 @@
             </svg>
             <p class="text-green-800 dark:text-green-200 font-medium">{{ session('persona_nueva') }}</p>
         </div>
+    @endif
+
+    @if (session()->has('error'))
+    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 flex items-center gap-3">
+        <svg class="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+
+        <p class="text-red-800 dark:text-red-200 font-medium">
+            {{ session('error') }}
+        </p>
+    </div>
     @endif
 
     {{-- SECCIÓN 1: BUSCAR / SELECCIONAR PERSONA --}}
@@ -405,41 +419,48 @@
         <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-                {{-- Firma --}}
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                        Firma del Instructor <span class="text-red-500">*</span>
-                    </label>
-                    <input type="file"
-                           wire:model="firma"
-                           accept="image/*"
-                           class="block w-full text-sm text-gray-700 dark:text-gray-300
-                                  file:mr-4 file:py-2 file:px-4
-                                  file:rounded-lg file:border-0
-                                  file:text-sm file:font-semibold
-                                  file:bg-amber-50 file:text-amber-700
-                                  dark:file:bg-amber-900/30 dark:file:text-amber-300
-                                  hover:file:bg-amber-100 dark:hover:file:bg-amber-900/50
-                                  transition-colors" />
-                    @error('firma')
-                        <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            {{ $message }}
-                        </p>
-                    @enderror
-                    @if ($firma)
-                        <div class="mt-3">
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Vista previa:</p>
-                            <img src="{{ $firma->temporaryUrl() }}"
-                                 alt="Vista previa firma"
-                                 class="h-16 object-contain rounded border border-amber-200 dark:border-amber-700 bg-white p-1">
-                        </div>
-                    @endif
-                </div>
+                {{-- Firma Principal --}}
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">
+                            Firma Principal
+                        </label>
 
-            </div>
+                        <div class="mt-2 flex justify-center rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 px-6 py-10">
+                            <div class="text-center">
+
+                                {{-- Icono --}}
+                                <svg class="mx-auto h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7l-1.41-1.41a2 2 0 00-2.83 0L4 13.34V16h2.66l7.76-7.76a2 2 0 000-2.83z"/>
+                                </svg>
+
+                                {{-- Texto --}}
+                                <div class="mt-3 flex text-sm text-gray-600 dark:text-gray-400 justify-center">
+                                    <label class="relative cursor-pointer rounded-md font-semibold text-amber-600 hover:text-amber-700">
+                                        <span>Haz clic para subir la firma</span>
+                                        <input type="file" class="sr-only" wire:model="firma" accept="image/*">
+                                    </label>
+                                </div>
+
+                                <p class="text-xs text-gray-500 mt-1">
+                                    PNG &nbsp; JPG &nbsp; JPEG &nbsp; Máx. 2MB
+                                </p>
+
+                                {{-- Vista previa --}}
+                                @if ($firma)
+                                    <div class="mt-4 flex justify-center">
+                                        <img src="{{ $firma->temporaryUrl() }}"
+                                            class="h-20 object-contain rounded border border-gray-200 bg-white p-2">
+                                    </div>
+                                @endif
+
+                            </div>
+                        </div>
+
+                        @error('firma')
+                            <p class="mt-2 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
 
             {{-- Barra de acciones --}}
             <div class="flex items-center justify-between mt-8 pt-5 border-t border-gray-100 dark:border-gray-700/50">

@@ -15,10 +15,11 @@ class InstructorCreate extends Component
     use WithFileUploads;
 
     // ── Nueva propiedad para la firma ─────────────────────────────
-    public $firma; // para subir la imagen
+    public $firma;
+
     // ── Búsqueda por DNI ───────────────────────────────────────────
     public string $persona_dni    = '';
-    public string $persona_estado = 'idle'; // idle | found | sin_persona
+    public string $persona_estado = 'idle';
     public ?int   $persona_id = null;
     public ?array $personaSeleccionada = null;
 
@@ -93,13 +94,22 @@ class InstructorCreate extends Component
         $this->showCrearPersona    = false;
     }
 
-    // ── Abrir / cancelar form crear persona ─────────────────────────
+    // ── Abrir form crear persona ────────────────────────────────────
     public function abrirCrearPersona(): void
     {
         $this->p_dni = ctype_digit(trim($this->persona_dni)) ? trim($this->persona_dni) : '';
-        $this->reset(['p_primer_nombre', 'p_segundo_nombre', 'p_primer_apellido',
-                      'p_segundo_apellido', 'p_telefono', 'p_email',
-                      'p_fecha_nacimiento', 'p_sexo']);
+
+        $this->reset([
+            'p_primer_nombre',
+            'p_segundo_nombre',
+            'p_primer_apellido',
+            'p_segundo_apellido',
+            'p_telefono',
+            'p_email',
+            'p_fecha_nacimiento',
+            'p_sexo'
+        ]);
+
         $this->showCrearPersona = true;
         $this->resetErrorBag();
     }
@@ -109,7 +119,8 @@ class InstructorCreate extends Component
         $this->showCrearPersona = false;
         $this->resetErrorBag();
     }
-        // ── Crear persona inline ─────────────────────────────────────────
+
+    // ── Crear persona inline ─────────────────────────────────────────
     public function crearPersona(): void
     {
         $this->validate([
@@ -118,16 +129,10 @@ class InstructorCreate extends Component
             'p_primer_apellido' => ['required', 'string', 'max:100'],
             'p_segundo_nombre'  => ['nullable', 'string', 'max:150'],
             'p_segundo_apellido'=> ['nullable', 'string', 'max:100'],
-            'p_telefono'          => ['nullable', 'string', 'max:20'],
-            'p_email'             => ['nullable', 'email', 'max:255'],
-            'p_fecha_nacimiento'  => ['nullable', 'date'],
-            'p_sexo'              => ['nullable', 'in:M,F'],
-        ], [
-            'p_dni.required'             => 'El número de identidad es obligatorio.',
-            'p_dni.min'                  => 'El DNI debe tener al menos 8 caracteres.',
-            'p_dni.unique'               => 'Ya existe una persona con ese DNI.',
-            'p_primer_nombre.required'   => 'El primer nombre es obligatorio.',
-            'p_primer_apellido.required' => 'El primer apellido es obligatorio.',
+            'p_telefono'        => ['nullable', 'string', 'max:20'],
+            'p_email'           => ['nullable', 'email', 'max:255'],
+            'p_fecha_nacimiento'=> ['nullable', 'date'],
+            'p_sexo'            => ['nullable', 'in:M,F'],
         ]);
 
         $persona = Persona::create([
@@ -136,43 +141,54 @@ class InstructorCreate extends Component
             'segundo_nombre'   => $this->p_segundo_nombre ?: null,
             'primer_apellido'  => $this->p_primer_apellido,
             'segundo_apellido' => $this->p_segundo_apellido ?: null,
-            'telefono'          => $this->p_telefono ?: null,
-            'email'             => $this->p_email ?: null,
-            'fecha_nacimiento'  => $this->p_fecha_nacimiento ?: null,
-            'sexo'              => $this->p_sexo === 'Masculino' ? 'M' : ($this->p_sexo === 'Femenino' ? 'F' : null),
+            'telefono'         => $this->p_telefono ?: null,
+            'email'            => $this->p_email ?: null,
+            'fecha_nacimiento' => $this->p_fecha_nacimiento ?: null,
+            'sexo'             => $this->p_sexo === 'Masculino' ? 'M' : ($this->p_sexo === 'Femenino' ? 'F' : null),
         ]);
 
         $this->seleccionarPersona($persona->id);
+
         session()->flash('persona_nueva', "Persona \"{$persona->nombre_completo}\" creada y seleccionada.");
     }
 
     // ── Guardar instructor ───────────────────────────────────────────
     public function guardar(): void
     {
-        // 1️⃣ Validar datos
         $this->validate([
             'persona_id' => ['required', 'integer', 'exists:personas,id'],
-            'firma'      => ['required', 'image', 'max:2048'], // validar imagen <=2MB
+            'firma'      => ['nullable', 'image', 'max:2048'],
             'fecha_ingreso' => ['nullable', 'date'],
             'estado'        => ['required', 'in:Activo,Inactivo'],
         ]);
 
-        // 2️⃣ Crear o recuperar feligrés automáticamente
+        // Crear o recuperar feligrés
         $feligres = Feligres::firstOrCreate(
             ['id_persona' => $this->persona_id],
             ['id_iglesia' => \App\Models\Iglesias::first()->id]
         );
 
-        // 3️⃣ Revisar si ya tiene instructor
-        if (Instructor::where('feligres_id', $feligres->id)->exists()) {
-            $this->addError('persona_id', 'Esta persona ya tiene un instructor asignado.');
+        // 🔴 VALIDACIÓN PARA EVITAR EL ERROR SQL
+        $instructorExistente = Instructor::withTrashed()
+            ->where('feligres_id', $feligres->id)
+            ->first();
+
+        if ($instructorExistente) {
+
+            if ($instructorExistente->trashed()) {
+                $instructorExistente->restore();
+            }
+
+            session()->flash('success', 'Instructor restaurado correctamente.');
+
+            $this->redirect(route('instructor.index'), navigate: false);
             return;
         }
 
-        // 4️⃣ Guardar la firma en storage
-        $pathFirma = $this->firma->store('firmas', 'public');
+        // Guardar firma
+        $pathFirma = $this->firma ? $this->firma->store('firmas', 'public') : null;
 
-        // 5️⃣ Crear instructor
+        // Crear instructor
         Instructor::create([
             'feligres_id'   => $feligres->id,
             'path_firma'    => $pathFirma,
@@ -180,8 +196,8 @@ class InstructorCreate extends Component
             'estado'        => $this->estado,
         ]);
 
-        // 6️⃣ Mensaje y redirección
         session()->flash('success', 'Instructor registrado correctamente.');
+
         $this->redirect(route('instructor.index'), navigate: false);
     }
 
