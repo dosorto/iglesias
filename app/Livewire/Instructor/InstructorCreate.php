@@ -173,8 +173,8 @@ class InstructorCreate extends Component
             ->where('feligres_id', $feligres->id)
             ->first();
 
-        if ($instructorExistente) {
-
+        if ($instructorExistente) { 
+  
             if ($instructorExistente->trashed()) {
                 $instructorExistente->restore();
             }
