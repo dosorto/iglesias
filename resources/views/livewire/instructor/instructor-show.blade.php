@@ -77,14 +77,12 @@
 
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Firma</label>
-                        @if ($instructor->path_firma)
-                            <img src="{{ asset('storage/' . $instructor->path_firma) }}"
-                                 alt="Firma"
-                                 class="mt-1 h-16 object-contain rounded border border-gray-200 dark:border-gray-600 bg-white p-1"
-                                 onerror="this.style.display='none'">
-                            <p class="mt-1 text-[11px] font-mono text-gray-400 dark:text-gray-500 break-all">{{ $instructor->path_firma }}</p>
+                        @if($instructor->path_firma)
+                            <img src="{{ asset('storage/' . $instructor->path_firma) }}" 
+                                alt="Firma del instructor"
+                                style="max-height:150px;">
                         @else
-                            <p class="text-sm text-gray-400 dark:text-gray-500 italic">Sin firma registrada</p>
+                            <span>No tiene firma</span>
                         @endif
                     </div>
                 </div>

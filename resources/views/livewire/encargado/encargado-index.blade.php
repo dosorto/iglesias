@@ -97,7 +97,7 @@
                         @forelse($encargados as $item)
                             <tr
                                 class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer group"
-                                data-href="{{ route('encargado.show', $item) }}"
+                                data-href="{{ route('encargado.show', $item->id) }}"
                                 onclick="window.location=this.dataset.href"
                             >
                                 <td class="px-6 py-4">
@@ -138,7 +138,7 @@
                                         @endcan
 
                                         @can('encargado.edit')
-                                            <a href="{{ route('encargado.edit', $item) }}"
+                                            <a href="{{ route('encargado.edit', $item->id) }}"
                                                class="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
                                                title="Editar">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

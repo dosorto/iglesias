@@ -12,7 +12,7 @@ return new class extends Migration {
 
     // obligatoria
     $table->foreignId('feligres_id')->constrained('feligres')->restrictOnDelete();
-    $table->string('path_firma', 200);
+    $table->string('path_firma', 200)->nullable();
     $table->date('fecha_ingreso')->nullable();
     $table->string('estado', 20)->default('Activo');
 
