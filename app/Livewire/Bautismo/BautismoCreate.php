@@ -79,15 +79,13 @@ class BautismoCreate extends Component
         $this->fecha_bautismo       = now()->format('Y-m-d');
         $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
 
-        // En tenant, tomar el id de la iglesia local automáticamente
-        if (session('tenant')) {
-            $iglesiaLocal     = DB::table('iglesias')->first();
-            $this->iglesia_id = $iglesiaLocal?->id;
-        }
+        // Tomar el id de la iglesia local automáticamente
+        $iglesiaLocal     = DB::table('iglesias')->first();
+        $this->iglesia_id = $iglesiaLocal?->id;
 
         // Encargado por defecto: primer encargado disponible
-        $encargadoDefault    = Encargado::with('feligres.persona')->first();
-        $this->encargado_id  = $encargadoDefault?->id;
+        $encargadoDefault   = Encargado::with('feligres.persona')->where('estado', 'Activo')->first();
+        $this->encargado_id = $encargadoDefault?->id;
     }
 
     // Navegacion
@@ -350,6 +348,11 @@ class BautismoCreate extends Component
         $rol = $this->mini_rol;
 
         DB::transaction(function () use ($rol) {
+            // Fallback: resolve iglesia_id at runtime if it was not set in mount()
+            if (! $this->iglesia_id) {
+                $this->iglesia_id = DB::table('iglesias')->value('id');
+            }
+
             $persona = Persona::create([
                 'dni'              => $this->mini_p_dni,
                 'primer_nombre'    => $this->mini_p_primer_nombre,
@@ -396,6 +399,11 @@ class BautismoCreate extends Component
         ], [
             'iglesia_id.required' => 'No se pudo determinar la iglesia.',
         ]);
+
+        // Fallback: resolve iglesia_id at runtime if it was not set in mount()
+        if (! $this->iglesia_id) {
+            $this->iglesia_id = DB::table('iglesias')->value('id');
+        }
 
         $rol     = $this->mini_rol;
         $persona = $this->{"{$rol}_persona"};
