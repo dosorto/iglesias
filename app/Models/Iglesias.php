@@ -38,7 +38,7 @@ class Iglesias extends Model
     {
         return Attribute::make(
             get: fn () => $this->path_logo
-                ? Storage::disk('public')->url($this->path_logo)
+                ? asset('storage/' . $this->path_logo)
                 : null,
         );
     }
