@@ -12,11 +12,14 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
+use Livewire\WithFileUploads;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 new #[Layout('layouts.guest')] class extends Component
 {
+    use WithFileUploads;
+
     public int $step = 1;
 
     public string $nombre           = '';
@@ -24,6 +27,7 @@ new #[Layout('layouts.guest')] class extends Component
     public string $email_iglesia    = '';
     public string $telefono_iglesia = '';
     public ?int   $id_religion      = null;
+    public $path_logo               = null;   // ← nuevo
 
     public string $name                  = '';
     public string $email                 = '';
@@ -50,6 +54,12 @@ new #[Layout('layouts.guest')] class extends Component
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // Guardar logo si fue subido
+        $logoPath = null;
+        if ($this->path_logo) {
+            $logoPath = $this->path_logo->store('logos', 'public');
+        }
+
         $provisioner = app(TenantProvisioner::class);
 
         // 1. Crear iglesia en BD central
@@ -61,6 +71,7 @@ new #[Layout('layouts.guest')] class extends Component
             'email'          => $this->email_iglesia    ?: null,
             'estado'         => 'Activa',
             'id_religion'    => $this->id_religion      ?: null,
+            'path_logo'      => $logoPath,
         ]);
 
         // 2. Crear BD tenant
@@ -91,7 +102,7 @@ new #[Layout('layouts.guest')] class extends Component
         $iglesiaTenantId = null;
 
         try {
-            // 4. Insertar iglesia en BD tenant (con id_religion)
+            // 4. Insertar iglesia en BD tenant (con path_logo)
             DB::connection($tenantConnection)->table('iglesias')->insert([
                 'nombre'         => $iglesia->nombre,
                 'direccion'      => $iglesia->direccion,
@@ -100,6 +111,7 @@ new #[Layout('layouts.guest')] class extends Component
                 'email'          => $iglesia->email,
                 'estado'         => $iglesia->estado,
                 'id_religion'    => $iglesia->id_religion,
+                'path_logo'      => $iglesia->path_logo,
                 'created_at'     => now(),
                 'updated_at'     => now(),
             ]);
@@ -143,6 +155,8 @@ new #[Layout('layouts.guest')] class extends Component
         event(new Registered($user));
         Auth::login($user);
 
+        session()->flash('success', 'La iglesia se ha creado correctamente. Ahora completa tu perfil de encargado.');
+
         $this->redirect(route('register-perfil', absolute: false), navigate: true);
     }
 
@@ -154,11 +168,14 @@ new #[Layout('layouts.guest')] class extends Component
             'email_iglesia'    => ['nullable', 'email', 'max:200'],
             'telefono_iglesia' => ['nullable', 'string', 'max:20'],
             'id_religion'      => ['required', 'exists:religion,id'],
+            'path_logo'        => ['nullable', 'image', 'max:2048'],
         ], [
             'nombre.required'      => 'El nombre de la iglesia es obligatorio.',
             'direccion.required'   => 'La ubicación física es necesaria.',
             'id_religion.required' => 'Debes seleccionar una religión.',
             'id_religion.exists'   => 'La religión seleccionada no es válida.',
+            'path_logo.image'      => 'El logo debe ser una imagen.',
+            'path_logo.max'        => 'El logo no debe superar los 2MB.',
         ]);
     }
 }; ?>
@@ -234,6 +251,83 @@ new #[Layout('layouts.guest')] class extends Component
                 </div>
             </div>
 
+            {{-- Logo de la Iglesia --}}
+            <div>
+                <x-input-label value="Logo de la Iglesia (opcional)" class="mb-2" />
+
+                <label for="path_logo"
+                       class="group relative flex flex-col items-center justify-center w-full
+                              rounded-xl border-2 border-dashed cursor-pointer transition-all duration-200
+                              {{ $path_logo
+                                  ? 'border-green-400 bg-green-50 dark:bg-green-900/10'
+                                  : 'border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50 dark:bg-gray-700/40 dark:border-gray-600 dark:hover:border-blue-500' }}
+                              min-h-[180px] p-6">
+
+                    @if ($path_logo)
+                        {{-- Vista previa --}}
+                        <div class="flex flex-col items-center gap-3 w-full">
+                            <img src="{{ $path_logo->temporaryUrl() }}"
+                                 alt="Vista previa logo"
+                                 class="max-h-36 w-auto rounded-lg border border-green-200 object-contain shadow-sm" />
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span class="text-sm font-medium text-green-600">Logo cargado correctamente</span>
+                            </div>
+                            <span class="text-xs text-gray-400 underline group-hover:text-blue-500 transition-colors">
+                                Haz clic para cambiar el logo
+                            </span>
+                        </div>
+                    @else
+                        {{-- Estado vacío --}}
+                        <div class="flex flex-col items-center gap-3 text-center">
+                            <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center
+                                        group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors">
+                                <svg class="w-8 h-8 text-gray-400 group-hover:text-blue-500 transition-colors"
+                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-700 dark:text-gray-200 group-hover:text-blue-600 transition-colors">
+                                    Haz clic para subir el logo
+                                </p>
+                                <p class="text-xs text-gray-400 mt-1">
+                                    o arrastra y suelta la imagen aquí
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-2 flex-wrap justify-center">
+                                <span class="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-xs text-gray-500">PNG</span>
+                                <span class="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-xs text-gray-500">JPG</span>
+                                <span class="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-xs text-gray-500">JPEG</span>
+                                <span class="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-xs text-gray-500">Máx. 2MB</span>
+                            </div>
+                        </div>
+                    @endif
+
+                    <input
+                        wire:model="path_logo"
+                        id="path_logo"
+                        type="file"
+                        accept="image/*"
+                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                </label>
+
+                {{-- Loading --}}
+                <div wire:loading wire:target="path_logo"
+                     class="mt-2 flex items-center gap-2 text-sm text-blue-600">
+                    <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                    </svg>
+                    Cargando imagen...
+                </div>
+
+                <x-input-error :messages="$errors->get('path_logo')" class="mt-1" />
+            </div>
+
             <div class="flex justify-end">
                 <x-primary-button>Siguiente →</x-primary-button>
             </div>
@@ -245,8 +339,18 @@ new #[Layout('layouts.guest')] class extends Component
         <form wire:submit="registerOrganization" class="space-y-4">
             <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Datos del Usuario Administrador</p>
 
-            <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700 space-y-1">
-                <div>Iglesia: <span class="font-semibold">{{ $nombre }}</span></div>
+            {{-- Resumen paso 1 con logo --}}
+            <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700 space-y-2">
+                @if ($path_logo)
+                    <div class="flex items-center gap-3 pb-2 border-b border-gray-200">
+                        <img src="{{ $path_logo->temporaryUrl() }}"
+                             alt="Logo iglesia"
+                             class="w-12 h-12 rounded-lg object-contain border border-gray-200 bg-white" />
+                        <span class="font-semibold text-base">{{ $nombre }}</span>
+                    </div>
+                @else
+                    <div>Iglesia: <span class="font-semibold">{{ $nombre }}</span></div>
+                @endif
                 @if($telefono_iglesia)
                     <div>Teléfono: <span class="font-semibold">{{ $telefono_iglesia }}</span></div>
                 @endif
@@ -291,5 +395,15 @@ new #[Layout('layouts.guest')] class extends Component
                 </x-primary-button>
             </div>
         </form>
+    @endif
+
+    {{-- Mensaje de éxito --}}
+    @if (session()->has('success'))
+        <div class="rounded-md bg-green-50 border border-green-200 p-4 flex items-start gap-3">
+            <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="text-sm text-green-700 font-medium">{{ session('success') }}</p>
+        </div>
     @endif
 </div>

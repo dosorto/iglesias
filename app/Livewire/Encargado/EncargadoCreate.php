@@ -190,11 +190,17 @@ class EncargadoCreate extends Component
         $pathFirma = $this->firma
             ? $this->firma->store('firmas-encargado', 'public')
             : null;
+        
+         // Poner todos los encargados existentes como Inactivo
+        Encargado::whereNull('deleted_at')->update(['estado' => 'Inactivo']);
 
+        // Crear el nuevo encargado como Activo
         Encargado::create([
             'id_feligres'          => $feligres->id,
             'path_firma_principal' => $pathFirma,
+            'estado'               => 'Activo',
         ]);
+
 
         session()->flash('success', 'Encargado registrado correctamente.');
         $this->redirect(route('encargado.index'), navigate: false);

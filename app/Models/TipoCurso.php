@@ -11,7 +11,6 @@ class TipoCurso extends Model
     protected $table = 'tipos_curso';
     protected $fillable = [
         "nombre_curso",
-        "descripcion_curso",
-        "estado_curso"
+        "descripcion_curso"
     ];
 }

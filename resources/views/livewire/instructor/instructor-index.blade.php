@@ -82,9 +82,6 @@
                             <th class="px-6 py-3 text-left">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado Feligrés</span>
                             </th>
-                            <th class="px-6 py-3 text-left">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Firma</span>
-                            </th>
                             <th class="px-6 py-3 text-left w-40">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</span>
                             </th>
@@ -111,11 +108,6 @@
                                 <td class="px-6 py-4">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $item->feligres->estado === 'Activo' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' }}">
                                         {{ $item->feligres->estado }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="text-xs font-mono text-gray-500 dark:text-gray-400 truncate max-w-[180px] block">
-                                        {{ $item->path_firma ?? '—' }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4" onclick="event.stopPropagation()">

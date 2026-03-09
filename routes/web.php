@@ -246,6 +246,10 @@ Route::middleware(['auth'])->group(function () {
         ->get('/bautismo/{bautismo}/edit', [\App\Http\Controllers\BautismoController::class, 'edit'])
         ->name('bautismo.edit');
 
+    Route::middleware('permission:bautismo.view')
+        ->get('/bautismo/{bautismo}/certificado/pdf', [\App\Http\Controllers\BautismoController::class, 'certificadoPdf'])
+        ->name('bautismo.certificado.pdf');
+
     // TipoCurso CRUD
     Route::middleware('permission:tipocurso.view')
         ->get('/tipocurso', [\App\Http\Controllers\TipoCursoController::class, 'index'])

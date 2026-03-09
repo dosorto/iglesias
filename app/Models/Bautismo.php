@@ -23,10 +23,15 @@ class Bautismo extends BaseModel
         'folio',
         'partida_numero',
         'observaciones',
+        'nota_marginal',
+        'lugar_nacimiento',
+        'lugar_expedicion',
+        'fecha_expedicion',
     ];
 
     protected $casts = [
-        'fecha_bautismo' => 'date',
+        'fecha_bautismo'   => 'date',
+        'fecha_expedicion' => 'date',
     ];
 
     public function iglesia()
