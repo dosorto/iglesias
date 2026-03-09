@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('parroco_nombre', 200);
             $table->string('estado', 20);
             $table->unsignedBigInteger('id_religion')->nullable();
+            $table->string('path_logo')->nullable();
             $table->integer("created_by")->nullable();
             $table->integer("deleted_by")->nullable();
             $table->integer("updated_by")->nullable();
