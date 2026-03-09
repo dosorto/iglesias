@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_feligres')->constrained('feligres');
             $table->string('path_firma_principal')->nullable();
+            $table->enum('estado', ['Activo', 'Inactivo'])->default('Activo');
             $table->integer("created_by")->nullable();
             $table->integer("deleted_by")->nullable();
             $table->integer("updated_by")->nullable();

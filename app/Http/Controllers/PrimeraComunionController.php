@@ -19,8 +19,17 @@ class PrimeraComunionController extends Controller
 
     public function show(PrimeraComunion $primeraComunion)
     {
+
+    $primeraComunion->load([
+        'iglesia',
+        'feligres.persona',
+        'catequista.persona',
+        'ministro.persona',
+        'parroco.persona',
+    ]);
         return view('primera-comunion.show', compact('primeraComunion'));
     }
+
 
     public function edit(PrimeraComunion $primeraComunion)
     {
