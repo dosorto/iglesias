@@ -15,7 +15,7 @@
             padding: 30px 40px;
         }
 
-        /* ── HEADER ── */
+        /* ── HEADER (3 columnas: logo iglesia | título | logo encargado) ── */
         .header {
             display: table;
             width: 100%;
@@ -29,7 +29,13 @@
         }
         .header-logo img {
             width: 70px;
-            height: auto;
+            height: 70px;
+            object-fit: contain;
+        }
+        .header-logo-placeholder {
+            width: 70px;
+            height: 70px;
+            display: inline-block;
         }
         .header-title {
             display: table-cell;
@@ -75,18 +81,10 @@
             margin: 0 4px;
             vertical-align: bottom;
         }
-        .line-field-sm {
-            min-width: 80px;
-        }
-        .line-field-lg {
-            min-width: 280px;
-        }
-        .line-field-xl {
-            min-width: 340px;
-        }
-        .section-label {
-            font-weight: bold;
-        }
+        .line-field-sm  { min-width: 80px; }
+        .line-field-lg  { min-width: 280px; }
+        .line-field-xl  { min-width: 340px; }
+        .section-label  { font-weight: bold; }
 
         /* ── SIGNATURE AREA ── */
         .signatures {
@@ -118,48 +116,68 @@
             font-style: italic;
             margin-top: 4px;
         }
-        .sig-bottom {
+
+        /* ── FIRMA FINAL (tabla: encargado izq | párroco der) ── */
+        .sig-footer {
+            display: table;
+            width: 100%;
             margin-top: 40px;
+        }
+        .sig-footer-cell {
+            display: table-cell;
+            width: 50%;
+            vertical-align: bottom;
+        }
+        .sig-footer-cell.right {
             text-align: right;
         }
-        .sig-bottom .sig-line {
+        .sig-block {
             display: inline-block;
-            width: 220px;
-            border-top: 1px solid #000;
             text-align: center;
+            width: 200px;
+        }
+        .sig-block img {
+            max-height: 50px;
+            max-width: 180px;
+            display: block;
+            margin: 0 auto 2px;
+        }
+        .sig-block .sig-line {
+            display: block;
+            border-top: 1px solid #000;
             font-size: 10pt;
             font-weight: bold;
             letter-spacing: 2px;
             padding-top: 4px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
-    {{-- ===== HEADER ===== --}}
-    <div class="header">
-        <div class="header-logo">
-            <img src="{{ public_path('image/Logo_guest.png') }}" alt="Escudo">
-        </div>
-        <div class="header-title">
-            <div class="diocese-name">Diócesis de Choluteca</div>
-            <div class="cert-title-box">Certificación de Primera Comunión</div>
-        </div>
-    </div>
-
-    <hr class="divider">
-
-    {{-- ===== BODY ===== --}}
     @php
+        $iglesia       = $primeraComunion->iglesia;
         $comulgante    = $primeraComunion->feligres?->persona;
         $catequista    = $primeraComunion->catequista?->persona;
         $ministro      = $primeraComunion->ministro?->persona;
         $parroco       = $primeraComunion->parroco?->persona;
         $parrocoModel  = $primeraComunion->parroco;
-        $firmaPath     = $parrocoModel?->path_firma_principal
+        $iglesiaNombre = $iglesia?->nombre ?? '';
+
+        // Logo de la iglesia
+        $logoIglesiaPath = ($iglesia && $iglesia->path_logo)
+            ? public_path('storage/' . $iglesia->path_logo)
+            : null;
+
+        // Firma del párroco
+        $firmaParrocoPath = ($parrocoModel && $parrocoModel->path_firma_principal)
             ? public_path('storage/' . $parrocoModel->path_firma_principal)
             : null;
-        $iglesiaNombre = $primeraComunion->iglesia?->nombre ?? '';
+
+        // Firma del encargado (viene del controlador como $encargado)
+        $firmaEncargadoPath = (isset($encargado) && $encargado && $encargado->path_firma_principal)
+            ? public_path('storage/' . $encargado->path_firma_principal)
+            : null;
 
         $mesesEs = [
             1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',
@@ -172,16 +190,44 @@
         $mesComunion   = $fechaComunion ? $mesesEs[$fechaComunion->month] : '';
         $anoComunion   = $fechaComunion ? $fechaComunion->year  : '';
 
-        $fechaExp      = $primeraComunion->fecha_expedicion;
-        $diaExp        = $fechaExp ? $fechaExp->day                  : '';
-        $mesExp        = $fechaExp ? $mesesEs[$fechaExp->month]      : '';
-        $anoExpMil     = $fechaExp ? ($fechaExp->year - 2000)        : '';
+        $fechaExp  = $primeraComunion->fecha_expedicion;
+        $diaExp    = $fechaExp ? $fechaExp->day             : '';
+        $mesExp    = $fechaExp ? $mesesEs[$fechaExp->month] : '';
+        $anoExpMil = $fechaExp ? ($fechaExp->year - 2000)   : '';
 
         $lugarCelebracion = $primeraComunion->lugar_celebracion ?? '';
         $lugarExp         = $primeraComunion->lugar_expedicion  ?? '';
         $notaMarginal     = $primeraComunion->nota_marginal     ?? '';
     @endphp
 
+    {{-- ===== HEADER: logo iglesia | título | logo estático ===== --}}
+    <div class="header">
+
+        {{-- Logo de la iglesia (izquierda) --}}
+        <div class="header-logo">
+            @if ($logoIglesiaPath && file_exists($logoIglesiaPath))
+                <img src="{{ $logoIglesiaPath }}" alt="Logo Parroquia">
+            @else
+                <span class="header-logo-placeholder"></span>
+            @endif
+        </div>
+
+        {{-- Título central --}}
+        <div class="header-title">
+            <div class="diocese-name">{{ $iglesiaNombre ?: 'Diócesis de Choluteca' }}</div>
+            <div class="cert-title-box">Certificación de Primera Comunión</div>
+        </div>
+
+        {{-- Logo estático del proyecto (derecha) --}}
+        <div class="header-logo">
+            <img src="{{ public_path('image/Logo_guest.png') }}" alt="Escudo">
+        </div>
+
+    </div>
+
+    <hr class="divider">
+
+    {{-- ===== BODY ===== --}}
     <div class="body-text">
 
         <p>
@@ -246,7 +292,9 @@
     <div class="signatures">
         <div class="sig-right">
             @if ($parroco?->nombre_completo)
-                <p style="text-align:right; font-weight:bold; font-size:11pt; margin-bottom:4px;">{{ $parroco->nombre_completo }}</p>
+                <p style="text-align:right; font-weight:bold; font-size:11pt; margin-bottom:4px;">
+                    {{ $parroco->nombre_completo }}
+                </p>
             @endif
             <div class="sig-line">C U R A &nbsp; P Á R R O C O</div>
         </div>
@@ -277,14 +325,29 @@
         <p class="sello">(Sello)</p>
     </div>
 
-    {{-- ===== FIRMA DEL PÁRROCO ===== --}}
-    <div class="sig-bottom">
-        @if ($firmaPath && file_exists($firmaPath))
-            <p style="text-align:right; margin-bottom:2px;">
-                <img src="{{ $firmaPath }}" style="max-height:50px; max-width:180px;">
-            </p>
-        @endif
-        <div class="sig-line">F I R M A</div>
+    {{-- ===== FIRMAS FINALES: encargado izq | párroco der ===== --}}
+    <div class="sig-footer">
+
+        {{-- Encargado (izquierda) --}}
+        <div class="sig-footer-cell">
+            <div class="sig-block">
+                @if ($firmaEncargadoPath && file_exists($firmaEncargadoPath))
+                    <img src="{{ $firmaEncargadoPath }}" alt="Firma Encargado">
+                @endif
+                <span class="sig-line">E N C A R G A D O</span>
+            </div>
+        </div>
+
+        {{-- Párroco (derecha) --}}
+        <div class="sig-footer-cell right">
+            <div class="sig-block">
+                @if ($firmaParrocoPath && file_exists($firmaParrocoPath))
+                    <img src="{{ $firmaParrocoPath }}" alt="Firma Párroco">
+                @endif
+                <span class="sig-line">C U R A &nbsp; P Á R R O C O</span>
+            </div>
+        </div>
+
     </div>
 
 </body>

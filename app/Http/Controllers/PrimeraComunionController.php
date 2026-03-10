@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\PrimeraComunion;
-use Illuminate\Http\Request;
+use App\Models\Encargado;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 
 class PrimeraComunionController extends Controller
 {
@@ -20,17 +21,16 @@ class PrimeraComunionController extends Controller
 
     public function show(PrimeraComunion $primeraComunion)
     {
+        $primeraComunion->load([
+            'iglesia',
+            'feligres.persona',
+            'catequista.persona',
+            'ministro.persona',
+            'parroco.persona',
+        ]);
 
-    $primeraComunion->load([
-        'iglesia',
-        'feligres.persona',
-        'catequista.persona',
-        'ministro.persona',
-        'parroco.persona',
-    ]);
         return view('primera-comunion.show', compact('primeraComunion'));
     }
-
 
     public function edit(PrimeraComunion $primeraComunion)
     {
@@ -47,7 +47,16 @@ class PrimeraComunionController extends Controller
             'parroco.persona',
         ]);
 
-        $pdf = Pdf::loadView('primera-comunion.certificado-pdf', compact('primeraComunion'))
+        // Encargado activo de la iglesia (para su firma en el PDF)
+        $encargado = Encargado::whereHas('feligres', function ($q) use ($primeraComunion) {
+                $q->where('id_iglesia', $primeraComunion->id_iglesia);
+            })
+            ->where('estado', 'Activo')
+            ->whereNull('deleted_at')
+            ->latest()
+            ->first();
+
+        $pdf = Pdf::loadView('primera-comunion.certificado-pdf', compact('primeraComunion', 'encargado'))
             ->setPaper('letter', 'portrait');
 
         $nombreArchivo = 'certificado-primera-comunion-' . $primeraComunion->id . '.pdf';
