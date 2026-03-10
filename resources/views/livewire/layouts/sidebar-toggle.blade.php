@@ -210,7 +210,29 @@
                         </li>
                     @endcan
 
-                    
+                    {{-- Inscripción Curso --}}
+                    @can('inscripcion-curso.view')
+                    <li>
+                        <a href="{{ route('inscripcion-curso.index') }}"
+                        class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
+                                rounded-xl text-gray-700 dark:text-gray-200 hover:bg-blue-100 dark:hover:bg-blue-900
+                                hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 group"
+                        title="{{ $isCollapsed ? 'Inscripción Curso' : '' }}">
+                        
+                            <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6M7 4h10a2 2 0 012 2v14l-7-3-7 3V6a2 2 0 012-2z"/>
+                            </svg>
+
+                            @if(!$isCollapsed)
+                                <span class="ml-3">Inscripción Curso</span>
+                            @endif
+
+                        </a>
+                    </li>
+                    @endcan
 
                     {{-- Tipos de Cursos --}}
                     @can('tipocurso.view')

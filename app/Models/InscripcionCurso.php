@@ -1,0 +1,65 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class InscripcionCurso extends BaseModel
+{
+    use SoftDeletes;
+
+    protected $table = 'inscripciones_curso';
+
+    protected $fillable = [
+        'curso_id',
+        'feligres_id',
+        'fecha_inscripcion',
+        'aprobado',
+        'certificado_emitido',
+        'fecha_certificado',
+        'created_by',
+        'updated_by',
+        'deleted_by'
+    ];
+
+    protected $casts = [
+        'fecha_inscripcion' => 'date',
+        'fecha_certificado' => 'date',
+        'aprobado' => 'boolean',
+        'certificado_emitido' => 'boolean',
+    ];
+
+    /* =========================
+        RELACIONES PRINCIPALES
+    ==========================*/
+
+    public function curso()
+    {
+        return $this->belongsTo(Curso::class, 'curso_id');
+    }
+
+    public function feligres()
+    {
+        return $this->belongsTo(Feligres::class, 'feligres_id');
+    }
+
+    /* =========================
+        RELACIONES DE AUDITORÍA
+    ==========================*/
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
+    }
+
+}

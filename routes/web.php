@@ -336,6 +336,34 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:curso.delete')
         ->delete('/curso/{curso}', [\App\Http\Controllers\CursoController::class, 'destroy'])
         ->name('curso.destroy');
+
+    // Inscripcion curso
+    Route::middleware('permission:inscripcion-curso.view')
+        ->get('/inscripcion-curso', [\App\Http\Controllers\InscripcionCursoController::class, 'index'])
+        ->name('inscripcion-curso.index');
+
+    Route::middleware('permission:inscripcion-curso.create')
+            ->get('/inscripcion-curso/create', [\App\Http\Controllers\InscripcionCursoController::class, 'create'])
+            ->name('inscripcion-curso.create');
+
+    Route::middleware('permission:inscripcion-curso.create')
+            ->post('/inscripcion-curso', [\App\Http\Controllers\InscripcionCursoController::class, 'store'])
+            ->name('inscripcion-curso.store');
+
+    Route::middleware('permission:inscripcion-curso.view')
+            ->get('/inscripcion-curso/{inscripcionCurso}', [\App\Http\Controllers\InscripcionCursoController::class, 'show'])
+            ->name('inscripcion-curso.show');
+
+    Route::middleware('permission:inscripcion-curso.edit')
+            ->get('/inscripcion-curso/{inscripcionCurso}/edit', [\App\Http\Controllers\InscripcionCursoController::class, 'edit'])
+            ->name('inscripcion-curso.edit');
+
+    Route::get('/inscripcion-curso/{inscripcion}/edit', [InscripcionCursoController::class, 'edit'])
+        ->name('inscripcion-curso.edit');
+
+    Route::middleware('permission:inscripcion-curso.delete')
+            ->delete('/inscripcion-curso/{inscripcionCurso}', [\App\Http\Controllers\InscripcionCursoController::class, 'destroy'])
+            ->name('inscripcion-curso.destroy');
 });
 
 require __DIR__.'/auth.php';
