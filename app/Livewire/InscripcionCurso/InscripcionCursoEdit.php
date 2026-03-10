@@ -95,4 +95,4 @@ class InscripcionCursoEdit extends Component
             'feligreses' => Feligres::with('persona')->get()
         ]);
     }
-}
+}   
