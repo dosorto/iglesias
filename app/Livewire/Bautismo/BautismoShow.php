@@ -13,6 +13,7 @@ class BautismoShow extends Component
     use WithFileUploads;
     public Bautismo $bautismo;
 
+    
     // Certificate fields (editable from the show page)
     public string $nota_marginal    = '';
     public string $lugar_nacimiento = '';

@@ -22,6 +22,11 @@ return new class extends Migration {
             $table->string('partida_numero', 50)->nullable();
             $table->text('observaciones')->nullable();
 
+            $table->string('nota_marginal', 500)->nullable();
+            $table->string('lugar_celebracion', 150)->nullable();
+            $table->string('lugar_expedicion', 150)->nullable();
+            $table->date('fecha_expedicion')->nullable();
+
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('deleted_by')->nullable()->constrained('users')->nullOnDelete();

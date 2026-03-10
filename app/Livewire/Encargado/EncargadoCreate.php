@@ -134,21 +134,25 @@ class EncargadoCreate extends Component
     public function crearPersona(): void
     {
         $this->validate([
-            'p_dni'             => ['required', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
-            'p_primer_nombre'   => ['required', 'string', 'max:150'],
-            'p_primer_apellido' => ['required', 'string', 'max:100'],
-            'p_segundo_nombre'  => ['nullable', 'string', 'max:150'],
-            'p_segundo_apellido'=> ['nullable', 'string', 'max:100'],
-            'p_telefono'        => ['nullable', 'string', 'max:20'],
-            'p_email'           => ['nullable', 'email', 'max:255'],
-            'p_fecha_nacimiento'=> ['nullable', 'date'],
-            'p_sexo'            => ['nullable', 'in:M,F'],
+            'p_dni'              => ['required', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
+            'p_primer_nombre'    => ['required', 'string', 'max:150'],
+            'p_primer_apellido'  => ['required', 'string', 'max:100'],
+            'p_segundo_nombre'   => ['nullable', 'string', 'max:150'],
+            'p_segundo_apellido' => ['nullable', 'string', 'max:100'],
+            'p_telefono'         => ['required', 'string', 'max:20'],
+            'p_email'            => ['nullable', 'email', 'max:255'],
+            'p_fecha_nacimiento' => ['required', 'date'],
+            'p_sexo'             => ['required', 'in:M,F'],
         ], [
-            'p_dni.required'             => 'El número de identidad es obligatorio.',
-            'p_dni.min'                  => 'El DNI debe tener al menos 8 caracteres.',
-            'p_dni.unique'               => 'Ya existe una persona con ese DNI.',
-            'p_primer_nombre.required'   => 'El primer nombre es obligatorio.',
-            'p_primer_apellido.required' => 'El primer apellido es obligatorio.',
+            'p_dni.required'              => 'El número de identidad es obligatorio.',
+            'p_dni.min'                   => 'El DNI debe tener al menos 8 caracteres.',
+            'p_dni.unique'                => 'Ya existe una persona con ese DNI.',
+            'p_primer_nombre.required'    => 'El primer nombre es obligatorio.',
+            'p_primer_apellido.required'  => 'El primer apellido es obligatorio.',
+            'p_telefono.required'         => 'El teléfono es obligatorio.',
+            'p_fecha_nacimiento.required' => 'La fecha de nacimiento es obligatoria.',
+            'p_sexo.required'             => 'El sexo es obligatorio.',
+            'p_sexo.in'                   => 'Selecciona Masculino o Femenino.',
         ]);
 
         $persona = Persona::create([
@@ -160,7 +164,7 @@ class EncargadoCreate extends Component
             'telefono'         => $this->p_telefono ?: null,
             'email'            => $this->p_email ?: null,
             'fecha_nacimiento' => $this->p_fecha_nacimiento ?: null,
-            'sexo'             => $this->p_sexo === 'Masculino' ? 'M' : ($this->p_sexo === 'Femenino' ? 'F' : null),
+            'sexo'             => $this->p_sexo ?: null,
         ]);
 
         $this->seleccionarPersona($persona->id);
@@ -190,8 +194,8 @@ class EncargadoCreate extends Component
         $pathFirma = $this->firma
             ? $this->firma->store('firmas-encargado', 'public')
             : null;
-        
-         // Poner todos los encargados existentes como Inactivo
+
+        // Poner todos los encargados existentes como Inactivo
         Encargado::whereNull('deleted_at')->update(['estado' => 'Inactivo']);
 
         // Crear el nuevo encargado como Activo
@@ -200,7 +204,6 @@ class EncargadoCreate extends Component
             'path_firma_principal' => $pathFirma,
             'estado'               => 'Activo',
         ]);
-
 
         session()->flash('success', 'Encargado registrado correctamente.');
         $this->redirect(route('encargado.index'), navigate: false);

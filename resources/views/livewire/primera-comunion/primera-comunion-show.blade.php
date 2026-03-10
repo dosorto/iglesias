@@ -1,264 +1,421 @@
-<div class="space-y-6">
+@php
+    $comulgante  = $primeraComunion->feligres?->persona;
+    $catequista  = $primeraComunion->catequista?->persona;
+    $ministro    = $primeraComunion->ministro?->persona;
+    $parroco     = $primeraComunion->parroco?->persona;
+    $encargado   = $primeraComunion->encargado?->feligres?->persona;
+    $iglesiaNombre = $primeraComunion->iglesia?->nombre ?? '';
 
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Detalle de Primera Comunión</h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-1">Información completa del registro</p>
-        </div>
-        <div class="flex flex-wrap gap-2">
-            @can('primera-comunion.edit')
-                <a href="{{ route('primera-comunion.edit', $primeraComunion) }}"
-                   class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center shadow-sm text-sm">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
-                    Editar
-                </a>
-            @endcan
-            <button onclick="window.print()"
-                    class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center shadow-sm text-sm">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-                Exportar PDF
-            </button>
-            <a href="{{ route('primera-comunion.index') }}"
-               class="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center text-sm">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-                Volver
-            </a>
-        </div>
-    </div>
+    $mesesEs = [
+        1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',
+        5=>'mayo',6=>'junio',7=>'julio',8=>'agosto',
+        9=>'septiembre',10=>'octubre',11=>'noviembre',12=>'diciembre',
+    ];
 
-    {{-- Documento imprimible --}}
-    <div id="documento-print">
+    $fc = $primeraComunion->fecha_primera_comunion;
+    $diaComunion = $fc?->day ?? '';
+    $mesComunion = $fc ? $mesesEs[$fc->month] : '';
+    $anoComunion = $fc?->year ?? '';
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    $diaExp = $this->exp_dia ?? '';
+    $mesExp = ($this->exp_mes && isset($mesesEs[(int)$this->exp_mes])) ? $mesesEs[(int)$this->exp_mes] : '';
+    $anoExp = $this->exp_ano ?? '';
 
-            {{-- Datos del evento --}}
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
-                    Datos de la Primera Comunión
-                </h2>
-                <dl class="space-y-3">
-                    <div class="flex justify-between">
-                        <dt class="text-sm text-gray-500 dark:text-gray-400">Iglesia</dt>
-                        <dd class="text-sm font-medium text-gray-900 dark:text-white">{{ $primeraComunion->iglesia?->nombre ?? '—' }}</dd>
-                    </div>
-                    <div class="flex justify-between">
-                        <dt class="text-sm text-gray-500 dark:text-gray-400">Fecha</dt>
-                        <dd class="text-sm font-medium text-gray-900 dark:text-white">{{ $primeraComunion->fecha_primera_comunion?->format('d/m/Y') ?? '—' }}</dd>
-                    </div>
-                    <div class="flex justify-between">
-                        <dt class="text-sm text-gray-500 dark:text-gray-400">Libro</dt>
-                        <dd class="text-sm font-mono text-gray-900 dark:text-white">{{ $primeraComunion->libro_comunion ?? '—' }}</dd>
-                    </div>
-                    <div class="flex justify-between">
-                        <dt class="text-sm text-gray-500 dark:text-gray-400">Folio</dt>
-                        <dd class="text-sm font-mono text-gray-900 dark:text-white">{{ $primeraComunion->folio ?? '—' }}</dd>
-                    </div>
-                    <div class="flex justify-between">
-                        <dt class="text-sm text-gray-500 dark:text-gray-400">Partida N°</dt>
-                        <dd class="text-sm font-mono text-gray-900 dark:text-white">{{ $primeraComunion->partida_numero ?? '—' }}</dd>
-                    </div>
-                    @if($primeraComunion->observaciones)
-                        <div>
-                            <dt class="text-sm text-gray-500 dark:text-gray-400 mb-1">Observaciones</dt>
-                            <dd class="text-sm text-gray-900 dark:text-white">{{ $primeraComunion->observaciones }}</dd>
-                        </div>
-                    @endif
-                </dl>
+    $estadoColor = $primeraComunion->fecha_expedicion
+        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+        : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+
+    // Propiedades del componente Livewire
+    $previewMode        = $this->previewMode;
+    $lugar_celebracion  = $this->lugar_celebracion ?? '';
+    $lugar_expedicion   = $this->lugar_expedicion  ?? '';
+    $nota_marginal      = $this->nota_marginal      ?? '';
+    $auditHistory     = $this->auditHistory;
+    $estadoRegistro   = $this->estadoRegistro   ?? 'Borrador';
+@endphp
+
+<div class="flex flex-col lg:flex-row gap-5 items-start">
+
+    {{-- ======================= LEFT SIDEBAR ======================= --}}
+    <aside class="w-full lg:w-56 xl:w-60 shrink-0 space-y-4">
+
+        {{-- Flash notification --}}
+        @if (session('success'))
+            <div class="bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-600 text-green-800 dark:text-green-200 px-3 py-2 rounded-lg text-xs">
+                {{ session('success') }}
             </div>
+        @endif
 
-            {{-- Personas --}}
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
-                    Personas Involucradas
-                </h2>
-                <dl class="space-y-3">
-                    @foreach ([
-                        'Comulgante' => $primeraComunion->feligres,
-                        'Catequista' => $primeraComunion->catequista,
-                        'Ministro'   => $primeraComunion->ministro,
-                        'Párroco'    => $primeraComunion->parroco,
-                    ] as $rol => $feligres)
-                        <div class="flex justify-between items-center">
-                            <dt class="text-sm text-gray-500 dark:text-gray-400">{{ $rol }}</dt>
-                            <dd class="text-sm font-medium text-gray-900 dark:text-white text-right">
-                                @if($feligres?->persona)
-                                    <span>{{ $feligres->persona->nombre_completo }}</span>
-                                    <span class="block text-xs font-mono text-gray-400">{{ $feligres->persona->dni }}</span>
-                                @else
-                                    <span class="text-gray-400 dark:text-gray-500">—</span>
-                                @endif
-                            </dd>
+        {{-- ACCIONES --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Acciones</p>
+
+            <div class="space-y-2">
+                {{-- Generar PDF --}}
+                <a href="{{ route('primera-comunion.certificado.pdf', $primeraComunion) }}" target="_blank"
+                   class="flex items-center w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-colors">
+                    <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17h6M9 13h6M9 9h1"/>
+                    </svg>
+                    Generar PDF
+                </a>
+
+                {{-- Guardar Borrador --}}
+                @can('primera-comunion.edit')
+                    <button wire:click="saveCertificate"
+                            class="flex items-center w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+                        </svg>
+                        Guardar Borrador
+                    </button>
+                @endcan
+
+                {{-- Toggle Preview --}}
+                <button wire:click="togglePreview"
+                        class="flex items-center w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                    @if ($previewMode)
+                        <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Modo Edición
+                    @else
+                        <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        Vista Previa
+                    @endif
+                </button>
+
+                {{-- Editar Registro --}}
+                @can('primera-comunion.edit')
+                    <a href="{{ route('primera-comunion.edit', $primeraComunion) }}"
+                       class="flex items-center w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Editar Registro
+                    </a>
+                @endcan
+
+                {{-- Volver --}}
+                <a href="{{ route('primera-comunion.index') }}"
+                   class="flex items-center w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Volver
+                </a>
+            </div>
+        </div>
+
+        {{-- INFORMACIÓN DEL LIBRO --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Información del Libro</p>
+            <div class="space-y-3">
+                <div>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-1">Diócesis</p>
+                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-100 tracking-wide">
+                        {{ strtoupper($primeraComunion->iglesia?->nombre ?? 'CHOLUTECA') }}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-1">Libro / Tomo</p>
+                    <p class="text-sm font-mono font-semibold text-gray-800 dark:text-gray-100">
+                        {{ $primeraComunion->libro_comunion ?? '—' }}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-1">Estado del Registro</p>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $estadoColor }}">
+                        {{ $estadoRegistro }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        {{-- HISTORIAL DE VERSIONES --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Historial de Versiones</p>
+            @if ($auditHistory->isNotEmpty())
+                <div class="space-y-3">
+                    @foreach ($auditHistory as $i => $log)
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <p class="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                    v{{ $auditHistory->count() - $i }} &ndash; {{ \Carbon\Carbon::parse($log->created_at)->format('d/m/Y') }}
+                                </p>
+                                <p class="text-[11px] text-gray-400 dark:text-gray-500">{{ $log->user_name ?? 'Sistema' }}</p>
+                            </div>
+                            <span class="text-[10px] uppercase font-medium px-1.5 py-0.5 rounded
+                                {{ $log->event === 'created' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' }}">
+                                {{ $log->event === 'created' ? 'Nuevo' : 'Edit.' }}
+                            </span>
                         </div>
                     @endforeach
-                </dl>
-            </div>
+                </div>
+            @else
+                <div class="space-y-3">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <p class="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                v1 &ndash; {{ $primeraComunion->created_at?->format('d/m/Y') }}
+                            </p>
+                            <p class="text-[11px] text-gray-400 dark:text-gray-500">Sistema</p>
+                        </div>
+                        <span class="text-[10px] uppercase font-medium px-1.5 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                            Nuevo
+                        </span>
+                    </div>
+                    @if ($primeraComunion->updated_at && $primeraComunion->updated_at->ne($primeraComunion->created_at))
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <p class="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                    v2 &ndash; {{ $primeraComunion->updated_at?->format('d/m/Y') }}
+                                </p>
+                                <p class="text-[11px] text-gray-400 dark:text-gray-500">Sistema</p>
+                            </div>
+                            <span class="text-[10px] uppercase font-medium px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
+                                Edit.
+                            </span>
+                        </div>
+                    @endif
+                </div>
+            @endif
         </div>
 
-        {{-- Sección imprimible: documento formal --}}
-        <div class="hidden-screen" id="doc-formal">
-            <div style="font-family:'Times New Roman',serif; padding:15mm 18mm; background:white;">
+    </aside>
 
-                {{-- Encabezado --}}
-                <div style="text-align:center; margin-bottom:10mm;">
-                    <div style="font-size:13pt; font-weight:bold; text-transform:uppercase; letter-spacing:1px;">
-                        {{ $primeraComunion->iglesia?->nombre ?? 'Iglesia' }}
-                    </div>
-                    <hr style="border:none; border-top:2px solid #000; margin:4mm 0 3mm;">
-                    <div style="font-size:15pt; font-weight:bold; text-transform:uppercase; letter-spacing:2px;">
-                        Constancia de Primera Comunión
-                    </div>
-                    <div style="font-size:10pt; font-style:italic; color:#555; margin-top:2mm;">
-                        Registro Sacramental — Sacramento de la Eucaristía
-                    </div>
-                    <hr style="border:none; border-top:1px solid #000; margin:4mm 0;">
+    {{-- ======================= CERTIFICATE MAIN AREA ======================= --}}
+    <div class="flex-1 min-w-0">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8">
+
+            {{-- Validation errors --}}
+            @if ($errors->any())
+                <div class="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg px-4 py-3 text-sm text-red-700 dark:text-red-400">
+                    <ul class="list-disc list-inside space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
+            @endif
 
-                {{-- Datos generales --}}
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:3mm 5mm; margin-bottom:8mm; font-size:9.5pt;">
-                    <div style="display:flex; flex-direction:column;">
-                        <span style="font-weight:bold; font-size:8pt; text-transform:uppercase; color:#444;">Iglesia</span>
-                        <span style="border-bottom:1px solid #999; padding-bottom:1mm; margin-top:1mm;">{{ $primeraComunion->iglesia?->nombre ?? '—' }}</span>
-                    </div>
-                    <div style="display:flex; flex-direction:column;">
-                        <span style="font-weight:bold; font-size:8pt; text-transform:uppercase; color:#444;">Fecha del Sacramento</span>
-                        <span style="border-bottom:1px solid #999; padding-bottom:1mm; margin-top:1mm;">{{ $primeraComunion->fecha_primera_comunion?->format('d/m/Y') ?? '—' }}</span>
-                    </div>
-                    <div style="display:flex; flex-direction:column;">
-                        <span style="font-weight:bold; font-size:8pt; text-transform:uppercase; color:#444;">Párroco</span>
-                        <span style="border-bottom:1px solid #999; padding-bottom:1mm; margin-top:1mm;">{{ $primeraComunion->iglesia?->parroco_nombre ?? '—' }}</span>
-                    </div>
+            {{-- ─── CERTIFICATE HEADER ─── --}}
+            <div class="flex items-center gap-4 mb-6">
+                <img src="{{ asset('image/Logo_guest.png') }}" alt="Escudo" class="h-20 w-auto">
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black uppercase tracking-wide text-gray-900 dark:text-white">
+                        {{ strtoupper($iglesiaNombre ?: 'Parroquia') }}
+                    </h1>
+                    <p class="text-base font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300">
+                        Diócesis de Choluteca
+                    </p>
                 </div>
+            </div>
 
-                {{-- Tabla participantes --}}
-                <div style="margin-top:6mm;">
-                    <div style="font-size:10pt; font-weight:bold; text-transform:uppercase; letter-spacing:1px; margin-bottom:3mm; text-align:center;">
-                        Participantes del Sacramento
-                    </div>
-                    <table style="width:100%; border-collapse:collapse; font-size:9.5pt;">
-                        <thead>
-                            <tr style="background:#1e293b; color:white;">
-                                <th style="padding:3mm 4mm; text-align:left; font-size:8.5pt; text-transform:uppercase;">Rol</th>
-                                <th style="padding:3mm 4mm; text-align:left; font-size:8.5pt; text-transform:uppercase;">Nombre Completo</th>
-                                <th style="padding:3mm 4mm; text-align:left; font-size:8.5pt; text-transform:uppercase;">DNI</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ([
-                                ['rol' => 'Comulgante', 'bg' => '#dbeafe', 'color' => '#1d4ed8', 'feligres' => $primeraComunion->feligres],
-                                ['rol' => 'Catequista', 'bg' => '#dcfce7', 'color' => '#16a34a', 'feligres' => $primeraComunion->catequista],
-                                ['rol' => 'Ministro',   'bg' => '#fef9c3', 'color' => '#a16207', 'feligres' => $primeraComunion->ministro],
-                                ['rol' => 'Párroco',    'bg' => '#fce7f3', 'color' => '#9d174d', 'feligres' => $primeraComunion->parroco],
-                            ] as $i => $p)
-                                <tr style="{{ $i % 2 === 1 ? 'background:#f8fafc;' : '' }}">
-                                    <td style="padding:3mm 4mm; border-bottom:1px solid #e2e8f0;">
-                                        <span style="background:{{ $p['bg'] }}; color:{{ $p['color'] }}; padding:1px 8px; border-radius:20px; font-size:7.5pt; font-weight:bold; text-transform:uppercase;">{{ $p['rol'] }}</span>
-                                    </td>
-                                    <td style="padding:3mm 4mm; border-bottom:1px solid #e2e8f0;">{{ $p['feligres']?->persona?->nombre_completo ?? '—' }}</td>
-                                    <td style="padding:3mm 4mm; border-bottom:1px solid #e2e8f0;">{{ $p['feligres']?->persona?->dni ?? '—' }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+            <hr class="border-gray-300 dark:border-gray-600 mb-6">
 
-                {{-- Datos de registro --}}
-                <div style="margin-top:8mm; border:1px solid #cbd5e1; padding:5mm;">
-                    <div style="font-size:9pt; font-weight:bold; text-transform:uppercase; margin-bottom:4mm; color:#475569;">
-                        Datos de Registro
-                    </div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:3mm 5mm; font-size:9pt;">
-                        <div style="display:flex; flex-direction:column;">
-                            <span style="font-weight:bold; font-size:8pt; text-transform:uppercase; color:#444;">Libro</span>
-                            <span style="border-bottom:1px solid #999; padding-bottom:1mm; margin-top:1mm;">{{ $primeraComunion->libro_comunion ?? '—' }}</span>
-                        </div>
-                        <div style="display:flex; flex-direction:column;">
-                            <span style="font-weight:bold; font-size:8pt; text-transform:uppercase; color:#444;">Folio</span>
-                            <span style="border-bottom:1px solid #999; padding-bottom:1mm; margin-top:1mm;">{{ $primeraComunion->folio ?? '—' }}</span>
-                        </div>
-                        <div style="display:flex; flex-direction:column;">
-                            <span style="font-weight:bold; font-size:8pt; text-transform:uppercase; color:#444;">Partida N°</span>
-                            <span style="border-bottom:1px solid #999; padding-bottom:1mm; margin-top:1mm;">{{ $primeraComunion->partida_numero ?? '—' }}</span>
-                        </div>
-                    </div>
-                </div>
+            @php
+                $placeholderClass = 'text-gray-400 dark:text-gray-500 italic text-sm';
+                $lineClass = 'border-b border-gray-500 dark:border-gray-400 inline-block pb-0.5 font-medium';
+                $inputClass = 'border-b border-gray-500 dark:border-gray-400 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:border-blue-500 pb-0.5 font-serif';
+            @endphp
 
-                {{-- Observaciones --}}
-                @if($primeraComunion->observaciones)
-                    <div style="margin-top:6mm; font-size:9pt;">
-                        <div style="font-weight:bold; text-transform:uppercase; font-size:8pt; color:#444;">Observaciones</div>
-                        <div style="border:1px solid #cbd5e1; padding:3mm; min-height:12mm; margin-top:2mm;">{{ $primeraComunion->observaciones }}</div>
-                    </div>
+            {{-- ─── CERTIFICATE BODY ─── --}}
+            <div class="font-serif text-gray-800 dark:text-gray-200 leading-loose space-y-5 text-sm md:text-[14px]">
+
+                {{-- Línea 1: infrascrito certifica que --}}
+                <p class="flex flex-wrap items-end gap-x-1 gap-y-2">
+                    <span>El infrascrito encargado del archivo de esta parroquia certifica que</span>
+                </p>
+
+                {{-- Nombre del comulgante (línea completa subrayada) --}}
+                <p class="w-full border-b border-gray-500 dark:border-gray-400 pb-0.5 font-bold uppercase tracking-widest text-center text-base md:text-lg
+                           {{ $comulgante?->nombre_completo ? 'text-gray-900 dark:text-white' : $placeholderClass }}">
+                    {{ $comulgante?->nombre_completo ?: 'Nombre Completo del Comulgante' }}
+                </p>
+                @if ($comulgante?->dni)
+                    <p class="text-center text-xs text-gray-400 font-mono -mt-3">DNI: {{ $comulgante->dni }}</p>
                 @endif
 
-                {{-- Firmas --}}
-                <div style="margin-top:20mm; display:grid; grid-template-columns:1fr 1fr; gap:10mm;">
-                    <div style="text-align:center;">
-                        <div style="border-top:1px solid #000; padding-top:2mm; font-size:9pt;">
-                            {{ $primeraComunion->parroco?->persona?->nombre_completo ?? '___________________________' }}
-                        </div>
-                        <div style="font-size:8pt; color:#555; margin-top:1mm;">Párroco / Celebrante</div>
-                    </div>
-                    <div style="text-align:center;">
-                        <div style="border-top:1px solid #000; padding-top:2mm; font-size:9pt;">
-                            {{ $primeraComunion->feligres?->persona?->nombre_completo ?? '___________________________' }}
-                        </div>
-                        <div style="font-size:8pt; color:#555; margin-top:1mm;">Comulgante</div>
-                    </div>
-                </div>
+                {{-- Hizo su Primera Comunión --}}
+                <p class="flex flex-wrap items-end gap-x-1 gap-y-2">
+                    <span>Hizo su</span>
+                    <strong>PRIMERA COMUNIÓN</strong>
+                    <span>el día</span>
+                    <span class="{{ $lineClass }} min-w-[80px] text-center {{ $diaComunion ? '' : $placeholderClass }}">
+                        {{ $diaComunion ?: '' }}
+                    </span>
+                    <span>del mes</span>
+                    <span class="{{ $lineClass }} min-w-[160px] text-center {{ $mesComunion ? '' : $placeholderClass }}">
+                        {{ $mesComunion ?: '' }}
+                    </span>
+                </p>
 
-                {{-- Pie --}}
-                <div style="margin-top:15mm; text-align:center; font-size:8pt; color:#94a3b8; border-top:1px solid #e2e8f0; padding-top:4mm;">
-                    Documento generado el {{ now()->format('d/m/Y H:i') }} &nbsp;·&nbsp; {{ $primeraComunion->iglesia?->nombre ?? '' }}
-                    @if($primeraComunion->iglesia?->email) &nbsp;·&nbsp; {{ $primeraComunion->iglesia->email }} @endif
+                {{-- Año --}}
+                <p class="flex flex-wrap items-end gap-x-1 gap-y-2">
+                    <span>año</span>
+                    <span class="{{ $lineClass }} min-w-[120px] text-center {{ $anoComunion ? '' : $placeholderClass }}">
+                        {{ $anoComunion ?: '' }}
+                    </span>
+                </p>
+
+                {{-- En (lugar de la celebración) --}}
+                <p class="flex flex-wrap items-end gap-x-1 gap-y-2">
+                    <span>En</span>
+                    @if ($previewMode)
+                        <span class="{{ $lineClass }} min-w-[300px] {{ $lugar_celebracion ? '' : $placeholderClass }}">
+                            {{ $lugar_celebracion ?: '' }}
+                        </span>
+                    @else
+                        @can('primera-comunion.edit')
+                            <input type="text"
+                                   wire:model.live="lugar_celebracion"
+                                   placeholder="Lugar de la celebración"
+                                   class="{{ $inputClass }} min-w-[300px]">
+                        @else
+                            <span class="{{ $lineClass }} min-w-[300px] {{ $lugar_celebracion ? '' : $placeholderClass }}">
+                                {{ $lugar_celebracion ?: '' }}
+                            </span>
+                        @endcan
+                    @endif
+                </p>
+
+                {{-- Nota marginal (opcional) --}}
+                @if ($nota_marginal || !$previewMode)
+                <div class="flex flex-wrap items-start gap-x-2 gap-y-1 pt-2">
+                    <span class="font-bold shrink-0">NOTA MARGINAL:</span>
+                    @if ($previewMode)
+                        <p class="border-b border-gray-400 dark:border-gray-500 flex-1 min-w-[200px] pb-0.5 {{ $nota_marginal ? '' : $placeholderClass }}">
+                            {{ $nota_marginal ?: '' }}
+                        </p>
+                    @else
+                        @can('primera-comunion.edit')
+                            <input type="text"
+                                   wire:model.live="nota_marginal"
+                                   placeholder="Notas adicionales..."
+                                   class="{{ $inputClass }} flex-1 min-w-[200px]">
+                        @else
+                            <p class="border-b border-gray-400 dark:border-gray-500 flex-1 pb-0.5">{{ $nota_marginal ?: '—' }}</p>
+                        @endcan
+                    @endif
+                </div>
+                @endif
+
+                <div class="pt-4"></div>
+
+                {{-- Dado en --}}
+                <p class="flex flex-wrap items-end gap-x-1 gap-y-2">
+                    <span>Dado en</span>
+                    @if ($previewMode)
+                        <span class="{{ $lineClass }} min-w-[180px] {{ $lugar_expedicion ? '' : $placeholderClass }}">
+                            {{ $lugar_expedicion ?: '' }}
+                        </span>
+                    @else
+                        @can('primera-comunion.edit')
+                            <input type="text"
+                                   wire:model.live="lugar_expedicion"
+                                   placeholder="Lugar"
+                                   class="{{ $inputClass }} min-w-[180px]">
+                        @else
+                            <span class="{{ $lineClass }} min-w-[180px] {{ $lugar_expedicion ? '' : $placeholderClass }}">
+                                {{ $lugar_expedicion ?: '' }}
+                            </span>
+                        @endcan
+                    @endif
+                    <span>a los</span>
+                    @if ($previewMode)
+                        <span class="{{ $lineClass }} min-w-[60px] text-center {{ $diaExp ? '' : $placeholderClass }}">
+                            {{ $diaExp ?: '' }}
+                        </span>
+                    @else
+                        @can('primera-comunion.edit')
+                            <input type="number" min="1" max="31"
+                                   wire:model.live="exp_dia"
+                                   placeholder="Día"
+                                   class="{{ $inputClass }} w-14 text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none">
+                        @else
+                            <span class="{{ $lineClass }} min-w-[60px] text-center {{ $diaExp ? '' : $placeholderClass }}">
+                                {{ $diaExp ?: '' }}
+                            </span>
+                        @endcan
+                    @endif
+                    <span>del mes de</span>
+                </p>
+
+                {{-- Mes y año de expedición --}}
+                <p class="flex flex-wrap items-end gap-x-1 gap-y-2">
+                    @if ($previewMode)
+                        <span class="{{ $lineClass }} min-w-[160px] text-center {{ $mesExp ? '' : $placeholderClass }}">
+                            {{ $mesExp ?: '' }}
+                        </span>
+                    @else
+                        @can('primera-comunion.edit')
+                            <select wire:model.live="exp_mes"
+                                    class="border-b border-gray-500 dark:border-gray-400 bg-transparent text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500 pb-0.5 text-sm font-serif min-w-[140px]">
+                                <option value="">Mes</option>
+                                <option value="1">enero</option>
+                                <option value="2">febrero</option>
+                                <option value="3">marzo</option>
+                                <option value="4">abril</option>
+                                <option value="5">mayo</option>
+                                <option value="6">junio</option>
+                                <option value="7">julio</option>
+                                <option value="8">agosto</option>
+                                <option value="9">septiembre</option>
+                                <option value="10">octubre</option>
+                                <option value="11">noviembre</option>
+                                <option value="12">diciembre</option>
+                            </select>
+                        @else
+                            <span class="{{ $lineClass }} min-w-[160px] text-center {{ $mesExp ? '' : $placeholderClass }}">
+                                {{ $mesExp ?: '' }}
+                            </span>
+                        @endcan
+                    @endif
+                    <span>año</span>
+                    @if ($previewMode)
+                        <span class="{{ $lineClass }} min-w-[100px] text-center {{ $anoExp ? '' : $placeholderClass }}">
+                            {{ $anoExp ? '20' . str_pad($anoExp, 2, '0', STR_PAD_LEFT) : '' }}
+                        </span>
+                    @else
+                        @can('primera-comunion.edit')
+                            <input type="number" min="0" max="99"
+                                   wire:model.live="exp_ano"
+                                   placeholder="Año"
+                                   class="{{ $inputClass }} w-16 text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none">
+                        @else
+                            <span class="{{ $lineClass }} min-w-[100px] text-center {{ $anoExp ? '' : $placeholderClass }}">
+                                {{ $anoExp ? '20' . str_pad($anoExp, 2, '0', STR_PAD_LEFT) : '' }}
+                            </span>
+                        @endcan
+                    @endif
+                </p>
+
+                {{-- Firma del Párroco --}}
+                <div class="flex justify-center pt-10 pb-2">
+                    <div class="text-center">
+                        {{-- Espacio para sello físico --}}
+                        <div class="mb-6 h-16 flex items-center justify-center">
+                            <span class="text-xs italic text-gray-300 dark:text-gray-600">(Sello)</span>
+                        </div>
+
+                        {{-- Línea de firma con nombre del párroco --}}
+                        <div class="w-64 border-t border-gray-600 dark:border-gray-400 pt-2 mx-auto">
+                            <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                                {{ $parroco?->nombre_completo ?? ($primeraComunion->iglesia?->parroco_nombre ?? '') }}
+                            </p>
+                            <p class="text-xs font-bold uppercase tracking-[3px] mt-0.5">Párroco</p>
+                        </div>
+                    </div>
                 </div>
 
             </div>
+            {{-- end certificate body --}}
         </div>
-
     </div>
 
-    <style>
-        /* En pantalla: ocultar documento formal */
-        .hidden-screen { display: none !important; }
-
-        /* Al imprimir: solo mostrar documento formal */
-        @media print {
-            html, body {
-                background: white !important;
-                background-color: white !important;
-            }
-            body * {
-                visibility: hidden !important;
-                background: transparent !important;
-            }
-            #doc-formal {
-                visibility: visible !important;
-                display: block !important;
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100% !important;
-                background: white !important;
-                z-index: 99999 !important;
-            }
-            #doc-formal * {
-                visibility: visible !important;
-                background: transparent !important;
-                color: black !important;
-            }
-            #doc-formal table thead tr {
-                background: #1e293b !important;
-            }
-            #doc-formal table thead tr th {
-                color: white !important;
-            }
-            * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        }
-    </style>
 </div>

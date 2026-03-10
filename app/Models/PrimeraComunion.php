@@ -21,10 +21,16 @@ class PrimeraComunion extends BaseModel
         'folio',
         'partida_numero',
         'observaciones',
+        // Campos del certificado
+        'nota_marginal',
+        'lugar_celebracion',
+        'lugar_expedicion',
+        'fecha_expedicion',
     ];
 
     protected $casts = [
         'fecha_primera_comunion' => 'date',
+        'fecha_expedicion'       => 'date',
     ];
 
     public function iglesia()
