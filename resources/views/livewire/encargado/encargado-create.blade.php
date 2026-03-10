@@ -209,32 +209,33 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
+                            {{-- DNI --}}
                             <div class="sm:col-span-2">
                                 <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                                     Número de Identidad <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" wire:model.defer="p_dni" placeholder="Ej: 0801199912345"
                                        class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                                              border border-gray-300 dark:border-gray-600
-                                              bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                              border bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
                                               focus:ring-2 focus:ring-emerald-500 focus:border-transparent
-                                              @error('p_dni') border-red-400 @enderror" />
+                                              @error('p_dni') border-red-400 dark:border-red-500 @else border-gray-300 dark:border-gray-600 @enderror" />
                                 @error('p_dni') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                             </div>
 
+                            {{-- Primer Nombre --}}
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                                     Primer Nombre <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" wire:model.defer="p_primer_nombre"
                                        class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                                              border border-gray-300 dark:border-gray-600
-                                              bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                              border bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
                                               focus:ring-2 focus:ring-emerald-500 focus:border-transparent
-                                              @error('p_primer_nombre') border-red-400 @enderror" />
+                                              @error('p_primer_nombre') border-red-400 dark:border-red-500 @else border-gray-300 dark:border-gray-600 @enderror" />
                                 @error('p_primer_nombre') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                             </div>
 
+                            {{-- Segundo Nombre --}}
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                                     Segundo Nombre
@@ -246,19 +247,20 @@
                                               focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
                             </div>
 
+                            {{-- Primer Apellido --}}
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                                     Primer Apellido <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" wire:model.defer="p_primer_apellido"
                                        class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                                              border border-gray-300 dark:border-gray-600
-                                              bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                              border bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
                                               focus:ring-2 focus:ring-emerald-500 focus:border-transparent
-                                              @error('p_primer_apellido') border-red-400 @enderror" />
+                                              @error('p_primer_apellido') border-red-400 dark:border-red-500 @else border-gray-300 dark:border-gray-600 @enderror" />
                                 @error('p_primer_apellido') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                             </div>
 
+                            {{-- Segundo Apellido --}}
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                                     Segundo Apellido
@@ -270,51 +272,61 @@
                                               focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
                             </div>
 
+                            {{-- Teléfono — solo números y guión --}}
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                                    Teléfono
+                                    Teléfono <span class="text-red-500">*</span>
                                 </label>
-                                <input type="text" wire:model.defer="p_telefono"
+                                <input type="tel"
+                                       wire:model.defer="p_telefono"
+                                       placeholder="Ej: 9999-9999"
+                                       inputmode="numeric"
+                                       maxlength="20"
+                                       onkeypress="return /[0-9\-]/.test(event.key)"
+                                       oninput="this.value = this.value.replace(/[^0-9\-]/g, '')"
                                        class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                                              border border-gray-300 dark:border-gray-600
-                                              bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
-                                              focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                                              border bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                              focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                              @error('p_telefono') border-red-400 dark:border-red-500 @else border-gray-300 dark:border-gray-600 @enderror" />
                                 @error('p_telefono') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                             </div>
 
+                            {{-- Email --}}
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                                     Email
                                 </label>
                                 <input type="email" wire:model.defer="p_email"
                                        class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                                              border border-gray-300 dark:border-gray-600
-                                              bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
-                                              focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                                              border bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                              focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                              @error('p_email') border-red-400 dark:border-red-500 @else border-gray-300 dark:border-gray-600 @enderror" />
                                 @error('p_email') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                             </div>
 
+                            {{-- Fecha de Nacimiento --}}
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                                    Fecha de Nacimiento
+                                    Fecha de Nacimiento <span class="text-red-500">*</span>
                                 </label>
                                 <input type="date" wire:model.defer="p_fecha_nacimiento"
                                        class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                                              border border-gray-300 dark:border-gray-600
-                                              bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
-                                              focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                                              border bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                              focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                              @error('p_fecha_nacimiento') border-red-400 dark:border-red-500 @else border-gray-300 dark:border-gray-600 @enderror" />
                                 @error('p_fecha_nacimiento') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                             </div>
 
+                            {{-- Sexo --}}
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                                    Sexo
+                                    Sexo <span class="text-red-500">*</span>
                                 </label>
                                 <select wire:model.defer="p_sexo"
                                         class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                                               border border-gray-300 dark:border-gray-600
-                                               bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
-                                               focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                                               border bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                               focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                               @error('p_sexo') border-red-400 dark:border-red-500 @else border-gray-300 dark:border-gray-600 @enderror">
                                     <option value="">— Seleccionar —</option>
                                     <option value="M">Masculino</option>
                                     <option value="F">Femenino</option>
@@ -368,7 +380,7 @@
 
         <div class="p-6">
 
-           {{-- Firma --}}
+            {{-- Firma --}}
             <div class="max-w-sm">
                 <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                     Firma Principal
@@ -428,7 +440,6 @@
                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                 </label>
 
-                {{-- Loading --}}
                 <div wire:loading wire:target="firma" class="mt-2 flex items-center gap-2 text-sm text-indigo-600">
                     <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -446,7 +457,7 @@
                     </p>
                 @enderror
             </div>
-            
+
             {{-- Barra de acciones --}}
             <div class="flex items-center justify-between mt-8 pt-5 border-t border-gray-100 dark:border-gray-700/50">
                 <a href="{{ route('encargado.index') }}"

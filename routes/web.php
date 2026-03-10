@@ -308,6 +308,10 @@ Route::middleware(['auth'])->group(function () {
         ->delete('/primera-comunion/{primeraComunion}', [\App\Http\Controllers\PrimeraComunionController::class, 'destroy'])
         ->name('primera-comunion.destroy');
 
+    Route::middleware('permission:primera-comunion.view')
+    ->get('/primera-comunion/{primeraComunion}/certificado/pdf', [\App\Http\Controllers\PrimeraComunionController::class, 'certificadoPdf'])
+    ->name('primera-comunion.certificado.pdf');
+
     // Curso CRUD
     Route::middleware('permission:curso.view')
         ->get('/curso', [\App\Http\Controllers\CursoController::class, 'index'])
