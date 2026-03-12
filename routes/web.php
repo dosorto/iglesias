@@ -373,7 +373,8 @@ Route::middleware(['auth'])->group(function () {
     ->get('/instructor/{instructor}/inscripcion-curso/create', [\App\Http\Controllers\InscripcionCursoController::class, 'createFromInstructor'])
     ->name('instructor.inscripcion.create');
 
-    Route::middleware('permission:iglesias.edit')
+    
+    Route::middleware('permission:iglesias.logo')
     ->get('/iglesia/logo', \App\Livewire\Iglesia\IglesiaLogoUpdate::class)
     ->name('iglesia.logo');
 });
