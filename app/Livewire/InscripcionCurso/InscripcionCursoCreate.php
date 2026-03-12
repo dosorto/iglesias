@@ -16,7 +16,7 @@ class InscripcionCursoCreate extends Component
     // PASO 1
     public $curso_id = null;
     public $feligres_id = null;
-    public ?array $personaSeleccionada = null;
+    public ?array $personaSeleccionada = null;      
 
     // PASO 2
     public $fecha_inscripcion = null;
