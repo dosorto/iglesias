@@ -23,6 +23,7 @@ class Iglesias extends Model
         'estado',
         'id_religion',
         'path_logo',
+        'path_certificado_bautismo',
         'db_connection',
         'db_host',
         'db_port',
@@ -31,7 +32,7 @@ class Iglesias extends Model
         'db_password',
     ];
 
-   protected $appends = ['logo_url'];
+   protected $appends = ['logo_url', 'certificado_bautismo_url'];
 
     // URL pública del logo (null si no tiene)
     protected function logoUrl(): Attribute
@@ -39,6 +40,16 @@ class Iglesias extends Model
         return Attribute::make(
             get: fn () => $this->path_logo
                 ? asset('storage/' . $this->path_logo)
+                : null,
+        );
+    }
+
+    // URL pública del formato de certificado de bautismo
+    protected function certificadoBautismoUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->path_certificado_bautismo
+                ? asset('storage/' . $this->path_certificado_bautismo)
                 : null,
         );
     }

@@ -134,7 +134,12 @@
         }
     </style>
 </head>
-<body>
+@php
+    $certBgPath = $bautismo->iglesia?->path_certificado_bautismo
+        ? public_path('storage/' . $bautismo->iglesia->path_certificado_bautismo)
+        : null;
+@endphp
+<body @if($certBgPath) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
 
     {{-- ===== HEADER ===== --}}
     <div class="header">

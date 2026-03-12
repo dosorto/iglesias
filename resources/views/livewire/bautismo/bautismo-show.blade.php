@@ -68,7 +68,7 @@
                         <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
                         </svg>
-                        Guardar Borrador
+                        Guardar Cambios
                     </button>
                 @endcan
 
@@ -94,7 +94,7 @@
                         <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                         </svg>
-                        Editar Registro
+                        Editar Bautismo
                     </a>
                 @endcan
 
@@ -187,7 +187,19 @@
 
     {{-- ======================= CERTIFICATE MAIN AREA ======================= --}}
     <div class="flex-1 min-w-0">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8">
+        @php
+            $certBg = $bautismo->iglesia?->certificado_bautismo_url;
+        @endphp
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8 relative overflow-hidden"
+             @if($certBg) style="background-image: url('{{ $certBg }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
+
+            {{-- Semi-transparent overlay so text stays readable when background is set --}}
+            @if($certBg)
+                <div class="absolute inset-0 bg-white/80 dark:bg-gray-900/70 pointer-events-none rounded-xl"></div>
+            @endif
+
+            {{-- All certificate content sits above the overlay --}}
+            <div class="relative z-10">
 
             {{-- Validation errors --}}
             @if ($errors->any())
@@ -550,6 +562,9 @@
 
             </div>
             {{-- end certificate body --}}
+
+            </div>
+            {{-- end relative z-10 wrapper --}}
         </div>
     </div>
 

@@ -109,7 +109,8 @@
                         @forelse($personas as $persona)
                             <tr 
                                 class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer group"
-                                onclick="window.location='{{ route('personas.show', $persona) }}'"
+                                data-href="{{ route('personas.show', $persona) }}"
+                                onclick="window.location=this.dataset.href"
                             >
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
