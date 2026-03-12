@@ -3,14 +3,19 @@
 namespace App\Livewire\Layouts;
 
 use Livewire\Component;
+use App\Models\Iglesias;
 
 class SidebarToggle extends Component
 {
     public $isCollapsed = false;
+    public ?string $logoUrl = null;
 
     public function mount()
     {
         $this->isCollapsed = session('sidebar_collapsed', false);
+        $iglesiaId = session('tenant.id_iglesia');
+        $iglesia = $iglesiaId ? Iglesias::find($iglesiaId) : Iglesias::first();
+        $this->logoUrl = $iglesia?->logo_url;
     }
 
     public function toggleSidebar()

@@ -15,9 +15,15 @@ class CertificadoConfigIndex extends Component
     public $formato_nuevo = null;
     public bool $confirmandoEliminar = false;
 
+    public $logo_nuevo = null;
+    public bool $confirmandoEliminarLogo = false;
+
     public function mount(): void
     {
-        $this->iglesia = Iglesias::first();
+        $iglesiaId = session('tenant.id_iglesia');
+        $this->iglesia = $iglesiaId
+            ? Iglesias::find($iglesiaId)
+            : Iglesias::first();
     }
 
     public function subirFormato(): void
@@ -63,6 +69,50 @@ class CertificadoConfigIndex extends Component
 
         $this->confirmandoEliminar = false;
         session()->flash('success', 'Formato de certificado eliminado.');
+    }
+
+    public function subirLogo(): void
+    {
+        $this->validate([
+            'logo_nuevo' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+        ], [
+            'logo_nuevo.required' => 'Seleccione una imagen para el logo.',
+            'logo_nuevo.image'    => 'El archivo debe ser una imagen.',
+            'logo_nuevo.mimes'    => 'Solo se aceptan imágenes JPG o PNG.',
+            'logo_nuevo.max'      => 'La imagen no debe superar 2 MB.',
+        ]);
+
+        if (! $this->iglesia) {
+            session()->flash('error', 'No se encontró una iglesia configurada.');
+            return;
+        }
+
+        if ($this->iglesia->path_logo) {
+            Storage::disk('public')->delete($this->iglesia->path_logo);
+        }
+
+        $path = $this->logo_nuevo->store('logos', 'public');
+        $this->iglesia->update(['path_logo' => $path]);
+
+        $this->logo_nuevo = null;
+        $this->iglesia->refresh();
+
+        session()->flash('success', 'Logo de la iglesia actualizado correctamente.');
+    }
+
+    public function eliminarLogo(): void
+    {
+        if (! $this->iglesia || ! $this->iglesia->path_logo) {
+            $this->confirmandoEliminarLogo = false;
+            return;
+        }
+
+        Storage::disk('public')->delete($this->iglesia->path_logo);
+        $this->iglesia->update(['path_logo' => null]);
+        $this->iglesia->refresh();
+
+        $this->confirmandoEliminarLogo = false;
+        session()->flash('success', 'Logo de la iglesia eliminado.');
     }
 
     public function render()

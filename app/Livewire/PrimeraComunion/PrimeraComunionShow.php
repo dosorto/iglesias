@@ -3,6 +3,7 @@
 namespace App\Livewire\PrimeraComunion;
 
 use App\Models\AuditLog;
+use App\Models\Iglesias;
 use App\Models\PrimeraComunion;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -135,9 +136,13 @@ class PrimeraComunionShow extends Component
 
     public function render()
     {
+        $iglesiaId = session('tenant.id_iglesia');
+        $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
+
         return view('livewire.primera-comunion.primera-comunion-show', [
             'auditHistory'   => $this->auditHistory,
             'estadoRegistro' => $this->estadoRegistro,
+            'iglesiaConfig'  => $iglesiaConfig,
         ]);
     }
 }

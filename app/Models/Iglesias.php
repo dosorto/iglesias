@@ -14,6 +14,15 @@ class Iglesias extends Model
 
     protected $table = 'iglesias';
 
+    /**
+     * Always query Iglesias from the central (landlord) database,
+     * even when the tenant middleware has switched the default connection.
+     */
+    public function getConnectionName(): string
+    {
+        return config('tenancy.central_connection', config('database.default'));
+    }
+
     protected $fillable = [
         'nombre',
         'direccion',

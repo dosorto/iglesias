@@ -12,7 +12,7 @@
 
             {{-- Logo/Header --}}
             <div class="flex items-center mb-6 px-2 {{ $isCollapsed ? 'justify-center' : '' }}">
-                <img src="{{ asset('image/Logo_guest.png') }}" 
+                <img src="{{ $logoUrl ?? asset('image/Logo_guest.png') }}" 
                      alt="Logo Iglesia"
                      class="w-10 h-10 object-contain {{ $isCollapsed ? '' : 'mr-3' }}" />
                 @if(!$isCollapsed)

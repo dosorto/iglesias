@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PrimeraComunion;
 use App\Models\Encargado;
+use App\Models\Iglesias;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
@@ -56,7 +57,10 @@ class PrimeraComunionController extends Controller
             ->latest()
             ->first();
 
-        $pdf = Pdf::loadView('primera-comunion.certificado-pdf', compact('primeraComunion', 'encargado'))
+        $iglesiaId = session('tenant.id_iglesia');
+        $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
+
+        $pdf = Pdf::loadView('primera-comunion.certificado-pdf', compact('primeraComunion', 'encargado', 'iglesiaConfig'))
             ->setPaper('letter', 'portrait');
 
         $nombreArchivo = 'certificado-primera-comunion-' . $primeraComunion->id . '.pdf';
