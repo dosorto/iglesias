@@ -10,58 +10,93 @@
         body {
             font-family: 'Times New Roman', Times, serif;
             font-size: 12pt;
-            color: #000;
+            color: #1a1a1a;
             background: #fff;
-            padding: 40px 50px;
+        }
+
+        /* ── PAGE WRAPPER WITH FRAME ── */
+        .page-wrapper {
+            padding: 26px 36px;
+            border: 4px double #7D5A1E;
+            margin: 10px;
         }
 
         /* ── HEADER ── */
         .header {
             display: table;
             width: 100%;
-            margin-bottom: 40px;
+            margin-bottom: 10px;
         }
         .header-logo-cell {
             display: table-cell;
-            width: 90px;
+            width: 85px;
             vertical-align: middle;
+            text-align: center;
         }
         .header-logo-cell img {
-            width: 80px;
-            height: 80px;
+            width: 75px;
+            height: 75px;
             object-fit: contain;
         }
         .header-title-cell {
             display: table-cell;
             vertical-align: middle;
-            padding-left: 14px;
+            text-align: center;
         }
         .parish-name {
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 22pt;
+            font-size: 19pt;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             line-height: 1.1;
         }
         .diocese-name {
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 16pt;
-            font-weight: bold;
+            font-size: 13pt;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-top: 4px;
+            margin-top: 3px;
+            color: #555;
         }
         .header-right-cell {
             display: table-cell;
-            width: 90px;
+            width: 85px;
             vertical-align: middle;
-            text-align: right;
+            text-align: center;
         }
         .header-right-cell img {
-            width: 80px;
-            height: 80px;
+            width: 75px;
+            height: 75px;
             object-fit: contain;
+        }
+
+        /* ── DECORATIVE ── */
+        .hr-accent {
+            border: none;
+            border-top: 1px solid #7D5A1E;
+            margin: 3px 0;
+        }
+        .ornament {
+            text-align: center;
+            color: #7D5A1E;
+            font-size: 11pt;
+            letter-spacing: 8px;
+            margin: 3px 0;
+        }
+
+        /* ── CERT TITLE BANNER ── */
+        .cert-title-wrap {
+            text-align: center;
+            margin: 8px 0;
+        }
+        .cert-title {
+            display: inline-block;
+            background: #7D5A1E;
+            color: #fff;
+            font-size: 13.5pt;
+            font-weight: bold;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            padding: 5px 32px;
         }
 
         /* ── BODY ── */
@@ -74,41 +109,50 @@
         }
         .underline {
             display: inline-block;
-            border-bottom: 1px solid #000;
+            border-bottom: 1px solid #333;
             vertical-align: bottom;
         }
         .name-line {
             display: block;
             width: 100%;
-            border-bottom: 1px solid #000;
-            margin: 6px 0 10px;
-            min-height: 20px;
+            border-bottom: 2px solid #7D5A1E;
+            margin: 8px 0 12px;
+            min-height: 22px;
+            font-size: 13pt;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #1a1a1a;
         }
 
         /* ── FIRMA CENTRAL ── */
         .sig-center {
-            margin-top: 60px;
+            margin-top: 50px;
             text-align: center;
         }
         .sig-center .sig-line {
             display: inline-block;
             width: 260px;
-            border-top: 1px solid #000;
+            border-top: 2px solid #7D5A1E;
             padding-top: 6px;
             font-size: 11pt;
             font-weight: bold;
+            color: #7D5A1E;
         }
         .sig-center .sig-title {
             font-size: 11pt;
             font-weight: bold;
             margin-top: 4px;
+            color: #7D5A1E;
+            letter-spacing: 1px;
         }
 
-        /* ── FIRMAS PIE (encargado izq | párroco der) ── */
+        /* ── FIRMAS PIE ── */
         .sig-footer {
             display: table;
             width: 100%;
-            margin-top: 50px;
+            margin-top: 40px;
         }
         .sig-footer-cell {
             display: table-cell;
@@ -131,16 +175,27 @@
         }
         .sig-block .sig-line {
             display: block;
-            border-top: 1px solid #000;
+            border-top: 2px solid #7D5A1E;
             font-size: 10pt;
             font-weight: bold;
             letter-spacing: 1px;
             padding-top: 4px;
             text-align: center;
+            color: #7D5A1E;
         }
     </style>
 </head>
-<body>
+@php
+    $certBgPath = ($iglesiaConfig?->path_certificado_bautismo)
+        ? public_path('storage/' . $iglesiaConfig->path_certificado_bautismo)
+        : null;
+    $logoIglesiaPath = ($iglesiaConfig?->path_logo)
+        ? public_path('storage/' . $iglesiaConfig->path_logo)
+        : null;
+@endphp
+<body @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
+
+<div class="page-wrapper">
 
     @php
         $iglesia       = $primeraComunion->iglesia;
@@ -149,15 +204,7 @@
         $ministro      = $primeraComunion->ministro?->persona;
         $parroco       = $primeraComunion->parroco?->persona;
         $parrocoModel  = $primeraComunion->parroco;
-        $iglesiaNombre = $iglesia?->nombre ?? '';
-
-        // Logo de la iglesia (izquierda)
-        $logoIglesiaPath = ($iglesia && $iglesia->path_logo)
-            ? public_path('storage/' . $iglesia->path_logo)
-            : null;
-
-        // Logo estático del proyecto (derecha)
-        $logoEstatico = public_path('image/Logo_guest.png');
+        $iglesiaNombre = $iglesiaConfig?->nombre ?? $iglesia?->nombre ?? '';
 
         // Firma del párroco
         $firmaParrocoPath = ($parrocoModel && $parrocoModel->path_firma_principal)
@@ -206,20 +253,32 @@
         {{-- Nombre parroquia y diócesis --}}
         <div class="header-title-cell">
             <div class="parish-name">{{ $iglesiaNombre ?: 'Parroquia' }}</div>
-            <div class="diocese-name">Diócesis de Choluteca</div>
+            <div class="diocese-name">Di&oacute;cesis de Choluteca</div>
         </div>
 
-        {{-- Logo estático (derecha) --}}
+        {{-- Logo iglesia (derecha) --}}
         <div class="header-right-cell">
-            @if (file_exists($logoEstatico))
-                <img src="{{ $logoEstatico }}" alt="Escudo">
+            @if ($logoIglesiaPath && file_exists($logoIglesiaPath))
+                <img src="{{ $logoIglesiaPath }}" alt="Logo Parroquia">
             @endif
         </div>
 
     </div>
 
+    <hr class="hr-accent">
+    <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
+    <hr class="hr-accent">
+
+    <div class="cert-title-wrap">
+        <span class="cert-title">CERTIFICACI&Oacute;N DE PRIMERA COMUNI&Oacute;N</span>
+    </div>
+
+    <hr class="hr-accent">
+    <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
+    <hr class="hr-accent">
+
     {{-- ===== CUERPO DEL CERTIFICADO ===== --}}
-    <div class="body-text">
+    <div class="body-text" style="margin-top: 20px;">
 
         <p>El infrascrito encargado del archivo de esta parroquia certifica que</p>
 
@@ -276,7 +335,7 @@
             </div>
         @endif
         <div class="sig-line">{{ $parrocoNombre }}</div>
-        <div class="sig-title">Párroco</div>
+        <div class="sig-title">P &Aacute; R R O C O</div>
     </div>
 
     {{-- ===== FIRMAS PIE: encargado izq | párroco der ===== --}}
@@ -297,13 +356,13 @@
                 @if ($firmaParrocoPath && file_exists($firmaParrocoPath))
                     <img src="{{ $firmaParrocoPath }}" alt="Firma Párroco">
                 @endif
-                <span class="sig-line">C U R A &nbsp; P Á R R O C O</span>
+                <span class="sig-line">C U R A &nbsp; P&Aacute;RROCO</span>
             </div>
         </div>
 
-        
     </div>
     @endif
 
+</div>
 </body>
 </html>

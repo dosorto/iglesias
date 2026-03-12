@@ -44,6 +44,10 @@ Route::middleware(['auth'])->group(function () {
         ->get('/settings', fn () => view('settings.index'))
         ->name('settings.index');
 
+    Route::middleware('permission:roles.view')
+        ->get('/configuracion/certificado-bautismo', fn () => view('configuracion.certificado-bautismo'))
+        ->name('configuracion.certificado-bautismo');
+
     Route::middleware('permission:audit.view')
         ->get('/audit', fn () => view('admin.audit'))
         ->name('audit.index');

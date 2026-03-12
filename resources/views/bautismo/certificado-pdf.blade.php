@@ -10,54 +10,92 @@
         body {
             font-family: 'Times New Roman', Times, serif;
             font-size: 12pt;
-            color: #000;
+            color: #1a1a1a;
             background: #fff;
-            padding: 30px 40px;
+        }
+
+        .page-wrapper {
+            padding: 26px 36px;
+            border: 4px double #7D5A1E;
+            margin: 10px;
         }
 
         /* ── HEADER ── */
         .header {
             display: table;
             width: 100%;
-            margin-bottom: 18px;
+            margin-bottom: 10px;
         }
-        .header-logo {
+        .header-logo-cell {
             display: table-cell;
-            width: 80px;
+            width: 85px;
             vertical-align: middle;
             text-align: center;
         }
-        .header-logo img {
-            width: 70px;
-            height: auto;
+        .header-logo-cell img {
+            width: 75px;
+            height: 75px;
+            object-fit: contain;
         }
-        .header-title {
+        .header-title-cell {
             display: table-cell;
             vertical-align: middle;
             text-align: center;
+        }
+        .parish-name {
+            font-size: 19pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            line-height: 1.1;
         }
         .diocese-name {
-            font-size: 20pt;
-            font-weight: bold;
-            letter-spacing: 1px;
+            font-size: 13pt;
             text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 3px;
+            color: #555;
         }
-        .cert-title-box {
-            display: inline-block;
-            background: #000;
-            color: #fff;
-            font-size: 14pt;
-            font-weight: bold;
-            padding: 4px 18px;
-            margin-top: 6px;
-            border-radius: 3px;
+        .header-right-cell {
+            display: table-cell;
+            width: 85px;
+            vertical-align: middle;
+            text-align: center;
+        }
+        .header-right-cell img {
+            width: 75px;
+            height: 75px;
+            object-fit: contain;
         }
 
-        /* ── DIVIDER ── */
-        .divider {
+        /* ── DECORATIVE ── */
+        .hr-accent {
             border: none;
-            border-top: 1px solid #000;
-            margin: 10px 0 14px;
+            border-top: 1px solid #7D5A1E;
+            margin: 3px 0;
+        }
+        .ornament {
+            text-align: center;
+            color: #7D5A1E;
+            font-size: 11pt;
+            letter-spacing: 8px;
+            margin: 3px 0;
+        }
+
+        /* ── CERT TITLE BANNER ── */
+        .cert-title-wrap {
+            text-align: center;
+            margin: 8px 0;
+        }
+        .cert-title {
+            display: inline-block;
+            background: #7D5A1E;
+            color: #fff;
+            font-size: 13.5pt;
+            font-weight: bold;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            padding: 5px 32px;
         }
 
         /* ── BODY TEXT ── */
@@ -66,50 +104,46 @@
             font-size: 11.5pt;
         }
         .body-text p {
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         .line-field {
             display: inline-block;
             min-width: 200px;
-            border-bottom: 1px solid #000;
-            margin: 0 4px;
+            border-bottom: 1px solid #333;
+            margin: 0 3px;
             vertical-align: bottom;
         }
-        .line-field-sm {
-            min-width: 80px;
-        }
-        .line-field-lg {
-            min-width: 280px;
-        }
-        .line-field-xl {
-            min-width: 340px;
-        }
-        .section-label {
-            font-weight: bold;
-        }
+        .line-field-sm { min-width: 70px; }
+        .line-field-lg { min-width: 260px; }
+        .line-field-xl { min-width: 320px; }
+        .section-label { font-weight: bold; }
 
-        /* ── SIGNATURE AREA ── */
-        .signatures {
-            margin-top: 30px;
-        }
+        /* ── SIGNATURES ── */
         .sig-right {
             text-align: right;
+            margin-top: 26px;
+        }
+        .sig-name {
+            text-align: right;
+            font-size: 11pt;
+            font-weight: bold;
             margin-bottom: 4px;
         }
-        .sig-right .sig-line {
+        .sig-line-accent {
             display: inline-block;
             width: 220px;
-            border-top: 1px solid #000;
+            border-top: 2px solid #7D5A1E;
             text-align: center;
-            font-size: 10pt;
+            font-size: 9.5pt;
             font-weight: bold;
             letter-spacing: 2px;
             padding-top: 4px;
+            color: #7D5A1E;
         }
 
-        /* ── FOOTER ISSUANCE ── */
+        /* ── ISSUANCE ── */
         .issuance {
-            margin-top: 30px;
+            margin-top: 22px;
             font-size: 11.5pt;
             line-height: 2;
         }
@@ -117,37 +151,56 @@
             font-size: 10pt;
             font-style: italic;
             margin-top: 4px;
+            color: #666;
         }
         .sig-bottom {
-            margin-top: 40px;
+            margin-top: 34px;
             text-align: right;
-        }
-        .sig-bottom .sig-line {
-            display: inline-block;
-            width: 220px;
-            border-top: 1px solid #000;
-            text-align: center;
-            font-size: 10pt;
-            font-weight: bold;
-            letter-spacing: 2px;
-            padding-top: 4px;
         }
     </style>
 </head>
-<body>
+@php
+    $certBgPath = ($iglesiaConfig?->path_certificado_bautismo)
+        ? public_path('storage/' . $iglesiaConfig->path_certificado_bautismo)
+        : null;
+    $logoIglesiaPath = ($iglesiaConfig?->path_logo)
+        ? public_path('storage/' . $iglesiaConfig->path_logo)
+        : null;
+@endphp
+<body @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
+
+<div class="page-wrapper">
 
     {{-- ===== HEADER ===== --}}
     <div class="header">
-        <div class="header-logo">
-            <img src="{{ public_path('image/Logo_guest.png') }}" alt="Escudo">
+        <div class="header-logo-cell">
+            @if ($logoIglesiaPath && file_exists($logoIglesiaPath))
+                <img src="{{ $logoIglesiaPath }}" alt="Logo">
+            @endif
         </div>
-        <div class="header-title">
-            <div class="diocese-name">Diócesis de Choluteca</div>
-            <div class="cert-title-box">Certificación de Bautismo</div>
+        <div class="header-title-cell">
+            @php $iglesiaNombreHeader = $iglesiaConfig?->nombre ?? $bautismo->iglesia?->nombre ?? ''; @endphp
+            <div class="parish-name">{{ $iglesiaNombreHeader ?: 'Parroquia' }}</div>
+            <div class="diocese-name">Di&oacute;cesis de Choluteca</div>
+        </div>
+        <div class="header-right-cell">
+            @if ($logoIglesiaPath && file_exists($logoIglesiaPath))
+                <img src="{{ $logoIglesiaPath }}" alt="Logo">
+            @endif
         </div>
     </div>
 
-    <hr class="divider">
+    <hr class="hr-accent">
+    <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
+    <hr class="hr-accent">
+
+    <div class="cert-title-wrap">
+        <span class="cert-title">CERTIFICACI&Oacute;N DE BAUTISMO</span>
+    </div>
+
+    <hr class="hr-accent">
+    <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
+    <hr class="hr-accent">
 
     {{-- ===== BODY ===== --}}
     @php
@@ -161,7 +214,7 @@
         $firmaPath   = $encargadoModel?->path_firma_principal
             ? public_path('storage/' . $encargadoModel->path_firma_principal)
             : null;
-        $iglesiaNombre = $bautismo->iglesia?->nombre ?? '';
+        $iglesiaNombre = $iglesiaConfig?->nombre ?? $bautismo->iglesia?->nombre ?? '';
 
         // Bautismo date parts
         $fechaBautismo = $bautismo->fecha_bautismo;
@@ -197,7 +250,7 @@
         $notaMarginal = $bautismo->nota_marginal ?? '';
     @endphp
 
-    <div class="body-text">
+    <div class="body-text" style="margin-top: 14px;">
 
         <p>
             El infrascrito, encargado del Archivo de la Parroquia de
@@ -283,18 +336,16 @@
 
     </div>
 
-    {{-- ===== CURA PÁRROCO SIGNATURE ===== --}}
-    <div class="signatures">
-        <div class="sig-right">
-            @if ($encargado?->nombre_completo)
-                <p style="text-align:right; font-weight:bold; font-size:11pt; margin-bottom:4px;">{{ $encargado->nombre_completo }}</p>
-            @endif
-            <div class="sig-line">C U R A &nbsp; P Á R R O C O</div>
-        </div>
+    {{-- ===== FIRMA CURA PÁRROCO ===== --}}
+    <div class="sig-right">
+        @if ($encargado?->nombre_completo)
+            <p class="sig-name">{{ $encargado->nombre_completo }}</p>
+        @endif
+        <div class="sig-line-accent">C U R A &nbsp; P&Aacute;RROCO</div>
     </div>
 
     {{-- ===== NOTA MARGINAL ===== --}}
-    <div class="body-text" style="margin-top:18px;">
+    <div class="body-text" style="margin-top: 16px;">
         <p>
             <span class="section-label">NOTA MARGINAL:</span>
             <span class="line-field line-field-xl">{{ $notaMarginal }}</span>
@@ -318,15 +369,16 @@
         <p class="sello">(Sello)</p>
     </div>
 
-    {{-- ===== ENCARGADO DE ARCHIVO SIGNATURE ===== --}}
+    {{-- ===== FIRMA ENCARGADO ===== --}}
     <div class="sig-bottom">
         @if ($firmaPath && file_exists($firmaPath))
-            <p style="text-align:right; margin-bottom:2px;">
+            <p style="text-align:right; margin-bottom: 2px;">
                 <img src="{{ $firmaPath }}" style="max-height:50px; max-width:180px;">
             </p>
         @endif
-        <div class="sig-line">F I R M A</div>
+        <div class="sig-line-accent">F I R M A</div>
     </div>
 
+</div>
 </body>
 </html>
