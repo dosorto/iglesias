@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class InscripcionCurso extends BaseModel
 {
@@ -23,9 +24,9 @@ class InscripcionCurso extends BaseModel
     ];
 
     protected $casts = [
-        'fecha_inscripcion' => 'date',
-        'fecha_certificado' => 'date',
-        'aprobado' => 'boolean',
+        'fecha_inscripcion'   => 'date',
+        'fecha_certificado'   => 'date',
+        'aprobado'            => 'boolean',
         'certificado_emitido' => 'boolean',
     ];
 
@@ -33,33 +34,42 @@ class InscripcionCurso extends BaseModel
         RELACIONES PRINCIPALES
     ==========================*/
 
-    public function curso()
+    public function curso(): BelongsTo
     {
         return $this->belongsTo(Curso::class, 'curso_id');
     }
 
-    public function feligres()
+    public function feligres(): BelongsTo
     {
         return $this->belongsTo(Feligres::class, 'feligres_id');
+    }
+
+    /*
+    Acceso directo a persona desde inscripción
+    Inscripcion → Feligres → Persona
+    */
+
+    public function persona()
+    {
+        return $this->feligres?->persona();
     }
 
     /* =========================
         RELACIONES DE AUDITORÍA
     ==========================*/
 
-    public function createdBy()
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function updatedBy()
+    public function updatedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
 
-    public function deletedBy()
+    public function deletedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'deleted_by');
     }
-
 }

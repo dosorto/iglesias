@@ -15,9 +15,20 @@ class InscripcionCursoEdit extends Component
     public $feligres_id = null;
 
     public string $fecha_inscripcion = '';
-    public ?bool $aprobado = null;
-    public ?bool $certificado_emitido = null;
+    public $aprobado = '';
+    public $certificado_emitido = '';
     public string $fecha_certificado = '';
+
+    public string $persona_dni = '';
+    public $persona = null;
+    public $persona_estado = 'idle';
+
+    public bool $showCrearPersona = false;
+
+    public string $p_dni = '';
+    public string $p_primer_nombre = '';
+    public string $p_primer_apellido = '';
+    public string $p_telefono = '';
 
     public function mount(InscripcionCurso $inscripcion): void
     {
@@ -29,8 +40,8 @@ class InscripcionCursoEdit extends Component
         $this->fecha_inscripcion = $inscripcion->fecha_inscripcion?->format('Y-m-d') ?? '';
         $this->fecha_certificado = $inscripcion->fecha_certificado?->format('Y-m-d') ?? '';
 
-        $this->aprobado = $inscripcion->aprobado;
-        $this->certificado_emitido = $inscripcion->certificado_emitido;
+        $this->aprobado = $inscripcion->aprobado === null ? '' : (string) $inscripcion->aprobado;
+        $this->certificado_emitido = $inscripcion->certificado_emitido === null ? '' : (string) $inscripcion->certificado_emitido;
     }
 
     protected function rules(): array
@@ -41,8 +52,8 @@ class InscripcionCursoEdit extends Component
 
             'fecha_inscripcion' => ['required','date'],
 
-            'aprobado' => ['nullable','boolean'],
-            'certificado_emitido' => ['nullable','boolean'],
+            'aprobado' => ['required','in:0,1'],
+            'certificado_emitido' => ['required','in:0,1'],
 
             'fecha_certificado' => ['nullable','date'],
         ];
@@ -60,13 +71,16 @@ class InscripcionCursoEdit extends Component
             'fecha_inscripcion.required' => 'La fecha de inscripción es obligatoria.',
             'fecha_inscripcion.date' => 'La fecha de inscripción no es válida.',
 
+            'aprobado.required' => 'Debe seleccionar si está aprobado.',
+            'certificado_emitido.required' => 'Debe indicar si el certificado fue emitido.',
+
             'fecha_certificado.date' => 'La fecha de certificado no es válida.',
         ];
     }
 
-    public function updated(string $field): void
+    public function updated(): void
     {
-        $this->validateOnly($field);
+        $this->validate();
     }
 
     public function update(): void
@@ -77,8 +91,8 @@ class InscripcionCursoEdit extends Component
             'curso_id' => $this->curso_id,
             'feligres_id' => $this->feligres_id,
             'fecha_inscripcion' => $this->fecha_inscripcion,
-            'aprobado' => $this->aprobado,
-            'certificado_emitido' => $this->certificado_emitido,
+            'aprobado' => (int) $this->aprobado,
+            'certificado_emitido' => (int) $this->certificado_emitido,
             'fecha_certificado' => $this->fecha_certificado ?: null,
             'updated_by' => auth()->id(),
         ]);
@@ -95,4 +109,52 @@ class InscripcionCursoEdit extends Component
             'feligreses' => Feligres::with('persona')->get()
         ]);
     }
-}   
+
+    public function buscarPersona()
+    {
+        $persona = \App\Models\Persona::where('dni', $this->persona_dni)->first();
+
+        if (!$persona) {
+            $this->persona_estado = 'sin_persona';
+            return;
+        }
+
+        $this->persona = $persona;
+
+        $feligres = \App\Models\Feligres::where('persona_id',$persona->id)->first();
+
+        if ($feligres) {
+            $this->persona_estado = 'found';
+            $this->feligres_id = $feligres->id;
+        } else {
+            $this->persona_estado = 'sin_feligres';
+        }
+    }
+
+    public function registrarFeligres()
+    {
+        $feligres = \App\Models\Feligres::create([
+            'persona_id' => $this->persona->id,
+        ]);
+
+        $this->feligres_id = $feligres->id;
+        $this->persona_estado = 'found';
+    }
+
+    public function guardarPersona()
+    {
+        $persona = \App\Models\Persona::create([
+            'dni' => $this->p_dni,
+            'primer_nombre' => $this->p_primer_nombre,
+            'primer_apellido' => $this->p_primer_apellido,
+            'telefono' => $this->p_telefono,
+        ]);
+
+        $feligres = \App\Models\Feligres::create([
+            'persona_id' => $persona->id
+        ]);
+
+        $this->feligres_id = $feligres->id;
+        $this->persona_estado = 'found';
+    }
+}

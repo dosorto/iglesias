@@ -26,9 +26,9 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {{-- ── Data Column ─────────────────────────────────────────────── --}}
-        <div class="lg:col-span-1 space-y-6">
+        <div class="lg:col-span-3 space-y-6">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
                     <h2 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest">
@@ -36,10 +36,11 @@
                     </h2>
                 </div>
 
-                <div class="p-6 space-y-4">
+                <div class="p-6 grid grid-cols-2 gap-4">
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Persona</label>
                         <p class="text-lg font-bold text-gray-900 dark:text-white">{{ $instructor->feligres?->persona?->nombre_completo ?? 'N/A' }}</p>
+                        
                         <p class="text-sm text-gray-500 dark:text-gray-400">DNI: {{ $instructor->feligres?->persona?->dni ?? '—' }}</p>
                     </div>
 
@@ -75,7 +76,7 @@
                         </div>
                     @endif
 
-                    <div>
+                    <div class="col-span-2">
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Firma</label>
                         @if($instructor->path_firma)
                             <img src="{{ asset('storage/' . $instructor->path_firma) }}" 
@@ -96,6 +97,29 @@
                 </div>
             </div>
 
+
+
+
+
+
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+
+            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest">
+                    Tabla Inscripción Curso
+                </h2>
+            </div>
+
+            <div class="p-4">
+            <livewire:instructor.instructor-inscripciones-table 
+                 :instructor="$instructor" />
+            </div>
+
+        </div>
+
+
+
+
             {{-- Link al feligrés --}}
             @can('feligres.view')
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-indigo-200 dark:border-indigo-700 overflow-hidden">
@@ -113,7 +137,7 @@
         </div>
 
         {{-- ── Timeline Column ─────────────────────────────────────────── --}}
-        <div class="lg:col-span-2">
+        <div class="lg:col-span-1">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
                     <h2 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest">
@@ -121,7 +145,7 @@
                     </h2>
                 </div>
 
-                <div class="p-6">
+                <div class="p-6 break-words overflow-hidden">
                     <div class="flow-root">
                         <ul role="list" class="-mb-8">
                             @forelse($instructor->auditLogs as $log)
@@ -175,7 +199,7 @@
                                                     @endphp
 
                                                     @if ($log->event === 'updated' && is_array($newValues) && count($newValues))
-                                                        <div class="mt-2 text-[11px] bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded border border-gray-200 dark:border-gray-700">
+                                                        <div class="mt-2 text-[11px] bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded border border-gray-200 dark:border-gray-700 break-all">
                                                             @foreach ($newValues as $key => $value)
                                                                 <div class="flex items-center gap-2">
                                                                     <span class="font-bold text-gray-400 uppercase tracking-tighter">

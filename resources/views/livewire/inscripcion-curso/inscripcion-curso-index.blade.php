@@ -72,6 +72,10 @@
                     </th>
 
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        INSTRUCTOR
+                    </th>
+
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                         Fecha inscripción
                     </th>
 
@@ -117,6 +121,10 @@
 
                             {{ $inscripcion->curso->nombre ?? 'N/A' }}
 
+                        </td>
+
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            {{ $inscripcion->curso?->instructor?->feligres?->persona?->nombre_completo ?? '—' }}
                         </td>
 
 

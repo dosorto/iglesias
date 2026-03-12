@@ -42,4 +42,9 @@ class Feligres extends BaseModel
         return $this->hasOne(Instructor::class, 'feligres_id');
     }
 
+    public function inscripcionesCurso()
+    {
+        return $this->hasMany(InscripcionCurso::class, 'feligres_id');
+    }
+
 }

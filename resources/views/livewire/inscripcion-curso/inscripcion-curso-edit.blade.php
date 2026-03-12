@@ -30,7 +30,7 @@
 
             </div>
 
-            <a href="{{ route('inscripcion-curso.show',$inscripcion) }}"
+            <a href="{{ route('inscripcion-curso.index',$inscripcion) }}"
                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg
                       bg-white/15 hover:bg-white/25 border border-white/20
                       text-white text-sm font-medium">
@@ -110,14 +110,14 @@
 
 
         {{-- APROBADO --}}
-        <div>
+        <div class="space-y-1">
 
-            <label class="text-xs font-semibold uppercase text-gray-500">
+            <label class="block text-xs font-semibold uppercase text-gray-500">
                 Aprobado
             </label>
 
             <select wire:model="aprobado"
-                    class="w-full border rounded-lg px-3 py-2">
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2">
 
                 <option value="">Seleccione</option>
                 <option value="1">Sí</option>
@@ -126,7 +126,7 @@
             </select>
 
             @error('aprobado')
-                <p class="text-red-500 text-xs mt-1">
+                <p class="text-red-500 text-xs">
                     {{ $message }}
                 </p>
             @enderror
@@ -135,23 +135,24 @@
 
 
         {{-- CERTIFICADO EMITIDO --}}
-        <div>
+        <div class="space-y-1">
 
-            <label class="text-xs font-semibold uppercase text-gray-500">
+            <label class="block text-xs font-semibold uppercase text-gray-500">
                 Certificado emitido
             </label>
 
-            <select wire:model="certificado_emitido"
-                    class="w-full border rounded-lg px-3 py-2">
+            <select
+                wire:model="certificado_emitido"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
 
                 <option value="">Seleccione</option>
-                <option value="0">No</option>
                 <option value="1">Sí</option>
+                <option value="0">No</option>
 
             </select>
 
             @error('certificado_emitido')
-                <p class="text-red-500 text-xs mt-1">
+                <p class="text-red-500 text-xs">
                     {{ $message }}
                 </p>
             @enderror

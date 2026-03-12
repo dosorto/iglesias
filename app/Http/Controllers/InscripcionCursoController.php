@@ -33,4 +33,11 @@ class InscripcionCursoController extends Controller
         return redirect()->route('inscripcion-curso.index')
             ->with('success','Inscripción eliminada correctamente.');
     }
+
+    public function createFromInstructor(\App\Models\Instructor $instructor)
+    {
+        return view('instructor.inscripcion-create', [
+            'instructor' => $instructor
+        ]);
+    }
 }

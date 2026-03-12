@@ -368,6 +368,10 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:inscripcion-curso.delete')
             ->delete('/inscripcion-curso/{inscripcionCurso}', [\App\Http\Controllers\InscripcionCursoController::class, 'destroy'])
             ->name('inscripcion-curso.destroy');
+
+    Route::middleware('permission:inscripcion-curso.create')
+    ->get('/instructor/{instructor}/inscripcion-curso/create', [\App\Http\Controllers\InscripcionCursoController::class, 'createFromInstructor'])
+    ->name('instructor.inscripcion.create');
 });
 
 require __DIR__.'/auth.php';

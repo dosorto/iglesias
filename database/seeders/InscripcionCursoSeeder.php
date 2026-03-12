@@ -18,9 +18,9 @@ class InscripcionCursoSeeder extends Seeder
 
         DB::table($table)->insert([
             $cursoCol => 1,
-            $feligresCol => 3, // feligrés #3
+            $feligresCol => 3,
             'fecha_inscripcion' => '2026-03-01',
-            'aprobado' => null,
+            'aprobado' => false,
             'certificado_emitido' => false,
             'fecha_certificado' => null,
             'created_at' => now(),

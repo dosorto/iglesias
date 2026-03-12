@@ -1,6 +1,29 @@
 <div class="space-y-6">
 
     {{-- HEADER --}}
+
+    @if (session()->has('success'))
+    <div class="mb-4 rounded-lg bg-emerald-100 px-4 py-3 text-emerald-700 border border-emerald-200">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if (session()->has('error'))
+    <div class="mb-4 rounded-lg bg-red-100 px-4 py-3 text-red-700 border border-red-200">
+        {{ session('error') }}
+    </div>
+@endif
+
+@if ($errors->any())
+    <div class="mb-4 rounded-lg bg-red-100 px-4 py-3 text-red-700 border border-red-200">
+        <ul class="list-disc pl-5 text-sm">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
     <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600
                 dark:from-indigo-700 dark:to-violet-700 shadow-md px-6 py-5">
 
@@ -203,23 +226,42 @@
                     Curso
                 </label>
 
-                <select wire:model="curso_id"
+                <select wire:model.live="curso_id"
                         class="w-full mt-1 border-gray-300 dark:border-gray-600 rounded-lg
                             bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
 
                     <option value="">Seleccionar curso</option>
 
                     @foreach($cursos as $curso)
-
                         <option value="{{ $curso->id }}">
                             {{ $curso->nombre }}
                         </option>
-
                     @endforeach
-
                 </select>
 
             </div>
+
+
+
+            
+
+
+
+
+            {{-- Instructor --}}
+                <div>
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        Instructor
+                    </label>
+
+                    <input type="text"
+                        value="{{ $nombreInstructor }}"
+                        readonly
+                        class="w-full mt-1 border-gray-300 dark:border-gray-600 rounded-lg
+                                bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
+                        placeholder="Seleccione un curso">
+                </div>
+
 
 
             {{-- Fecha inscripción --}}
