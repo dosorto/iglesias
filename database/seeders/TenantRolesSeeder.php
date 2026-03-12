@@ -77,6 +77,9 @@ class TenantRolesSeeder extends Seeder
             ['name' => 'inscripcion-curso.edit',   'display_name' => 'Editar Inscripciones de Curso'],
             ['name' => 'inscripcion-curso.delete', 'display_name' => 'Eliminar Inscripciones de Curso'],
             ['name' => 'inscripcion-curso.export', 'display_name' => 'Exportar Inscripciones de Curso'],
+
+            ['name' => 'iglesias.view',   'display_name' => 'Ver Iglesias'],
+            ['name' => 'iglesias.edit',   'display_name' => 'Editar Iglesias'],
         ];
 
         foreach ($adminPermisos as $p) {

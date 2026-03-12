@@ -362,7 +362,7 @@ Route::middleware(['auth'])->group(function () {
             ->get('/inscripcion-curso/{inscripcionCurso}/edit', [\App\Http\Controllers\InscripcionCursoController::class, 'edit'])
             ->name('inscripcion-curso.edit');
 
-    Route::get('/inscripcion-curso/{inscripcion}/edit', [InscripcionCursoController::class, 'edit'])
+    Route::get('/inscripcion-curso/{inscripcion}/edit', [\App\Http\Controllers\InscripcionCursoController::class, 'edit'])
         ->name('inscripcion-curso.edit');
 
     Route::middleware('permission:inscripcion-curso.delete')
@@ -372,6 +372,10 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:inscripcion-curso.create')
     ->get('/instructor/{instructor}/inscripcion-curso/create', [\App\Http\Controllers\InscripcionCursoController::class, 'createFromInstructor'])
     ->name('instructor.inscripcion.create');
+
+    Route::middleware('permission:iglesias.edit')
+    ->get('/iglesia/logo', \App\Livewire\Iglesia\IglesiaLogoUpdate::class)
+    ->name('iglesia.logo');
 });
 
 require __DIR__.'/auth.php';

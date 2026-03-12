@@ -110,7 +110,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminRole->syncPermissions(
             Permission::whereNotIn('name', [
                 'personas.view',   'personas.create', 'personas.edit',   'personas.delete', 'personas.export',
-                'iglesias.view',   'iglesias.create', 'iglesias.edit',   'iglesias.delete', 'iglesias.export',
+                'iglesias.create',  'iglesias.delete', 'iglesias.export',
                 'religion.view',   'religion.create', 'religion.edit',   'religion.delete', 'religion.export',
             ])->get()
         );
