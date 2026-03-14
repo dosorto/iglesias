@@ -36,7 +36,7 @@ class Bautismo extends BaseModel
 
     public function iglesia()
     {
-        return $this->belongsTo(Iglesias::class, 'iglesia_id');
+        return $this->belongsTo(TenantIglesia::class, 'iglesia_id');
     }
 
     public function encargado()

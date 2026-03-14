@@ -188,19 +188,7 @@
 
     {{-- ======================= CERTIFICATE MAIN AREA ======================= --}}
     <div class="flex-1 min-w-0">
-        @php
-            $certBg = $iglesiaConfig?->certificado_bautismo_url;
-        @endphp
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8 relative overflow-hidden"
-             @if($certBg) style="background-image: url('{{ $certBg }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
-
-            {{-- Semi-transparent overlay so text stays readable when background is set --}}
-            @if($certBg)
-                <div class="absolute inset-0 bg-white/80 dark:bg-gray-900/70 pointer-events-none rounded-xl"></div>
-            @endif
-
-            {{-- All certificate content sits above the overlay --}}
-            <div class="relative z-10">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8">
 
             {{-- Validation errors --}}
             @if ($errors->any())
@@ -582,9 +570,6 @@
 
             </div>
             {{-- end certificate body --}}
-
-            </div>
-            {{-- end relative z-10 wrapper --}}
         </div>
     </div>
 
