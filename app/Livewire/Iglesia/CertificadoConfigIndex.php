@@ -17,10 +17,31 @@ class CertificadoConfigIndex extends Component
 
     public $logo_nuevo = null;
     public bool $confirmandoEliminarLogo = false;
+    public string $orientacion_certificado = 'portrait';
 
     public function mount(): void
     {
         $this->iglesia = Iglesias::currentFromSession();
+        $this->orientacion_certificado = $this->iglesia?->orientacion_certificado ?: 'portrait';
+    }
+
+    public function guardarOrientacion(): void
+    {
+        $this->validate([
+            'orientacion_certificado' => ['required', 'in:portrait,landscape'],
+        ]);
+
+        if (! $this->iglesia) {
+            session()->flash('error', 'No se encontró una iglesia configurada.');
+            return;
+        }
+
+        $this->iglesia->update([
+            'orientacion_certificado' => $this->orientacion_certificado,
+        ]);
+
+        $this->iglesia->refresh();
+        session()->flash('success', 'Orientación de certificado actualizada correctamente.');
     }
 
     public function subirFormato(): void

@@ -63,31 +63,6 @@
                     Generar PDF
                 </a>
 
-                @can('bautismo.edit')
-                    <button wire:click="saveCertificate"
-                            class="flex items-center w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
-                        <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
-                        </svg>
-                        Guardar Cambios
-                    </button>
-                @endcan
-
-                <button wire:click="togglePreview"
-                        class="flex items-center w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
-                    @if ($previewMode)
-                        <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                        </svg>
-                        Modo Edición
-                    @else
-                        <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                        </svg>
-                        Vista Previa
-                    @endif
-                </button>
 
                 @can('bautismo.edit')
                     <a href="{{ route('bautismo.edit', $bautismo) }}"
@@ -329,22 +304,9 @@
                 {{-- Birth line 1 --}}
                 <p class="flex flex-wrap items-end gap-x-1 gap-y-1">
                     <span>Que nació en</span>
-                    @if ($previewMode)
-                        <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[140px] text-center {{ $lugar_nacimiento ? 'font-medium' : $placeholderClass }}">
-                            {{ $lugar_nacimiento ?: 'Lugar de nacimiento' }}
-                        </span>
-                    @else
-                        @can('bautismo.edit')
-                            <input type="text"
-                                   wire:model.live="lugar_nacimiento"
-                                   placeholder="Lugar de nacimiento"
-                                   class="border-b border-gray-400 dark:border-gray-500 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:border-blue-500 min-w-[140px] pb-0.5 text-sm font-serif">
-                        @else
-                            <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[140px] text-center {{ $lugar_nacimiento ? 'font-medium' : $placeholderClass }}">
-                                {{ $lugar_nacimiento ?: 'Lugar de nacimiento' }}
-                            </span>
-                        @endcan
-                    @endif
+                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[140px] text-center {{ $lugar_nacimiento ? 'font-medium' : $placeholderClass }}">
+                        {{ $lugar_nacimiento ?: 'Lugar de nacimiento' }}
+                    </span>
                     <span>, el</span>
                     <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[40px] text-center {{ $diaNac ? 'font-medium' : $placeholderClass }}">
                         {{ $diaNac ?: 'Día' }}
@@ -393,20 +355,9 @@
                 {{-- NOTA MARGINAL --}}
                 <div class="flex flex-wrap items-start gap-x-2 gap-y-1">
                     <span class="font-bold shrink-0">NOTA MARGINAL:</span>
-                    @if ($previewMode)
-                        <p class="border-b border-gray-400 dark:border-gray-500 flex-1 min-w-[200px] pb-0.5 {{ $nota_marginal ? '' : $placeholderClass }}">
-                            {{ $nota_marginal ?: 'Notas adicionales o sacramentos posteriores...' }}
-                        </p>
-                    @else
-                        @can('bautismo.edit')
-                            <input type="text"
-                                   wire:model.live="nota_marginal"
-                                   placeholder="Notas adicionales o sacramentos posteriores..."
-                                   class="border-b border-gray-400 dark:border-gray-500 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:border-blue-500 flex-1 min-w-[200px] pb-0.5 text-sm font-serif">
-                        @else
-                            <p class="border-b border-gray-400 dark:border-gray-500 flex-1 pb-0.5">{{ $nota_marginal ?: '—' }}</p>
-                        @endcan
-                    @endif
+                    <p class="border-b border-gray-400 dark:border-gray-500 flex-1 min-w-[200px] pb-0.5 {{ $nota_marginal ? '' : $placeholderClass }}">
+                        {{ $nota_marginal ?: 'Notas adicionales o sacramentos posteriores...' }}
+                    </p>
                 </div>
 
                 {{-- Cura Párroco signature --}}
@@ -425,86 +376,24 @@
                 <div class="space-y-2 pt-1">
                     <p class="flex flex-wrap items-end gap-x-1 gap-y-1">
                         <span>Dado en</span>
-                        @if ($previewMode)
-                            <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[120px] pl-1 {{ $lugar_expedicion ? 'font-medium' : $placeholderClass }}">
-                                {{ $lugar_expedicion ?: 'Lugar' }}
-                            </span>
-                        @else
-                            @can('bautismo.edit')
-                                <input type="text"
-                                       wire:model.live="lugar_expedicion"
-                                       placeholder="Lugar"
-                                       class="border-b border-gray-400 dark:border-gray-500 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:border-blue-500 min-w-[120px] pb-0.5 text-sm font-serif">
-                            @else
-                                <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[120px] pl-1">{{ $lugar_expedicion ?: '—' }}</span>
-                            @endcan
-                        @endif
+                        <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[120px] pl-1 {{ $lugar_expedicion ? 'font-medium' : $placeholderClass }}">
+                            {{ $lugar_expedicion ?: 'Lugar' }}
+                        </span>
                         <span>el</span>
-                        @if ($previewMode)
-                            <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[40px] text-center {{ $diaExp ? 'font-medium' : $placeholderClass }}">
-                                {{ $diaExp ?: 'Día' }}
-                            </span>
-                        @else
-                            @can('bautismo.edit')
-                                <input type="number" min="1" max="31"
-                                       wire:model.live="exp_dia"
-                                       placeholder="Día"
-                                       class="border-b border-gray-400 dark:border-gray-500 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:border-blue-500 w-12 text-center pb-0.5 text-sm font-serif [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none">
-                            @else
-                                <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[40px] text-center {{ $diaExp ? 'font-medium' : $placeholderClass }}">
-                                    {{ $diaExp ?: 'Día' }}
-                                </span>
-                            @endcan
-                        @endif
+                        <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[40px] text-center {{ $diaExp ? 'font-medium' : $placeholderClass }}">
+                            {{ $diaExp ?: 'Día' }}
+                        </span>
                     </p>
 
                     <p class="flex flex-wrap items-end gap-x-1 gap-y-1">
                         <span>de</span>
-                        @if ($previewMode)
-                            <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[100px] text-center {{ $mesExp ? 'font-medium' : $placeholderClass }}">
-                                {{ $mesExp ?: 'Mes' }}
-                            </span>
-                        @else
-                            @can('bautismo.edit')
-                                <select wire:model.live="exp_mes"
-                                        class="border-b border-gray-400 dark:border-gray-500 bg-transparent text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500 pb-0.5 text-sm font-serif">
-                                    <option value="">Mes</option>
-                                    <option value="1">enero</option>
-                                    <option value="2">febrero</option>
-                                    <option value="3">marzo</option>
-                                    <option value="4">abril</option>
-                                    <option value="5">mayo</option>
-                                    <option value="6">junio</option>
-                                    <option value="7">julio</option>
-                                    <option value="8">agosto</option>
-                                    <option value="9">septiembre</option>
-                                    <option value="10">octubre</option>
-                                    <option value="11">noviembre</option>
-                                    <option value="12">diciembre</option>
-                                </select>
-                            @else
-                                <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[100px] text-center {{ $mesExp ? 'font-medium' : $placeholderClass }}">
-                                    {{ $mesExp ?: 'Mes' }}
-                                </span>
-                            @endcan
-                        @endif
+                        <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[100px] text-center {{ $mesExp ? 'font-medium' : $placeholderClass }}">
+                            {{ $mesExp ?: 'Mes' }}
+                        </span>
                         <span>de dos mil</span>
-                        @if ($previewMode)
-                            <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[50px] text-center {{ $anoExp ? 'font-medium' : $placeholderClass }}">
-                                {{ $anoExp ?: '' }}
-                            </span>
-                        @else
-                            @can('bautismo.edit')
-                                <input type="number" min="0" max="99"
-                                       wire:model.live="exp_ano"
-                                       placeholder="Año"
-                                       class="border-b border-gray-400 dark:border-gray-500 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:border-blue-500 w-14 text-center pb-0.5 text-sm font-serif [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none">
-                            @else
-                                <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[50px] text-center {{ $anoExp ? 'font-medium' : $placeholderClass }}">
-                                    {{ $anoExp ?: '' }}
-                                </span>
-                            @endcan
-                        @endif
+                        <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[50px] text-center {{ $anoExp ? 'font-medium' : $placeholderClass }}">
+                            {{ $anoExp ?: '' }}
+                        </span>
 
                     <p class="text-xs italic text-gray-400 mt-1">(Sello)</p>
                 </div>

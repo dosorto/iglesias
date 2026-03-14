@@ -18,6 +18,12 @@ class BautismoEdit extends Component
     public string $folio          = '';
     public string $partida_numero = '';
     public string $observaciones  = '';
+    public string $nota_marginal    = '';
+    public string $lugar_nacimiento = '';
+    public string $lugar_expedicion = '';
+    public string $exp_dia          = '';
+    public string $exp_mes          = '';
+    public string $exp_ano          = '';
 
     public function mount(Bautismo $bautismo): void
     {
@@ -29,6 +35,14 @@ class BautismoEdit extends Component
         $this->folio          = $bautismo->folio ?? '';
         $this->partida_numero = $bautismo->partida_numero ?? '';
         $this->observaciones  = $bautismo->observaciones ?? '';
+        $this->nota_marginal    = $bautismo->nota_marginal ?? '';
+        $this->lugar_nacimiento = $bautismo->lugar_nacimiento ?? '';
+        $this->lugar_expedicion = $bautismo->lugar_expedicion ?? '';
+
+        $fechaExp = $bautismo->fecha_expedicion;
+        $this->exp_dia = $fechaExp?->day ? (string) $fechaExp->day : '';
+        $this->exp_mes = $fechaExp?->month ? (string) $fechaExp->month : '';
+        $this->exp_ano = $fechaExp?->year ? (string) ($fechaExp->year - 2000) : '';
     }
 
     protected function rules(): array
@@ -41,6 +55,12 @@ class BautismoEdit extends Component
             'folio'          => ['nullable', 'string', 'max:50'],
             'partida_numero' => ['nullable', 'string', 'max:50'],
             'observaciones'  => ['nullable', 'string', 'max:500'],
+            'nota_marginal'    => ['nullable', 'string', 'max:500'],
+            'lugar_nacimiento' => ['nullable', 'string', 'max:150'],
+            'lugar_expedicion' => ['nullable', 'string', 'max:150'],
+            'exp_dia'          => ['nullable', 'integer', 'min:1', 'max:31'],
+            'exp_mes'          => ['nullable', 'integer', 'min:1', 'max:12'],
+            'exp_ano'          => ['nullable', 'integer', 'min:0', 'max:99'],
         ];
     }
 
@@ -58,6 +78,11 @@ class BautismoEdit extends Component
             'folio.max'                     => 'El folio no puede superar los 50 caracteres.',
             'partida_numero.max'            => 'La partida no puede superar los 50 caracteres.',
             'observaciones.max'             => 'Las observaciones no pueden superar los 500 caracteres.',
+            'nota_marginal.max'             => 'La nota marginal no puede superar los 500 caracteres.',
+            'lugar_nacimiento.max'          => 'El lugar de nacimiento no puede superar los 150 caracteres.',
+            'lugar_expedicion.max'          => 'El lugar de expedición no puede superar los 150 caracteres.',
+            'exp_dia.min'                   => 'El día de expedición debe ser entre 1 y 31.',
+            'exp_mes.min'                   => 'El mes de expedición debe ser entre 1 y 12.',
         ];
     }
 
@@ -70,6 +95,19 @@ class BautismoEdit extends Component
     {
         $this->validate();
 
+        $fechaExp = null;
+        if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
+            try {
+                $fechaExp = \Carbon\Carbon::createFromDate(
+                    2000 + (int) $this->exp_ano,
+                    (int) $this->exp_mes,
+                    (int) $this->exp_dia
+                )->format('Y-m-d');
+            } catch (\Exception) {
+                $fechaExp = null;
+            }
+        }
+
         $this->bautismo->update([
             'iglesia_id'     => $this->iglesia_id,
             'encargado_id'   => $this->encargado_id,
@@ -78,6 +116,10 @@ class BautismoEdit extends Component
             'folio'          => $this->folio ?: null,
             'partida_numero' => $this->partida_numero ?: null,
             'observaciones'  => $this->observaciones ?: null,
+            'nota_marginal'    => $this->nota_marginal ?: null,
+            'lugar_nacimiento' => $this->lugar_nacimiento ?: null,
+            'lugar_expedicion' => $this->lugar_expedicion ?: null,
+            'fecha_expedicion' => $fechaExp,
         ]);
 
         session()->flash('success', 'Bautismo actualizado correctamente.');
