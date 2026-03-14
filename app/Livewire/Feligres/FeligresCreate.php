@@ -6,8 +6,8 @@ use Livewire\Component;
 use App\Models\Persona;
 use App\Models\Feligres;
 use App\Models\Iglesias;
+use App\Models\TenantIglesia;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\DB;
 
 class FeligresCreate extends Component
 {
@@ -41,8 +41,7 @@ class FeligresCreate extends Component
 
         // En tenant, preseleccionar la iglesia local automáticamente
         if (session('tenant')) {
-            $iglesiaLocal     = DB::table('iglesias')->first();
-            $this->id_iglesia = $iglesiaLocal?->id;
+            $this->id_iglesia = TenantIglesia::currentId();
         }
     }
 
@@ -201,6 +200,10 @@ class FeligresCreate extends Component
     // ── Guardar feligrés ─────────────────────────────────────────────
     public function guardar(): void
     {
+        if (session('tenant')) {
+            $this->id_iglesia = TenantIglesia::currentId();
+        }
+
         $this->validate([
             'persona_id'    => ['required', 'integer', 'exists:personas,id'],
             'id_iglesia'    => ['required', 'integer', 'exists:iglesias,id'],
@@ -234,7 +237,7 @@ class FeligresCreate extends Component
     public function render()
     {
         if (session('tenant')) {
-            $iglesias = collect([DB::table('iglesias')->first()])->filter();
+            $iglesias = collect([TenantIglesia::current()])->filter();
         } else {
             $iglesias = Iglesias::where('estado', 'Activo')->orderBy('nombre')->get();
         }

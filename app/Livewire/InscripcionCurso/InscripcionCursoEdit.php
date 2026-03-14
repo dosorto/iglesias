@@ -22,7 +22,6 @@ class InscripcionCursoEdit extends Component
     public string $persona_dni = '';
     public $persona = null;
     public $persona_estado = 'idle';
-
     public bool $showCrearPersona = false;
 
     public string $p_dni = '';

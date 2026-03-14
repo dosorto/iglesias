@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Persona;
 use App\Models\Feligres;
 use App\Models\Iglesias;
+use App\Models\TenantIglesia;
 use App\Models\PrimeraComunion;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -75,8 +76,7 @@ class PrimeraComunionCreate extends Component
         $this->mini_f_fecha_ingreso   = now()->format('Y-m-d');
 
         if (session('tenant')) {
-            $iglesiaLocal     = DB::table('iglesias')->first();
-            $this->iglesia_id = $iglesiaLocal?->id;
+            $this->iglesia_id = TenantIglesia::currentId();
         }
     }
 
@@ -291,6 +291,10 @@ class PrimeraComunionCreate extends Component
 
     public function guardarMiniPersona(): void
     {
+        if (session('tenant')) {
+            $this->iglesia_id = TenantIglesia::currentId();
+        }
+
         $this->validate([
             'mini_p_dni'              => ['required', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
             'mini_p_primer_nombre'    => ['required', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
@@ -361,6 +365,10 @@ class PrimeraComunionCreate extends Component
 
     public function guardarMiniFeligres(): void
     {
+        if (session('tenant')) {
+            $this->iglesia_id = TenantIglesia::currentId();
+        }
+
         $this->validate([
             'iglesia_id'           => ['required'],
             'mini_f_fecha_ingreso' => ['nullable', 'date'],
@@ -389,6 +397,10 @@ class PrimeraComunionCreate extends Component
 
     public function guardar(): void
     {
+        if (session('tenant')) {
+            $this->iglesia_id = TenantIglesia::currentId();
+        }
+
         $this->validate([
             'fecha_primera_comunion' => ['required', 'date'],
         ], [
@@ -423,7 +435,7 @@ class PrimeraComunionCreate extends Component
         $centralConn = config('tenancy.central_connection', 'mysql');
 
         if (session('tenant')) {
-            $iglesias = collect([DB::table('iglesias')->first()])->filter();
+            $iglesias = collect([TenantIglesia::current()])->filter();
         } else {
             $iglesias = Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get();
         }

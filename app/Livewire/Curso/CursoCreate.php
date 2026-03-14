@@ -5,11 +5,11 @@ namespace App\Livewire\Curso;
 use Livewire\Component;
 use App\Models\Curso;
 use App\Models\Iglesias;
+use App\Models\TenantIglesia;
 use App\Models\Encargado;
 use App\Models\TipoCurso;
 use App\Models\Instructor;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class CursoCreate extends Component
 {
@@ -44,7 +44,7 @@ class CursoCreate extends Component
         }
 
         if (session('tenant')) {
-            $this->iglesia_id = DB::table('iglesias')->value('id');
+            $this->iglesia_id = TenantIglesia::currentId();
         }
     }
 
@@ -161,6 +161,9 @@ class CursoCreate extends Component
 
     public function guardar()
     {
+        if (session('tenant')) {
+            $this->iglesia_id = TenantIglesia::currentId();
+        }
 
         $this->validate([
             'instructor_id'=>'required',
@@ -195,7 +198,7 @@ class CursoCreate extends Component
         $centralConn = config('tenancy.central_connection','mysql');
 
         if (session('tenant')) {
-            $iglesias = collect([DB::table('iglesias')->first()])->filter();
+            $iglesias = collect([TenantIglesia::current()])->filter();
         } else {
             $iglesias = Iglesias::on($centralConn)->where('estado','Activo')->orderBy('nombre')->get();
         }

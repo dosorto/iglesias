@@ -4,7 +4,7 @@ namespace App\Livewire\PrimeraComunion;
 
 use App\Models\PrimeraComunion;
 use App\Models\Iglesias;
-use Illuminate\Support\Facades\DB;
+use App\Models\TenantIglesia;
 use Livewire\Component;
 
 class PrimeraComunionEdit extends Component
@@ -29,6 +29,10 @@ class PrimeraComunionEdit extends Component
         $this->folio                  = $primeraComunion->folio          ?? '';
         $this->partida_numero         = $primeraComunion->partida_numero ?? '';
         $this->observaciones          = $primeraComunion->observaciones  ?? '';
+
+        if (session('tenant')) {
+            $this->iglesia_id = TenantIglesia::currentId();
+        }
     }
 
     protected function rules(): array
@@ -65,6 +69,10 @@ class PrimeraComunionEdit extends Component
 
     public function save(): void
     {
+        if (session('tenant')) {
+            $this->iglesia_id = TenantIglesia::currentId();
+        }
+
         $this->validate();
 
         $this->primeraComunion->update([
@@ -85,7 +93,7 @@ class PrimeraComunionEdit extends Component
         $centralConn = config('tenancy.central_connection', 'mysql');
 
         if (session('tenant')) {
-            $iglesias = collect([DB::table('iglesias')->first()])->filter();
+            $iglesias = collect([TenantIglesia::current()])->filter();
         } else {
             $iglesias = Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get();
         }

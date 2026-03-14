@@ -13,8 +13,7 @@ class SidebarToggle extends Component
     public function mount()
     {
         $this->isCollapsed = session('sidebar_collapsed', false);
-        $iglesiaId = session('tenant.id_iglesia');
-        $iglesia = $iglesiaId ? Iglesias::find($iglesiaId) : Iglesias::first();
+        $iglesia = Iglesias::currentFromSession();
         $this->logoUrl = $iglesia?->logo_url;
     }
 

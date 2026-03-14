@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Session;
 
 class Iglesias extends Model
 {
@@ -21,6 +22,24 @@ class Iglesias extends Model
     public function getConnectionName(): string
     {
         return config('tenancy.central_connection', config('database.default'));
+    }
+
+    public static function currentIdFromSession(): ?int
+    {
+        if (! app()->bound('session')) {
+            return null;
+        }
+
+        $iglesiaId = Session::get('tenant.id_iglesia');
+
+        return $iglesiaId ? (int) $iglesiaId : null;
+    }
+
+    public static function currentFromSession(): ?self
+    {
+        $iglesiaId = static::currentIdFromSession();
+
+        return $iglesiaId ? static::query()->find($iglesiaId) : null;
     }
 
     protected $fillable = [

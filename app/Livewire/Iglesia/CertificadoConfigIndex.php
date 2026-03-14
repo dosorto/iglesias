@@ -20,10 +20,7 @@ class CertificadoConfigIndex extends Component
 
     public function mount(): void
     {
-        $iglesiaId = session('tenant.id_iglesia');
-        $this->iglesia = $iglesiaId
-            ? Iglesias::find($iglesiaId)
-            : Iglesias::first();
+        $this->iglesia = Iglesias::currentFromSession();
     }
 
     public function subirFormato(): void
