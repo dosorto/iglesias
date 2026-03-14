@@ -52,6 +52,7 @@ class Iglesias extends Model
         'id_religion',
         'path_logo',
         'path_certificado_bautismo',
+        'orientacion_certificado',
         'db_connection',
         'db_host',
         'db_port',

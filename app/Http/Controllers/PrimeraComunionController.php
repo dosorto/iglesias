@@ -59,9 +59,10 @@ class PrimeraComunionController extends Controller
 
         $iglesiaId = session('tenant.id_iglesia');
         $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
+        $orientation = $iglesiaConfig?->orientacion_certificado === 'landscape' ? 'landscape' : 'portrait';
 
         $pdf = Pdf::loadView('primera-comunion.certificado-pdf', compact('primeraComunion', 'encargado', 'iglesiaConfig'))
-            ->setPaper('letter', 'portrait');
+            ->setPaper('letter', $orientation);
 
         $nombreArchivo = 'certificado-primera-comunion-' . $primeraComunion->id . '.pdf';
 

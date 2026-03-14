@@ -43,9 +43,10 @@ class BautismoController extends Controller
 
         $iglesiaId = session('tenant.id_iglesia');
         $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
+        $orientation = $iglesiaConfig?->orientacion_certificado === 'landscape' ? 'landscape' : 'portrait';
 
         $pdf = Pdf::loadView('bautismo.certificado-pdf', compact('bautismo', 'iglesiaConfig'))
-            ->setPaper('letter', 'portrait');
+            ->setPaper('letter', $orientation);
 
         $nombreArchivo = 'certificado-bautismo-' . $bautismo->id . '.pdf';
 
