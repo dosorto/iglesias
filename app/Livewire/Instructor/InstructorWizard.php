@@ -123,10 +123,17 @@ class InstructorWizard extends Component
             'firma' => ['required','image','max:2048']
         ]);
 
+        $iglesiaId = \App\Models\TenantIglesia::currentId();
+
+        if (! $iglesiaId) {
+            $this->addError('dni', 'No se encontró la iglesia activa de la sesión.');
+            return;
+        }
+
         $feligres = Feligres::firstOrCreate(
             [
                 'id_persona' => $this->persona_id,
-                'id_iglesia' => \App\Models\Iglesias::first()->id
+                'id_iglesia' => $iglesiaId
             ],
             [
                 'estado' => 'Activo'

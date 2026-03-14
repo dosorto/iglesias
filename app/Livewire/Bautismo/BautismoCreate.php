@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Persona;
 use App\Models\Feligres;
 use App\Models\Iglesias;
+use App\Models\TenantIglesia;
 use App\Models\Encargado;
 use App\Models\Bautismo;
 use Illuminate\Support\Facades\DB;
@@ -79,9 +80,7 @@ class BautismoCreate extends Component
         $this->fecha_bautismo       = now()->format('Y-m-d');
         $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
 
-        // Tomar el id de la iglesia local automáticamente
-        $iglesiaLocal     = DB::table('iglesias')->first();
-        $this->iglesia_id = $iglesiaLocal?->id;
+        $this->iglesia_id = TenantIglesia::currentId();
 
         // Encargado por defecto: primer encargado disponible
         $encargadoDefault   = Encargado::with('feligres.persona')->where('estado', 'Activo')->first();
@@ -348,9 +347,8 @@ class BautismoCreate extends Component
         $rol = $this->mini_rol;
 
         DB::transaction(function () use ($rol) {
-            // Fallback: resolve iglesia_id at runtime if it was not set in mount()
-            if (! $this->iglesia_id) {
-                $this->iglesia_id = DB::table('iglesias')->value('id');
+            if (session('tenant')) {
+                $this->iglesia_id = TenantIglesia::currentId();
             }
 
             $persona = Persona::create([
@@ -400,9 +398,8 @@ class BautismoCreate extends Component
             'iglesia_id.required' => 'No se pudo determinar la iglesia.',
         ]);
 
-        // Fallback: resolve iglesia_id at runtime if it was not set in mount()
-        if (! $this->iglesia_id) {
-            $this->iglesia_id = DB::table('iglesias')->value('id');
+        if (session('tenant')) {
+            $this->iglesia_id = TenantIglesia::currentId();
         }
 
         $rol     = $this->mini_rol;
@@ -425,6 +422,10 @@ class BautismoCreate extends Component
 
     public function guardar(): void
     {
+        if (session('tenant')) {
+            $this->iglesia_id = TenantIglesia::currentId();
+        }
+
         $this->validate([
             'fecha_bautismo' => ['required', 'date'],
         ], [
@@ -461,7 +462,7 @@ class BautismoCreate extends Component
         $centralConn = config('tenancy.central_connection', 'mysql');
 
         if (session('tenant')) {
-            $iglesias = collect([DB::table('iglesias')->first()])->filter();
+            $iglesias = collect([TenantIglesia::current()])->filter();
         } else {
             $iglesias = Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get();
         }

@@ -29,7 +29,7 @@ class Feligres extends BaseModel
 
     public function iglesia()
     {
-        return $this->belongsTo(Iglesias::class, 'id_iglesia');
+        return $this->belongsTo(TenantIglesia::class, 'id_iglesia');
     }
 
     public function encargado()
