@@ -8,35 +8,45 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('confirmaciones', function (Blueprint $table) {
-    $table->id();
+            $table->id();
 
-    // obligatorias
-    $table->foreignId('iglesia_id')->constrained('iglesias')->restrictOnDelete();
-    $table->string('lugar_confirmacion', 200)->nullable();
-    $table->date('fecha_confirmacion');
-    $table->foreignId('feligres_id')->constrained('feligres')->restrictOnDelete();
+            $table->foreignId('iglesia_id')->constrained('iglesias')->restrictOnDelete();
+            $table->date('fecha_confirmacion');
+            $table->string('lugar_confirmacion', 200)->nullable();
 
-    $table->string('nombre_feligres', 250)->nullable();
-    $table->date('fecha_nacimiento')->nullable();
-    $table->string('nombre_padre', 250)->nullable();
-    $table->string('nombre_madre', 250)->nullable();
-    $table->string('padrino_madrina', 250)->nullable();
+            // Confirmado
+            $table->foreignId('feligres_id')->constrained('feligres')->restrictOnDelete();
 
-    // opcional
-    $table->string('ministro_confirmacion_nombre', 200)->nullable();
-    $table->foreignId('ministro_confirmacion_id')->nullable()->constrained('personas')->nullOnDelete();
+            // Familia
+            $table->foreignId('padre_id')->nullable()->constrained('feligres')->nullOnDelete();
+            $table->foreignId('madre_id')->nullable()->constrained('feligres')->nullOnDelete();
 
-    $table->string('libro_confirmacion', 50)->nullable();
-    $table->string('folio', 50)->nullable();
-    $table->string('partida_numero', 50)->nullable();
-    $table->text('observaciones')->nullable();
+            // Padrinos
+            $table->foreignId('padrino_id')->nullable()->constrained('feligres')->nullOnDelete();
+            $table->foreignId('madrina_id')->nullable()->constrained('feligres')->nullOnDelete();
 
-    $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
-    $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
-    $table->foreignId('deleted_by')->nullable()->constrained('users')->nullOnDelete();
-    $table->softDeletes();
-    $table->timestamps();
-});
+            // Ministro confirmante
+            $table->foreignId('ministro_id')->nullable()->constrained('feligres')->nullOnDelete();
+
+            // Control libro parroquial
+            $table->string('libro_confirmacion', 50)->nullable();
+            $table->string('folio', 50)->nullable();
+            $table->string('partida_numero', 50)->nullable();
+            $table->text('observaciones')->nullable();
+
+            // Campos para el certificado
+            $table->string('nota_marginal', 500)->nullable();
+            $table->string('lugar_nacimiento', 150)->nullable();
+            $table->string('lugar_expedicion', 150)->nullable();
+            $table->date('fecha_expedicion')->nullable();
+
+            // Auditoría
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('deleted_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->softDeletes();
+            $table->timestamps();
+        });
     }
 
     public function down(): void
