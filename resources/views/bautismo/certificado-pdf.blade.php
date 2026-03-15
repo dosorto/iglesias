@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Certificación de Bautismo</title>
+    @php $isLandscape = ($iglesiaConfig?->orientacion_certificado === 'landscape'); @endphp
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -120,18 +121,22 @@
 
         /* ── SIGNATURES ── */
         .sig-right {
-            text-align: right;
+            width: 260px;
+            margin-left: auto;
+            margin-right: 24px;
+            text-align: center;
             margin-top: 26px;
         }
         .sig-name {
-            text-align: right;
+            text-align: center;
             font-size: 11pt;
             font-weight: bold;
             margin-bottom: 4px;
         }
         .sig-line-accent {
-            display: inline-block;
+            display: block;
             width: 220px;
+            margin: 0 auto;
             border-top: 2px solid #7D5A1E;
             text-align: center;
             font-size: 9.5pt;
@@ -155,19 +160,106 @@
         }
         .sig-bottom {
             margin-top: 34px;
-            text-align: right;
+            width: 260px;
+            margin-left: auto;
+            margin-right: 24px;
+            text-align: center;
+        }
+
+        body.is-landscape .page-wrapper {
+            padding: 14px 22px;
+            margin: 4px;
+        }
+        body.is-landscape .header {
+            margin-bottom: 6px;
+        }
+        body.is-landscape .header-logo-cell,
+        body.is-landscape .header-right-cell {
+            width: 72px;
+        }
+        body.is-landscape .header-logo-cell img,
+        body.is-landscape .header-right-cell img {
+            width: 58px;
+            height: 58px;
+        }
+        body.is-landscape .parish-name {
+            font-size: 15pt;
+            letter-spacing: 1px;
+        }
+        body.is-landscape .diocese-name {
+            font-size: 10.5pt;
+            margin-top: 1px;
+        }
+        body.is-landscape .ornament {
+            margin: 1px 0;
+        }
+        body.is-landscape .cert-title-wrap {
+            margin: 5px 0;
+        }
+        body.is-landscape .cert-title {
+            font-size: 11.5pt;
+            padding: 3px 24px;
+            letter-spacing: 3px;
+        }
+        body.is-landscape .body-text {
+            margin-top: 8px;
+            line-height: 1.35;
+            font-size: 9.5pt;
+        }
+        body.is-landscape .body-text p {
+            margin-bottom: 1px;
+        }
+        body.is-landscape .line-field {
+            min-width: 150px;
+        }
+        body.is-landscape .line-field-sm {
+            min-width: 52px;
+        }
+        body.is-landscape .line-field-lg {
+            min-width: 200px;
+        }
+        body.is-landscape .line-field-xl {
+            min-width: 250px;
+        }
+        body.is-landscape .sig-right {
+            margin-top: 10px;
+            margin-right: 10px;
+        }
+        body.is-landscape .issuance {
+            margin-top: 8px;
+            font-size: 9.5pt;
+            line-height: 1.45;
+        }
+        body.is-landscape .sig-bottom {
+            margin-top: 10px;
+            margin-right: 10px;
         }
     </style>
 </head>
 @php
-    $certBgPath = ($iglesiaConfig?->path_certificado_bautismo)
-        ? public_path('storage/' . $iglesiaConfig->path_certificado_bautismo)
-        : null;
-    $logoIglesiaPath = ($iglesiaConfig?->path_logo)
-        ? public_path('storage/' . $iglesiaConfig->path_logo)
-        : null;
+    $resolvePublicFilePath = function (?string $path): ?string {
+        if (! $path) {
+            return null;
+        }
+
+        $normalized = trim((string) parse_url($path, PHP_URL_PATH) ?: $path);
+        $normalized = ltrim($normalized, '/\\');
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        $candidate = str_starts_with($normalized, 'storage/')
+            ? public_path($normalized)
+            : public_path('storage/' . $normalized);
+
+        return is_file($candidate) ? $candidate : null;
+    };
+
+    $certBgPath = $resolvePublicFilePath($iglesiaConfig?->path_certificado_bautismo);
+    $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
 @endphp
-<body @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
+<body class="{{ $isLandscape ? 'is-landscape' : '' }}" @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
 
 <div class="page-wrapper">
 
@@ -211,9 +303,7 @@
         $madrina     = $bautismo->madrina?->persona;
         $encargado   = $bautismo->encargado?->feligres?->persona;
         $encargadoModel = $bautismo->encargado;
-        $firmaPath   = $encargadoModel?->path_firma_principal
-            ? public_path('storage/' . $encargadoModel->path_firma_principal)
-            : null;
+        $firmaPath = $resolvePublicFilePath($encargadoModel?->path_firma_principal);
         $iglesiaNombre = $iglesiaConfig?->nombre ?? $bautismo->iglesia?->nombre ?? '';
 
         // Bautismo date parts
@@ -372,7 +462,7 @@
     {{-- ===== FIRMA ENCARGADO ===== --}}
     <div class="sig-bottom">
         @if ($firmaPath && file_exists($firmaPath))
-            <p style="text-align:right; margin-bottom: 2px;">
+            <p style="text-align:center; margin-bottom: 2px;">
                 <img src="{{ $firmaPath }}" style="max-height:50px; max-width:180px;">
             </p>
         @endif

@@ -16,7 +16,7 @@
                      alt="Logo Iglesia"
                      class="w-10 h-10 object-contain {{ $isCollapsed ? '' : 'mr-3' }}" />
                 @if(!$isCollapsed)
-                    <span class="text-xl font-bold text-gray-900 dark:text-white">Holy App</span>
+                    <span class="text-xl font-bold text-gray-900 dark:text-white">{{ $churchName }}</span>
                 @endif
             </div>
 

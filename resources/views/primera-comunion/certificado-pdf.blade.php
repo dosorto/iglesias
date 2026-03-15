@@ -186,12 +186,27 @@
     </style>
 </head>
 @php
-    $certBgPath = ($iglesiaConfig?->path_certificado_bautismo)
-        ? public_path('storage/' . $iglesiaConfig->path_certificado_bautismo)
-        : null;
-    $logoIglesiaPath = ($iglesiaConfig?->path_logo)
-        ? public_path('storage/' . $iglesiaConfig->path_logo)
-        : null;
+    $resolvePublicFilePath = function (?string $path): ?string {
+        if (! $path) {
+            return null;
+        }
+
+        $normalized = trim((string) parse_url($path, PHP_URL_PATH) ?: $path);
+        $normalized = ltrim($normalized, '/\\');
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        $candidate = str_starts_with($normalized, 'storage/')
+            ? public_path($normalized)
+            : public_path('storage/' . $normalized);
+
+        return is_file($candidate) ? $candidate : null;
+    };
+
+    $certBgPath = $resolvePublicFilePath($iglesiaConfig?->path_certificado_bautismo);
+    $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
 @endphp
 <body @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
 
@@ -207,14 +222,10 @@
         $iglesiaNombre = $iglesiaConfig?->nombre ?? $iglesia?->nombre ?? '';
 
         // Firma del párroco
-        $firmaParrocoPath = ($parrocoModel && $parrocoModel->path_firma_principal)
-            ? public_path('storage/' . $parrocoModel->path_firma_principal)
-            : null;
+        $firmaParrocoPath = $resolvePublicFilePath($parrocoModel?->path_firma_principal);
 
         // Firma del encargado
-        $firmaEncargadoPath = (isset($encargado) && $encargado && $encargado->path_firma_principal)
-            ? public_path('storage/' . $encargado->path_firma_principal)
-            : null;
+        $firmaEncargadoPath = $resolvePublicFilePath($encargado->path_firma_principal ?? null);
 
         $mesesEs = [
             1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',

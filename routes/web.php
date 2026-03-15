@@ -48,6 +48,14 @@ Route::middleware(['auth'])->group(function () {
         ->get('/configuracion/certificado-bautismo', fn () => view('configuracion.certificado-bautismo'))
         ->name('configuracion.certificado-bautismo');
 
+    Route::middleware('permission:roles.view')
+        ->get('/configuracion/iglesia', [\App\Http\Controllers\IglesiaController::class, 'editConfiguracion'])
+        ->name('configuracion.iglesia.edit');
+
+    Route::middleware('permission:roles.view')
+        ->put('/configuracion/iglesia', [\App\Http\Controllers\IglesiaController::class, 'updateConfiguracion'])
+        ->name('configuracion.iglesia.update');
+
     Route::middleware('permission:audit.view')
         ->get('/audit', fn () => view('admin.audit'))
         ->name('audit.index');

@@ -9,12 +9,14 @@ class SidebarToggle extends Component
 {
     public $isCollapsed = false;
     public ?string $logoUrl = null;
+    public string $churchName = '';
 
     public function mount()
     {
         $this->isCollapsed = session('sidebar_collapsed', false);
         $iglesia = Iglesias::currentFromSession();
         $this->logoUrl = $iglesia?->logo_url;
+        $this->churchName = $iglesia?->nombre ?: config('app.name', 'Holy App');
     }
 
     public function toggleSidebar()
