@@ -11,15 +11,11 @@
         </div>
     </div>
 
-<<<<<<< HEAD
-    {{-- ══ TARJETAS DE OPCIONES ══ --}}
-=======
     @php
         $iglesiaSettings = \App\Models\Iglesias::currentFromSession();
     @endphp
 
     {{-- Grid de opciones de configuración --}}
->>>>>>> Ury
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {{-- Gestión de Roles --}}
@@ -62,9 +58,6 @@
                 </div>
             </div>
 
-<<<<<<< HEAD
-        {{-- Logs del Sistema --}}
-=======
             <div class="flex justify-between items-center gap-4">
                 <span class="text-sm text-gray-500 dark:text-gray-400">
                     {{ $iglesiaSettings?->nombre ? 'Activa: ' . $iglesiaSettings->nombre : 'No hay una iglesia activa en la sesión' }}
@@ -89,7 +82,6 @@
         
 
         {{-- Configuración de Logs --}}
->>>>>>> Ury
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
             <div class="flex items-center mb-4">
                 <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center mr-4">

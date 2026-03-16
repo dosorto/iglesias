@@ -47,12 +47,10 @@
             </div>
         @endif
 
-        {{-- ACCIONES --}}
+       {{-- ACCIONES --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
             <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Acciones</p>
-
             <div class="space-y-2">
-                {{-- Generar PDF --}}
                 <a href="{{ route('primera-comunion.certificado.pdf', $primeraComunion) }}" target="_blank"
                    class="flex items-center w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-colors">
                     <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,47 +59,15 @@
                     </svg>
                     Generar PDF
                 </a>
-
-                {{-- Guardar Borrador --}}
-                @can('primera-comunion.edit')
-                    <button wire:click="saveCertificate"
-                            class="flex items-center w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
-                        <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
-                        </svg>
-                        Guardar Cambios
-                    </button>
-                @endcan
-
-                {{-- Toggle Preview --}}
-                <button wire:click="togglePreview"
-                        class="flex items-center w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
-                    @if ($previewMode)
-                        <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                        </svg>
-                        Modo Edición
-                    @else
-                        <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                        </svg>
-                        Vista Previa
-                    @endif
-                </button>
-
-                {{-- Editar Registro --}}
                 @can('primera-comunion.edit')
                     <a href="{{ route('primera-comunion.edit', $primeraComunion) }}"
                        class="flex items-center w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
                         <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                         </svg>
-                        Editar Primera Comunion 
+                        Editar Primera Comunión
                     </a>
                 @endcan
-
-                {{-- Volver --}}
                 <a href="{{ route('primera-comunion.index') }}"
                    class="flex items-center w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
                     <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,7 +77,6 @@
                 </a>
             </div>
         </div>
-
         {{-- INFORMACIÓN DEL LIBRO --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
             <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Información del Libro</p>
@@ -329,51 +294,45 @@
                 <p class="flex flex-wrap items-end gap-x-1 gap-y-2">
                     <span>Dado en</span>
                     @if ($previewMode)
-                        <span class="{{ $lineClass }} min-w-[180px] {{ $lugar_expedicion ? '' : $placeholderClass }}">
+                        <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[160px] pl-1 {{ $lugar_expedicion ? 'font-medium' : $placeholderClass }}">
                             {{ $lugar_expedicion ?: '' }}
                         </span>
                     @else
-                        @can('primera-comunion.edit')
+                        @can('confirmacion.edit')
                             <input type="text"
                                    wire:model.live="lugar_expedicion"
                                    placeholder="Lugar"
-                                   class="{{ $inputClass }} min-w-[180px]">
+                                   class="border-b border-gray-400 dark:border-gray-500 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:border-[#7D5A1E] min-w-[160px] pb-0.5 text-sm font-serif">
                         @else
-                            <span class="{{ $lineClass }} min-w-[180px] {{ $lugar_expedicion ? '' : $placeholderClass }}">
-                                {{ $lugar_expedicion ?: '' }}
-                            </span>
+                            <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[160px] pl-1">{{ $lugar_expedicion ?: '—' }}</span>
                         @endcan
                     @endif
                     <span>a los</span>
                     @if ($previewMode)
-                        <span class="{{ $lineClass }} min-w-[60px] text-center {{ $diaExp ? '' : $placeholderClass }}">
+                        <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[50px] text-center {{ $diaExp ? 'font-medium' : $placeholderClass }}">
                             {{ $diaExp ?: '' }}
                         </span>
                     @else
-                        @can('primera-comunion.edit')
+                        @can('confirmacion.edit')
                             <input type="number" min="1" max="31"
                                    wire:model.live="exp_dia"
                                    placeholder="Día"
-                                   class="{{ $inputClass }} w-14 text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none">
+                                   class="border-b border-gray-400 dark:border-gray-500 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:border-[#7D5A1E] w-12 text-center pb-0.5 text-sm font-serif [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none">
                         @else
-                            <span class="{{ $lineClass }} min-w-[60px] text-center {{ $diaExp ? '' : $placeholderClass }}">
+                            <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[50px] text-center {{ $diaExp ? 'font-medium' : $placeholderClass }}">
                                 {{ $diaExp ?: '' }}
                             </span>
                         @endcan
                     @endif
                     <span>del mes de</span>
-                </p>
-
-                {{-- Mes y año de expedición --}}
-                <p class="flex flex-wrap items-end gap-x-1 gap-y-2">
                     @if ($previewMode)
-                        <span class="{{ $lineClass }} min-w-[160px] text-center {{ $mesExp ? '' : $placeholderClass }}">
+                        <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[130px] text-center {{ $mesExp ? 'font-medium' : $placeholderClass }}">
                             {{ $mesExp ?: '' }}
                         </span>
                     @else
-                        @can('primera-comunion.edit')
+                        @can('confirmacion.edit')
                             <select wire:model.live="exp_mes"
-                                    class="border-b border-gray-500 dark:border-gray-400 bg-transparent text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500 pb-0.5 text-sm font-serif min-w-[140px]">
+                                    class="border-b border-gray-400 dark:border-gray-500 bg-transparent text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#7D5A1E] pb-0.5 text-sm font-serif min-w-[130px]">
                                 <option value="">Mes</option>
                                 <option value="1">enero</option>
                                 <option value="2">febrero</option>
@@ -389,28 +348,29 @@
                                 <option value="12">diciembre</option>
                             </select>
                         @else
-                            <span class="{{ $lineClass }} min-w-[160px] text-center {{ $mesExp ? '' : $placeholderClass }}">
+                            <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[130px] text-center {{ $mesExp ? 'font-medium' : $placeholderClass }}">
                                 {{ $mesExp ?: '' }}
                             </span>
                         @endcan
                     @endif
                     <span>año</span>
                     @if ($previewMode)
-                        <span class="{{ $lineClass }} min-w-[100px] text-center {{ $anoExp ? '' : $placeholderClass }}">
+                        <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[80px] text-center {{ $anoExp ? 'font-medium' : $placeholderClass }}">
                             {{ $anoExp ? '20' . str_pad($anoExp, 2, '0', STR_PAD_LEFT) : '' }}
                         </span>
                     @else
-                        @can('primera-comunion.edit')
+                        @can('confirmacion.edit')
                             <input type="number" min="0" max="99"
                                    wire:model.live="exp_ano"
                                    placeholder="Año"
-                                   class="{{ $inputClass }} w-16 text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none">
+                                   class="border-b border-gray-400 dark:border-gray-500 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:border-[#7D5A1E] w-16 text-center pb-0.5 text-sm font-serif [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none">
                         @else
-                            <span class="{{ $lineClass }} min-w-[100px] text-center {{ $anoExp ? '' : $placeholderClass }}">
+                            <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[80px] text-center {{ $anoExp ? 'font-medium' : $placeholderClass }}">
                                 {{ $anoExp ? '20' . str_pad($anoExp, 2, '0', STR_PAD_LEFT) : '' }}
                             </span>
                         @endcan
                     @endif
+                    
                 </p>
 
                 {{-- Firma del Párroco --}}

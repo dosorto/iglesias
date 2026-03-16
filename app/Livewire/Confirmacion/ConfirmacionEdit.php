@@ -5,33 +5,368 @@ namespace App\Livewire\Confirmacion;
 use App\Models\Confirmacion;
 use App\Models\Iglesias;
 use App\Models\Feligres;
+use App\Models\Persona;
+use App\Models\TenantIglesia;
 use Livewire\Component;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class ConfirmacionEdit extends Component
 {
     public Confirmacion $confirmacion;
 
-    public ?int   $iglesia_id           = null;
-    public ?int   $ministro_id          = null;
-    public string $fecha_confirmacion   = '';
-    public string $lugar_confirmacion   = '';
-    public string $libro_confirmacion   = '';
-    public string $folio                = '';
-    public string $partida_numero       = '';
-    public string $observaciones        = '';
+    // Campos principales
+    public ?int   $iglesia_id          = null;
+    public ?int   $ministro_id         = null;
+    public string $fecha_confirmacion  = '';
+    public string $lugar_confirmacion  = '';
+    public string $libro_confirmacion  = '';
+    public string $folio               = '';
+    public string $partida_numero      = '';
+    public string $observaciones       = '';
+    public string $nota_marginal       = '';
+    public string $lugar_expedicion    = '';
+    public string $exp_dia             = '';
+    public string $exp_mes             = '';
+    public string $exp_ano             = '';
+
+    // Roles con búsqueda
+    public string $padre_dni         = '';
+    public ?array $padre_persona     = null;
+    public ?int   $padre_feligres_id = null;
+    public string $padre_estado      = 'idle';
+
+    public string $madre_dni         = '';
+    public ?array $madre_persona     = null;
+    public ?int   $madre_feligres_id = null;
+    public string $madre_estado      = 'idle';
+
+    public string $padrino_dni         = '';
+    public ?array $padrino_persona     = null;
+    public ?int   $padrino_feligres_id = null;
+    public string $padrino_estado      = 'idle';
+
+    public string $madrina_dni         = '';
+    public ?array $madrina_persona     = null;
+    public ?int   $madrina_feligres_id = null;
+    public string $madrina_estado      = 'idle';
+
+    // Búsqueda múltiple compartida
+    public array   $busqueda_resultados = [];
+    public ?string $busqueda_rol        = null;
+
+    // Mini-form
+    public ?string $mini_rol  = null;
+    public ?string $mini_tipo = null;
+    public string $mini_p_dni              = '';
+    public string $mini_p_primer_nombre    = '';
+    public string $mini_p_segundo_nombre   = '';
+    public string $mini_p_primer_apellido  = '';
+    public string $mini_p_segundo_apellido = '';
+    public string $mini_p_fecha_nacimiento = '';
+    public string $mini_p_sexo             = '';
+    public string $mini_p_telefono         = '';
+    public string $mini_p_email            = '';
+    public string $mini_f_fecha_ingreso    = '';
+    public string $mini_f_estado           = 'Activo';
 
     public function mount(Confirmacion $confirmacion): void
     {
-        $this->confirmacion        = $confirmacion;
-        $this->iglesia_id          = $confirmacion->iglesia_id;
-        $this->ministro_id         = $confirmacion->ministro_id;
-        $this->fecha_confirmacion  = $confirmacion->fecha_confirmacion?->format('Y-m-d') ?? '';
-        $this->lugar_confirmacion  = $confirmacion->lugar_confirmacion ?? '';
-        $this->libro_confirmacion  = $confirmacion->libro_confirmacion ?? '';
-        $this->folio               = $confirmacion->folio ?? '';
-        $this->partida_numero      = $confirmacion->partida_numero ?? '';
-        $this->observaciones       = $confirmacion->observaciones ?? '';
+        $this->confirmacion       = $confirmacion;
+        $this->iglesia_id         = session('tenant')
+            ? TenantIglesia::currentId()
+            : $confirmacion->iglesia_id;
+        $this->ministro_id        = $confirmacion->ministro_id;
+        $this->fecha_confirmacion = $confirmacion->fecha_confirmacion?->format('Y-m-d') ?? '';
+        $this->lugar_confirmacion = $confirmacion->lugar_confirmacion ?? '';
+        $this->libro_confirmacion = $confirmacion->libro_confirmacion ?? '';
+        $this->folio              = $confirmacion->folio ?? '';
+        $this->partida_numero     = $confirmacion->partida_numero ?? '';
+        $this->observaciones      = $confirmacion->observaciones ?? '';
+        $this->nota_marginal      = $confirmacion->nota_marginal    ?? '';
+        $this->lugar_expedicion   = $confirmacion->lugar_expedicion ?? '';
+        $fe = $confirmacion->fecha_expedicion;
+        $this->exp_dia = $fe ? (string) $fe->day   : '';
+        $this->exp_mes = $fe ? (string) $fe->month : '';
+        $this->exp_ano = $fe ? (string) ($fe->year - 2000) : '';
+
+        $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
+
+        // Cargar roles existentes
+        $this->cargarRolExistente('padre',   $confirmacion->padre_id);
+        $this->cargarRolExistente('madre',   $confirmacion->madre_id);
+        $this->cargarRolExistente('padrino', $confirmacion->padrino_id);
+        $this->cargarRolExistente('madrina', $confirmacion->madrina_id);
     }
+
+    private function cargarRolExistente(string $rol, ?int $feligresId): void
+    {
+        if (! $feligresId) return;
+
+        $feligres = Feligres::with('persona')->find($feligresId);
+        if (! $feligres || ! $feligres->persona) return;
+
+        $persona = $feligres->persona;
+        $this->{"{$rol}_persona"} = [
+            'id'              => $persona->id,
+            'dni'             => $persona->dni,
+            'nombre_completo' => $persona->nombre_completo,
+            'telefono'        => $persona->telefono ?? null,
+            'email'           => $persona->email    ?? null,
+        ];
+        $this->{"{$rol}_feligres_id"} = $feligresId;
+        $this->{"{$rol}_dni"}         = $persona->dni;
+        $this->{"{$rol}_estado"}      = 'found';
+    }
+
+    // ── Búsqueda ──────────────────────────────────────────────────────────
+
+    public function buscarPersona(string $rol): void
+    {
+        $input = trim($this->{"{$rol}_dni"});
+
+        if (empty($input)) {
+            $this->addError("{$rol}_dni", 'Ingresa un DNI o nombre para buscar.');
+            return;
+        }
+
+        if (ctype_digit($input)) {
+            $personas = Persona::where('dni', $input)->get();
+        } else {
+            if (mb_strlen($input) < 3) {
+                $this->addError("{$rol}_dni", 'Ingresa al menos 3 caracteres para buscar por nombre.');
+                return;
+            }
+            $term     = '%' . $input . '%';
+            $personas = Persona::where(function ($q) use ($term) {
+                $q->where('primer_nombre',    'like', $term)
+                  ->orWhere('segundo_nombre',   'like', $term)
+                  ->orWhere('primer_apellido',  'like', $term)
+                  ->orWhere('segundo_apellido', 'like', $term);
+            })->orderBy('primer_apellido')->orderBy('primer_nombre')->limit(15)->get();
+        }
+
+        if ($personas->isEmpty()) {
+            $this->{"{$rol}_persona"}     = null;
+            $this->{"{$rol}_feligres_id"} = null;
+            $this->{"{$rol}_estado"}      = 'sin_persona';
+            $this->busqueda_resultados    = [];
+            $this->busqueda_rol           = null;
+            return;
+        }
+
+        if ($personas->count() === 1) {
+            $this->asignarPersonaARol($rol, $personas->first());
+            return;
+        }
+
+        $this->busqueda_resultados = $personas->map(fn ($p) => [
+            'id'              => $p->id,
+            'dni'             => $p->dni,
+            'nombre_completo' => $p->nombre_completo,
+            'telefono'        => $p->telefono ?? null,
+        ])->toArray();
+
+        $this->busqueda_rol      = $rol;
+        $this->{"{$rol}_estado"} = 'multiples';
+    }
+
+    public function seleccionarResultado(int $personaId): void
+    {
+        $rol = $this->busqueda_rol;
+        if (! $rol) return;
+
+        $persona = Persona::findOrFail($personaId);
+        $this->asignarPersonaARol($rol, $persona);
+    }
+
+    private function asignarPersonaARol(string $rol, Persona $persona): void
+    {
+        $roles  = ['padre', 'madre', 'padrino', 'madrina'];
+        $labels = [
+            'padre'   => 'Padre',
+            'madre'   => 'Madre',
+            'padrino' => 'Padrino',
+            'madrina' => 'Madrina',
+        ];
+
+        foreach ($roles as $r) {
+            if ($r === $rol) continue;
+            $existente = $this->{"{$r}_persona"};
+            if ($existente && $existente['id'] === $persona->id) {
+                $this->addError("{$rol}_dni", "Esta persona ya está asignada como {$labels[$r]}.");
+                return;
+            }
+        }
+
+        $feligres = Feligres::where('id_persona', $persona->id)->first();
+
+        $this->{"{$rol}_persona"} = [
+            'id'              => $persona->id,
+            'dni'             => $persona->dni,
+            'nombre_completo' => $persona->nombre_completo,
+            'telefono'        => $persona->telefono ?? null,
+            'email'           => $persona->email    ?? null,
+        ];
+        $this->{"{$rol}_dni"} = $persona->dni;
+
+        if ($feligres) {
+            $this->{"{$rol}_feligres_id"} = $feligres->id;
+            $this->{"{$rol}_estado"}      = 'found';
+        } else {
+            $this->{"{$rol}_feligres_id"} = null;
+            $this->{"{$rol}_estado"}      = 'sin_feligres';
+        }
+
+        $this->busqueda_resultados = [];
+        $this->busqueda_rol        = null;
+
+        if ($this->mini_rol === $rol) {
+            $this->cancelarMini();
+        }
+    }
+
+    public function limpiarRol(string $rol): void
+    {
+        $this->{"{$rol}_dni"}         = '';
+        $this->{"{$rol}_persona"}     = null;
+        $this->{"{$rol}_feligres_id"} = null;
+        $this->{"{$rol}_estado"}      = 'idle';
+
+        if ($this->busqueda_rol === $rol) {
+            $this->busqueda_resultados = [];
+            $this->busqueda_rol        = null;
+        }
+
+        if ($this->mini_rol === $rol) {
+            $this->cancelarMini();
+        }
+    }
+
+    // ── Mini-form ─────────────────────────────────────────────────────────
+
+    public function abrirCrearPersona(string $rol): void
+    {
+        $dni = trim($this->{"{$rol}_dni"});
+        $this->mini_rol   = $rol;
+        $this->mini_tipo  = 'persona';
+        $this->mini_p_dni = ctype_digit($dni) ? $dni : '';
+        $this->reset([
+            'mini_p_primer_nombre', 'mini_p_segundo_nombre',
+            'mini_p_primer_apellido', 'mini_p_segundo_apellido',
+            'mini_p_telefono', 'mini_p_email',
+        ]);
+        $this->resetErrorBag();
+    }
+
+    public function abrirRegistrarFeligres(string $rol): void
+    {
+        $this->mini_rol             = $rol;
+        $this->mini_tipo            = 'feligres';
+        $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
+        $this->mini_f_estado        = 'Activo';
+        $this->resetErrorBag();
+    }
+
+    public function cancelarMini(): void
+    {
+        $this->mini_rol  = null;
+        $this->mini_tipo = null;
+        $this->reset([
+            'mini_p_dni', 'mini_p_primer_nombre', 'mini_p_segundo_nombre',
+            'mini_p_primer_apellido', 'mini_p_segundo_apellido',
+            'mini_p_fecha_nacimiento', 'mini_p_sexo',
+            'mini_p_telefono', 'mini_p_email',
+        ]);
+        $this->mini_f_estado        = 'Activo';
+        $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
+        $this->resetErrorBag();
+    }
+
+    public function guardarMiniPersona(): void
+    {
+        $this->validate([
+            'mini_p_dni'              => ['required', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
+            'mini_p_primer_nombre'    => ['required', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
+            'mini_p_primer_apellido'  => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
+            'mini_p_segundo_nombre'   => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
+            'mini_p_segundo_apellido' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
+            'mini_p_fecha_nacimiento' => ['required', 'date', 'before:today'],
+            'mini_p_sexo'             => ['required', 'in:M,F'],
+            'mini_p_telefono'         => ['required', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
+            'mini_p_email'            => ['nullable', 'email', 'max:255'],
+            'mini_f_fecha_ingreso'    => ['nullable', 'date'],
+            'mini_f_estado'           => ['required', 'in:Activo,Inactivo'],
+        ]);
+
+        $rol = $this->mini_rol;
+
+        DB::transaction(function () use ($rol) {
+            $iglesiaId = session('tenant')
+                ? TenantIglesia::currentId()
+                : $this->iglesia_id;
+
+            $persona = Persona::create([
+                'dni'              => $this->mini_p_dni,
+                'primer_nombre'    => $this->mini_p_primer_nombre,
+                'segundo_nombre'   => $this->mini_p_segundo_nombre  ?: null,
+                'primer_apellido'  => $this->mini_p_primer_apellido,
+                'segundo_apellido' => $this->mini_p_segundo_apellido ?: null,
+                'fecha_nacimiento' => $this->mini_p_fecha_nacimiento ?: null,
+                'sexo'             => $this->mini_p_sexo,
+                'telefono'         => $this->mini_p_telefono ?: null,
+                'email'            => $this->mini_p_email    ?: null,
+            ]);
+
+            $feligres = Feligres::create([
+                'id_persona'    => $persona->id,
+                'id_iglesia'    => $iglesiaId,
+                'fecha_ingreso' => $this->mini_f_fecha_ingreso ?: now()->format('Y-m-d'),
+                'estado'        => $this->mini_f_estado,
+            ]);
+
+            $this->{"{$rol}_persona"} = [
+                'id'              => $persona->id,
+                'dni'             => $persona->dni,
+                'nombre_completo' => $persona->nombre_completo,
+                'telefono'        => $persona->telefono ?? null,
+                'email'           => $persona->email    ?? null,
+            ];
+            $this->{"{$rol}_feligres_id"} = $feligres->id;
+            $this->{"{$rol}_estado"}      = 'found';
+            $this->{"{$rol}_dni"}         = $persona->dni;
+        });
+
+        $this->cancelarMini();
+    }
+
+    public function guardarMiniFeligres(): void
+    {
+        $this->validate([
+            'mini_f_fecha_ingreso' => ['nullable', 'date'],
+            'mini_f_estado'        => ['required', 'in:Activo,Inactivo'],
+        ]);
+
+        $iglesiaId = session('tenant')
+            ? TenantIglesia::currentId()
+            : $this->iglesia_id;
+
+        $rol     = $this->mini_rol;
+        $persona = $this->{"{$rol}_persona"};
+
+        $feligres = Feligres::create([
+            'id_persona'    => $persona['id'],
+            'id_iglesia'    => $iglesiaId,
+            'fecha_ingreso' => $this->mini_f_fecha_ingreso ?: null,
+            'estado'        => $this->mini_f_estado,
+        ]);
+
+        $this->{"{$rol}_feligres_id"} = $feligres->id;
+        $this->{"{$rol}_estado"}      = 'found';
+        $this->cancelarMini();
+    }
+
+    // ── Validación y guardado ─────────────────────────────────────────────
 
     protected function rules(): array
     {
@@ -44,22 +379,11 @@ class ConfirmacionEdit extends Component
             'folio'               => ['nullable', 'string', 'max:50'],
             'partida_numero'      => ['nullable', 'string', 'max:50'],
             'observaciones'       => ['nullable', 'string', 'max:500'],
-        ];
-    }
-
-    protected function messages(): array
-    {
-        return [
-            'iglesia_id.required'            => 'Debes seleccionar una iglesia.',
-            'iglesia_id.exists'              => 'La iglesia seleccionada no existe.',
-            'fecha_confirmacion.required'    => 'La fecha de confirmación es obligatoria.',
-            'fecha_confirmacion.date'        => 'La fecha de confirmación no es válida.',
-            'fecha_confirmacion.before_or_equal' => 'La fecha de confirmación no puede ser futura.',
-            'lugar_confirmacion.max'         => 'El lugar no puede superar los 200 caracteres.',
-            'libro_confirmacion.max'         => 'El libro no puede superar los 50 caracteres.',
-            'folio.max'                      => 'El folio no puede superar los 50 caracteres.',
-            'partida_numero.max'             => 'La partida no puede superar los 50 caracteres.',
-            'observaciones.max'              => 'Las observaciones no pueden superar los 500 caracteres.',
+            'nota_marginal'       => ['nullable', 'string', 'max:500'],
+            'lugar_expedicion'    => ['nullable', 'string', 'max:150'],
+            'exp_dia'             => ['nullable', 'integer', 'min:1', 'max:31'],
+            'exp_mes'             => ['nullable', 'integer', 'min:1', 'max:12'],
+            'exp_ano'             => ['nullable', 'integer', 'min:0', 'max:99'],
         ];
     }
 
@@ -70,17 +394,41 @@ class ConfirmacionEdit extends Component
 
     public function guardar(): void
     {
+        $this->iglesia_id = session('tenant')
+            ? TenantIglesia::currentId()
+            : $this->confirmacion->iglesia_id;
+
         $this->validate();
 
+        $fechaExp = null;
+        if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
+            try {
+                $fechaExp = \Carbon\Carbon::createFromDate(
+                    2000 + (int) $this->exp_ano,
+                    (int) $this->exp_mes,
+                    (int) $this->exp_dia
+                )->format('Y-m-d');
+            } catch (\Exception) {
+                $fechaExp = null;
+            }
+        }
+
         $this->confirmacion->update([
-            'iglesia_id'          => $this->iglesia_id,
+            'iglesia_id'          => $this->confirmacion->iglesia_id,
             'ministro_id'         => $this->ministro_id ?: null,
             'fecha_confirmacion'  => $this->fecha_confirmacion,
             'lugar_confirmacion'  => $this->lugar_confirmacion ?: null,
+            'padre_id'            => $this->padre_feligres_id,
+            'madre_id'            => $this->madre_feligres_id,
+            'padrino_id'          => $this->padrino_feligres_id,
+            'madrina_id'          => $this->madrina_feligres_id,
             'libro_confirmacion'  => $this->libro_confirmacion ?: null,
             'folio'               => $this->folio ?: null,
             'partida_numero'      => $this->partida_numero ?: null,
             'observaciones'       => $this->observaciones ?: null,
+            'nota_marginal'       => $this->nota_marginal    ?: null,
+            'lugar_expedicion'    => $this->lugar_expedicion ?: null,
+            'fecha_expedicion'    => $fechaExp,
         ]);
 
         session()->flash('success', 'Confirmación actualizada correctamente.');
@@ -89,10 +437,12 @@ class ConfirmacionEdit extends Component
 
     public function render()
     {
-        $centralConn = config('tenancy.central_connection', 'mysql');
-        $iglesias    = Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get();
-        $ministros   = Feligres::with('persona')->get();
+        $iglesiaActual = session('tenant')
+            ? TenantIglesia::current()
+            : Iglesias::find($this->confirmacion->iglesia_id);
 
-        return view('livewire.confirmacion.confirmacion-edit', compact('iglesias', 'ministros'));
+        $ministros = Feligres::with('persona')->get();
+
+        return view('livewire.confirmacion.confirmacion-edit', compact('ministros', 'iglesiaActual'));
     }
 }
