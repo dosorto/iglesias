@@ -135,6 +135,18 @@
                 </li>
             @endcan
 
+            @can('matrimonio.view')
+                <li>
+                    <a href="{{ route('matrimonio.index') }}"
+                       class="flex items-center p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group">
+                        <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                        </svg>
+                        <span class="ml-3">Matrimonios</span>
+                    </a>
+                </li>
+            @endcan
+
             @can('curso.view')
                 <li>
                     <a href="{{ route('curso.index') }}"

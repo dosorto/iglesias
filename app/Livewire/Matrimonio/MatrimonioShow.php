@@ -1,0 +1,86 @@
+<?php
+
+namespace App\Livewire\Matrimonio;
+
+use App\Models\Matrimonio;
+use App\Models\Iglesias;
+use Livewire\Component;
+
+class MatrimonioShow extends Component
+{
+    public Matrimonio $matrimonio;
+
+    public string $nota_marginal    = '';
+    public string $lugar_expedicion = '';
+    public string $exp_dia          = '';
+    public string $exp_mes          = '';
+    public string $exp_ano          = '';
+
+    public function mount(Matrimonio $matrimonio): void
+    {
+        $this->matrimonio = $matrimonio->load([
+            'iglesia',
+            'esposo.persona',
+            'esposa.persona',
+            'testigo1.persona',
+            'testigo2.persona',
+            'encargado.feligres.persona',
+        ]);
+
+        $this->nota_marginal    = $matrimonio->nota_marginal    ?? '';
+        $this->lugar_expedicion = $matrimonio->lugar_expedicion ?? '';
+
+        $fe            = $matrimonio->fecha_expedicion;
+        $this->exp_dia = $fe ? (string) $fe->day   : '';
+        $this->exp_mes = $fe ? (string) $fe->month : '';
+        $this->exp_ano = $fe ? (string) ($fe->year - 2000) : '';
+    }
+
+    public function saveCertificate(): void
+    {
+        $this->validate([
+            'nota_marginal'    => ['nullable', 'string', 'max:500'],
+            'lugar_expedicion' => ['nullable', 'string', 'max:150'],
+            'exp_dia'          => ['nullable', 'integer', 'min:1', 'max:31'],
+            'exp_mes'          => ['nullable', 'integer', 'min:1', 'max:12'],
+            'exp_ano'          => ['nullable', 'integer', 'min:0', 'max:99'],
+        ], [
+            'nota_marginal.max'    => 'La nota marginal no puede superar los 500 caracteres.',
+            'lugar_expedicion.max' => 'El lugar no puede superar los 150 caracteres.',
+            'exp_dia.min'          => 'El día debe ser entre 1 y 31.',
+            'exp_mes.min'          => 'El mes debe ser entre 1 y 12.',
+        ]);
+
+        $fechaExp = null;
+        if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
+            try {
+                $fechaExp = \Carbon\Carbon::createFromDate(
+                    2000 + (int) $this->exp_ano,
+                    (int) $this->exp_mes,
+                    (int) $this->exp_dia
+                )->format('Y-m-d');
+            } catch (\Exception) {
+                $fechaExp = null;
+            }
+        }
+
+        $this->matrimonio->update([
+            'nota_marginal'    => $this->nota_marginal    ?: null,
+            'lugar_expedicion' => $this->lugar_expedicion ?: null,
+            'fecha_expedicion' => $fechaExp,
+        ]);
+
+        session()->flash('success', 'Datos de expedición guardados correctamente.');
+        $this->matrimonio->refresh();
+    }
+
+    public function render()
+    {
+        $iglesiaId     = session('tenant.id_iglesia');
+        $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
+
+        return view('livewire.matrimonio.matrimonio-show', [
+            'iglesiaConfig' => $iglesiaConfig,
+        ]);
+    }
+}

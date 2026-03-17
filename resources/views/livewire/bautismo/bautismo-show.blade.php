@@ -237,7 +237,7 @@
                     <strong>CERTIFICA:</strong>
                     <span>Que en el libro de Bautismo No.</span>
                     <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[60px] text-center font-mono">{{ $bautismo->libro_bautismo ?: '' }}</span>
-                    <span>, en la Pagina</span>
+                    <span>, en la pagina</span>
                     <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[50px] text-center font-mono">{{ $bautismo->folio ?: '' }}</span>
                     <span>, bajo el No.</span>
                     <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[50px] text-center font-mono">{{ $bautismo->partida_numero ?: '' }}</span>
@@ -256,7 +256,7 @@
                     <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[40px] text-center font-medium {{ $diaBautismo ? '' : $placeholderClass }}">
                         {{ $diaBautismo ?: 'Día' }}
                     </span>
-                    <span>del mes</span>
+                    <span>dias del mes</span>
                 </p>
 
                 {{-- Line 5 --}}

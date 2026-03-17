@@ -262,6 +262,27 @@ Route::middleware(['auth'])->group(function () {
         ->get('/bautismo/{bautismo}/certificado/pdf', [\App\Http\Controllers\BautismoController::class, 'certificadoPdf'])
         ->name('bautismo.certificado.pdf');
 
+    // Matrimonio CRUD
+    Route::middleware('permission:matrimonio.view')
+        ->get('/matrimonio', [\App\Http\Controllers\MatrimonioController::class, 'index'])
+        ->name('matrimonio.index');
+
+    Route::middleware('permission:matrimonio.create')
+        ->get('/matrimonio/create', [\App\Http\Controllers\MatrimonioController::class, 'create'])
+        ->name('matrimonio.create');
+
+    Route::middleware('permission:matrimonio.view')
+        ->get('/matrimonio/{matrimonio}', [\App\Http\Controllers\MatrimonioController::class, 'show'])
+        ->name('matrimonio.show');
+
+    Route::middleware('permission:matrimonio.edit')
+        ->get('/matrimonio/{matrimonio}/edit', [\App\Http\Controllers\MatrimonioController::class, 'edit'])
+        ->name('matrimonio.edit');
+
+    Route::middleware('permission:matrimonio.view')
+        ->get('/matrimonio/{matrimonio}/certificado/pdf', [\App\Http\Controllers\MatrimonioController::class, 'certificadoPdf'])
+        ->name('matrimonio.certificado.pdf');
+
     // TipoCurso CRUD
     Route::middleware('permission:tipocurso.view')
         ->get('/tipocurso', [\App\Http\Controllers\TipoCursoController::class, 'index'])
