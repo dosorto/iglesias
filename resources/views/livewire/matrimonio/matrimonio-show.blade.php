@@ -79,7 +79,7 @@
                     <p class="font-semibold text-gray-800 dark:text-gray-100 tracking-wide">{{ strtoupper($iglesiaNombre ?: '—') }}</p>
                 </div>
                 <div>
-                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-0.5">Libro</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-0.5">Libro </p>
                     <p class="font-mono font-semibold text-gray-800 dark:text-gray-100">{{ $matrimonio->libro_matrimonio ?? '—' }}</p>
                 </div>
                 <div>
