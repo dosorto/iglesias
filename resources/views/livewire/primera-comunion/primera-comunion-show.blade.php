@@ -26,13 +26,11 @@
         ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
         : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
 
-    // Propiedades del componente Livewire
-    $previewMode        = $this->previewMode;
-    $lugar_celebracion  = $this->lugar_celebracion ?? '';
-    $lugar_expedicion   = $this->lugar_expedicion  ?? '';
-    $nota_marginal      = $this->nota_marginal      ?? '';
-    $auditHistory     = $this->auditHistory;
-    $estadoRegistro   = $this->estadoRegistro   ?? 'Borrador';
+    $lugar_celebracion = $this->lugar_celebracion ?? '';
+    $lugar_expedicion  = $this->lugar_expedicion  ?? '';
+    $nota_marginal     = $this->nota_marginal      ?? '';
+    $auditHistory      = $this->auditHistory;
+    $estadoRegistro    = $this->estadoRegistro ?? 'Borrador';
 @endphp
 
 <div class="flex flex-col lg:flex-row gap-5 items-start">
@@ -47,7 +45,7 @@
             </div>
         @endif
 
-       {{-- ACCIONES --}}
+        {{-- ACCIONES --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
             <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Acciones</p>
             <div class="space-y-2">
@@ -59,6 +57,7 @@
                     </svg>
                     Generar PDF
                 </a>
+
                 @can('primera-comunion.edit')
                     <a href="{{ route('primera-comunion.edit', $primeraComunion) }}"
                        class="flex items-center w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
@@ -68,6 +67,7 @@
                         Editar Primera Comunión
                     </a>
                 @endcan
+
                 <a href="{{ route('primera-comunion.index') }}"
                    class="flex items-center w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
                     <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,6 +77,7 @@
                 </a>
             </div>
         </div>
+
         {{-- INFORMACIÓN DEL LIBRO --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
             <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Información del Libro</p>
@@ -201,25 +202,20 @@
             <div class="text-center text-[#7D5A1E] text-xs tracking-[12px] my-1">&bull; &bull; &bull;</div>
             <div class="border-t border-[#7D5A1E] mb-6"></div>
 
-            @php
-                $placeholderClass = 'text-gray-400 dark:text-gray-500 italic text-sm';
-                $lineClass = 'border-b border-gray-500 dark:border-gray-400 inline-block pb-0.5 font-medium';
-                $inputClass = 'border-b border-gray-500 dark:border-gray-400 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:border-blue-500 pb-0.5 font-serif';
-            @endphp
+            @php $placeholderClass = 'text-gray-400 dark:text-gray-500 italic text-sm'; @endphp
 
-            {{-- ─── CERTIFICATE BODY ─── --}}
+            {{-- ─── CERTIFICATE BODY — solo lectura ─── --}}
             <div class="font-serif text-gray-800 dark:text-gray-200 leading-loose space-y-5 text-sm md:text-[14px]">
 
-                {{-- Línea 1: infrascrito certifica que --}}
-                <p class="flex flex-wrap items-end gap-x-1 gap-y-2">
-                    <span>El infrascrito encargado del archivo de esta parroquia certifica que</span>
-                </p>
+                <p>El infrascrito encargado del archivo de esta parroquia certifica que</p>
 
-                {{-- Nombre del comulgante (línea completa subrayada) --}}
-                <p class="w-full border-b border-gray-500 dark:border-gray-400 pb-0.5 font-bold uppercase tracking-widest text-center text-base md:text-lg
-                           {{ $comulgante?->nombre_completo ? 'text-gray-900 dark:text-white' : $placeholderClass }}">
-                    {{ $comulgante?->nombre_completo ?: 'Nombre Completo del Comulgante' }}
-                </p>
+                {{-- Nombre del comulgante --}}
+                <div class="py-1">
+                    <span class="block border-b-2 border-gray-500 dark:border-gray-400 pb-1
+                                 text-base md:text-lg font-semibold text-center text-gray-900 dark:text-white min-h-[28px]">
+                        {{ $comulgante?->nombre_completo ?: '' }}
+                    </span>
+                </div>
                 @if ($comulgante?->dni)
                     <p class="text-center text-xs text-gray-400 font-mono -mt-3">DNI: {{ $comulgante->dni }}</p>
                 @endif
@@ -229,159 +225,63 @@
                     <span>Hizo su</span>
                     <strong>PRIMERA COMUNIÓN</strong>
                     <span>el día</span>
-                    <span class="{{ $lineClass }} min-w-[80px] text-center {{ $diaComunion ? '' : $placeholderClass }}">
+                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[80px] text-center font-medium {{ $diaComunion ? '' : $placeholderClass }}">
                         {{ $diaComunion ?: '' }}
                     </span>
                     <span>del mes</span>
-                    <span class="{{ $lineClass }} min-w-[160px] text-center {{ $mesComunion ? '' : $placeholderClass }}">
+                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[160px] text-center font-medium {{ $mesComunion ? '' : $placeholderClass }}">
                         {{ $mesComunion ?: '' }}
                     </span>
                 </p>
 
-                {{-- Año --}}
                 <p class="flex flex-wrap items-end gap-x-1 gap-y-2">
                     <span>año</span>
-                    <span class="{{ $lineClass }} min-w-[120px] text-center {{ $anoComunion ? '' : $placeholderClass }}">
+                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[120px] text-center font-medium {{ $anoComunion ? '' : $placeholderClass }}">
                         {{ $anoComunion ?: '' }}
                     </span>
                 </p>
 
-                {{-- En (lugar de la celebración) --}}
+                {{-- Lugar de la celebración --}}
                 <p class="flex flex-wrap items-end gap-x-1 gap-y-2">
                     <span>En</span>
-                    @if ($previewMode)
-                        <span class="{{ $lineClass }} min-w-[300px] {{ $lugar_celebracion ? '' : $placeholderClass }}">
-                            {{ $lugar_celebracion ?: '' }}
-                        </span>
-                    @else
-                        @can('primera-comunion.edit')
-                            <input type="text"
-                                   wire:model.live="lugar_celebracion"
-                                   placeholder="Lugar de la celebración"
-                                   class="{{ $inputClass }} min-w-[300px]">
-                        @else
-                            <span class="{{ $lineClass }} min-w-[300px] {{ $lugar_celebracion ? '' : $placeholderClass }}">
-                                {{ $lugar_celebracion ?: '' }}
-                            </span>
-                        @endcan
-                    @endif
+                    <span class="border-b border-gray-400 dark:border-gray-500 flex-1 min-w-[300px] font-medium {{ $lugar_celebracion ? '' : $placeholderClass }}">
+                        {{ $lugar_celebracion ?: '' }}
+                    </span>
                 </p>
 
-                {{-- Nota marginal (opcional) --}}
-                @if ($nota_marginal || !$previewMode)
+                {{-- NOTA MARGINAL — solo lectura --}}
                 <div class="flex flex-wrap items-start gap-x-2 gap-y-1 pt-2">
                     <span class="font-bold shrink-0">NOTA MARGINAL:</span>
-                    @if ($previewMode)
-                        <p class="border-b border-gray-400 dark:border-gray-500 flex-1 min-w-[200px] pb-0.5 {{ $nota_marginal ? '' : $placeholderClass }}">
-                            {{ $nota_marginal ?: '' }}
-                        </p>
-                    @else
-                        @can('primera-comunion.edit')
-                            <input type="text"
-                                   wire:model.live="nota_marginal"
-                                   placeholder="Notas adicionales..."
-                                   class="{{ $inputClass }} flex-1 min-w-[200px]">
-                        @else
-                            <p class="border-b border-gray-400 dark:border-gray-500 flex-1 pb-0.5">{{ $nota_marginal ?: '—' }}</p>
-                        @endcan
-                    @endif
+                    <p class="border-b border-gray-400 dark:border-gray-500 flex-1 min-w-[200px] pb-0.5 {{ $nota_marginal ? '' : $placeholderClass }}">
+                        {{ $nota_marginal ?: '—' }}
+                    </p>
                 </div>
-                @endif
 
-                <div class="pt-4"></div>
-
-                {{-- Dado en --}}
-                <p class="flex flex-wrap items-end gap-x-1 gap-y-2">
+                {{-- DADO EN — solo lectura --}}
+                <p class="flex flex-wrap items-end gap-x-1 gap-y-2 pt-4">
                     <span>Dado en</span>
-                    @if ($previewMode)
-                        <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[160px] pl-1 {{ $lugar_expedicion ? 'font-medium' : $placeholderClass }}">
-                            {{ $lugar_expedicion ?: '' }}
-                        </span>
-                    @else
-                        @can('confirmacion.edit')
-                            <input type="text"
-                                   wire:model.live="lugar_expedicion"
-                                   placeholder="Lugar"
-                                   class="border-b border-gray-400 dark:border-gray-500 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:border-[#7D5A1E] min-w-[160px] pb-0.5 text-sm font-serif">
-                        @else
-                            <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[160px] pl-1">{{ $lugar_expedicion ?: '—' }}</span>
-                        @endcan
-                    @endif
+                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[160px] pl-1 font-medium {{ $lugar_expedicion ? '' : $placeholderClass }}">
+                        {{ $lugar_expedicion ?: '' }}
+                    </span>
                     <span>a los</span>
-                    @if ($previewMode)
-                        <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[50px] text-center {{ $diaExp ? 'font-medium' : $placeholderClass }}">
-                            {{ $diaExp ?: '' }}
-                        </span>
-                    @else
-                        @can('confirmacion.edit')
-                            <input type="number" min="1" max="31"
-                                   wire:model.live="exp_dia"
-                                   placeholder="Día"
-                                   class="border-b border-gray-400 dark:border-gray-500 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:border-[#7D5A1E] w-12 text-center pb-0.5 text-sm font-serif [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none">
-                        @else
-                            <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[50px] text-center {{ $diaExp ? 'font-medium' : $placeholderClass }}">
-                                {{ $diaExp ?: '' }}
-                            </span>
-                        @endcan
-                    @endif
+                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[50px] text-center font-medium {{ $diaExp ? '' : $placeholderClass }}">
+                        {{ $diaExp ?: '' }}
+                    </span>
                     <span>del mes de</span>
-                    @if ($previewMode)
-                        <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[130px] text-center {{ $mesExp ? 'font-medium' : $placeholderClass }}">
-                            {{ $mesExp ?: '' }}
-                        </span>
-                    @else
-                        @can('confirmacion.edit')
-                            <select wire:model.live="exp_mes"
-                                    class="border-b border-gray-400 dark:border-gray-500 bg-transparent text-gray-900 dark:text-gray-100 focus:outline-none focus:border-[#7D5A1E] pb-0.5 text-sm font-serif min-w-[130px]">
-                                <option value="">Mes</option>
-                                <option value="1">enero</option>
-                                <option value="2">febrero</option>
-                                <option value="3">marzo</option>
-                                <option value="4">abril</option>
-                                <option value="5">mayo</option>
-                                <option value="6">junio</option>
-                                <option value="7">julio</option>
-                                <option value="8">agosto</option>
-                                <option value="9">septiembre</option>
-                                <option value="10">octubre</option>
-                                <option value="11">noviembre</option>
-                                <option value="12">diciembre</option>
-                            </select>
-                        @else
-                            <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[130px] text-center {{ $mesExp ? 'font-medium' : $placeholderClass }}">
-                                {{ $mesExp ?: '' }}
-                            </span>
-                        @endcan
-                    @endif
+                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[130px] text-center font-medium {{ $mesExp ? '' : $placeholderClass }}">
+                        {{ $mesExp ?: '' }}
+                    </span>
                     <span>año</span>
-                    @if ($previewMode)
-                        <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[80px] text-center {{ $anoExp ? 'font-medium' : $placeholderClass }}">
-                            {{ $anoExp ? '20' . str_pad($anoExp, 2, '0', STR_PAD_LEFT) : '' }}
-                        </span>
-                    @else
-                        @can('confirmacion.edit')
-                            <input type="number" min="0" max="99"
-                                   wire:model.live="exp_ano"
-                                   placeholder="Año"
-                                   class="border-b border-gray-400 dark:border-gray-500 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:border-[#7D5A1E] w-16 text-center pb-0.5 text-sm font-serif [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none">
-                        @else
-                            <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[80px] text-center {{ $anoExp ? 'font-medium' : $placeholderClass }}">
-                                {{ $anoExp ? '20' . str_pad($anoExp, 2, '0', STR_PAD_LEFT) : '' }}
-                            </span>
-                        @endcan
-                    @endif
-                    
+                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[80px] text-center font-medium {{ $anoExp ? '' : $placeholderClass }}">
+                        {{ $anoExp ? '20' . str_pad($anoExp, 2, '0', STR_PAD_LEFT) : '' }}
+                    </span>
                 </p>
 
-                {{-- Firma del Párroco --}}
+                <p class="text-xs italic text-gray-400 mt-1">(Sello)</p>
+
+                {{-- FIRMA DEL PÁRROCO --}}
                 <div class="flex justify-center pt-10 pb-2">
                     <div class="text-center">
-                        {{-- Espacio para sello físico --}}
-                        <div class="mb-6 h-16 flex items-center justify-center">
-                            <span class="text-xs italic text-gray-300 dark:text-gray-600">(Sello)</span>
-                        </div>
-
-                        {{-- Línea de firma con nombre del párroco --}}
                         <div class="w-64 border-t border-gray-600 dark:border-gray-400 pt-2 mx-auto">
                             <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">
                                 {{ $parroco?->nombre_completo ?? ($primeraComunion->iglesia?->parroco_nombre ?? '') }}

@@ -80,7 +80,7 @@
                 </div>
 
                 {{-- Lugar de confirmación --}}
-                <div>
+                <div class="sm:col-span-2">
                     <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Lugar de Confirmación</label>
                     <input type="text" wire:model.live.debounce.400ms="lugar_confirmacion"
                            placeholder="Ej: Catedral de Choluteca"
@@ -89,22 +89,6 @@
                                   focus:ring-2 focus:ring-violet-500 focus:border-transparent
                                   @error('lugar_confirmacion') border-red-400 @enderror" />
                     @error('lugar_confirmacion') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
-                </div>
-
-                {{-- Ministro --}}
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Ministro Confirmante</label>
-                    <select wire:model.live="ministro_id"
-                            class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600
-                                   bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
-                                   focus:ring-2 focus:ring-violet-500 focus:border-transparent
-                                   @error('ministro_id') border-red-400 @enderror">
-                        <option value="">— Selecciona —</option>
-                        @foreach ($ministros as $m)
-                            <option value="{{ $m->id }}">{{ $m->persona?->nombre_completo ?? 'Feligrés #'.$m->id }}</option>
-                        @endforeach
-                    </select>
-                    @error('ministro_id') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                 </div>
 
                 {{-- Libro --}}
@@ -155,8 +139,8 @@
 
             </div>
 
-            {{-- ══ SECCIÓN 2: Familia y Padrinos — ACORDEÓN ══ --}}
-            <div x-data="{ open: {{ collect(['padre_estado','madre_estado','padrino_estado','madrina_estado'])->contains(fn($k) => $this->{$k} === 'found') ? 'true' : 'false' }} }"
+            {{-- ══ SECCIÓN 2: Ministro + Familia + Padrinos — ACORDEÓN ══ --}}
+            <div x-data="{ open: {{ collect(['ministro_estado','padre_estado','madre_estado','padrino_estado','madrina_estado'])->contains(fn($k) => $this->{$k} === 'found') ? 'true' : 'false' }} }"
                  class="border border-gray-200 dark:border-gray-700/60 rounded-xl overflow-hidden">
 
                 {{-- Cabecera del acordeón --}}
@@ -173,16 +157,16 @@
                             </svg>
                         </div>
                         <div class="text-left">
-                            <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">Familia y Padrinos</p>
+                            <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">Ministro, Familia y Padrinos</p>
                             <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                                Padre, madre, padrino y madrina
-                                {{-- Indicadores de asignados --}}
+                                Ministro confirmante, padre, madre, padrino y madrina
                                 @php
                                     $asignados = collect([
-                                        'padre'   => $padre_estado,
-                                        'madre'   => $madre_estado,
-                                        'padrino' => $padrino_estado,
-                                        'madrina' => $madrina_estado,
+                                        'ministro' => $ministro_estado,
+                                        'padre'    => $padre_estado,
+                                        'madre'    => $madre_estado,
+                                        'padrino'  => $padrino_estado,
+                                        'madrina'  => $madrina_estado,
                                     ])->filter(fn($e) => $e === 'found')->keys();
                                 @endphp
                                 @if ($asignados->isNotEmpty())
@@ -194,8 +178,7 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        {{-- Badges de asignados --}}
-                        @foreach (['padre' => 'P', 'madre' => 'M', 'padrino' => 'Pd', 'madrina' => 'Md'] as $k => $label)
+                        @foreach (['ministro' => 'Mi', 'padre' => 'P', 'madre' => 'M', 'padrino' => 'Pd', 'madrina' => 'Md'] as $k => $label)
                             @if ($this->{"{$k}_estado"} === 'found')
                                 <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold
                                              bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">
@@ -223,10 +206,11 @@
 
                     @php
                         $rolesEdit = [
-                            ['key' => 'padre',   'label' => 'Padre',   'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'],
-                            ['key' => 'madre',   'label' => 'Madre',   'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'],
-                            ['key' => 'padrino', 'label' => 'Padrino', 'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'],
-                            ['key' => 'madrina', 'label' => 'Madrina', 'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'],
+                            ['key' => 'ministro', 'label' => 'Ministro Confirmante'],
+                            ['key' => 'padre',    'label' => 'Padre'],
+                            ['key' => 'madre',    'label' => 'Madre'],
+                            ['key' => 'padrino',  'label' => 'Padrino'],
+                            ['key' => 'madrina',  'label' => 'Madrina'],
                         ];
                     @endphp
 
@@ -244,11 +228,10 @@
 
                                 {{-- Fila principal del rol --}}
                                 <div class="flex items-center gap-3 mb-3">
-                                    {{-- Ícono / avatar estado --}}
                                     <div @class([
                                         'w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold',
                                         'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300' => $rolEstado === 'found',
-                                        'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400' => $rolEstado !== 'found',
+                                        'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'               => $rolEstado !== 'found',
                                     ])>
                                         @if ($rolEstado === 'found')
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -277,7 +260,6 @@
                                         </div>
                                     </div>
 
-                                    {{-- Botón limpiar --}}
                                     @if ($rolEstado !== 'idle' || $isMiniOpen)
                                         <button type="button" wire:click="limpiarRol('{{ $key }}')"
                                                 class="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium
@@ -302,7 +284,7 @@
                                             </div>
                                             <input type="text"
                                                    wire:model="{{ $key }}_dni"
-                                                   placeholder="DNI o nombre..."
+                                                   placeholder="DNI o nombre del {{ strtolower($rc['label']) }}..."
                                                    autocomplete="off"
                                                    wire:keydown.enter="buscarPersona('{{ $key }}')"
                                                    class="block w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600
@@ -351,8 +333,6 @@
                                         @endforeach
                                     </div>
                                 @endif
-
-                                {{-- FOUND: ya asignado (se muestra en la cabecera, nada extra) --}}
 
                                 {{-- SIN FELIGRÉS --}}
                                 @if ($rolEstado === 'sin_feligres')

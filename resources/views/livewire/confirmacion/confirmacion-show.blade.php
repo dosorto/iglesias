@@ -157,7 +157,7 @@
 
     </aside>
 
-   {{-- ======================= CERTIFICATE MAIN AREA ======================= --}}
+    {{-- ======================= CERTIFICATE MAIN AREA ======================= --}}
     <div class="flex-1 min-w-0">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8">
 
@@ -242,6 +242,7 @@
                     <span class="block border-b border-gray-400 dark:border-gray-500 pb-1 min-h-[24px]"></span>
                 </div>
 
+                {{-- NOTA MARGINAL --}}
                 <div class="flex flex-wrap items-start gap-x-2 gap-y-1 pt-1">
                     <span class="font-bold shrink-0">NOTA MARGINAL:</span>
                     <p class="border-b border-gray-400 dark:border-gray-500 flex-1 min-w-[200px] pb-0.5 {{ $nota_marginal ? '' : $placeholderClass }}">
@@ -249,6 +250,7 @@
                     </p>
                 </div>
 
+                {{-- DADO EN --}}
                 <p class="flex flex-wrap items-end gap-x-1 gap-y-2 pt-4">
                     <span>Dado en</span>
                     <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[160px] pl-1 font-medium">{{ $lugar_expedicion ?: '' }}</span>
@@ -260,30 +262,35 @@
                     <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[80px] text-center font-medium">
                         {{ $anoExp ? '20'.str_pad($anoExp, 2, '0', STR_PAD_LEFT) : '' }}
                     </span>
-                    <p class="text-xs italic text-gray-400 mt-1 w-full">(Sello)</p>
                 </p>
 
-                {{-- ─── FIRMA ─── --}}
-                <div class="flex justify-center pt-8 pb-2">
+                <p class="text-xs italic text-gray-400 mt-1">(Sello)</p>
+
+                {{-- ─── FIRMA DEL ENCARGADO DE ARCHIVO (igual que bautismo) ─── --}}
+                <div class="flex justify-end pt-4">
                     <div class="text-center">
-                        @php $firmaPath = $confirmacion->ministro?->path_firma_principal ?? null; @endphp
+                        @php
+                            // Igual que bautismo: firma del encargado, no del ministro
+                            $firmaPath = $confirmacion->encargado?->path_firma_principal;
+                            $encargadoPersona = $confirmacion->encargado?->feligres?->persona;
+                        @endphp
 
                         @if ($firmaPath)
                             <div class="mb-1 flex justify-center">
                                 <img src="{{ Storage::url($firmaPath) }}"
-                                     alt="Firma ministro"
+                                     alt="Firma encargado"
                                      class="max-h-16 max-w-[220px] object-contain">
                             </div>
                             @can('confirmacion.edit')
                                 <div class="mt-1 mb-2">
-                                    <label class="text-xs text-gray-400 cursor-pointer hover:text-[#7D5A1E] underline">
+                                    <label class="text-xs text-gray-400 cursor-pointer hover:text-violet-500 underline">
                                         Cambiar firma
                                         <input type="file" wire:model="firma_nueva" accept="image/*" class="hidden">
                                     </label>
                                     @if ($firma_nueva)
                                         <div class="flex items-center gap-2 mt-1 justify-center">
                                             <img src="{{ $firma_nueva->temporaryUrl() }}" class="max-h-10 max-w-[140px] object-contain rounded border border-gray-300">
-                                            <button wire:click="uploadFirma" class="text-xs bg-[#7D5A1E] hover:bg-[#6a4c18] text-white px-2 py-0.5 rounded">Guardar</button>
+                                            <button wire:click="uploadFirma" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-2 py-0.5 rounded">Guardar</button>
                                             <button wire:click="$set('firma_nueva', null)" class="text-xs text-gray-400 hover:text-red-500">✕</button>
                                         </div>
                                     @endif
@@ -299,7 +306,7 @@
                                     @if ($firma_nueva)
                                         <div class="flex items-center gap-2 mt-1">
                                             <img src="{{ $firma_nueva->temporaryUrl() }}" class="max-h-10 max-w-[140px] object-contain rounded border border-gray-300">
-                                            <button wire:click="uploadFirma" class="text-xs bg-[#7D5A1E] hover:bg-[#6a4c18] text-white px-2 py-0.5 rounded">Guardar</button>
+                                            <button wire:click="uploadFirma" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-2 py-0.5 rounded">Guardar</button>
                                             <button wire:click="$set('firma_nueva', null)" class="text-xs text-gray-400 hover:text-red-500">✕</button>
                                         </div>
                                     @endif
@@ -310,13 +317,13 @@
                             @endcan
                         @endif
 
-                        <div class="w-64 border-t-2 border-[#7D5A1E] pt-2 mx-auto">
-                            @if ($ministro?->nombre_completo)
-                                <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ $ministro->nombre_completo }}</p>
-                            @else
-                                <p class="text-sm text-gray-400 italic">P. ___________________</p>
+                        <div class="w-60 border-t border-gray-500 dark:border-gray-400 pt-1">
+                            @if ($encargadoPersona?->nombre_completo)
+                                <p class="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
+                                    {{ $encargadoPersona->nombre_completo }}
+                                </p>
                             @endif
-                            <p class="text-xs font-bold uppercase tracking-[3px] text-[#7D5A1E] mt-0.5">Párroco</p>
+                            <p class="text-xs font-bold uppercase tracking-[3px]">Encargado de Archivo</p>
                         </div>
                     </div>
                 </div>

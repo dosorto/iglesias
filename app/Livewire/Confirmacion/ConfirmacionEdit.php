@@ -16,36 +16,44 @@ class ConfirmacionEdit extends Component
     public Confirmacion $confirmacion;
 
     // Campos principales
-    public ?int   $iglesia_id          = null;
-    public ?int   $ministro_id         = null;
-    public string $fecha_confirmacion  = '';
-    public string $lugar_confirmacion  = '';
-    public string $libro_confirmacion  = '';
-    public string $folio               = '';
-    public string $partida_numero      = '';
-    public string $observaciones       = '';
-    public string $nota_marginal       = '';
-    public string $lugar_expedicion    = '';
-    public string $exp_dia             = '';
-    public string $exp_mes             = '';
-    public string $exp_ano             = '';
+    public ?int   $iglesia_id         = null;
+    public string $fecha_confirmacion = '';
+    public string $lugar_confirmacion = '';
+    public string $libro_confirmacion = '';
+    public string $folio              = '';
+    public string $partida_numero     = '';
+    public string $observaciones      = '';
+    public string $nota_marginal      = '';
+    public string $lugar_expedicion   = '';
+    public string $exp_dia            = '';
+    public string $exp_mes            = '';
+    public string $exp_ano            = '';
 
-    // Roles con búsqueda
+    // Ministro — igual que padre/madre
+    public string $ministro_dni         = '';
+    public ?array $ministro_persona     = null;
+    public ?int   $ministro_feligres_id = null;
+    public string $ministro_estado      = 'idle';
+
+    // Padre
     public string $padre_dni         = '';
     public ?array $padre_persona     = null;
     public ?int   $padre_feligres_id = null;
     public string $padre_estado      = 'idle';
 
+    // Madre
     public string $madre_dni         = '';
     public ?array $madre_persona     = null;
     public ?int   $madre_feligres_id = null;
     public string $madre_estado      = 'idle';
 
+    // Padrino
     public string $padrino_dni         = '';
     public ?array $padrino_persona     = null;
     public ?int   $padrino_feligres_id = null;
     public string $padrino_estado      = 'idle';
 
+    // Madrina
     public string $madrina_dni         = '';
     public ?array $madrina_persona     = null;
     public ?int   $madrina_feligres_id = null;
@@ -56,19 +64,19 @@ class ConfirmacionEdit extends Component
     public ?string $busqueda_rol        = null;
 
     // Mini-form
-    public ?string $mini_rol  = null;
-    public ?string $mini_tipo = null;
-    public string $mini_p_dni              = '';
-    public string $mini_p_primer_nombre    = '';
-    public string $mini_p_segundo_nombre   = '';
-    public string $mini_p_primer_apellido  = '';
-    public string $mini_p_segundo_apellido = '';
-    public string $mini_p_fecha_nacimiento = '';
-    public string $mini_p_sexo             = '';
-    public string $mini_p_telefono         = '';
-    public string $mini_p_email            = '';
-    public string $mini_f_fecha_ingreso    = '';
-    public string $mini_f_estado           = 'Activo';
+    public ?string $mini_rol               = null;
+    public ?string $mini_tipo              = null;
+    public string  $mini_p_dni             = '';
+    public string  $mini_p_primer_nombre   = '';
+    public string  $mini_p_segundo_nombre  = '';
+    public string  $mini_p_primer_apellido  = '';
+    public string  $mini_p_segundo_apellido = '';
+    public string  $mini_p_fecha_nacimiento = '';
+    public string  $mini_p_sexo             = '';
+    public string  $mini_p_telefono         = '';
+    public string  $mini_p_email            = '';
+    public string  $mini_f_fecha_ingreso    = '';
+    public string  $mini_f_estado           = 'Activo';
 
     public function mount(Confirmacion $confirmacion): void
     {
@@ -76,15 +84,15 @@ class ConfirmacionEdit extends Component
         $this->iglesia_id         = session('tenant')
             ? TenantIglesia::currentId()
             : $confirmacion->iglesia_id;
-        $this->ministro_id        = $confirmacion->ministro_id;
         $this->fecha_confirmacion = $confirmacion->fecha_confirmacion?->format('Y-m-d') ?? '';
         $this->lugar_confirmacion = $confirmacion->lugar_confirmacion ?? '';
         $this->libro_confirmacion = $confirmacion->libro_confirmacion ?? '';
         $this->folio              = $confirmacion->folio ?? '';
         $this->partida_numero     = $confirmacion->partida_numero ?? '';
         $this->observaciones      = $confirmacion->observaciones ?? '';
-        $this->nota_marginal      = $confirmacion->nota_marginal    ?? '';
+        $this->nota_marginal      = $confirmacion->nota_marginal  ?? '';
         $this->lugar_expedicion   = $confirmacion->lugar_expedicion ?? '';
+
         $fe = $confirmacion->fecha_expedicion;
         $this->exp_dia = $fe ? (string) $fe->day   : '';
         $this->exp_mes = $fe ? (string) $fe->month : '';
@@ -92,11 +100,12 @@ class ConfirmacionEdit extends Component
 
         $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
 
-        // Cargar roles existentes
-        $this->cargarRolExistente('padre',   $confirmacion->padre_id);
-        $this->cargarRolExistente('madre',   $confirmacion->madre_id);
-        $this->cargarRolExistente('padrino', $confirmacion->padrino_id);
-        $this->cargarRolExistente('madrina', $confirmacion->madrina_id);
+        // Cargar todos los roles existentes incluyendo ministro
+        $this->cargarRolExistente('ministro', $confirmacion->ministro_id);
+        $this->cargarRolExistente('padre',    $confirmacion->padre_id);
+        $this->cargarRolExistente('madre',    $confirmacion->madre_id);
+        $this->cargarRolExistente('padrino',  $confirmacion->padrino_id);
+        $this->cargarRolExistente('madrina',  $confirmacion->madrina_id);
     }
 
     private function cargarRolExistente(string $rol, ?int $feligresId): void
@@ -182,12 +191,13 @@ class ConfirmacionEdit extends Component
 
     private function asignarPersonaARol(string $rol, Persona $persona): void
     {
-        $roles  = ['padre', 'madre', 'padrino', 'madrina'];
+        $roles  = ['ministro', 'padre', 'madre', 'padrino', 'madrina'];
         $labels = [
-            'padre'   => 'Padre',
-            'madre'   => 'Madre',
-            'padrino' => 'Padrino',
-            'madrina' => 'Madrina',
+            'ministro' => 'Ministro',
+            'padre'    => 'Padre',
+            'madre'    => 'Madre',
+            'padrino'  => 'Padrino',
+            'madrina'  => 'Madrina',
         ];
 
         foreach ($roles as $r) {
@@ -372,7 +382,6 @@ class ConfirmacionEdit extends Component
     {
         return [
             'iglesia_id'          => ['required', 'integer', 'exists:iglesias,id'],
-            'ministro_id'         => ['nullable', 'integer', 'exists:feligres,id'],
             'fecha_confirmacion'  => ['required', 'date', 'before_or_equal:today'],
             'lugar_confirmacion'  => ['nullable', 'string', 'max:200'],
             'libro_confirmacion'  => ['nullable', 'string', 'max:50'],
@@ -415,7 +424,7 @@ class ConfirmacionEdit extends Component
 
         $this->confirmacion->update([
             'iglesia_id'          => $this->confirmacion->iglesia_id,
-            'ministro_id'         => $this->ministro_id ?: null,
+            'ministro_id'         => $this->ministro_feligres_id,
             'fecha_confirmacion'  => $this->fecha_confirmacion,
             'lugar_confirmacion'  => $this->lugar_confirmacion ?: null,
             'padre_id'            => $this->padre_feligres_id,
@@ -426,7 +435,7 @@ class ConfirmacionEdit extends Component
             'folio'               => $this->folio ?: null,
             'partida_numero'      => $this->partida_numero ?: null,
             'observaciones'       => $this->observaciones ?: null,
-            'nota_marginal'       => $this->nota_marginal    ?: null,
+            'nota_marginal'       => $this->nota_marginal  ?: null,
             'lugar_expedicion'    => $this->lugar_expedicion ?: null,
             'fecha_expedicion'    => $fechaExp,
         ]);
@@ -441,8 +450,6 @@ class ConfirmacionEdit extends Component
             ? TenantIglesia::current()
             : Iglesias::find($this->confirmacion->iglesia_id);
 
-        $ministros = Feligres::with('persona')->get();
-
-        return view('livewire.confirmacion.confirmacion-edit', compact('ministros', 'iglesiaActual'));
+        return view('livewire.confirmacion.confirmacion-edit', compact('iglesiaActual'));
     }
 }
