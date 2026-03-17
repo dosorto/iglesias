@@ -6,6 +6,7 @@ use App\Http\Requests\StoreIglesiaRequest;
 use App\Http\Requests\UpdateIglesiaConfiguracionRequest;
 use App\Http\Requests\UpdateIglesiaRequest;
 use App\Models\Iglesias;
+use App\Models\TenantIglesia;
 use App\Models\Religion;
 use App\Services\Tenancy\TenantProvisioner;
 
@@ -67,7 +68,7 @@ class IglesiaController extends Controller
 
     public function editConfiguracion()
     {
-        $iglesia = Iglesias::currentFromSession();
+        $iglesia = TenantIglesia::current();
 
         abort_unless($iglesia, 404, 'No se encontró una iglesia activa para configurar.');
 
@@ -92,7 +93,7 @@ class IglesiaController extends Controller
 
     public function updateConfiguracion(UpdateIglesiaConfiguracionRequest $request)
     {
-        $iglesia = Iglesias::currentFromSession();
+        $iglesia = TenantIglesia::current();
 
         abort_unless($iglesia, 404, 'No se encontró una iglesia activa para configurar.');
 

@@ -117,7 +117,7 @@
             <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Información del Libro</p>
             <div class="space-y-3">
                 <div>
-                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-1">Diócesis</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-1">Parroquia</p>
                     <p class="text-sm font-semibold text-gray-800 dark:text-gray-100 tracking-wide">
                         {{ strtoupper($primeraComunion->iglesia?->nombre ?? 'CHOLUTECA') }}
                     </p>

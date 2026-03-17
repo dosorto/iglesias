@@ -20,7 +20,7 @@
 
         .page-wrapper {
             padding: 18px 18px;
-            border: 4px double #7D5A1E;
+            border: none;
             margin: 2px;
         }
 

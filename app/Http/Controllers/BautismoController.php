@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bautismo;
-use App\Models\Iglesias;
+use App\Models\TenantIglesia;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
@@ -41,8 +41,7 @@ class BautismoController extends Controller
             'encargado.feligres.persona',
         ]);
 
-        $iglesiaId = session('tenant.id_iglesia');
-        $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
+        $iglesiaConfig = TenantIglesia::current();
         $orientation = $iglesiaConfig?->orientacion_certificado === 'landscape' ? 'landscape' : 'portrait';
 
         $pdf = Pdf::loadView('bautismo.certificado-pdf', compact('bautismo', 'iglesiaConfig'))

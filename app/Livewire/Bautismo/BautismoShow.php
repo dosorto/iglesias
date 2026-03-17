@@ -4,7 +4,7 @@ namespace App\Livewire\Bautismo;
 
 use App\Models\AuditLog;
 use App\Models\Bautismo;
-use App\Models\Iglesias;
+use App\Models\TenantIglesia;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
@@ -138,8 +138,7 @@ class BautismoShow extends Component
 
     public function render()
     {
-        $iglesiaId = session('tenant.id_iglesia');
-        $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
+        $iglesiaConfig = TenantIglesia::current();
 
         return view('livewire.bautismo.bautismo-show', [
             'auditHistory'   => $this->auditHistory,

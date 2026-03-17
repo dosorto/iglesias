@@ -1,6 +1,6 @@
 <nav class="sticky top-0 z-30 w-full bg-gray-50 dark:bg-gray-900 border-b-2 border-gray-300 dark:border-gray-700 shadow-md transition-colors duration-300">
     @php
-        $activeChurchName = \App\Models\Iglesias::currentFromSession()?->nombre ?: config('app.name');
+        $activeChurchName = \App\Models\TenantIglesia::current()?->nombre ?: config('app.name');
     @endphp
     <div class="px-4 py-3 flex justify-between items-center">
 

@@ -3,7 +3,7 @@
 namespace App\Livewire\Layouts;
 
 use Livewire\Component;
-use App\Models\Iglesias;
+use App\Models\TenantIglesia;
 
 class SidebarToggle extends Component
 {
@@ -14,7 +14,7 @@ class SidebarToggle extends Component
     public function mount()
     {
         $this->isCollapsed = session('sidebar_collapsed', false);
-        $iglesia = Iglesias::currentFromSession();
+        $iglesia = TenantIglesia::current();
         $this->logoUrl = $iglesia?->logo_url;
         $this->churchName = $iglesia?->nombre ?: config('app.name', 'Holy App');
     }

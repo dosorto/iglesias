@@ -264,7 +264,7 @@
         {{-- Nombre parroquia y diócesis --}}
         <div class="header-title-cell">
             <div class="parish-name">{{ $iglesiaNombre ?: 'Parroquia' }}</div>
-            <div class="diocese-name">Di&oacute;cesis de Choluteca</div>
+            <div class="diocese-name">Parroquia</div>
         </div>
 
         {{-- Logo iglesia (derecha) --}}

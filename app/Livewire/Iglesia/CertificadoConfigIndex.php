@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Iglesia;
 
-use App\Models\Iglesias;
+use App\Models\TenantIglesia;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
@@ -11,7 +11,7 @@ class CertificadoConfigIndex extends Component
 {
     use WithFileUploads;
 
-    public ?Iglesias $iglesia = null;
+    public ?TenantIglesia $iglesia = null;
     public $formato_nuevo = null;
     public bool $confirmandoEliminar = false;
 
@@ -21,7 +21,7 @@ class CertificadoConfigIndex extends Component
 
     public function mount(): void
     {
-        $this->iglesia = Iglesias::currentFromSession();
+        $this->iglesia = TenantIglesia::current();
         $this->orientacion_certificado = $this->iglesia?->orientacion_certificado ?: 'portrait';
     }
 

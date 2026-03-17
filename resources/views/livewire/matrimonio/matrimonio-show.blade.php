@@ -75,7 +75,7 @@
             <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Información del Libro</p>
             <div class="space-y-3 text-sm">
                 <div>
-                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-0.5">Iglesia</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-0.5">Parroquia</p>
                     <p class="font-semibold text-gray-800 dark:text-gray-100 tracking-wide">{{ strtoupper($iglesiaNombre ?: '—') }}</p>
                 </div>
                 <div>
