@@ -125,6 +125,7 @@
             @if ($logoSrc)<img src="{{ $logoSrc }}" alt="Logo">@endif
         </div>
     </div>
+    
 
     <hr class="hr-accent">
     <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
