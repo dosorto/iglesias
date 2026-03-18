@@ -59,7 +59,7 @@
                          bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300
                          text-xs font-bold ring-2 ring-emerald-200 dark:ring-emerald-700/50">1</span>
             <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-100 tracking-wide uppercase">
-                Persona
+                Feligrés
             </h2>
         </div>
 
@@ -247,7 +247,7 @@
                                        text-emerald-700 dark:text-emerald-300
                                        border border-emerald-300 dark:border-emerald-600 rounded-xl
                                        hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all">
-                            + Crear Nueva Persona
+                            + Crear Nuevo Feligrés
                         </button>
                     @endif
                 </div>
@@ -269,7 +269,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                             </svg>
-                            Nueva Persona
+                            Nuevo Feligrés
                         </h3>
                         <button type="button"
                                 wire:click="cancelarCrearPersona"
@@ -309,8 +309,8 @@
                                         Primer Nombre <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text"
-                                           wire:model.defer="p_primer_nombre"
-                                           oninput="this.value = this.value.replace(/[^a-zA-Z\u00C0-\u024FñÑ\s]/g, '')"
+                                           wire:model="p_primer_nombre"
+                                           oninput="this.value = this.value.replace(/[^a-zA-Z\u00C0-\u024FñÑ\s]/g, '').replace(/\b\w/g, c => c.toUpperCase())"
                                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                   border border-gray-300 dark:border-gray-600
                                                   bg-white dark:bg-gray-700/60
@@ -328,8 +328,8 @@
                                         Segundo Nombre
                                     </label>
                                     <input type="text"
-                                           wire:model.defer="p_segundo_nombre"
-                                           oninput="this.value = this.value.replace(/[^a-zA-Z\u00C0-\u024FñÑ\s]/g, '')"
+                                           wire:model="p_segundo_nombre"
+                                           oninput="this.value = this.value.replace(/[^a-zA-Z\u00C0-\u024FñÑ\s]/g, '').replace(/\b\w/g, c => c.toUpperCase())"
                                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                   border border-gray-300 dark:border-gray-600
                                                   bg-white dark:bg-gray-700/60
@@ -343,8 +343,8 @@
                                         Primer Apellido <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text"
-                                           wire:model.defer="p_primer_apellido"
-                                           oninput="this.value = this.value.replace(/[^a-zA-Z\u00C0-\u024FñÑ\s]/g, '')"
+                                           wire:model="p_primer_apellido"
+                                           oninput="this.value = this.value.replace(/[^a-zA-Z\u00C0-\u024FñÑ\s]/g, '').replace(/\b\w/g, c => c.toUpperCase())"
                                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                   border border-gray-300 dark:border-gray-600
                                                   bg-white dark:bg-gray-700/60
@@ -362,8 +362,8 @@
                                         Segundo Apellido
                                     </label>
                                     <input type="text"
-                                           wire:model.defer="p_segundo_apellido"
-                                           oninput="this.value = this.value.replace(/[^a-zA-Z\u00C0-\u024FñÑ\s]/g, '')"
+                                           wire:model="p_segundo_apellido"
+                                           oninput="this.value = this.value.replace(/[^a-zA-Z\u00C0-\u024FñÑ\s]/g, '').replace(/\b\w/g, c => c.toUpperCase())"
                                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                   border border-gray-300 dark:border-gray-600
                                                   bg-white dark:bg-gray-700/60
@@ -384,8 +384,8 @@
                                                    focus:ring-2 focus:ring-emerald-500 focus:border-transparent
                                                    @error('p_sexo') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror">
                                         <option value="">-- Seleccionar --</option>
-                                        <option value="Masculino">Masculino</option>
-                                        <option value="Femenino">Femenino</option>
+                                        <option value="M">Masculino</option>
+                                        <option value="F">Femenino</option>
                                     </select>
                                     @error('p_sexo')
                                         <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -466,7 +466,7 @@
                                     <svg wire:loading.remove wire:target="crearPersona" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
                                     </svg>
-                                    <span wire:loading.remove wire:target="crearPersona">Guardar Persona</span>
+                                    <span wire:loading.remove wire:target="crearPersona">Guardar Feligrés</span>
                                     <span wire:loading wire:target="crearPersona">Guardando…</span>
                                 </button>
                             </div>

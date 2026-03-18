@@ -11,6 +11,9 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('id_iglesia')->constrained('iglesias')->restrictOnDelete();
             $table->date('fecha_primera_comunion');
+
+            $table->foreignId('encargado_id')->nullable()->constrained('encargado')->nullOnDelete();
+
             $table->foreignId('id_feligres')->constrained('feligres')->restrictOnDelete();
 
             $table->foreignId('id_catequista')->nullable()->constrained('feligres')->nullOnDelete();

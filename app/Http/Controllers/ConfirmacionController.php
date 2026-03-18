@@ -19,9 +19,9 @@ class ConfirmacionController extends Controller
     }
 
     public function show(Confirmacion $confirmacion)
-    {
-        return view('confirmacion.show', compact('confirmacion'));
-    }
+{
+    return view('confirmacion.show', compact('confirmacion'));
+}
 
     public function edit(Confirmacion $confirmacion)
     {
@@ -38,6 +38,7 @@ class ConfirmacionController extends Controller
             'padrino.persona',
             'madrina.persona',
             'ministro.persona',
+            'encargado.feligres.persona',
         ]);
 
         $iglesiaId     = session('tenant.id_iglesia');

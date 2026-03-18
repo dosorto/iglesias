@@ -60,6 +60,11 @@ class TenantRolesSeeder extends Seeder
             ['name' => 'bautismo.delete', 'display_name' => 'Eliminar Bautismos'],
             ['name' => 'bautismo.export', 'display_name' => 'Exportar Bautismos'],
 
+            ['name' => 'matrimonio.view',   'display_name' => 'Ver Matrimonios'],
+            ['name' => 'matrimonio.create', 'display_name' => 'Crear Matrimonios'],
+            ['name' => 'matrimonio.edit',   'display_name' => 'Editar Matrimonios'],
+            ['name' => 'matrimonio.delete', 'display_name' => 'Eliminar Matrimonios'],
+
             ['name' => 'primera-comunion.view',   'display_name' => 'Ver Primera Comunion'],
             ['name' => 'primera-comunion.create', 'display_name' => 'Crear Primera Comunion'],
             ['name' => 'primera-comunion.edit',   'display_name' => 'Editar Primera Comunion'],

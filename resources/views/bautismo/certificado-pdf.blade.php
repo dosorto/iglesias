@@ -273,7 +273,7 @@
         <div class="header-title-cell">
             @php $iglesiaNombreHeader = $iglesiaConfig?->nombre ?? $bautismo->iglesia?->nombre ?? ''; @endphp
             <div class="parish-name">{{ $iglesiaNombreHeader ?: 'Parroquia' }}</div>
-            <div class="diocese-name">Di&oacute;cesis de Choluteca</div>
+            <div class="diocese-name">Parroquia</div>
         </div>
         <div class="header-right-cell">
             @if ($logoIglesiaPath && file_exists($logoIglesiaPath))

@@ -6,8 +6,9 @@
     $padrino       = $confirmacion->padrino?->persona;
     $madrina       = $confirmacion->madrina?->persona;
     $ministro      = $confirmacion->ministro?->persona;
+    $encargado     = $confirmacion->encargado?->feligres?->persona;
     $iglesiaNombre = $iglesiaConfig?->nombre ?? $confirmacion->iglesia?->nombre ?? '';
-    $logoIglesia   = $iglesiaConfig?->logo_url ?? asset('image/Logo_guest.png');
+    $logoIglesia = $iglesiaConfig?->logo_url ?? asset('image/Logo_guest.png');
 
     $mesesEs = [
         1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',
@@ -19,11 +20,6 @@
     $diaConfirmacion = $fc?->day ?? '';
     $mesConfirmacion = $fc ? $mesesEs[$fc->month] : '';
     $anoConfirmacion = $fc?->year ?? '';
-
-    $fn     = $confirmado?->fecha_nacimiento;
-    $diaNac = $fn?->day ?? '';
-    $mesNac = $fn ? $mesesEs[$fn->month] : '';
-    $anoNac = $fn?->year ?? '';
 
     $padrinosStr = collect([$padrino?->nombre_completo, $madrina?->nombre_completo])
         ->filter()->implode(' y ');
@@ -42,7 +38,6 @@
     {{-- ======================= LEFT SIDEBAR ======================= --}}
     <aside class="w-full lg:w-56 xl:w-60 shrink-0 space-y-4">
 
-        {{-- Flash notification --}}
         @if (session('success'))
             <div class="bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-600 text-green-800 dark:text-green-200 px-3 py-2 rounded-lg text-xs">
                 {{ session('success') }}
@@ -85,7 +80,7 @@
             <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Información del Libro</p>
             <div class="space-y-3">
                 <div>
-                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-1">Diócesis</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-1">Parroquia</p>
                     <p class="text-sm font-semibold text-gray-800 dark:text-gray-100 tracking-wide">
                         {{ strtoupper($confirmacion->iglesia?->nombre ?? 'CHOLUTECA') }}
                     </p>
@@ -161,7 +156,6 @@
     <div class="flex-1 min-w-0">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8">
 
-            {{-- Validation errors --}}
             @if ($errors->any())
                 <div class="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg px-4 py-3 text-sm text-red-700 dark:text-red-400">
                     <ul class="list-disc list-inside space-y-1">
@@ -172,7 +166,7 @@
                 </div>
             @endif
 
-            {{-- ─── CERTIFICATE HEADER ─── --}}
+            {{-- HEADER --}}
             <div class="flex items-center gap-3 mb-4">
                 <div class="shrink-0">
                     <img src="{{ $logoIglesia }}" alt="Logo" class="h-16 w-16 object-contain">
@@ -202,7 +196,7 @@
 
             @php $placeholderClass = 'text-gray-400 dark:text-gray-500 italic text-sm'; @endphp
 
-            {{-- ─── CERTIFICATE BODY — solo lectura ─── --}}
+            {{-- CERTIFICATE BODY --}}
             <div class="font-serif text-gray-800 dark:text-gray-200 leading-relaxed space-y-4 text-sm md:text-[14px]">
 
                 <p>El infrascrito encargado del archivo de esta parroquia certifica que</p>
@@ -250,31 +244,34 @@
                     </p>
                 </div>
 
-                {{-- DADO EN --}}
+                {{-- DADO EN — una sola línea --}}
                 <p class="flex flex-wrap items-end gap-x-1 gap-y-2 pt-4">
                     <span>Dado en</span>
-                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[160px] pl-1 font-medium">{{ $lugar_expedicion ?: '' }}</span>
+                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[160px] pl-1 font-medium {{ $lugar_expedicion ? '' : $placeholderClass }}">
+                        {{ $lugar_expedicion ?: '' }}
+                    </span>
                     <span>a los</span>
-                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[50px] text-center font-medium">{{ $diaExp ?: '' }}</span>
+                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[50px] text-center font-medium {{ $diaExp ? '' : $placeholderClass }}">
+                        {{ $diaExp ?: '' }}
+                    </span>
                     <span>del mes de</span>
-                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[130px] text-center font-medium">{{ $mesExp ?: '' }}</span>
+                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[130px] text-center font-medium {{ $mesExp ? '' : $placeholderClass }}">
+                        {{ $mesExp ?: '' }}
+                    </span>
                     <span>año</span>
-                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[80px] text-center font-medium">
+                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[80px] text-center font-medium {{ $anoExp ? '' : $placeholderClass }}">
                         {{ $anoExp ? '20'.str_pad($anoExp, 2, '0', STR_PAD_LEFT) : '' }}
                     </span>
                 </p>
 
                 <p class="text-xs italic text-gray-400 mt-1">(Sello)</p>
 
-                {{-- ─── FIRMA DEL ENCARGADO DE ARCHIVO (igual que bautismo) ─── --}}
-                <div class="flex justify-end pt-4">
+                {{-- FIRMA CENTRADA — igual al formato de la imagen (párroco con firma arriba) --}}
+                <div class="flex justify-center pt-8 pb-2">
                     <div class="text-center">
-                        @php
-                            // Igual que bautismo: firma del encargado, no del ministro
-                            $firmaPath = $confirmacion->encargado?->path_firma_principal;
-                            $encargadoPersona = $confirmacion->encargado?->feligres?->persona;
-                        @endphp
+                        @php $firmaPath = $confirmacion->encargado?->path_firma_principal; @endphp
 
+                        {{-- Espacio para la firma (imagen o área de subida) --}}
                         @if ($firmaPath)
                             <div class="mb-1 flex justify-center">
                                 <img src="{{ Storage::url($firmaPath) }}"
@@ -302,7 +299,7 @@
                                 <div class="mb-2 border border-dashed border-gray-400 dark:border-gray-500 rounded p-3 flex flex-col items-center gap-1">
                                     <p class="text-xs text-gray-400">Sin firma. Agregar:</p>
                                     <input type="file" wire:model="firma_nueva" accept="image/*"
-                                           class="text-xs text-gray-500 dark:text-gray-400 file:mr-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:text-xs file:bg-gray-100 dark:file:bg-gray-700 file:text-gray-700 dark:file:text-gray-300 file:cursor-pointer">
+                                           class="text-xs text-gray-500 dark:text-gray-400 file:mr-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:text-xs file:bg-gray-100 dark:file:bg-gray-700 file:text-gray-700 dark:file:text-gray-300">
                                     @if ($firma_nueva)
                                         <div class="flex items-center gap-2 mt-1">
                                             <img src="{{ $firma_nueva->temporaryUrl() }}" class="max-h-10 max-w-[140px] object-contain rounded border border-gray-300">
@@ -317,13 +314,14 @@
                             @endcan
                         @endif
 
-                        <div class="w-60 border-t border-gray-500 dark:border-gray-400 pt-1">
-                            @if ($encargadoPersona?->nombre_completo)
-                                <p class="text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
-                                    {{ $encargadoPersona->nombre_completo }}
+                        {{-- Línea con nombre encargado arriba y "Párroco" abajo — igual imagen --}}
+                        <div class="w-64 border-t border-gray-500 dark:border-gray-400 pt-2 mx-auto">
+                            @if ($encargado?->nombre_completo)
+                                <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                                    {{ $encargado->nombre_completo }}
                                 </p>
                             @endif
-                            <p class="text-xs font-bold uppercase tracking-[3px]">Encargado de Archivo</p>
+                            <p class="text-xs font-bold uppercase tracking-[3px] mt-0.5">Párroco</p>
                         </div>
                     </div>
                 </div>

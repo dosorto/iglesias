@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PrimeraComunion;
 use App\Models\Encargado;
-use App\Models\Iglesias;
+use App\Models\TenantIglesia;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
@@ -57,8 +57,7 @@ class PrimeraComunionController extends Controller
             ->latest()
             ->first();
 
-        $iglesiaId = session('tenant.id_iglesia');
-        $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
+        $iglesiaConfig = TenantIglesia::current();
         $orientation = $iglesiaConfig?->orientacion_certificado === 'landscape' ? 'landscape' : 'portrait';
 
         $pdf = Pdf::loadView('primera-comunion.certificado-pdf', compact('primeraComunion', 'encargado', 'iglesiaConfig'))

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Bautismo;
+namespace App\Livewire\Matrimonio;
 
 use Livewire\Component;
 use App\Models\Persona;
@@ -8,50 +8,45 @@ use App\Models\Feligres;
 use App\Models\Iglesias;
 use App\Models\TenantIglesia;
 use App\Models\Encargado;
-use App\Models\Bautismo;
+use App\Models\Matrimonio;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
-class BautismoCreate extends Component
+class MatrimonioCreate extends Component
 {
     // Wizard
     public int $paso = 1;
 
-    // Paso 1
-    public $iglesia_id     = null;
-    public string $fecha_bautismo = '';
-    public $encargado_id   = null;
+    // Paso 1 – datos generales
+    public $iglesia_id        = null;
+    public string $fecha_matrimonio = '';
+    public $encargado_id      = null;
 
-    // Paso 2  roles
-    public string $bautizado_dni         = '';
-    public ?array $bautizado_persona     = null;
-    public ?int   $bautizado_feligres_id = null;
-    public string $bautizado_estado      = 'idle';
+    // Roles: esposo, esposa, testigo1, testigo2
+    public string $esposo_dni         = '';
+    public ?array $esposo_persona     = null;
+    public ?int   $esposo_feligres_id = null;
+    public string $esposo_estado      = 'idle';
 
-    // Busqueda con resultados multiples (compartido)
+    public string $esposa_dni         = '';
+    public ?array $esposa_persona     = null;
+    public ?int   $esposa_feligres_id = null;
+    public string $esposa_estado      = 'idle';
+
+    public string $testigo1_dni         = '';
+    public ?array $testigo1_persona     = null;
+    public ?int   $testigo1_feligres_id = null;
+    public string $testigo1_estado      = 'idle';
+
+    public string $testigo2_dni         = '';
+    public ?array $testigo2_persona     = null;
+    public ?int   $testigo2_feligres_id = null;
+    public string $testigo2_estado      = 'idle';
+
+    // Busqueda con resultados multiples
     public array   $busqueda_resultados = [];
     public ?string $busqueda_rol        = null;
-
-    public string $padre_dni         = '';
-    public ?array $padre_persona     = null;
-    public ?int   $padre_feligres_id = null;
-    public string $padre_estado      = 'idle';
-
-    public string $madre_dni         = '';
-    public ?array $madre_persona     = null;
-    public ?int   $madre_feligres_id = null;
-    public string $madre_estado      = 'idle';
-
-    public string $padrino_dni         = '';
-    public ?array $padrino_persona     = null;
-    public ?int   $padrino_feligres_id = null;
-    public string $padrino_estado      = 'idle';
-
-    public string $madrina_dni         = '';
-    public ?array $madrina_persona     = null;
-    public ?int   $madrina_feligres_id = null;
-    public string $madrina_estado      = 'idle';
 
     // Mini-form compartido
     public ?string $mini_rol  = null;
@@ -70,13 +65,12 @@ class BautismoCreate extends Component
     public string $mini_f_fecha_ingreso = '';
     public string $mini_f_estado        = 'Activo';
 
-    // Paso 3
-    public string $libro_bautismo = '';
-    public string $folio          = '';
-    public string $partida_numero = '';
-    public string $observaciones  = '';
+    // Paso 2 – datos del registro
+    public string $libro_matrimonio = '';
+    public string $folio            = '';
+    public string $partida_numero   = '';
+    public string $observaciones    = '';
     public string $nota_marginal    = '';
-    public string $lugar_nacimiento = '';
     public string $lugar_expedicion = '';
     public string $exp_dia          = '';
     public string $exp_mes          = '';
@@ -84,27 +78,31 @@ class BautismoCreate extends Component
 
     public function mount(): void
     {
-        $this->fecha_bautismo       = now()->format('Y-m-d');
+        $this->fecha_matrimonio     = now()->format('Y-m-d');
         $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
+        $this->exp_dia              = now()->format('j');
+        $this->exp_mes              = now()->format('n');
+        $this->exp_ano              = now()->format('y');
+        $this->iglesia_id           = TenantIglesia::currentId();
 
-        $this->iglesia_id = TenantIglesia::currentId();
-
-        // Encargado por defecto: primer encargado disponible
         $encargadoDefault   = Encargado::with('feligres.persona')->where('estado', 'Activo')->first();
         $this->encargado_id = $encargadoDefault?->id;
     }
 
-    // Navegacion
+    // Navegación
 
     public function siguientePaso(): void
     {
         if ($this->paso === 1) {
-            if (! $this->bautizado_feligres_id) {
-                $this->addError('bautizado_dni', 'El bautizado es obligatorio y debe estar registrado como feligres.');
+            if (! $this->esposo_feligres_id) {
+                $this->addError('esposo_dni', 'El esposo es obligatorio y debe estar registrado como feligrés.');
+                return;
+            }
+            if (! $this->esposa_feligres_id) {
+                $this->addError('esposa_dni', 'La esposa es obligatoria y debe estar registrada como feligrés.');
                 return;
             }
         }
-
         $this->paso++;
         $this->resetErrorBag();
     }
@@ -135,7 +133,7 @@ class BautismoCreate extends Component
                 $this->addError("{$rol}_dni", 'Ingresa al menos 3 caracteres para buscar por nombre.');
                 return;
             }
-            $term = '%' . $input . '%';
+            $term     = '%' . $input . '%';
             $personas = Persona::where(function ($q) use ($term) {
                 $q->where('primer_nombre',    'like', $term)
                   ->orWhere('segundo_nombre',   'like', $term)
@@ -156,20 +154,6 @@ class BautismoCreate extends Component
         if ($personas->count() === 1) {
             $this->asignarPersonaARol($rol, $personas->first());
             return;
-        }
-
-        // Multiples resultados — mostrar lista para seleccionar
-        // Para el bautizado, excluir personas que ya fueron bautizadas
-        if ($rol === 'bautizado') {
-            $bautizadoFeligresIds = Bautismo::pluck('bautizado_id')->toArray();
-            $feligresPersonaIds   = Feligres::whereIn('id', $bautizadoFeligresIds)->pluck('id_persona')->toArray();
-            $personas             = $personas->whereNotIn('id', $feligresPersonaIds);
-
-            if ($personas->isEmpty()) {
-                $this->{"{$rol}_estado"} = 'sin_persona';
-                $this->addError("{$rol}_dni", 'No se encontraron personas disponibles para ser bautizadas (todas ya fueron bautizadas).');
-                return;
-            }
         }
 
         $this->busqueda_resultados = $personas->map(fn ($p) => [
@@ -193,17 +177,16 @@ class BautismoCreate extends Component
         $this->asignarPersonaARol($rol, $persona);
     }
 
-    // Asignar persona a un rol con validacion de duplicados
+    // Asignar persona a un rol con validación de duplicados
 
     private function asignarPersonaARol(string $rol, Persona $persona): void
     {
-        $roles = ['bautizado', 'padre', 'madre', 'padrino', 'madrina'];
+        $roles  = ['esposo', 'esposa', 'testigo1', 'testigo2'];
         $labels = [
-            'bautizado' => 'Bautizado',
-            'padre'     => 'Padre',
-            'madre'     => 'Madre',
-            'padrino'   => 'Padrino',
-            'madrina'   => 'Madrina',
+            'esposo'   => 'Esposo',
+            'esposa'   => 'Esposa',
+            'testigo1' => 'Testigo 1',
+            'testigo2' => 'Testigo 2',
         ];
 
         foreach ($roles as $r) {
@@ -216,15 +199,6 @@ class BautismoCreate extends Component
         }
 
         $feligres = Feligres::where('id_persona', $persona->id)->first();
-
-        // Validar que el bautizado no haya sido bautizado anteriormente
-        if ($rol === 'bautizado' && $feligres) {
-            $yaBautizado = Bautismo::where('bautizado_id', $feligres->id)->exists();
-            if ($yaBautizado) {
-                $this->addError("{$rol}_dni", "Esta persona ya fue bautizada anteriormente.");
-                return;
-            }
-        }
 
         $this->{"{$rol}_persona"} = [
             'id'              => $persona->id,
@@ -264,41 +238,33 @@ class BautismoCreate extends Component
             $this->busqueda_resultados = [];
             $this->busqueda_rol        = null;
         }
+    }
 
-        if ($this->mini_rol === $rol) {
-            $this->cancelarMini();
+    // Mini-form: abrir
+
+    public function abrirMini(string $rol, string $tipo): void
+    {
+        $this->mini_rol  = $rol;
+        $this->mini_tipo = $tipo;
+
+        $this->mini_p_dni              = '';
+        $this->mini_p_primer_nombre    = '';
+        $this->mini_p_segundo_nombre   = '';
+        $this->mini_p_primer_apellido  = '';
+        $this->mini_p_segundo_apellido = '';
+        $this->mini_p_fecha_nacimiento = '';
+        $this->mini_p_sexo             = '';
+        $this->mini_p_telefono         = '';
+        $this->mini_p_email            = '';
+        $this->mini_f_fecha_ingreso    = now()->format('Y-m-d');
+        $this->mini_f_estado           = 'Activo';
+
+        if ($tipo === 'feligres' && $this->{"{$rol}_persona"}) {
+            $p = $this->{"{$rol}_persona"};
+            $this->mini_p_dni              = $p['dni']             ?? '';
+            $this->mini_p_primer_nombre    = $p['primer_nombre']    ?? '';
+            $this->mini_p_primer_apellido  = $p['primer_apellido']  ?? '';
         }
-    }
-
-    // Mini-form: abrir Crear Persona
-
-    public function abrirCrearPersona(string $rol): void
-    {
-        $dni = trim($this->{"{$rol}_dni"});
-
-        $this->mini_rol   = $rol;
-        $this->mini_tipo  = 'persona';
-        $this->mini_p_dni = ctype_digit($dni) ? $dni : '';
-
-        $this->reset([
-            'mini_p_primer_nombre', 'mini_p_segundo_nombre',
-            'mini_p_primer_apellido', 'mini_p_segundo_apellido',
-            'mini_p_telefono', 'mini_p_email',
-        ]);
-
-        $this->resetErrorBag();
-    }
-
-    // Mini-form: abrir Registrar como Feligres
-
-    public function abrirRegistrarFeligres(string $rol): void
-    {
-        $this->mini_rol             = $rol;
-        $this->mini_tipo            = 'feligres';
-        $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
-        $this->mini_f_estado        = 'Activo';
-
-        $this->resetErrorBag();
     }
 
     // Mini-form: cancelar
@@ -307,20 +273,10 @@ class BautismoCreate extends Component
     {
         $this->mini_rol  = null;
         $this->mini_tipo = null;
-
-        $this->reset([
-            'mini_p_dni', 'mini_p_primer_nombre', 'mini_p_segundo_nombre',
-            'mini_p_primer_apellido', 'mini_p_segundo_apellido',
-            'mini_p_fecha_nacimiento', 'mini_p_sexo',
-            'mini_p_telefono', 'mini_p_email',
-        ]);
-
-        $this->mini_f_estado        = 'Activo';
-        $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
         $this->resetErrorBag();
     }
 
-    // Mini-form: guardar nueva persona + feligres (transaccion atomica)
+    // Mini-form: guardar nueva persona + feligrés
 
     public function guardarMiniPersona(): void
     {
@@ -337,13 +293,13 @@ class BautismoCreate extends Component
             'mini_f_fecha_ingreso'    => ['nullable', 'date'],
             'mini_f_estado'           => ['required', 'in:Activo,Inactivo'],
         ], [
-            'mini_p_dni.required'             => 'El numero de identidad es obligatorio.',
+            'mini_p_dni.required'             => 'El número de identidad es obligatorio.',
             'mini_p_dni.min'                  => 'El DNI debe tener al menos 8 caracteres.',
             'mini_p_dni.unique'               => 'Ya existe una persona con ese DNI.',
             'mini_p_primer_nombre.required'   => 'El primer nombre es obligatorio.',
-            'mini_p_primer_nombre.regex'      => 'El primer nombre solo puede contener letras, espacios, guiones y apóstrofes.',
+            'mini_p_primer_nombre.regex'      => 'El nombre solo puede contener letras.',
             'mini_p_primer_apellido.required' => 'El primer apellido es obligatorio.',
-            'mini_p_primer_apellido.regex'    => 'El primer apellido solo puede contener letras, espacios, guiones y apóstrofes.',
+            'mini_p_primer_apellido.regex'    => 'El apellido solo puede contener letras.',
             'mini_p_fecha_nacimiento.required' => 'La fecha de nacimiento es obligatoria.',
             'mini_p_fecha_nacimiento.before'   => 'La fecha de nacimiento debe ser anterior a hoy.',
             'mini_p_sexo.required'             => 'El sexo es obligatorio.',
@@ -393,7 +349,7 @@ class BautismoCreate extends Component
         $this->cancelarMini();
     }
 
-    // Mini-form: registrar persona existente como feligres
+    // Mini-form: registrar persona existente como feligrés
 
     public function guardarMiniFeligres(): void
     {
@@ -425,7 +381,7 @@ class BautismoCreate extends Component
         $this->cancelarMini();
     }
 
-    // Guardar bautismo final
+    // Guardar matrimonio final
 
     public function guardar(): void
     {
@@ -433,26 +389,32 @@ class BautismoCreate extends Component
             $this->iglesia_id = TenantIglesia::currentId();
         }
 
+        // Estos datos se manejan automaticamente en creacion.
+        $this->fecha_matrimonio = now()->format('Y-m-d');
+        $this->encargado_id = Encargado::where('estado', 'Activo')->value('id');
+
         $this->validate([
-            'fecha_bautismo' => ['required', 'date'],
+            'fecha_matrimonio' => ['required', 'date'],
             'nota_marginal'    => ['nullable', 'string', 'max:500'],
-            'lugar_nacimiento' => ['nullable', 'string', 'max:150'],
             'lugar_expedicion' => ['nullable', 'string', 'max:150'],
             'exp_dia'          => ['nullable', 'integer', 'min:1', 'max:31'],
             'exp_mes'          => ['nullable', 'integer', 'min:1', 'max:12'],
             'exp_ano'          => ['nullable', 'integer', 'min:0', 'max:99'],
         ], [
-            'fecha_bautismo.required' => 'La fecha de bautismo es obligatoria.',
-            'fecha_bautismo.date'     => 'La fecha de bautismo no es válida.',
-            'nota_marginal.max'       => 'La nota marginal no puede superar los 500 caracteres.',
-            'lugar_nacimiento.max'    => 'El lugar de nacimiento no puede superar los 150 caracteres.',
-            'lugar_expedicion.max'    => 'El lugar no puede superar los 150 caracteres.',
-            'exp_dia.min'             => 'El día debe ser entre 1 y 31.',
-            'exp_mes.min'             => 'El mes debe ser entre 1 y 12.',
+            'fecha_matrimonio.required' => 'La fecha de matrimonio es obligatoria.',
+            'fecha_matrimonio.date'     => 'La fecha de matrimonio no es válida.',
+            'nota_marginal.max'         => 'La nota marginal no puede superar los 500 caracteres.',
+            'lugar_expedicion.max'      => 'El lugar no puede superar los 150 caracteres.',
+            'exp_dia.min'               => 'El día debe ser entre 1 y 31.',
+            'exp_mes.min'               => 'El mes debe ser entre 1 y 12.',
         ]);
 
-        if (! $this->bautizado_feligres_id) {
-            $this->addError('bautizado_dni', 'El bautizado es obligatorio.');
+        if (! $this->esposo_feligres_id) {
+            $this->addError('esposo_dni', 'El esposo es obligatorio.');
+            return;
+        }
+        if (! $this->esposa_feligres_id) {
+            $this->addError('esposa_dni', 'La esposa es obligatoria.');
             return;
         }
 
@@ -469,27 +431,25 @@ class BautismoCreate extends Component
             }
         }
 
-        Bautismo::create([
-            'iglesia_id'     => $this->iglesia_id,
-            'fecha_bautismo' => $this->fecha_bautismo,
-            'encargado_id'   => $this->encargado_id ?: null,
-            'bautizado_id'   => $this->bautizado_feligres_id,
-            'padre_id'       => $this->padre_feligres_id,
-            'madre_id'       => $this->madre_feligres_id,
-            'padrino_id'     => $this->padrino_feligres_id,
-            'madrina_id'     => $this->madrina_feligres_id,
-            'libro_bautismo' => $this->libro_bautismo ?: null,
-            'folio'          => $this->folio          ?: null,
-            'partida_numero' => $this->partida_numero ?: null,
-            'observaciones'  => $this->observaciones  ?: null,
+        Matrimonio::create([
+            'iglesia_id'       => $this->iglesia_id,
+            'fecha_matrimonio' => $this->fecha_matrimonio,
+            'encargado_id'     => $this->encargado_id ?: null,
+            'esposo_id'        => $this->esposo_feligres_id,
+            'esposa_id'        => $this->esposa_feligres_id,
+            'testigo1_id'      => $this->testigo1_feligres_id,
+            'testigo2_id'      => $this->testigo2_feligres_id,
+            'libro_matrimonio' => $this->libro_matrimonio ?: null,
+            'folio'            => $this->folio            ?: null,
+            'partida_numero'   => $this->partida_numero   ?: null,
+            'observaciones'    => $this->observaciones    ?: null,
             'nota_marginal'    => $this->nota_marginal    ?: null,
-            'lugar_nacimiento' => $this->lugar_nacimiento ?: null,
             'lugar_expedicion' => $this->lugar_expedicion ?: null,
             'fecha_expedicion' => $fechaExp,
         ]);
 
-        session()->flash('success', 'Bautismo registrado correctamente.');
-        $this->redirect(route('bautismo.index'), navigate: false);
+        session()->flash('success', 'Matrimonio registrado correctamente.');
+        $this->redirect(route('matrimonio.index'), navigate: false);
     }
 
     public function render()
@@ -502,9 +462,8 @@ class BautismoCreate extends Component
             $iglesias = Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get();
         }
 
-        return view('livewire.bautismo.bautismo-create', [
+        return view('livewire.matrimonio.matrimonio-create', [
             'iglesias'   => $iglesias,
-            'encargados' => Encargado::with('feligres.persona')->get(),
         ]);
     }
 }

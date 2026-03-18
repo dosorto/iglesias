@@ -8,6 +8,7 @@ use App\Models\Feligres;
 use App\Models\Iglesias;
 use App\Models\TenantIglesia;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class FeligresCreate extends Component
 {
@@ -153,41 +154,36 @@ class FeligresCreate extends Component
     {
         $this->validate([
             'p_dni'             => ['required', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
-            'p_primer_nombre'    => ['required', 'string', 'max:150', 'regex:/^[a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s]+$/u'],
-            'p_primer_apellido'  => ['required', 'string', 'max:100', 'regex:/^[a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s]+$/u'],
-            'p_segundo_nombre'   => ['nullable', 'string', 'max:150', 'regex:/^[a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s]+$/u'],
-            'p_segundo_apellido' => ['nullable', 'string', 'max:100', 'regex:/^[a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s]+$/u'],
-            'p_sexo'             => ['required', 'in:Masculino,Femenino'],
+            'p_primer_nombre'    => ['required', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
+            'p_primer_apellido'  => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
+            'p_segundo_nombre'   => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
+            'p_segundo_apellido' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'p_fecha_nacimiento' => ['required', 'date', 'before:today'],
-            'p_telefono'         => ['required', 'string', 'max:20', 'regex:/^[0-9+\-\s]+$/'],
-            'p_email'            => ['nullable', 'email:rfc,dns', 'max:255'],
+            'p_sexo'             => ['required', 'in:M,F'],
+            'p_telefono'         => ['required', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
+            'p_email'            => ['nullable', 'email', 'max:255'],
         ], [
-            'p_telefono.required'        => 'El teléfono es obligatorio.',
-            'p_telefono.regex'           => 'El teléfono solo puede contener números, +, - y espacios.',
-            'p_dni.required'             => 'El número de identidad es obligatorio.',
+            'p_dni.required'             => 'El numero de identidad es obligatorio.',
             'p_dni.min'                  => 'El DNI debe tener al menos 8 caracteres.',
             'p_dni.unique'               => 'Ya existe una persona con ese DNI.',
-            'p_primer_nombre.required'    => 'El primer nombre es obligatorio.',
-            'p_primer_nombre.regex'        => 'El primer nombre solo puede contener letras.',
-            'p_primer_apellido.required'   => 'El primer apellido es obligatorio.',
-            'p_primer_apellido.regex'      => 'El primer apellido solo puede contener letras.',
-            'p_segundo_nombre.regex'       => 'El segundo nombre solo puede contener letras.',
-            'p_segundo_apellido.regex'     => 'El segundo apellido solo puede contener letras.',
-            'p_sexo.required'             => 'El sexo es obligatorio.',
-            'p_sexo.in'                   => 'El sexo debe ser Masculino o Femenino.',
+            'p_primer_nombre.required'   => 'El primer nombre es obligatorio.',
+            'p_primer_nombre.regex'      => 'El primer nombre solo puede contener letras, espacios, guiones y apóstrofes.',
+            'p_primer_apellido.required' => 'El primer apellido es obligatorio.',
+            'p_primer_apellido.regex'    => 'El primer apellido solo puede contener letras, espacios, guiones y apóstrofes.',
             'p_fecha_nacimiento.required' => 'La fecha de nacimiento es obligatoria.',
-            'p_fecha_nacimiento.date'     => 'La fecha de nacimiento no es válida.',
             'p_fecha_nacimiento.before'   => 'La fecha de nacimiento debe ser anterior a hoy.',
-            'p_email.email'               => 'El formato del correo electrónico no es válido.',
+            'p_sexo.required'             => 'El sexo es obligatorio.',
+            'p_telefono.required'         => 'El teléfono es obligatorio.',
+            'p_telefono.regex'            => 'El teléfono solo puede contener números, + y -.',
         ]);
 
         $persona = Persona::create([
             'dni'               => $this->p_dni,
-            'primer_nombre'     => $this->p_primer_nombre,
-            'segundo_nombre'    => $this->p_segundo_nombre ?: null,
-            'primer_apellido'   => $this->p_primer_apellido,
-            'segundo_apellido'  => $this->p_segundo_apellido ?: null,
-            'sexo'              => $this->p_sexo === 'Masculino' ? 'M' : ($this->p_sexo === 'Femenino' ? 'F' : null),
+            'primer_nombre'     => Str::title($this->p_primer_nombre),
+            'segundo_nombre'    => $this->p_segundo_nombre ? Str::title($this->p_segundo_nombre) : null,
+            'primer_apellido'   => Str::title($this->p_primer_apellido),
+            'segundo_apellido'  => $this->p_segundo_apellido ? Str::title($this->p_segundo_apellido) : null,
+            'sexo'              => $this->p_sexo === 'M' ? 'M' : ($this->p_sexo === 'F' ? 'F' : null),
             'fecha_nacimiento'  => $this->p_fecha_nacimiento,
             'telefono'          => $this->p_telefono ?: null,
             'email'             => $this->p_email ?: null,

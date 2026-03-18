@@ -12,7 +12,7 @@
     </div>
 
     @php
-        $iglesiaSettings = \App\Models\Iglesias::currentFromSession();
+        $iglesiaSettings = \App\Models\TenantIglesia::current();
     @endphp
 
     {{-- Grid de opciones de configuración --}}
@@ -164,7 +164,7 @@
                 </div>
             </div>
             <div class="flex justify-between items-center">
-                @php $iglesia = \App\Models\Iglesias::find(session('tenant.id_iglesia')); @endphp
+                @php $iglesia = \App\Models\TenantIglesia::current(); @endphp
                 <span class="text-sm text-gray-500 dark:text-gray-400">
                     @if ($iglesia?->path_logo)
                         <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">

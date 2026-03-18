@@ -89,7 +89,7 @@
             <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Información del Libro</p>
             <div class="space-y-3">
                 <div>
-                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-1">Diócesis</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-1">Parroquia</p>
                     <p class="text-sm font-semibold text-gray-800 dark:text-gray-100 tracking-wide">
                         {{ strtoupper($bautismo->iglesia?->nombre ?? 'CHOLUTECA') }}
                     </p>
@@ -237,7 +237,7 @@
                     <strong>CERTIFICA:</strong>
                     <span>Que en el libro de Bautismo No.</span>
                     <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[60px] text-center font-mono">{{ $bautismo->libro_bautismo ?: '' }}</span>
-                    <span>, en la Pagina</span>
+                    <span>, en la pagina</span>
                     <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[50px] text-center font-mono">{{ $bautismo->folio ?: '' }}</span>
                     <span>, bajo el No.</span>
                     <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[50px] text-center font-mono">{{ $bautismo->partida_numero ?: '' }}</span>
@@ -256,7 +256,7 @@
                     <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[40px] text-center font-medium {{ $diaBautismo ? '' : $placeholderClass }}">
                         {{ $diaBautismo ?: 'Día' }}
                     </span>
-                    <span>del mes</span>
+                    <span>dias del mes</span>
                 </p>
 
                 {{-- Line 5 --}}

@@ -14,6 +14,9 @@ return new class extends Migration {
             $table->date('fecha_confirmacion');
             $table->string('lugar_confirmacion', 200)->nullable();
 
+            $table->foreignId('encargado_id')->nullable()->constrained('encargado')->nullOnDelete();
+
+
             // Confirmado
             $table->foreignId('feligres_id')->constrained('feligres')->restrictOnDelete();
 

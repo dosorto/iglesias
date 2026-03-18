@@ -14,6 +14,7 @@ class ConfirmacionSeeder extends Seeder
 
         $ig  = Schema::hasColumn('confirmaciones', 'iglesia_id')  ? 'iglesia_id'  : 'id_iglesia';
         $fel = Schema::hasColumn('confirmaciones', 'feligres_id') ? 'feligres_id' : 'id_feligres';
+        $enc = Schema::hasColumn('bautismos', 'encargado_id') ? 'encargado_id' : 'id_encargado';
         $pad = Schema::hasColumn('confirmaciones', 'padre_id')    ? 'padre_id'    : 'id_padre';
         $mad = Schema::hasColumn('confirmaciones', 'madre_id')    ? 'madre_id'    : 'id_madre';
         $pio = Schema::hasColumn('confirmaciones', 'padrino_id')  ? 'padrino_id'  : 'id_padrino';
@@ -25,6 +26,7 @@ class ConfirmacionSeeder extends Seeder
                 $ig              => 1,
                 'fecha_confirmacion'  => '2026-01-10',
                 'lugar_confirmacion'  => 'Parroquia San Pedro',
+                $enc             => 1,
                 $fel             => 4,
                 $pad             => 1,
                 $mad             => 2,
@@ -46,6 +48,7 @@ class ConfirmacionSeeder extends Seeder
                 $ig              => 1,
                 'fecha_confirmacion'  => '2026-01-24',
                 'lugar_confirmacion'  => 'Parroquia San Pedro',
+                $enc             => 1,
                 $fel             => 5,
                 $pad             => 3,
                 $mad             => 6,
@@ -67,6 +70,7 @@ class ConfirmacionSeeder extends Seeder
                 $ig              => 1,
                 'fecha_confirmacion'  => '2026-02-07',
                 'lugar_confirmacion'  => 'Parroquia San Pedro',
+                $enc             => 1,
                 $fel             => 7,
                 $pad             => 2,
                 $mad             => 4,

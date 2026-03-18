@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 
 class Persona extends BaseModel
 {
@@ -24,6 +25,38 @@ class Persona extends BaseModel
     protected $casts = [
         'fecha_nacimiento' => 'date',
     ];
+
+    /**
+     * Mutator: Capitalize primer_nombre
+     */
+    public function setPrimerNombreAttribute($value): void
+    {
+        $this->attributes['primer_nombre'] = Str::title($value);
+    }
+
+    /**
+     * Mutator: Capitalize segundo_nombre
+     */
+    public function setSegundoNombreAttribute($value): void
+    {
+        $this->attributes['segundo_nombre'] = $value ? Str::title($value) : null;
+    }
+
+    /**
+     * Mutator: Capitalize primer_apellido
+     */
+    public function setPrimerApellidoAttribute($value): void
+    {
+        $this->attributes['primer_apellido'] = Str::title($value);
+    }
+
+    /**
+     * Mutator: Capitalize segundo_apellido
+     */
+    public function setSegundoApellidoAttribute($value): void
+    {
+        $this->attributes['segundo_apellido'] = $value ? Str::title($value) : null;
+    }
 
     /**
      * Get the persona's full name.

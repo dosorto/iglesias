@@ -14,6 +14,7 @@ class Confirmacion extends BaseModel
         'iglesia_id',
         'fecha_confirmacion',
         'lugar_confirmacion',
+        'encargado_id',
         'feligres_id',
         'padre_id',
         'madre_id',
@@ -41,6 +42,11 @@ class Confirmacion extends BaseModel
     public function iglesia()
     {
         return $this->belongsTo(TenantIglesia::class, 'iglesia_id');
+    }
+
+    public function encargado()
+    {
+        return $this->belongsTo(Encargado::class, 'encargado_id');
     }
 
     public function feligres()

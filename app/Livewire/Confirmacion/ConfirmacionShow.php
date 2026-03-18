@@ -4,7 +4,9 @@ namespace App\Livewire\Confirmacion;
 
 use App\Models\AuditLog;
 use App\Models\Confirmacion;
+use App\Models\Encargado;
 use App\Models\Iglesias;
+use App\Models\TenantIglesia;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
@@ -35,7 +37,22 @@ class ConfirmacionShow extends Component
             'padrino.persona',
             'madrina.persona',
             'ministro.persona',
+            'encargado.feligres.persona',
         ]);
+
+        // Si no tiene encargado asignado, tomar el encargado activo por defecto
+        // igual que hace bautismo en su mount
+        if (! $this->confirmacion->encargado) {
+            $encargadoDefault = Encargado::with('feligres.persona')
+                ->where('estado', 'Activo')
+                ->first();
+
+            if ($encargadoDefault) {
+                $this->confirmacion->encargado_id = $encargadoDefault->id;
+                $this->confirmacion->save();
+                $this->confirmacion->load('encargado.feligres.persona');
+            }
+        }
 
         $this->nota_marginal    = $confirmacion->nota_marginal    ?? '';
         $this->lugar_nacimiento = $confirmacion->lugar_nacimiento ?? '';
@@ -62,21 +79,21 @@ class ConfirmacionShow extends Component
             'firma_nueva.max'      => 'La imagen no debe superar 2 MB.',
         ]);
 
-        $ministro = $this->confirmacion->ministro;
-        if (! $ministro) {
-            $this->addError('firma_nueva', 'No hay ministro asignado a esta confirmación.');
+        $encargado = $this->confirmacion->encargado;
+        if (! $encargado) {
+            $this->addError('firma_nueva', 'No hay encargado asignado a esta confirmación.');
             return;
         }
 
-        if ($ministro->path_firma_principal) {
-            Storage::disk('public')->delete($ministro->path_firma_principal);
+        if ($encargado->path_firma_principal) {
+            Storage::disk('public')->delete($encargado->path_firma_principal);
         }
 
-        $path = $this->firma_nueva->store('firmas-ministro', 'public');
-        $ministro->update(['path_firma_principal' => $path]);
+        $path = $this->firma_nueva->store('firmas-encargado', 'public');
+        $encargado->update(['path_firma_principal' => $path]);
 
         $this->firma_nueva = null;
-        $this->confirmacion->load('ministro.persona');
+        $this->confirmacion->load('encargado.feligres.persona');
         session()->flash('success', 'Firma guardada correctamente.');
     }
 
@@ -137,8 +154,7 @@ class ConfirmacionShow extends Component
 
     public function render()
     {
-        $iglesiaId     = session('tenant.id_iglesia');
-        $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
+        $iglesiaConfig = TenantIglesia::current();
 
         return view('livewire.confirmacion.confirmacion-show', [
             'auditHistory'   => $this->auditHistory,
