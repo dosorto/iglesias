@@ -7,13 +7,11 @@ use App\Models\Curso;
 
 class CursoShow extends Component
 {
-
     public Curso $curso;
 
     public function mount(Curso $curso)
     {
         $this->curso = $curso->load([
-            'iglesia',
             'tipoCurso',
             'instructor.feligres.persona',
             'encargado.feligres.persona',
@@ -25,5 +23,4 @@ class CursoShow extends Component
     {
         return view('livewire.curso.curso-show');
     }
-
 }

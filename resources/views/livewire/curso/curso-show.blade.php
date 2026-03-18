@@ -1,6 +1,5 @@
 <div class="space-y-6">
 
-    {{-- ══ HEADER ════════════════════════════════════════════════════════ --}}
     <div class="flex justify-between items-center">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-wider">
@@ -27,7 +26,6 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {{-- Data Column --}}
         <div class="lg:col-span-1 space-y-6">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
@@ -55,11 +53,6 @@
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $badgeClass }}">
                             {{ $curso->estado }}
                         </span>
-                    </div>
-
-                    <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Iglesia</label>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $curso->iglesia?->nombre ?? 'N/A' }}</p>
                     </div>
 
                     <div>
@@ -102,7 +95,6 @@
             </div>
         </div>
 
-        {{-- Timeline Column --}}
         <div class="lg:col-span-2">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
@@ -167,21 +159,23 @@
                                                     @if($log->event === 'updated' && is_array($newValues) && count($newValues))
                                                         <div class="mt-2 text-[11px] bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded border border-gray-200 dark:border-gray-700">
                                                             @foreach($newValues as $key => $value)
-                                                                <div class="flex items-center gap-2">
-                                                                    <span class="font-bold text-gray-400 uppercase tracking-tighter">
-                                                                        {{ str_replace('_', ' ', $key) }}:
-                                                                    </span>
-                                                                    <span class="text-red-400 line-through">
-                                                                        @php $old = $oldValues[$key] ?? 'N/A'; @endphp
-                                                                        {{ is_array($old) ? '...' : $old }}
-                                                                    </span>
-                                                                    <svg class="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                                                                    </svg>
-                                                                    <span class="text-green-500 font-bold">
-                                                                        {{ is_array($value) ? '...' : $value }}
-                                                                    </span>
-                                                                </div>
+                                                                @if($key !== 'iglesia_id')
+                                                                    <div class="flex items-center gap-2">
+                                                                        <span class="font-bold text-gray-400 uppercase tracking-tighter">
+                                                                            {{ str_replace('_', ' ', $key) }}:
+                                                                        </span>
+                                                                        <span class="text-red-400 line-through">
+                                                                            @php $old = $oldValues[$key] ?? 'N/A'; @endphp
+                                                                            {{ is_array($old) ? '...' : $old }}
+                                                                        </span>
+                                                                        <svg class="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                                                        </svg>
+                                                                        <span class="text-green-500 font-bold">
+                                                                            {{ is_array($value) ? '...' : $value }}
+                                                                        </span>
+                                                                    </div>
+                                                                @endif
                                                             @endforeach
                                                         </div>
                                                     @endif

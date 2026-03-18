@@ -12,7 +12,6 @@ class Curso extends BaseModel
 
     protected $fillable = [
         'encargado_id',
-        'iglesia_id',
         'tipo_curso_id',
         'instructor_id',
         'nombre',
@@ -28,11 +27,6 @@ class Curso extends BaseModel
         'fecha_inicio' => 'date',
         'fecha_fin' => 'date',
     ];
-
-    public function iglesia()
-    {
-        return $this->belongsTo(TenantIglesia::class, 'iglesia_id');
-    }
 
     public function encargado()
     {

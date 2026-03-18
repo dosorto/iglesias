@@ -1,6 +1,5 @@
 <div class="space-y-6">
 
-    {{-- ══ HEADER ════════════════════════════════════════════════════════ --}}
     <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600
                 dark:from-blue-700 dark:to-indigo-700 shadow-md px-6 py-5">
         <div class="absolute -top-6 -right-6 w-32 h-32 rounded-full bg-white/10 pointer-events-none"></div>
@@ -35,7 +34,6 @@
         </div>
     </div>
 
-    {{-- ══ FORMULARIO ═════════════════════════════════════════════════════ --}}
     <div class="bg-white dark:bg-gray-800/80 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700/60
                 ring-1 ring-black/5 dark:ring-white/5">
 
@@ -56,7 +54,6 @@
         <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-                {{-- ── Nombre ──────────────────────────────────────────── --}}
                 <div class="md:col-span-2">
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                         Nombre del Curso <span class="text-red-500">*</span>
@@ -80,7 +77,6 @@
                     @enderror
                 </div>
 
-                {{-- ── Estado ──────────────────────────────────────────── --}}
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                         Estado <span class="text-red-500">*</span>
@@ -106,7 +102,6 @@
                     @enderror
                 </div>
 
-                {{-- ── Vista previa badge ──────────────────────────────── --}}
                 <div class="flex items-end pb-0.5">
                     <div>
                         <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1.5">
@@ -126,7 +121,6 @@
                     </div>
                 </div>
 
-                {{-- ── Fecha Inicio ────────────────────────────────────── --}}
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                         Fecha Inicio
@@ -140,7 +134,6 @@
                                   focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                 </div>
 
-                {{-- ── Fecha Fin ───────────────────────────────────────── --}}
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                         Fecha Fin
@@ -154,33 +147,6 @@
                                   focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                 </div>
 
-                {{-- ── Iglesia ─────────────────────────────────────────── --}}
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                        Iglesia <span class="text-red-500">*</span>
-                    </label>
-                    <select wire:model="iglesia_id"
-                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                                   border border-gray-300 dark:border-gray-600
-                                   bg-white dark:bg-gray-700/60
-                                   text-gray-900 dark:text-white
-                                   focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                                   @error('iglesia_id') border-red-400 @enderror">
-                        @foreach($iglesias as $ig)
-                            <option value="{{ $ig->id }}">{{ $ig->nombre }}</option>
-                        @endforeach
-                    </select>
-                    @error('iglesia_id')
-                        <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            {{ $message }}
-                        </p>
-                    @enderror
-                </div>
-
-                {{-- ── Tipo Curso ──────────────────────────────────────── --}}
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                         Tipo de Curso <span class="text-red-500">*</span>
@@ -206,7 +172,6 @@
                     @enderror
                 </div>
 
-                {{-- ── Instructor ──────────────────────────────────────── --}}
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                         Instructor <span class="text-red-500">*</span>
@@ -234,7 +199,6 @@
 
             </div>
 
-            {{-- ── Barra de acciones ───────────────────────────────────── --}}
             <div class="flex items-center justify-between mt-8 pt-5 border-t border-gray-100 dark:border-gray-700/50">
                 <a href="{{ route('curso.index') }}"
                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all

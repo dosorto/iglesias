@@ -1,5 +1,4 @@
 <div class="space-y-6">
-    {{-- Header --}}
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Cursos</h1>
@@ -19,7 +18,6 @@
         </div>
     </div>
 
-    {{-- Flash Messages --}}
     @if (session()->has('success'))
         <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
             <div class="flex items-center">
@@ -31,10 +29,8 @@
         </div>
     @endif
 
-    {{-- Table Container --}}
     <div class="content-container mx-auto w-full max-w-7xl">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-            {{-- Table Header with Search --}}
             <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
                 <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
                     <div class="flex items-center gap-4">
@@ -44,7 +40,6 @@
                         </span>
                     </div>
 
-                    {{-- Search and Filters --}}
                     <div class="flex items-center gap-3 flex-1 max-w-lg w-full">
                         <div class="relative flex-1">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -56,7 +51,7 @@
                                 wire:model.live.debounce.300ms="search"
                                 type="text"
                                 class="block w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-                                placeholder="Buscar por nombre, iglesia o tipo..."
+                                placeholder="Buscar por nombre o tipo..."
                             >
                         </div>
 
@@ -78,9 +73,6 @@
                         <tr>
                             <th class="px-6 py-3 text-left">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Curso</span>
-                            </th>
-                            <th class="px-6 py-3 text-left">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Iglesia</span>
                             </th>
                             <th class="px-6 py-3 text-left">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tipo Curso</span>
@@ -125,12 +117,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                </td>
-
-                                <td class="px-6 py-4">
-                                    <span class="text-sm text-gray-900 dark:text-white">
-                                        {{ $curso->iglesia?->nombre ?? 'N/A' }}
-                                    </span>
                                 </td>
 
                                 <td class="px-6 py-4">
@@ -197,7 +183,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-16 text-center">
+                                <td colspan="5" class="px-6 py-16 text-center">
                                     <div class="flex flex-col items-center">
                                         <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
                                             <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,14 +219,12 @@
                 </table>
             </div>
 
-            {{-- Pagination --}}
             <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-200 dark:border-gray-600">
                 {{ $cursos->links() }}
             </div>
         </div>
     </div>
 
-    {{-- Modern Delete Modal --}}
     @if($showDeleteModal)
         <div class="fixed inset-0 bg-gray-900/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full overflow-hidden border border-gray-200 dark:border-gray-700 anim-scale-in">
