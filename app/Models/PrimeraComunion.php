@@ -13,6 +13,7 @@ class PrimeraComunion extends BaseModel
     protected $fillable = [
         'id_iglesia',
         'fecha_primera_comunion',
+        'encargado_id',
         'id_feligres',
         'id_catequista',
         'id_ministro',
@@ -36,6 +37,11 @@ class PrimeraComunion extends BaseModel
     public function iglesia()
     {
         return $this->belongsTo(TenantIglesia::class, 'id_iglesia');
+    }
+
+    public function encargado()
+    {
+        return $this->belongsTo(Encargado::class, 'encargado_id');
     }
 
     public function feligres()

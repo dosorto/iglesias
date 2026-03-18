@@ -13,6 +13,7 @@ class PrimeraComunionSeeder extends Seeder
         if (!Schema::hasTable('primeras_comuniones')) return;
 
         $ig  = Schema::hasColumn('primeras_comuniones', 'iglesia_id')    ? 'iglesia_id'    : 'id_iglesia';
+        $enc = Schema::hasColumn('bautismos', 'encargado_id') ? 'encargado_id' : 'id_encargado';
         $fel = Schema::hasColumn('primeras_comuniones', 'feligres_id')   ? 'feligres_id'   : 'id_feligres';
         $cat = Schema::hasColumn('primeras_comuniones', 'catequista_id') ? 'catequista_id' : 'id_catequista';
         $min = Schema::hasColumn('primeras_comuniones', 'ministro_id')   ? 'ministro_id'   : 'id_ministro';
@@ -24,6 +25,7 @@ class PrimeraComunionSeeder extends Seeder
             [
                 $ig                      => 1,
                 'fecha_primera_comunion' => '2026-02-15',
+                $enc             => 1,
                 $fel                     => 4,
                 $cat                     => 1,
                 $min                     => 2,
@@ -38,6 +40,7 @@ class PrimeraComunionSeeder extends Seeder
             [
                 $ig                      => 1,
                 'fecha_primera_comunion' => '2026-02-15',
+                $enc             => 1,
                 $fel                     => 5,
                 $cat                     => 1,
                 $min                     => 2,
@@ -52,6 +55,7 @@ class PrimeraComunionSeeder extends Seeder
             [
                 $ig                      => 1,
                 'fecha_primera_comunion' => '2026-03-01',
+                $enc             => 1,
                 $fel                     => 7,
                 $cat                     => 1,
                 $min                     => 2,
@@ -66,6 +70,7 @@ class PrimeraComunionSeeder extends Seeder
             [
                 $ig                      => 1,
                 'fecha_primera_comunion' => '2026-03-01',
+                $enc             => 1,
                 $fel                     => 8,
                 $cat                     => 1,
                 $min                     => 2,
@@ -80,6 +85,7 @@ class PrimeraComunionSeeder extends Seeder
             [
                 $ig                      => 1,
                 'fecha_primera_comunion' => '2026-03-22',
+                $enc             => 1,
                 $fel                     => 6,
                 $cat                     => 1,
                 $min                     => 2,
