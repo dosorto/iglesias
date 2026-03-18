@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\InscripcionCurso;
 use App\Models\Curso;
 use App\Models\Feligres;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Persona;
 
 class InscripcionCursoEdit extends Component
@@ -25,7 +26,6 @@ class InscripcionCursoEdit extends Component
     public string $persona_dni = '';
     public $persona = null;
     public $persona_estado = 'idle';
-
     public bool $showCrearPersona = false;
 
     public string $p_dni = '';
@@ -139,7 +139,7 @@ class InscripcionCursoEdit extends Component
             'aprobado' => (int) $this->aprobado,
             'certificado_emitido' => (int) $this->certificado_emitido,
             'fecha_certificado' => $this->fecha_certificado ?: null,
-            'updated_by' => auth()->id(),
+            'updated_by' => Auth::id(),
         ]);
 
         session()->flash('success', 'Inscripción actualizada correctamente.');

@@ -7,8 +7,8 @@ use Livewire\Attributes\Computed;
 use App\Models\Feligres;
 use App\Models\Persona;
 use App\Models\Iglesias;
+use App\Models\TenantIglesia;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\DB;
 
 class FeligresEdit extends Component
 {
@@ -43,6 +43,10 @@ class FeligresEdit extends Component
                 'telefono'        => $feligre->persona->telefono,
                 'email'           => $feligre->persona->email,
             ];
+        }
+
+        if (session('tenant')) {
+            $this->id_iglesia = TenantIglesia::currentId();
         }
     }
 
@@ -104,6 +108,10 @@ class FeligresEdit extends Component
     // ── Guardar cambios ──────────────────────────────────────────────
     public function guardar(): void
     {
+        if (session('tenant')) {
+            $this->id_iglesia = TenantIglesia::currentId();
+        }
+
         $this->validate([
             'persona_id'    => [
                 'required',
@@ -154,7 +162,7 @@ class FeligresEdit extends Component
     public function render()
     {
         if (session('tenant')) {
-            $iglesias = collect([DB::table('iglesias')->first()])->filter();
+            $iglesias = collect([TenantIglesia::current()])->filter();
         } else {
             $iglesias = Iglesias::where('estado', 'Activo')->orderBy('nombre')->get();
         }

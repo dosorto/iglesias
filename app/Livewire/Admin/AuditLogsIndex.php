@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\AuditLog;
 use App\Exports\AuditLogsExport;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
@@ -41,7 +42,7 @@ class AuditLogsIndex extends Component
 
     public function export()
     {
-        abort_if(!auth()->user()->can('audit.export'), 403);
+        abort_if(!Gate::allows('audit.export'), 403);
         
         $filename = 'auditoria_' . now()->format('Y_m_d_His') . '.xlsx';
         return Excel::download(new AuditLogsExport($this->search, $this->event, $this->date), $filename);

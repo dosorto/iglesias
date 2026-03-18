@@ -7,12 +7,40 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Session;
 
 class Iglesias extends Model
 {
     use HasFactory;
 
     protected $table = 'iglesias';
+
+    /**
+     * Always query Iglesias from the central (landlord) database,
+     * even when the tenant middleware has switched the default connection.
+     */
+    public function getConnectionName(): string
+    {
+        return config('tenancy.central_connection', config('database.default'));
+    }
+
+    public static function currentIdFromSession(): ?int
+    {
+        if (! app()->bound('session')) {
+            return null;
+        }
+
+        $iglesiaId = Session::get('tenant.id_iglesia');
+
+        return $iglesiaId ? (int) $iglesiaId : null;
+    }
+
+    public static function currentFromSession(): ?self
+    {
+        $iglesiaId = static::currentIdFromSession();
+
+        return $iglesiaId ? static::query()->find($iglesiaId) : null;
+    }
 
     protected $fillable = [
         'nombre',
@@ -23,6 +51,8 @@ class Iglesias extends Model
         'estado',
         'id_religion',
         'path_logo',
+        'path_certificado_bautismo',
+        'orientacion_certificado',
         'db_connection',
         'db_host',
         'db_port',
@@ -31,7 +61,7 @@ class Iglesias extends Model
         'db_password',
     ];
 
-   protected $appends = ['logo_url'];
+   protected $appends = ['logo_url', 'certificado_bautismo_url'];
 
     // URL pública del logo (null si no tiene)
     protected function logoUrl(): Attribute
@@ -39,6 +69,16 @@ class Iglesias extends Model
         return Attribute::make(
             get: fn () => $this->path_logo
                 ? asset('storage/' . $this->path_logo)
+                : null,
+        );
+    }
+
+    // URL pública del formato de certificado de bautismo
+    protected function certificadoBautismoUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->path_certificado_bautismo
+                ? asset('storage/' . $this->path_certificado_bautismo)
                 : null,
         );
     }

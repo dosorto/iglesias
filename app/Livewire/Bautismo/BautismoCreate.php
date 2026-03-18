@@ -6,9 +6,11 @@ use Livewire\Component;
 use App\Models\Persona;
 use App\Models\Feligres;
 use App\Models\Iglesias;
+use App\Models\TenantIglesia;
 use App\Models\Encargado;
 use App\Models\Bautismo;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class BautismoCreate extends Component
@@ -73,15 +75,19 @@ class BautismoCreate extends Component
     public string $folio          = '';
     public string $partida_numero = '';
     public string $observaciones  = '';
+    public string $nota_marginal    = '';
+    public string $lugar_nacimiento = '';
+    public string $lugar_expedicion = '';
+    public string $exp_dia          = '';
+    public string $exp_mes          = '';
+    public string $exp_ano          = '';
 
     public function mount(): void
     {
         $this->fecha_bautismo       = now()->format('Y-m-d');
         $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
 
-        // Tomar el id de la iglesia local automáticamente
-        $iglesiaLocal     = DB::table('iglesias')->first();
-        $this->iglesia_id = $iglesiaLocal?->id;
+        $this->iglesia_id = TenantIglesia::currentId();
 
         // Encargado por defecto: primer encargado disponible
         $encargadoDefault   = Encargado::with('feligres.persona')->where('estado', 'Activo')->first();
@@ -348,17 +354,16 @@ class BautismoCreate extends Component
         $rol = $this->mini_rol;
 
         DB::transaction(function () use ($rol) {
-            // Fallback: resolve iglesia_id at runtime if it was not set in mount()
-            if (! $this->iglesia_id) {
-                $this->iglesia_id = DB::table('iglesias')->value('id');
+            if (session('tenant')) {
+                $this->iglesia_id = TenantIglesia::currentId();
             }
 
             $persona = Persona::create([
                 'dni'              => $this->mini_p_dni,
-                'primer_nombre'    => $this->mini_p_primer_nombre,
-                'segundo_nombre'   => $this->mini_p_segundo_nombre  ?: null,
-                'primer_apellido'  => $this->mini_p_primer_apellido,
-                'segundo_apellido' => $this->mini_p_segundo_apellido ?: null,
+                'primer_nombre'    => Str::title($this->mini_p_primer_nombre),
+                'segundo_nombre'   => $this->mini_p_segundo_nombre ? Str::title($this->mini_p_segundo_nombre) : null,
+                'primer_apellido'  => Str::title($this->mini_p_primer_apellido),
+                'segundo_apellido' => $this->mini_p_segundo_apellido ? Str::title($this->mini_p_segundo_apellido) : null,
                 'fecha_nacimiento' => $this->mini_p_fecha_nacimiento ?: null,
                 'sexo'             => $this->mini_p_sexo === 'Masculino' ? 'M' : ($this->mini_p_sexo === 'Femenino' ? 'F' : null),
                 'telefono'         => $this->mini_p_telefono ?: null,
@@ -400,9 +405,8 @@ class BautismoCreate extends Component
             'iglesia_id.required' => 'No se pudo determinar la iglesia.',
         ]);
 
-        // Fallback: resolve iglesia_id at runtime if it was not set in mount()
-        if (! $this->iglesia_id) {
-            $this->iglesia_id = DB::table('iglesias')->value('id');
+        if (session('tenant')) {
+            $this->iglesia_id = TenantIglesia::currentId();
         }
 
         $rol     = $this->mini_rol;
@@ -425,16 +429,44 @@ class BautismoCreate extends Component
 
     public function guardar(): void
     {
+        if (session('tenant')) {
+            $this->iglesia_id = TenantIglesia::currentId();
+        }
+
         $this->validate([
             'fecha_bautismo' => ['required', 'date'],
+            'nota_marginal'    => ['nullable', 'string', 'max:500'],
+            'lugar_nacimiento' => ['nullable', 'string', 'max:150'],
+            'lugar_expedicion' => ['nullable', 'string', 'max:150'],
+            'exp_dia'          => ['nullable', 'integer', 'min:1', 'max:31'],
+            'exp_mes'          => ['nullable', 'integer', 'min:1', 'max:12'],
+            'exp_ano'          => ['nullable', 'integer', 'min:0', 'max:99'],
         ], [
             'fecha_bautismo.required' => 'La fecha de bautismo es obligatoria.',
             'fecha_bautismo.date'     => 'La fecha de bautismo no es válida.',
+            'nota_marginal.max'       => 'La nota marginal no puede superar los 500 caracteres.',
+            'lugar_nacimiento.max'    => 'El lugar de nacimiento no puede superar los 150 caracteres.',
+            'lugar_expedicion.max'    => 'El lugar no puede superar los 150 caracteres.',
+            'exp_dia.min'             => 'El día debe ser entre 1 y 31.',
+            'exp_mes.min'             => 'El mes debe ser entre 1 y 12.',
         ]);
 
         if (! $this->bautizado_feligres_id) {
             $this->addError('bautizado_dni', 'El bautizado es obligatorio.');
             return;
+        }
+
+        $fechaExp = null;
+        if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
+            try {
+                $fechaExp = \Carbon\Carbon::createFromDate(
+                    2000 + (int) $this->exp_ano,
+                    (int) $this->exp_mes,
+                    (int) $this->exp_dia
+                )->format('Y-m-d');
+            } catch (\Exception) {
+                $fechaExp = null;
+            }
         }
 
         Bautismo::create([
@@ -450,6 +482,10 @@ class BautismoCreate extends Component
             'folio'          => $this->folio          ?: null,
             'partida_numero' => $this->partida_numero ?: null,
             'observaciones'  => $this->observaciones  ?: null,
+            'nota_marginal'    => $this->nota_marginal    ?: null,
+            'lugar_nacimiento' => $this->lugar_nacimiento ?: null,
+            'lugar_expedicion' => $this->lugar_expedicion ?: null,
+            'fecha_expedicion' => $fechaExp,
         ]);
 
         session()->flash('success', 'Bautismo registrado correctamente.');
@@ -461,7 +497,7 @@ class BautismoCreate extends Component
         $centralConn = config('tenancy.central_connection', 'mysql');
 
         if (session('tenant')) {
-            $iglesias = collect([DB::table('iglesias')->first()])->filter();
+            $iglesias = collect([TenantIglesia::current()])->filter();
         } else {
             $iglesias = Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get();
         }

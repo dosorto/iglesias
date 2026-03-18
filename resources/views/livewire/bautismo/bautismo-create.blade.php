@@ -339,7 +339,7 @@
                                                text-emerald-700 dark:text-emerald-300
                                                border border-emerald-300 dark:border-emerald-600 rounded-xl
                                                hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all">
-                                    + Crear Nueva Persona
+                                    + Registrar nuevo feligres
                                 </button>
                             @endif
                         </div>
@@ -383,7 +383,7 @@
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                                         <div class="sm:col-span-2">
-                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
                                                 Numero de Identidad <span class="text-red-500">*</span>
                                             </label>
                                             <input type="text" wire:model="mini_p_dni" placeholder="Ej: 0801199912345"
@@ -398,11 +398,11 @@
                                         </div>
 
                                         <div>
-                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
                                                 Primer Nombre <span class="text-red-500">*</span>
                                             </label>
                                             <input type="text" wire:model="mini_p_primer_nombre"
-                                                   oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'')"
+                                                   oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'').replace(/\b\w/g,c=>c.toUpperCase())"
                                                    class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                           border border-gray-300 dark:border-gray-600
                                                           bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
@@ -414,11 +414,11 @@
                                         </div>
 
                                         <div>
-                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
                                                 Segundo Nombre
                                             </label>
                                             <input type="text" wire:model="mini_p_segundo_nombre"
-                                                   oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'')"
+                                                   oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'').replace(/\b\w/g,c=>c.toUpperCase())"
                                                    class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                           border border-gray-300 dark:border-gray-600
                                                           bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
@@ -426,11 +426,11 @@
                                         </div>
 
                                         <div>
-                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
                                                 Primer Apellido <span class="text-red-500">*</span>
                                             </label>
                                             <input type="text" wire:model="mini_p_primer_apellido"
-                                                   oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'')"
+                                                   oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'').replace(/\b\w/g,c=>c.toUpperCase())"
                                                    class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                           border border-gray-300 dark:border-gray-600
                                                           bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
@@ -442,11 +442,11 @@
                                         </div>
 
                                         <div>
-                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
                                                 Segundo Apellido
                                             </label>
                                             <input type="text" wire:model="mini_p_segundo_apellido"
-                                                   oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'')"
+                                                   oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'').replace(/\b\w/g,c=>c.toUpperCase())"
                                                    class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                           border border-gray-300 dark:border-gray-600
                                                           bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
@@ -454,7 +454,7 @@
                                         </div>
 
                                         <div>
-                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
                                                 Fecha de Nacimiento <span class="text-red-500">*</span>
                                             </label>
                                             <input type="date"
@@ -470,7 +470,7 @@
                                         </div>
 
                                         <div>
-                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
                                                 Sexo <span class="text-red-500">*</span>
                                             </label>
                                             <select wire:model="mini_p_sexo"
@@ -489,7 +489,7 @@
                                         </div>
 
                                         <div>
-                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
                                                 Telefono <span class="text-red-500">*</span>
                                             </label>
                                             <input type="text" wire:model="mini_p_telefono"
@@ -506,7 +506,7 @@
                                         </div>
 
                                         <div>
-                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
                                                 Correo Electronico
                                             </label>
                                             <input type="email" wire:model="mini_p_email"
@@ -782,6 +782,115 @@
                                      border border-gray-300 dark:border-gray-600
                                      bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
                                      focus:ring-2 focus:ring-sky-500 focus:border-transparent resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                        Lugar de Nacimiento
+                    </label>
+                    <input type="text" wire:model="lugar_nacimiento"
+                           placeholder="Ej: Choluteca"
+                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                  border border-gray-300 dark:border-gray-600
+                                  bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                  focus:ring-2 focus:ring-sky-500 focus:border-transparent
+                                  @error('lugar_nacimiento') border-red-400 @enderror" />
+                    @error('lugar_nacimiento')
+                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                        Nota Marginal
+                    </label>
+                    <input type="text" wire:model="nota_marginal"
+                           placeholder="Ej: Notas adicionales o sacramentos posteriores"
+                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                  border border-gray-300 dark:border-gray-600
+                                  bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                  focus:ring-2 focus:ring-sky-500 focus:border-transparent
+                                  @error('nota_marginal') border-red-400 @enderror" />
+                    @error('nota_marginal')
+                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                        Lugar de Expedición
+                    </label>
+                    <input type="text" wire:model="lugar_expedicion"
+                           placeholder="Ej: San Marcos de Colón"
+                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                  border border-gray-300 dark:border-gray-600
+                                  bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                  focus:ring-2 focus:ring-sky-500 focus:border-transparent
+                                  @error('lugar_expedicion') border-red-400 @enderror" />
+                    @error('lugar_expedicion')
+                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                        Día de Expedición
+                    </label>
+                    <input type="number" min="1" max="31" wire:model="exp_dia"
+                           placeholder="Ej: 14"
+                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                  border border-gray-300 dark:border-gray-600
+                                  bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                  focus:ring-2 focus:ring-sky-500 focus:border-transparent [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none
+                                  @error('exp_dia') border-red-400 @enderror" />
+                    @error('exp_dia')
+                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                        Mes de Expedición
+                    </label>
+                    <select wire:model="exp_mes"
+                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                   border border-gray-300 dark:border-gray-600
+                                   bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                   focus:ring-2 focus:ring-sky-500 focus:border-transparent
+                                   @error('exp_mes') border-red-400 @enderror">
+                        <option value="">Seleccione</option>
+                        <option value="1">enero</option>
+                        <option value="2">febrero</option>
+                        <option value="3">marzo</option>
+                        <option value="4">abril</option>
+                        <option value="5">mayo</option>
+                        <option value="6">junio</option>
+                        <option value="7">julio</option>
+                        <option value="8">agosto</option>
+                        <option value="9">septiembre</option>
+                        <option value="10">octubre</option>
+                        <option value="11">noviembre</option>
+                        <option value="12">diciembre</option>
+                    </select>
+                    @error('exp_mes')
+                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                        Año de Expedición (dos mil)
+                    </label>
+                    <input type="number" min="0" max="99" wire:model="exp_ano"
+                           placeholder="Ej: 26"
+                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                  border border-gray-300 dark:border-gray-600
+                                  bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                  focus:ring-2 focus:ring-sky-500 focus:border-transparent [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none
+                                  @error('exp_ano') border-red-400 @enderror" />
+                    @error('exp_ano')
+                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
                 </div>
 
             </div>

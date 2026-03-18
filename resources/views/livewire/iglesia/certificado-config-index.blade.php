@@ -1,0 +1,263 @@
+<div class="space-y-6">
+
+    {{-- Header --}}
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Configuración de Certificados</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">Administra el logo y el formato de fondo de los certificados</p>
+        </div>
+        <a href="{{ route('settings.index') }}"
+           class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600
+                  text-gray-700 dark:text-gray-200 text-sm font-medium rounded-lg transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Volver
+        </a>
+    </div>
+
+    {{-- Flash messages --}}
+    @if (session('success'))
+        <div class="bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-600 text-green-800 dark:text-green-200 px-4 py-3 rounded-lg text-sm">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-600 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg text-sm">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    {{-- ===== LOGO SECTION ===== --}}
+    <div>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Logo de la Iglesia</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Este logo aparece en la cabecera de todos los certificados.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {{-- Upload logo card --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Subir nuevo logo</h2>
+
+            <form wire:submit.prevent="subirLogo" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Imagen del logo (JPG / PNG, máx. 2 MB)
+                    </label>
+
+                    <label for="logo-input"
+                           class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer
+                                  border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40
+                                  hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        @if ($logo_nuevo)
+                            <img src="{{ $logo_nuevo->temporaryUrl() }}" alt="Vista previa"
+                                 class="h-full w-full object-contain rounded-xl p-1">
+                        @else
+                            <div class="flex flex-col items-center gap-2 text-gray-400 dark:text-gray-500">
+                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <span class="text-sm">Haz clic para seleccionar una imagen</span>
+                            </div>
+                        @endif
+                        <input id="logo-input" type="file" wire:model="logo_nuevo" accept="image/jpeg,image/png" class="hidden">
+                    </label>
+
+                    @error('logo_nuevo')
+                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <button type="submit"
+                        class="inline-flex items-center px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                    Guardar Logo
+                </button>
+            </form>
+        </div>
+
+        {{-- Current logo card --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Logo actual</h2>
+
+            @if ($iglesia?->logo_url)
+                <div class="space-y-4">
+                    <img src="{{ $iglesia->logo_url }}" alt="Logo actual"
+                         class="w-full rounded-lg border border-gray-200 dark:border-gray-600 object-contain max-h-48 bg-gray-50 dark:bg-gray-700/40 p-2">
+
+                    @if (! $confirmandoEliminarLogo)
+                        <button wire:click="$set('confirmandoEliminarLogo', true)"
+                                class="inline-flex items-center px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40
+                                       text-red-700 dark:text-red-400 text-sm font-medium rounded-lg border border-red-200 dark:border-red-700 transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            Eliminar logo
+                        </button>
+                    @else
+                        <div class="flex items-center gap-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg px-4 py-3">
+                            <span class="text-sm text-red-700 dark:text-red-400 flex-1">¿Confirmar eliminación?</span>
+                            <button wire:click="eliminarLogo"
+                                    class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                Sí, eliminar
+                            </button>
+                            <button wire:click="$set('confirmandoEliminarLogo', false)"
+                                    class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600
+                                           text-gray-700 dark:text-gray-200 text-sm font-medium rounded-lg transition-colors">
+                                Cancelar
+                            </button>
+                        </div>
+                    @endif
+                </div>
+            @else
+                <div class="flex flex-col items-center justify-center h-48 text-gray-400 dark:text-gray-500 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
+                    <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <p class="text-sm">No hay logo configurado</p>
+                    <p class="text-xs mt-1">Se usará el escudo por defecto</p>
+                </div>
+            @endif
+        </div>
+
+    </div>
+
+    {{-- ===== CERTIFICATE BACKGROUND SECTION ===== --}}
+    <div class="mt-4">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Formato de Fondo del Certificado</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Imagen que se usará como fondo del certificado de bautismo.</p>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+        <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-2">Orientación del certificado</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Define si el formato se genera en vertical u horizontal.</p>
+
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <input type="radio" wire:model="orientacion_certificado" value="portrait" class="text-teal-600 border-gray-300 focus:ring-teal-500">
+                Vertical
+            </label>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <input type="radio" wire:model="orientacion_certificado" value="landscape" class="text-teal-600 border-gray-300 focus:ring-teal-500">
+                Horizontal
+            </label>
+
+            <button type="button" wire:click="guardarOrientacion"
+                    class="inline-flex items-center px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                Guardar orientación
+            </button>
+        </div>
+
+        @error('orientacion_certificado')
+            <p class="mt-2 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {{-- Upload card --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Subir nuevo formato</h2>
+
+            <form wire:submit.prevent="subirFormato" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Imagen del formato (JPG / PNG, máx. 5 MB)
+                    </label>
+
+                    {{-- Drop zone --}}
+                    <label for="formato-input"
+                           class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer
+                                  border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40
+                                  hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        @if ($formato_nuevo)
+                            <img src="{{ $formato_nuevo->temporaryUrl() }}" alt="Vista previa"
+                                 class="h-full w-full object-contain rounded-xl p-1">
+                        @else
+                            <div class="flex flex-col items-center gap-2 text-gray-400 dark:text-gray-500">
+                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <span class="text-sm">Haz clic para seleccionar una imagen</span>
+                            </div>
+                        @endif
+                        <input id="formato-input" type="file" wire:model="formato_nuevo" accept="image/jpeg,image/png" class="hidden">
+                    </label>
+
+                    @error('formato_nuevo')
+                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <button type="submit"
+                        class="inline-flex items-center px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                    Guardar Formato
+                </button>
+            </form>
+        </div>
+
+        {{-- Current template card --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Formato actual</h2>
+
+            @if ($iglesia?->certificado_bautismo_url)
+                <div class="space-y-4">
+                    <img src="{{ $iglesia->certificado_bautismo_url }}" alt="Formato actual"
+                         class="w-full rounded-lg border border-gray-200 dark:border-gray-600 object-contain max-h-72">
+
+                    @if (! $confirmandoEliminar)
+                        <button wire:click="$set('confirmandoEliminar', true)"
+                                class="inline-flex items-center px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40
+                                       text-red-700 dark:text-red-400 text-sm font-medium rounded-lg border border-red-200 dark:border-red-700 transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            Eliminar formato
+                        </button>
+                    @else
+                        <div class="flex items-center gap-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg px-4 py-3">
+                            <span class="text-sm text-red-700 dark:text-red-400 flex-1">¿Confirmar eliminación?</span>
+                            <button wire:click="eliminarFormato"
+                                    class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                Sí, eliminar
+                            </button>
+                            <button wire:click="$set('confirmandoEliminar', false)"
+                                    class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600
+                                           text-gray-700 dark:text-gray-200 text-sm font-medium rounded-lg transition-colors">
+                                Cancelar
+                            </button>
+                        </div>
+                    @endif
+                </div>
+            @else
+                <div class="flex flex-col items-center justify-center h-48 text-gray-400 dark:text-gray-500 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
+                    <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <p class="text-sm">No hay formato configurado</p>
+                    <p class="text-xs mt-1">Se usará el diseño por defecto</p>
+                </div>
+            @endif
+        </div>
+
+    </div>
+
+    {{-- Info note --}}
+    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg px-4 py-3 text-sm text-blue-700 dark:text-blue-300 space-y-1">
+        <p><strong>Logo:</strong> Se recomienda una imagen cuadrada (mín. 200 × 200 px) en PNG con fondo transparente. Aparecerá en la cabecera de todos los certificados.</p>
+        <p><strong>Formato de fondo:</strong> Se recomienda usar una imagen de tamaño carta (2550 × 3300 px) en PNG con fondo transparente.</p>
+    </div>
+
+</div>

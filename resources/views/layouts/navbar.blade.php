@@ -1,4 +1,7 @@
 <nav class="sticky top-0 z-30 w-full bg-gray-50 dark:bg-gray-900 border-b-2 border-gray-300 dark:border-gray-700 shadow-md transition-colors duration-300">
+    @php
+        $activeChurchName = \App\Models\TenantIglesia::current()?->nombre ?: config('app.name');
+    @endphp
     <div class="px-4 py-3 flex justify-between items-center">
 
         <div class="flex items-center gap-3">
@@ -12,7 +15,7 @@
             </button>
 
             <span class="text-lg font-semibold text-gray-900 dark:text-white">
-                {{ config('app.name') }}
+                {{ $activeChurchName }}
             </span>
         </div>
 

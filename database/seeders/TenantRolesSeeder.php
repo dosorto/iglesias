@@ -60,6 +60,11 @@ class TenantRolesSeeder extends Seeder
             ['name' => 'bautismo.delete', 'display_name' => 'Eliminar Bautismos'],
             ['name' => 'bautismo.export', 'display_name' => 'Exportar Bautismos'],
 
+            ['name' => 'matrimonio.view',   'display_name' => 'Ver Matrimonios'],
+            ['name' => 'matrimonio.create', 'display_name' => 'Crear Matrimonios'],
+            ['name' => 'matrimonio.edit',   'display_name' => 'Editar Matrimonios'],
+            ['name' => 'matrimonio.delete', 'display_name' => 'Eliminar Matrimonios'],
+
             ['name' => 'primera-comunion.view',   'display_name' => 'Ver Primera Comunion'],
             ['name' => 'primera-comunion.create', 'display_name' => 'Crear Primera Comunion'],
             ['name' => 'primera-comunion.edit',   'display_name' => 'Editar Primera Comunion'],
@@ -77,6 +82,7 @@ class TenantRolesSeeder extends Seeder
             ['name' => 'inscripcion-curso.edit',   'display_name' => 'Editar Inscripciones de Curso'],
             ['name' => 'inscripcion-curso.delete', 'display_name' => 'Eliminar Inscripciones de Curso'],
             ['name' => 'inscripcion-curso.export', 'display_name' => 'Exportar Inscripciones de Curso'],
+            
         ];
 
         foreach ($adminPermisos as $p) {

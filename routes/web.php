@@ -44,6 +44,18 @@ Route::middleware(['auth'])->group(function () {
         ->get('/settings', fn () => view('settings.index'))
         ->name('settings.index');
 
+    Route::middleware('permission:roles.view')
+        ->get('/configuracion/certificado-bautismo', fn () => view('configuracion.certificado-bautismo'))
+        ->name('configuracion.certificado-bautismo');
+
+    Route::middleware('permission:roles.view')
+        ->get('/configuracion/iglesia', [\App\Http\Controllers\IglesiaController::class, 'editConfiguracion'])
+        ->name('configuracion.iglesia.edit');
+
+    Route::middleware('permission:roles.view')
+        ->put('/configuracion/iglesia', [\App\Http\Controllers\IglesiaController::class, 'updateConfiguracion'])
+        ->name('configuracion.iglesia.update');
+
     Route::middleware('permission:audit.view')
         ->get('/audit', fn () => view('admin.audit'))
         ->name('audit.index');
@@ -250,6 +262,27 @@ Route::middleware(['auth'])->group(function () {
         ->get('/bautismo/{bautismo}/certificado/pdf', [\App\Http\Controllers\BautismoController::class, 'certificadoPdf'])
         ->name('bautismo.certificado.pdf');
 
+    // Matrimonio CRUD
+    Route::middleware('permission:matrimonio.view')
+        ->get('/matrimonio', [\App\Http\Controllers\MatrimonioController::class, 'index'])
+        ->name('matrimonio.index');
+
+    Route::middleware('permission:matrimonio.create')
+        ->get('/matrimonio/create', [\App\Http\Controllers\MatrimonioController::class, 'create'])
+        ->name('matrimonio.create');
+
+    Route::middleware('permission:matrimonio.view')
+        ->get('/matrimonio/{matrimonio}', [\App\Http\Controllers\MatrimonioController::class, 'show'])
+        ->name('matrimonio.show');
+
+    Route::middleware('permission:matrimonio.edit')
+        ->get('/matrimonio/{matrimonio}/edit', [\App\Http\Controllers\MatrimonioController::class, 'edit'])
+        ->name('matrimonio.edit');
+
+    Route::middleware('permission:matrimonio.view')
+        ->get('/matrimonio/{matrimonio}/certificado/pdf', [\App\Http\Controllers\MatrimonioController::class, 'certificadoPdf'])
+        ->name('matrimonio.certificado.pdf');
+
     // TipoCurso CRUD
     Route::middleware('permission:tipocurso.view')
         ->get('/tipocurso', [\App\Http\Controllers\TipoCursoController::class, 'index'])
@@ -362,7 +395,7 @@ Route::middleware(['auth'])->group(function () {
             ->get('/inscripcion-curso/{inscripcionCurso}/edit', [\App\Http\Controllers\InscripcionCursoController::class, 'edit'])
             ->name('inscripcion-curso.edit');
 
-    Route::get('/inscripcion-curso/{inscripcion}/edit', [InscripcionCursoController::class, 'edit'])
+    Route::get('/inscripcion-curso/{inscripcion}/edit', [\App\Http\Controllers\InscripcionCursoController::class, 'edit'])
         ->name('inscripcion-curso.edit');
 
     Route::middleware('permission:inscripcion-curso.delete')
@@ -372,6 +405,11 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:inscripcion-curso.create')
     ->get('/instructor/{instructor}/inscripcion-curso/create', [\App\Http\Controllers\InscripcionCursoController::class, 'createFromInstructor'])
     ->name('instructor.inscripcion.create');
+
+    
+    Route::middleware('permission:iglesias.logo')
+    ->get('/iglesia/logo', \App\Livewire\Iglesia\IglesiaLogoUpdate::class)
+    ->name('iglesia.logo');
 });
 
 require __DIR__.'/auth.php';

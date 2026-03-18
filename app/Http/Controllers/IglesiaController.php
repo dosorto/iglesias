@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreIglesiaRequest;
+use App\Http\Requests\UpdateIglesiaConfiguracionRequest;
 use App\Http\Requests\UpdateIglesiaRequest;
 use App\Models\Iglesias;
+use App\Models\TenantIglesia;
 use App\Models\Religion;
 use App\Services\Tenancy\TenantProvisioner;
 
@@ -64,6 +66,15 @@ class IglesiaController extends Controller
         return view('iglesias.edit', compact('iglesia', 'religiones'));
     }
 
+    public function editConfiguracion()
+    {
+        $iglesia = TenantIglesia::current();
+
+        abort_unless($iglesia, 404, 'No se encontró una iglesia activa para configurar.');
+
+        return view('configuracion.iglesia', compact('iglesia'));
+    }
+
     public function update(UpdateIglesiaRequest $request, Iglesias $iglesia)
     {
         $iglesia->update([
@@ -78,6 +89,18 @@ class IglesiaController extends Controller
 
         return redirect()->route('iglesias.index')
             ->with('success', 'Iglesia Actualizada Exitosamente.');
+    }
+
+    public function updateConfiguracion(UpdateIglesiaConfiguracionRequest $request)
+    {
+        $iglesia = TenantIglesia::current();
+
+        abort_unless($iglesia, 404, 'No se encontró una iglesia activa para configurar.');
+
+        $iglesia->update($request->validated());
+
+        return redirect()->route('configuracion.iglesia.edit')
+            ->with('success', 'Configuración de la iglesia actualizada exitosamente.');
     }
 
     public function destroy(Iglesias $iglesia)

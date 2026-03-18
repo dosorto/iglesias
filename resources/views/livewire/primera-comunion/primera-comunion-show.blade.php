@@ -4,7 +4,8 @@
     $ministro    = $primeraComunion->ministro?->persona;
     $parroco     = $primeraComunion->parroco?->persona;
     $encargado   = $primeraComunion->encargado?->feligres?->persona;
-    $iglesiaNombre = $primeraComunion->iglesia?->nombre ?? '';
+    $iglesiaNombre = $iglesiaConfig?->nombre ?? $primeraComunion->iglesia?->nombre ?? '';
+    $logoIglesia = $iglesiaConfig?->logo_url ?? asset('image/Logo_guest.png');
 
     $mesesEs = [
         1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',
@@ -68,7 +69,7 @@
                         <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
                         </svg>
-                        Guardar Borrador
+                        Guardar Cambios
                     </button>
                 @endcan
 
@@ -96,7 +97,7 @@
                         <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                         </svg>
-                        Editar Registro
+                        Editar Primera Comunion 
                     </a>
                 @endcan
 
@@ -116,7 +117,7 @@
             <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Información del Libro</p>
             <div class="space-y-3">
                 <div>
-                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-1">Diócesis</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-1">Parroquia</p>
                     <p class="text-sm font-semibold text-gray-800 dark:text-gray-100 tracking-wide">
                         {{ strtoupper($primeraComunion->iglesia?->nombre ?? 'CHOLUTECA') }}
                     </p>
@@ -204,19 +205,36 @@
             @endif
 
             {{-- ─── CERTIFICATE HEADER ─── --}}
-            <div class="flex items-center gap-4 mb-6">
-                <img src="{{ asset('image/Logo_guest.png') }}" alt="Escudo" class="h-20 w-auto">
-                <div>
-                    <h1 class="text-xl md:text-2xl font-black uppercase tracking-wide text-gray-900 dark:text-white">
-                        {{ strtoupper($iglesiaNombre ?: 'Parroquia') }}
+            <div class="flex items-center gap-3 mb-4">
+                <div class="shrink-0">
+                    <img src="{{ $logoIglesia }}" alt="Logo" class="h-16 w-16 object-contain">
+                </div>
+                <div class="flex-1 text-center">
+                    <h1 class="text-lg md:text-xl font-black uppercase tracking-widest text-gray-900 dark:text-white leading-tight">
+                        {{ $iglesiaNombre ?: 'Parroquia' }}
                     </h1>
-                    <p class="text-base font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300">
-                        Diócesis de Choluteca
-                    </p>
+                    <p class="text-sm uppercase tracking-widest text-gray-500 dark:text-gray-400 mt-0.5">Di&oacute;cesis de Choluteca</p>
+                </div>
+                <div class="shrink-0">
+                    <img src="{{ $logoIglesia }}" alt="Logo" class="h-16 w-16 object-contain">
                 </div>
             </div>
 
-            <hr class="border-gray-300 dark:border-gray-600 mb-6">
+            {{-- Gold ornament lines --}}
+            <div class="border-t border-[#7D5A1E] my-1"></div>
+            <div class="text-center text-[#7D5A1E] text-xs tracking-[12px] my-1">&bull; &bull; &bull;</div>
+            <div class="border-t border-[#7D5A1E] my-1"></div>
+
+            {{-- Gold title banner --}}
+            <div class="text-center my-3">
+                <span class="inline-block bg-[#7D5A1E] text-white text-sm font-bold uppercase tracking-[4px] px-8 py-2">
+                    Certificaci&oacute;n de Primera Comuni&oacute;n
+                </span>
+            </div>
+
+            <div class="border-t border-[#7D5A1E] my-1"></div>
+            <div class="text-center text-[#7D5A1E] text-xs tracking-[12px] my-1">&bull; &bull; &bull;</div>
+            <div class="border-t border-[#7D5A1E] mb-6"></div>
 
             @php
                 $placeholderClass = 'text-gray-400 dark:text-gray-500 italic text-sm';

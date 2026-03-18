@@ -162,10 +162,17 @@ class InstructorCreate extends Component
             'estado'        => ['required', 'in:Activo,Inactivo'],
         ]);
 
+        $iglesiaId = \App\Models\TenantIglesia::currentId();
+
+        if (! $iglesiaId) {
+            $this->addError('persona_id', 'No se encontró la iglesia activa de la sesión.');
+            return;
+        }
+
         // Crear o recuperar feligrés
         $feligres = Feligres::firstOrCreate(
             ['id_persona' => $this->persona_id],
-            ['id_iglesia' => \App\Models\Iglesias::first()->id]
+            ['id_iglesia' => $iglesiaId]
         );
 
         // 🔴 VALIDACIÓN PARA EVITAR EL ERROR SQL

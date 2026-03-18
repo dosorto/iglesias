@@ -179,10 +179,17 @@ class EncargadoCreate extends Component
             'firma'      => ['nullable', 'image', 'max:2048'],
         ]);
 
+        $iglesiaId = \App\Models\TenantIglesia::currentId();
+
+        if (! $iglesiaId) {
+            $this->addError('persona_id', 'No se encontró la iglesia activa de la sesión.');
+            return;
+        }
+
         // Auto-crear feligrés si no existe
         $feligres = Feligres::firstOrCreate(
             ['id_persona' => $this->persona_id],
-            ['id_iglesia' => \App\Models\Iglesias::first()->id]
+            ['id_iglesia' => $iglesiaId]
         );
 
         // Verificar si ya tiene encargado

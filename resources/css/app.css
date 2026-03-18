@@ -4,10 +4,23 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --color-purpura-sagrado:  #4A1A6B;
+    --color-dorado-divino:    #C9A84C;
+    --color-azul-mariano:     #1B3A6B;
+    --color-blanco-liturgico: #F8F4EC;
+    --color-marfil-calido:    #EDE8DC;
+    --color-rojo-martir:      #8B1A1A;
+    --color-verde-esperanza:  #2D5A3D;
+    --color-gris-piedra:      #6B6560;
+}
+
 @layer base {
     body {
         font-family: 'Roboto', sans-serif;
         font-size: 0.875rem; /* text-sm equivalent */
+        background-color: var(--color-blanco-liturgico);
+        color: var(--color-gris-piedra);
     }
 }
 

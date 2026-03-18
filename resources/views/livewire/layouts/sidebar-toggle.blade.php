@@ -12,11 +12,11 @@
 
             {{-- Logo/Header --}}
             <div class="flex items-center mb-6 px-2 {{ $isCollapsed ? 'justify-center' : '' }}">
-                <img src="{{ asset('image/Logo_guest.png') }}" 
+                <img src="{{ $logoUrl ?? asset('image/Logo_guest.png') }}" 
                      alt="Logo Iglesia"
                      class="w-10 h-10 object-contain {{ $isCollapsed ? '' : 'mr-3' }}" />
                 @if(!$isCollapsed)
-                    <span class="text-xl font-bold text-gray-900 dark:text-white">Iglesia Admin</span>
+                    <span class="text-xl font-bold text-gray-900 dark:text-white">{{ $churchName }}</span>
                 @endif
             </div>
 
@@ -123,6 +123,26 @@
                                 </svg>
                                 @if(!$isCollapsed)
                                     <span class="ml-3">Bautismos</span>
+                                @endif
+                            </a>
+                        </li>
+                    @endcan
+
+                    {{-- Matrimonios --}}
+                    @can('matrimonio.view')
+                        <li>
+                            <a href="{{ route('matrimonio.index') }}"
+                               class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
+                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-rose-100 dark:hover:bg-rose-900
+                                      hover:text-rose-600 dark:hover:text-rose-400 transition-colors duration-200 group"
+                               title="{{ $isCollapsed ? 'Matrimonios' : '' }}">
+                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors duration-200"
+                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                </svg>
+                                @if(!$isCollapsed)
+                                    <span class="ml-3">Matrimonios</span>
                                 @endif
                             </a>
                         </li>
