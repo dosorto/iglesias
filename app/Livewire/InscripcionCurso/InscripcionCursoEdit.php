@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\InscripcionCurso;
 use App\Models\Curso;
 use App\Models\Feligres;
+use App\Models\Persona;
 
 class InscripcionCursoEdit extends Component
 {
@@ -18,6 +19,8 @@ class InscripcionCursoEdit extends Component
     public $aprobado = '';
     public $certificado_emitido = '';
     public string $fecha_certificado = '';
+
+    public ?string $nombreInstructor = '';
 
     public string $persona_dni = '';
     public $persona = null;
@@ -42,20 +45,44 @@ class InscripcionCursoEdit extends Component
 
         $this->aprobado = $inscripcion->aprobado === null ? '' : (string) $inscripcion->aprobado;
         $this->certificado_emitido = $inscripcion->certificado_emitido === null ? '' : (string) $inscripcion->certificado_emitido;
+
+        $this->cargarInstructor($this->curso_id);
+    }
+
+    public function updatedCursoId($value): void
+    {
+        $this->cargarInstructor($value);
+    }
+
+    private function cargarInstructor($cursoId): void
+    {
+        $this->nombreInstructor = '';
+
+        if (!$cursoId) {
+            return;
+        }
+
+        $curso = Curso::with('instructor.feligres.persona')->find($cursoId);
+
+        if (
+            $curso &&
+            $curso->instructor &&
+            $curso->instructor->feligres &&
+            $curso->instructor->feligres->persona
+        ) {
+            $this->nombreInstructor = $curso->instructor->feligres->persona->nombre_completo;
+        }
     }
 
     protected function rules(): array
     {
         return [
-            'curso_id' => ['required','integer','exists:cursos,id'],
-            'feligres_id' => ['required','integer','exists:feligres,id'],
-
-            'fecha_inscripcion' => ['required','date'],
-
-            'aprobado' => ['required','in:0,1'],
-            'certificado_emitido' => ['required','in:0,1'],
-
-            'fecha_certificado' => ['nullable','date'],
+            'curso_id' => ['required', 'integer', 'exists:cursos,id'],
+            'feligres_id' => ['required', 'integer', 'exists:feligres,id'],
+            'fecha_inscripcion' => ['required', 'date'],
+            'aprobado' => ['required', 'in:0,1'],
+            'certificado_emitido' => ['required', 'in:0,1'],
+            'fecha_certificado' => ['nullable', 'date'],
         ];
     }
 
@@ -72,20 +99,38 @@ class InscripcionCursoEdit extends Component
             'fecha_inscripcion.date' => 'La fecha de inscripción no es válida.',
 
             'aprobado.required' => 'Debe seleccionar si está aprobado.',
+            'aprobado.in' => 'El valor de aprobado no es válido.',
+
             'certificado_emitido.required' => 'Debe indicar si el certificado fue emitido.',
+            'certificado_emitido.in' => 'El valor de certificado emitido no es válido.',
 
             'fecha_certificado.date' => 'La fecha de certificado no es válida.',
         ];
     }
 
-    public function updated(): void
+    public function updated($propertyName): void
     {
-        $this->validate();
+        $this->validateOnly($propertyName);
     }
 
     public function update(): void
     {
         $this->validate();
+
+        $existeDuplicado = InscripcionCurso::withTrashed()
+            ->where('curso_id', $this->curso_id)
+            ->where('feligres_id', $this->feligres_id)
+            ->where('id', '!=', $this->inscripcion->id)
+            ->first();
+
+        if ($existeDuplicado) {
+            if ($existeDuplicado->deleted_at !== null) {
+                session()->flash('error', 'Ya existe una inscripción eliminada con ese curso y feligrés.');
+            } else {
+                session()->flash('error', 'Ya existe otra inscripción con ese curso y feligrés.');
+            }
+            return;
+        }
 
         $this->inscripcion->update([
             'curso_id' => $this->curso_id,
@@ -104,24 +149,25 @@ class InscripcionCursoEdit extends Component
 
     public function render()
     {
-        return view('livewire.inscripcion-curso.inscripcion-curso-edit',[
+        return view('livewire.inscripcion-curso.inscripcion-curso-edit', [
             'cursos' => Curso::orderBy('nombre')->get(),
-            'feligreses' => Feligres::with('persona')->get()
+            'feligreses' => Feligres::with('persona')->get(),
         ]);
     }
 
-    public function buscarPersona()
+    public function buscarPersona(): void
     {
-        $persona = \App\Models\Persona::where('dni', $this->persona_dni)->first();
+        $persona = Persona::where('dni', $this->persona_dni)->first();
 
         if (!$persona) {
+            $this->persona = null;
             $this->persona_estado = 'sin_persona';
             return;
         }
 
         $this->persona = $persona;
 
-        $feligres = \App\Models\Feligres::where('persona_id',$persona->id)->first();
+        $feligres = Feligres::where('id_persona', $persona->id)->first();
 
         if ($feligres) {
             $this->persona_estado = 'found';
@@ -131,30 +177,36 @@ class InscripcionCursoEdit extends Component
         }
     }
 
-    public function registrarFeligres()
+    public function registrarFeligres(): void
     {
-        $feligres = \App\Models\Feligres::create([
-            'persona_id' => $this->persona->id,
+        if (!$this->persona) {
+            return;
+        }
+
+        $feligres = Feligres::create([
+            'id_persona' => $this->persona->id,
         ]);
 
         $this->feligres_id = $feligres->id;
         $this->persona_estado = 'found';
     }
 
-    public function guardarPersona()
+    public function guardarPersona(): void
     {
-        $persona = \App\Models\Persona::create([
+        $persona = Persona::create([
             'dni' => $this->p_dni,
             'primer_nombre' => $this->p_primer_nombre,
             'primer_apellido' => $this->p_primer_apellido,
             'telefono' => $this->p_telefono,
         ]);
 
-        $feligres = \App\Models\Feligres::create([
-            'persona_id' => $persona->id
+        $feligres = Feligres::create([
+            'id_persona' => $persona->id,
         ]);
 
+        $this->persona = $persona;
         $this->feligres_id = $feligres->id;
         $this->persona_estado = 'found';
+        $this->showCrearPersona = false;
     }
 }

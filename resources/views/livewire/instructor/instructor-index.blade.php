@@ -77,13 +77,13 @@
                     <thead class="bg-gray-100 dark:bg-gray-900">
                         <tr>
                             <th class="px-6 py-3 text-left">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Persona</span>
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 camelcase tracking-wider">Persona</span>
                             </th>
                             <th class="px-6 py-3 text-left">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado Feligrés</span>
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 camelcase tracking-wider">Estado Feligrés</span>
                             </th>
                             <th class="px-6 py-3 text-left w-40">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</span>
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 camelcase tracking-wider">Acciones</span>
                             </th>
                         </tr>
                     </thead>
