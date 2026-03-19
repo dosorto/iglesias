@@ -73,16 +73,20 @@ class CursoCreate extends Component
         if ($this->paso === 1) {
             $this->validate([
                 'nombre' => ['required', 'max:200', 'regex:/[a-zA-ZáéíóúüÁÉÍÓÚÜñÑ]/'],
-                'fecha_inicio' => ['nullable', 'date'],
+                'fecha_inicio' => ['required', 'date'],
                 'fecha_fin' => ['nullable', 'date', 'after_or_equal:fecha_inicio'],
                 'estado' => ['required', 'in:Activo,Finalizado,Cancelado'],
             ], [
                 'nombre.required' => 'El nombre del curso es obligatorio.',
                 'nombre.max' => 'El nombre del curso no puede exceder 200 caracteres.',
                 'nombre.regex' => 'El nombre del curso debe contener al menos una letra.',
+
+                'fecha_inicio.required' => 'Debe seleccionar la fecha de inicio.',
                 'fecha_inicio.date' => 'La fecha de inicio no es válida.',
+
                 'fecha_fin.date' => 'La fecha de fin no es válida.',
                 'fecha_fin.after_or_equal' => 'La fecha fin debe ser igual o posterior a la fecha inicio.',
+
                 'estado.required' => 'El estado es obligatorio.',
                 'estado.in' => 'El estado seleccionado no es válido.',
             ]);
@@ -488,7 +492,7 @@ class CursoCreate extends Component
     {
         $this->validate([
             'nombre' => ['required', 'max:200', 'regex:/[a-zA-ZáéíóúüÁÉÍÓÚÜñÑ]/'],
-            'fecha_inicio' => ['nullable', 'date'],
+            'fecha_inicio' => ['required', 'date'],
             'fecha_fin' => ['nullable', 'date', 'after_or_equal:fecha_inicio'],
             'estado' => ['required', 'in:Activo,Finalizado,Cancelado'],
             'encargado_id' => ['required', 'exists:encargado,id'],
@@ -498,15 +502,22 @@ class CursoCreate extends Component
             'nombre.required' => 'El nombre del curso es obligatorio.',
             'nombre.max' => 'El nombre del curso no puede exceder 200 caracteres.',
             'nombre.regex' => 'El nombre del curso debe contener al menos una letra.',
+
+            'fecha_inicio.required' => 'Debe seleccionar la fecha de inicio.',
             'fecha_inicio.date' => 'La fecha de inicio no es válida.',
+
             'fecha_fin.date' => 'La fecha de fin no es válida.',
             'fecha_fin.after_or_equal' => 'La fecha fin debe ser igual o posterior a la fecha inicio.',
+
             'estado.required' => 'El estado es obligatorio.',
             'estado.in' => 'El estado seleccionado no es válido.',
+
             'encargado_id.required' => 'Debe existir un encargado para registrar el curso.',
             'encargado_id.exists' => 'El encargado seleccionado no existe.',
+
             'tipo_curso_id.required' => 'Debe seleccionar un tipo de curso.',
             'tipo_curso_id.exists' => 'El tipo de curso seleccionado no existe.',
+
             'instructor_id.required' => 'Debe seleccionar un instructor.',
             'instructor_id.exists' => 'El instructor seleccionado no existe.',
         ]);
