@@ -330,7 +330,7 @@ class InstructorCreate extends Component
                 session()->flash('success', 'Instructor restaurado correctamente.');
                 $this->redirect(route('instructor.index'), navigate: false);
                 return;
-            }
+            } 
 
             $this->addError('persona_id', 'La persona seleccionada ya está registrada como instructor.');
             return;
@@ -355,3 +355,5 @@ class InstructorCreate extends Component
         return view('livewire.instructor.instructor-create');
     }
 }
+
+
