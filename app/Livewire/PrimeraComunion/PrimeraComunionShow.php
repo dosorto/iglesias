@@ -8,6 +8,7 @@ use App\Models\TenantIglesia;
 use App\Models\PrimeraComunion;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 class PrimeraComunionShow extends Component
@@ -44,9 +45,13 @@ class PrimeraComunionShow extends Component
                 ->first();
 
             if ($encargadoDefault) {
-                $this->primeraComunion->encargado_id = $encargadoDefault->id;
-                $this->primeraComunion->save();
-                $this->primeraComunion->load('encargado.feligres.persona');
+                if (Schema::hasColumn('primeras_comuniones', 'encargado_id')) {
+                    $this->primeraComunion->encargado_id = $encargadoDefault->id;
+                    $this->primeraComunion->save();
+                    $this->primeraComunion->load('encargado.feligres.persona');
+                } else {
+                    $this->primeraComunion->setRelation('encargado', $encargadoDefault);
+                }
             }
         }
 

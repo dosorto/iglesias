@@ -17,6 +17,8 @@ class CertificadoConfigIndex extends Component
 
     public $logo_nuevo = null;
     public bool $confirmandoEliminarLogo = false;
+    public $logo_derecha_nuevo = null;
+    public bool $confirmandoEliminarLogoDerecha = false;
     public string $orientacion_certificado = 'portrait';
 
     public function mount(): void
@@ -131,6 +133,50 @@ class CertificadoConfigIndex extends Component
 
         $this->confirmandoEliminarLogo = false;
         session()->flash('success', 'Logo de la iglesia eliminado.');
+    }
+
+    public function subirLogoDerecha(): void
+    {
+        $this->validate([
+            'logo_derecha_nuevo' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+        ], [
+            'logo_derecha_nuevo.required' => 'Seleccione una imagen para el logo derecho.',
+            'logo_derecha_nuevo.image'    => 'El archivo debe ser una imagen.',
+            'logo_derecha_nuevo.mimes'    => 'Solo se aceptan imágenes JPG o PNG.',
+            'logo_derecha_nuevo.max'      => 'La imagen no debe superar 2 MB.',
+        ]);
+
+        if (! $this->iglesia) {
+            session()->flash('error', 'No se encontró una iglesia configurada.');
+            return;
+        }
+
+        if ($this->iglesia->path_logo_derecha) {
+            Storage::disk('public')->delete($this->iglesia->path_logo_derecha);
+        }
+
+        $path = $this->logo_derecha_nuevo->store('logos', 'public');
+        $this->iglesia->update(['path_logo_derecha' => $path]);
+
+        $this->logo_derecha_nuevo = null;
+        $this->iglesia->refresh();
+
+        session()->flash('success', 'Logo derecho actualizado correctamente.');
+    }
+
+    public function eliminarLogoDerecha(): void
+    {
+        if (! $this->iglesia || ! $this->iglesia->path_logo_derecha) {
+            $this->confirmandoEliminarLogoDerecha = false;
+            return;
+        }
+
+        Storage::disk('public')->delete($this->iglesia->path_logo_derecha);
+        $this->iglesia->update(['path_logo_derecha' => null]);
+        $this->iglesia->refresh();
+
+        $this->confirmandoEliminarLogoDerecha = false;
+        session()->flash('success', 'Logo derecho eliminado.');
     }
 
     public function render()

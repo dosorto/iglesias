@@ -3,7 +3,7 @@
 namespace App\Livewire\Matrimonio;
 
 use App\Models\Matrimonio;
-use App\Models\Iglesias;
+use App\Models\TenantIglesia;
 use Livewire\Component;
 
 class MatrimonioShow extends Component
@@ -76,8 +76,7 @@ class MatrimonioShow extends Component
 
     public function render()
     {
-        $iglesiaId     = session('tenant.id_iglesia');
-        $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
+        $iglesiaConfig = TenantIglesia::current();
 
         return view('livewire.matrimonio.matrimonio-show', [
             'iglesiaConfig' => $iglesiaConfig,

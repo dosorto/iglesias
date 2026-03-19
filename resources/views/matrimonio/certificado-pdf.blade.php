@@ -18,10 +18,27 @@
             background: #fff;
         }
 
+        .watermark-logo {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.08;
+            z-index: 0;
+        }
+
+        .watermark-logo img {
+            width: 430px;
+            height: auto;
+            object-fit: contain;
+        }
+
         .page-wrapper {
-            padding: 18px 18px;
+            padding: 18px 18px 24px 18px;
             border: none;
             margin: 2px;
+            position: relative;
+            z-index: 1;
         }
 
         /* ── HEADER ── */
@@ -105,11 +122,11 @@
         /* ── BODY TEXT ── */
         .body-text {
             margin-top: 16px;
-            line-height: 2.08;
+            line-height: 2.24;
             font-size: 10.6pt;
         }
         .body-text p {
-            margin-bottom: 2px;
+            margin-bottom: 3px;
         }
         .line-field {
             display: inline-block;
@@ -163,7 +180,7 @@
 
         /* ── PRIEST + SEAL ── */
         .priest-section {
-            margin-top: 28px;
+            margin-top: 100px;
             display: table;
             width: 100%;
             page-break-inside: avoid;
@@ -215,9 +232,9 @@
 
         /* ── ISSUANCE ── */
         .issuance {
-            margin-top: 24px;
+            margin-top: 18px;
             font-size: 10.2pt;
-            line-height: 1.75;
+            line-height: 1.95;
             page-break-inside: avoid;
         }
 
@@ -233,7 +250,7 @@
         }
 
         .note-marginal {
-            margin-top: 16px;
+            margin-top: 10px;
             font-size: 8.8pt;
             font-style: italic;
             color: #666;
@@ -252,6 +269,7 @@
     };
 
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
+    $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
 
     $esposo   = $matrimonio->esposo?->persona;
     $esposa   = $matrimonio->esposa?->persona;
@@ -261,7 +279,7 @@
     $encargadoModel = $matrimonio->encargado;
     $firmaPath = $resolvePublicFilePath($encargadoModel?->path_firma_principal);
 
-    $iglesiaNombreHeader = $iglesiaConfig?->nombre ?? $matrimonio->iglesia?->nombre ?? 'Parroquia';
+    $iglesiaNombreHeader = $matrimonio->iglesia?->nombre ?? $iglesiaConfig?->nombre ?? 'Parroquia';
 
     $mesesEs = [
         1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',
@@ -288,6 +306,11 @@
     $testigo2Nombre= $testigo2?->nombre_completo ?? '______________________________';
 @endphp
 <body>
+@if ($logoIglesiaPath)
+    <div class="watermark-logo">
+        <img src="{{ $logoIglesiaPath }}" alt="Marca de agua">
+    </div>
+@endif
 <div class="page-wrapper">
 
     {{-- ===== HEADER ===== --}}
@@ -302,8 +325,8 @@
             <div class="diocese-name">Di&oacute;cesis de Choluteca</div>
         </div>
         <div class="header-right-cell">
-            @if ($logoIglesiaPath)
-                <img src="{{ $logoIglesiaPath }}" alt="Logo">
+            @if ($logoIglesiaDerechaPath)
+                <img src="{{ $logoIglesiaDerechaPath }}" alt="Logo">
             @endif
         </div>
     </div>
@@ -354,7 +377,7 @@
     </div>
 
     {{-- ===== TESTIGOS ===== --}}
-    <div class="body-text" style="margin-top: 10px;">
+    <div class="body-text" style="margin-top: 20px;">
         <p><span class="section-label">Actuaron como testigos:</span></p>
         <p>
             <span class="line-field line-field-lg">{{ $testigo1Nombre }}</span>
@@ -363,40 +386,6 @@
             y
             <span class="line-field line-field-lg">{{ $testigo2Nombre }}</span>
         </p>
-    </div>
-
-    {{-- ===== FIRMA TESTIGOS ===== --}}
-    <div class="sig-section">
-        <p style="font-size:11pt; font-weight:bold; margin-bottom:4px;">Firma de los testigos:</p>
-        <div class="sig-row">
-            <div class="sig-cell">
-                <span class="sig-line sig-line-top"></span>
-                <span class="sig-label">Testigo 1</span>
-                <p class="sig-name">{{ $testigo1Nombre }}</p>
-            </div>
-            <div class="sig-cell">
-                <span class="sig-line sig-line-top"></span>
-                <span class="sig-label">Testigo 2</span>
-                <p class="sig-name">{{ $testigo2Nombre }}</p>
-            </div>
-        </div>
-    </div>
-
-    {{-- ===== FIRMA ESPOSOS ===== --}}
-    <div class="sig-section">
-        <p style="font-size:11pt; font-weight:bold; margin-bottom:4px;">Firma de los nuevos esposos:</p>
-        <div class="sig-row">
-            <div class="sig-cell">
-                <span class="sig-line sig-line-top"></span>
-                <span class="sig-label">Esposo</span>
-                <p class="sig-name">{{ $esposoNombre }}</p>
-            </div>
-            <div class="sig-cell">
-                <span class="sig-line sig-line-top"></span>
-                <span class="sig-label">Esposa</span>
-                <p class="sig-name">{{ $esposaNombre }}</p>
-            </div>
-        </div>
     </div>
 
     {{-- ===== SELLO Y SACERDOTE ===== --}}
@@ -429,7 +418,7 @@
             <span class="line-field line-field-sm">{{ $diaE }}</span>
             del mes de
             <span class="line-field line-field-lg">{{ $mesE }}</span>
-            del a&ntilde;o
+            del a&ntilde;o dos mil
             <span class="line-field line-field-sm">{{ $anoE }}</span>
         </p>
     </div>

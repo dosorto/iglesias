@@ -1,0 +1,6 @@
+TENANT=11 (Parroquia San Pablo Choluteca) DB=tenant_parroquia_san_pablo_choluteca_11
+  path_logo= => NULL
+  path_logo_derecha= => NULL
+TENANT=12 (San Pablo) DB=tenant_parroquia_san_juan_12
+  path_logo=logos/CeLkhBTv4t2xYxfKbu5CsoStEJvu0qzEnNi4RG7t.jpg => OK
+  path_logo_derecha=logos/qCx1N2twFdFDC9gpyqQTioQEq8nyX91xdd73tI3f.png => OK

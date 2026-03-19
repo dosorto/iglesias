@@ -5,7 +5,7 @@
     $testigo1  = $matrimonio->testigo1?->persona;
     $testigo2  = $matrimonio->testigo2?->persona;
     $encargado = $matrimonio->encargado?->feligres?->persona;
-    $iglesiaNombre = $iglesiaConfig?->nombre ?? $matrimonio->iglesia?->nombre ?? '';
+    $iglesiaNombre = $matrimonio->iglesia?->nombre ?? $iglesiaConfig?->nombre ?? '';
 
     $mesesEs = [
         1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',
@@ -22,7 +22,11 @@
     $mesExp = ($exp_mes && isset($mesesEs[(int)$exp_mes])) ? $mesesEs[(int)$exp_mes] : '';
     $anoExp = $exp_ano ?? '';
 
-    $pdfPreviewUrl = route('matrimonio.certificado.pdf', $matrimonio) . '?v=' . ($matrimonio->updated_at?->timestamp ?? time());
+    $previewVersion = max(
+        $matrimonio->updated_at?->timestamp ?? 0,
+        $iglesiaConfig?->updated_at?->timestamp ?? 0,
+    );
+    $pdfPreviewUrl = route('matrimonio.certificado.pdf', $matrimonio) . '?v=' . ($previewVersion ?: time());
 @endphp
 
 <div class="flex flex-col lg:flex-row gap-5 items-start">
@@ -223,7 +227,7 @@
                 <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Vista Previa de Constancia</p>
                 <a href="{{ route('matrimonio.certificado.pdf', $matrimonio) }}" target="_blank"
                    class="text-xs font-semibold text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 transition-colors">
-                    Abrir PDF en nueva pestaña
+                    
                 </a>
             </div>
 

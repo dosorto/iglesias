@@ -7,6 +7,7 @@
     $encargado       = $primeraComunion->encargado?->feligres?->persona;
     $iglesiaNombre   = $iglesiaConfig?->nombre ?? $primeraComunion->iglesia?->nombre ?? '';
     $logoIglesia     = $iglesiaConfig?->logo_url ?? asset('image/Logo_guest.png');
+    $logoIglesiaDerecha = $iglesiaConfig?->logo_derecha_url ?? $logoIglesia;
 
     $mesesEs = [
         1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',
@@ -157,7 +158,14 @@
 
     {{-- ======================= CERTIFICATE MAIN AREA ======================= --}}
     <div class="flex-1 min-w-0">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8 relative overflow-hidden">
+
+            @if ($logoIglesia)
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+                    <img src="{{ $logoIglesia }}" alt=""
+                         class="w-[320px] md:w-[420px] object-contain opacity-[0.08]">
+                </div>
+            @endif
 
             @if ($errors->any())
                 <div class="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg px-4 py-3 text-sm text-red-700 dark:text-red-400">
@@ -181,7 +189,7 @@
                     <p class="text-sm uppercase tracking-widest text-gray-500 dark:text-gray-400 mt-0.5">Di&oacute;cesis de Choluteca</p>
                 </div>
                 <div class="shrink-0">
-                    <img src="{{ $logoIglesia }}" alt="Logo" class="h-16 w-16 object-contain">
+                    <img src="{{ $logoIglesiaDerecha }}" alt="Logo" class="h-16 w-16 object-contain">
                 </div>
             </div>
 
