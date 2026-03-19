@@ -144,7 +144,7 @@ class InscripcionCursoEdit extends Component
 
         session()->flash('success', 'Inscripción actualizada correctamente.');
 
-        $this->redirect(route('inscripcion-curso.index'), navigate: true);
+        $this->redirect(route('curso.index'), navigate: true);
     }
 
     public function render()

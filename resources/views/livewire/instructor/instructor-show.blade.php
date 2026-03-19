@@ -36,21 +36,32 @@
                     </h2>
                 </div>
 
-                <div class="p-6 grid grid-cols-2 gap-4">
+                <div class="p-6 space-y-4">
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Persona</label>
-                        <p class="text-lg font-bold text-gray-900 dark:text-white">{{ $instructor->feligres?->persona?->nombre_completo ?? 'N/A' }}</p>
-                        
-                        <p class="text-sm text-gray-500 dark:text-gray-400">DNI: {{ $instructor->feligres?->persona?->dni ?? '—' }}</p>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">
+                            Persona
+                        </label>
+                        <p class="text-lg font-bold text-gray-900 dark:text-white">
+                            {{ $instructor->feligres?->persona?->nombre_completo ?? 'N/A' }}
+                        </p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            DNI: {{ $instructor->feligres?->persona?->dni ?? '—' }}
+                        </p>
                     </div>
 
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Iglesia</label>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $instructor->feligres?->iglesia?->nombre ?? 'N/A' }}</p>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">
+                            Iglesia
+                        </label>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">
+                            {{ $instructor->feligres?->iglesia?->nombre ?? 'N/A' }}
+                        </p>
                     </div>
 
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Estado Feligrés</label>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">
+                            Estado Feligrés
+                        </label>
                         @php $estadoFel = $instructor->feligres?->estado; @endphp
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                             {{ $estadoFel === 'Activo' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' }}">
@@ -59,7 +70,9 @@
                     </div>
 
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Estado Instructor</label>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">
+                            Estado Instructor
+                        </label>
                         @php $estadoInst = $instructor->estado; @endphp
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                             {{ $estadoInst === 'Activo' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' }}">
@@ -69,21 +82,25 @@
 
                     @if ($instructor->fecha_ingreso)
                         <div>
-                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Fecha de Ingreso</label>
+                            <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">
+                                Fecha de Ingreso
+                            </label>
                             <p class="text-sm font-medium text-gray-900 dark:text-white">
                                 {{ \Carbon\Carbon::parse($instructor->fecha_ingreso)->format('d/m/Y') }}
                             </p>
                         </div>
                     @endif
 
-                    <div class="col-span-2">
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Firma</label>
+                    <div>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">
+                            Firma
+                        </label>
                         @if($instructor->path_firma)
-                            <img src="{{ asset('storage/' . $instructor->path_firma) }}" 
+                            <img src="{{ asset('storage/' . $instructor->path_firma) }}"
                                 alt="Firma del instructor"
-                                style="max-height:150px;">
+                                class="mt-2 max-h-[150px] rounded border border-gray-200 dark:border-gray-700">
                         @else
-                            <span>No tiene firma</span>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">No tiene firma</p>
                         @endif
                     </div>
                 </div>
@@ -96,29 +113,6 @@
                     </div>
                 </div>
             </div>
-
-
-
-
-
-
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-
-            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest">
-                    Tabla Inscripción Curso
-                </h2>
-            </div>
-
-            <div class="p-4">
-            <livewire:instructor.instructor-inscripciones-table 
-                 :instructor="$instructor" />
-            </div>
-
-        </div>
-
-
-
 
             {{-- Link al feligrés --}}
             @can('feligres.view')
