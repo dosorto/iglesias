@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Confirmacion;
-use App\Models\Iglesias;
+use App\Models\TenantIglesia;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class ConfirmacionController extends Controller
@@ -19,9 +19,9 @@ class ConfirmacionController extends Controller
     }
 
     public function show(Confirmacion $confirmacion)
-{
-    return view('confirmacion.show', compact('confirmacion'));
-}
+    {
+        return view('confirmacion.show', compact('confirmacion'));
+    }
 
     public function edit(Confirmacion $confirmacion)
     {
@@ -41,16 +41,14 @@ class ConfirmacionController extends Controller
             'encargado.feligres.persona',
         ]);
 
-        $iglesiaId     = session('tenant.id_iglesia');
-        $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
+        // igual que BautismoController — TenantIglesia tiene path_logo y path_logo_derecha
+        $iglesiaConfig = TenantIglesia::current();
 
         $pdf = Pdf::loadView(
             'confirmacion.certificado-pdf',
             compact('confirmacion', 'iglesiaConfig')
         )->setPaper('letter', 'portrait');
 
-        $nombreArchivo = 'certificado-confirmacion-' . $confirmacion->id . '.pdf';
-
-        return $pdf->stream($nombreArchivo);
+        return $pdf->stream('certificado-confirmacion-' . $confirmacion->id . '.pdf');
     }
 }
