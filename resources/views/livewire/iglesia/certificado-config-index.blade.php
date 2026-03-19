@@ -30,8 +30,8 @@
 
     {{-- ===== LOGO SECTION ===== --}}
     <div>
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Logo de la Iglesia</h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Este logo aparece en la cabecera de todos los certificados.</p>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Logo izquierdo de la Iglesia</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Este logo aparece en el lado izquierdo de la cabecera de todos los certificados.</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -122,6 +122,103 @@
                     </svg>
                     <p class="text-sm">No hay logo configurado</p>
                     <p class="text-xs mt-1">Se usará el escudo por defecto</p>
+                </div>
+            @endif
+        </div>
+
+    </div>
+
+    <div class="mt-2">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Logo derecho de la Iglesia</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Este logo aparece en el lado derecho de la cabecera. Si no se configura, se usará el logo izquierdo.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Subir logo derecho</h2>
+
+            <form wire:submit.prevent="subirLogoDerecha" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Imagen del logo derecho (JPG / PNG, máx. 2 MB)
+                    </label>
+
+                    <label for="logo-derecha-input"
+                           class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer
+                                  border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/40
+                                  hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        @if ($logo_derecha_nuevo)
+                            <img src="{{ $logo_derecha_nuevo->temporaryUrl() }}" alt="Vista previa"
+                                 class="h-full w-full object-contain rounded-xl p-1">
+                        @else
+                            <div class="flex flex-col items-center gap-2 text-gray-400 dark:text-gray-500">
+                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <span class="text-sm">Haz clic para seleccionar una imagen</span>
+                            </div>
+                        @endif
+                        <input id="logo-derecha-input" type="file" wire:model="logo_derecha_nuevo" accept="image/jpeg,image/png" class="hidden">
+                    </label>
+
+                    @error('logo_derecha_nuevo')
+                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <button type="submit"
+                        class="inline-flex items-center px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                    Guardar Logo Derecho
+                </button>
+            </form>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Logo derecho actual</h2>
+
+            @if ($iglesia?->logo_derecha_url)
+                <div class="space-y-4">
+                    <img src="{{ $iglesia->logo_derecha_url }}" alt="Logo derecho actual"
+                         class="w-full rounded-lg border border-gray-200 dark:border-gray-600 object-contain max-h-48 bg-gray-50 dark:bg-gray-700/40 p-2">
+
+                    @if (! $confirmandoEliminarLogoDerecha)
+                        <button wire:click="$set('confirmandoEliminarLogoDerecha', true)"
+                                class="inline-flex items-center px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40
+                                       text-red-700 dark:text-red-400 text-sm font-medium rounded-lg border border-red-200 dark:border-red-700 transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            Eliminar logo derecho
+                        </button>
+                    @else
+                        <div class="flex items-center gap-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg px-4 py-3">
+                            <span class="text-sm text-red-700 dark:text-red-400 flex-1">¿Confirmar eliminación?</span>
+                            <button wire:click="eliminarLogoDerecha"
+                                    class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                Sí, eliminar
+                            </button>
+                            <button wire:click="$set('confirmandoEliminarLogoDerecha', false)"
+                                    class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600
+                                           text-gray-700 dark:text-gray-200 text-sm font-medium rounded-lg transition-colors">
+                                Cancelar
+                            </button>
+                        </div>
+                    @endif
+                </div>
+            @else
+                <div class="flex flex-col items-center justify-center h-48 text-gray-400 dark:text-gray-500 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
+                    <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <p class="text-sm">No hay logo derecho configurado</p>
+                    <p class="text-xs mt-1">Se usará el logo izquierdo</p>
                 </div>
             @endif
         </div>
@@ -256,7 +353,7 @@
 
     {{-- Info note --}}
     <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg px-4 py-3 text-sm text-blue-700 dark:text-blue-300 space-y-1">
-        <p><strong>Logo:</strong> Se recomienda una imagen cuadrada (mín. 200 × 200 px) en PNG con fondo transparente. Aparecerá en la cabecera de todos los certificados.</p>
+        <p><strong>Logos:</strong> Se recomienda una imagen cuadrada (mín. 200 × 200 px) en PNG con fondo transparente. El logo izquierdo y el derecho aparecerán en la cabecera de los certificados.</p>
         <p><strong>Formato de fondo:</strong> Se recomienda usar una imagen de tamaño carta (2550 × 3300 px) en PNG con fondo transparente.</p>
     </div>
 

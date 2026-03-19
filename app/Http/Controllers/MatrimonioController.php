@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Matrimonio;
-use App\Models\Iglesias;
+use App\Models\TenantIglesia;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
@@ -40,8 +40,7 @@ class MatrimonioController extends Controller
             'encargado.feligres.persona',
         ]);
 
-        $iglesiaId = session('tenant.id_iglesia');
-        $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
+        $iglesiaConfig = TenantIglesia::current();
 
         $pdf = Pdf::loadView('matrimonio.certificado-pdf', compact('matrimonio', 'iglesiaConfig'))
             ->setPaper('letter', 'portrait');

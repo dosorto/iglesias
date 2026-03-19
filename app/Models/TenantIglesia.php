@@ -21,11 +21,12 @@ class TenantIglesia extends Model
         'estado',
         'id_religion',
         'path_logo',
+        'path_logo_derecha',
         'path_certificado_bautismo',
         'orientacion_certificado',
     ];
 
-    protected $appends = ['logo_url', 'certificado_bautismo_url'];
+    protected $appends = ['logo_url', 'logo_derecha_url', 'certificado_bautismo_url'];
 
     protected function logoUrl(): Attribute
     {
@@ -41,6 +42,15 @@ class TenantIglesia extends Model
         return Attribute::make(
             get: fn () => $this->path_certificado_bautismo
                 ? asset('storage/' . ltrim($this->path_certificado_bautismo, '/'))
+                : null,
+        );
+    }
+
+    protected function logoDerechaUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->path_logo_derecha
+                ? asset('storage/' . ltrim($this->path_logo_derecha, '/'))
                 : null,
         );
     }

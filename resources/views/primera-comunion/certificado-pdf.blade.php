@@ -14,11 +14,28 @@
             background: #fff;
         }
 
+        .watermark-logo {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.08;
+            z-index: 0;
+        }
+
+        .watermark-logo img {
+            width: 430px;
+            height: auto;
+            object-fit: contain;
+        }
+
         /* ── PAGE WRAPPER WITH FRAME ── */
         .page-wrapper {
             padding: 26px 36px;
             border: 4px double #7D5A1E;
             margin: 10px;
+            position: relative;
+            z-index: 1;
         }
 
         /* ── HEADER ── */
@@ -207,8 +224,15 @@
 
     $certBgPath = $resolvePublicFilePath($iglesiaConfig?->path_certificado_bautismo);
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
+    $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
 @endphp
 <body @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
+
+@if ($logoIglesiaPath)
+    <div class="watermark-logo">
+        <img src="{{ $logoIglesiaPath }}" alt="Marca de agua">
+    </div>
+@endif
 
 <div class="page-wrapper">
 
@@ -269,8 +293,8 @@
 
         {{-- Logo iglesia (derecha) --}}
         <div class="header-right-cell">
-            @if ($logoIglesiaPath && file_exists($logoIglesiaPath))
-                <img src="{{ $logoIglesiaPath }}" alt="Logo Parroquia">
+            @if ($logoIglesiaDerechaPath && file_exists($logoIglesiaDerechaPath))
+                <img src="{{ $logoIglesiaDerechaPath }}" alt="Logo Parroquia">
             @endif
         </div>
 
