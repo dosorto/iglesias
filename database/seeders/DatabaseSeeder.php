@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
-        // 2) Roles y permisos (siempre primero)
+        // 2) Roles y permisos (siempre primero para evitar errores de integridad referencial)
         $this->call(RolesAndPermissionsSeeder::class);
 
         // 3) Catálogos/base (antes de tablas que dependan de ellos)
