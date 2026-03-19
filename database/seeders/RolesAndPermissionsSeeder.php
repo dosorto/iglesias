@@ -100,6 +100,13 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'inscripcion-curso.edit',   'display_name' => 'Editar Inscripciones de Curso'],
             ['name' => 'inscripcion-curso.delete', 'display_name' => 'Eliminar Inscripciones de Curso'],
             ['name' => 'inscripcion-curso.export', 'display_name' => 'Exportar Inscripciones de Curso'],
+
+            ['name' => 'confirmacion.view',   'display_name' => 'Ver confirmacion'],
+            ['name' => 'confirmacion.create', 'display_name' => 'Crear confirmacion'],
+            ['name' => 'confirmacion.edit',   'display_name' => 'Editar confirmacion'],
+            ['name' => 'confirmacion.delete', 'display_name' => 'Eliminar confirmacion'],
+            ['name' => 'confirmacion.export', 'display_name' => 'Exportar confirmacion'],
+
         ];
 
         foreach ($permissions as $p) {

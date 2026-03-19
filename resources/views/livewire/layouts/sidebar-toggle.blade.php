@@ -147,7 +147,26 @@
                             </a>
                         </li>
                     @endcan
-
+                    
+                     {{-- Confirmacion --}}
+                    @can('confirmacion.view')
+                        <li>
+                            <a href="{{ route('confirmacion.index') }}"
+                              class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
+                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-sky-100 dark:hover:bg-sky-900
+                                      hover:text-sky-600 dark:hover:text-sky-400 transition-colors duration-200 group"
+                               title="{{ $isCollapsed ? 'Confirmacion' : '' }}">
+                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors duration-200"
+                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+                                </svg>
+                                @if(!$isCollapsed)
+                                    <span class="ml-3">Confirmacion</span>
+                                @endif
+                            </a>
+                        </li>
+                    @endcan
 
                     {{-- Cursos --}}
                     @can('curso.view')

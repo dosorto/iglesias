@@ -3,10 +3,12 @@
 namespace App\Livewire\PrimeraComunion;
 
 use App\Models\AuditLog;
+use App\Models\Encargado;
 use App\Models\TenantIglesia;
 use App\Models\PrimeraComunion;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 class PrimeraComunionShow extends Component
@@ -15,13 +17,12 @@ class PrimeraComunionShow extends Component
 
     public PrimeraComunion $primeraComunion;
 
-    // Certificate fields (editable from the show page)
     public string $nota_marginal     = '';
     public string $lugar_celebracion = '';
     public string $lugar_expedicion  = '';
     public string $exp_dia           = '';
-    public string $exp_mes           = '';  // 1–12
-    public string $exp_ano           = '';  // últimos 2 dígitos, ej: 25
+    public string $exp_mes           = '';
+    public string $exp_ano           = '';
 
     public bool $previewMode = false;
     public $firma_nueva = null;
@@ -34,7 +35,25 @@ class PrimeraComunionShow extends Component
             'catequista.persona',
             'ministro.persona',
             'parroco.persona',
+            'encargado.feligres.persona',
         ]);
+
+        // Si no tiene encargado asignado, tomar el encargado activo por defecto
+        if (! $this->primeraComunion->encargado) {
+            $encargadoDefault = Encargado::with('feligres.persona')
+                ->where('estado', 'Activo')
+                ->first();
+
+            if ($encargadoDefault) {
+                if (Schema::hasColumn('primeras_comuniones', 'encargado_id')) {
+                    $this->primeraComunion->encargado_id = $encargadoDefault->id;
+                    $this->primeraComunion->save();
+                    $this->primeraComunion->load('encargado.feligres.persona');
+                } else {
+                    $this->primeraComunion->setRelation('encargado', $encargadoDefault);
+                }
+            }
+        }
 
         $this->nota_marginal     = $primeraComunion->nota_marginal     ?? '';
         $this->lugar_celebracion = $primeraComunion->lugar_celebracion ?? '';
@@ -61,21 +80,21 @@ class PrimeraComunionShow extends Component
             'firma_nueva.max'      => 'La imagen no debe superar 2 MB.',
         ]);
 
-        $parroco = $this->primeraComunion->parroco;
-        if (! $parroco) {
-            $this->addError('firma_nueva', 'No hay párroco asignado a este registro.');
+        $encargado = $this->primeraComunion->encargado;
+        if (! $encargado) {
+            $this->addError('firma_nueva', 'No hay encargado asignado a este registro.');
             return;
         }
 
-        if ($parroco->path_firma_principal) {
-            Storage::disk('public')->delete($parroco->path_firma_principal);
+        if ($encargado->path_firma_principal) {
+            Storage::disk('public')->delete($encargado->path_firma_principal);
         }
 
-        $path = $this->firma_nueva->store('firmas-parroco', 'public');
-        $parroco->update(['path_firma_principal' => $path]);
+        $path = $this->firma_nueva->store('firmas-encargado', 'public');
+        $encargado->update(['path_firma_principal' => $path]);
 
         $this->firma_nueva = null;
-        $this->primeraComunion->load('parroco.persona');
+        $this->primeraComunion->load('encargado.feligres.persona');
         session()->flash('success', 'Firma guardada correctamente.');
     }
 
