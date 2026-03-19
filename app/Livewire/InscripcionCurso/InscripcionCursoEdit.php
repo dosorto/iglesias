@@ -208,5 +208,6 @@ class InscripcionCursoEdit extends Component
         $this->feligres_id = $feligres->id;
         $this->persona_estado = 'found';
         $this->showCrearPersona = false;
-    }
+    }  
+    
 }
