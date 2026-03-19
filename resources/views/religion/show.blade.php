@@ -7,7 +7,7 @@
     {{-- Header --}}
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white camelcase tracking-wider">
                 Detalle de Religión
             </h1>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -33,14 +33,14 @@
     {{-- Detalle de Religión --}}
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
-            <h2 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest">
+            <h2 class="text-sm font-bold text-gray-700 dark:text-gray-300 camelcase tracking-widest">
                 Información General
             </h2>
         </div>
 
         <div class="p-6 space-y-4">
             <div>
-                <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">
+                <label class="text-xs font-medium text-gray-500 dark:text-gray-400 camelcase tracking-tighter block">
                     Religión
                 </label>
                 <p class="text-lg font-bold text-gray-900 dark:text-white">{{ $religion->religion }}</p>

@@ -6,7 +6,11 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #1a1a1a; background: #fff; }
-        .page-wrapper { padding: 30px 46px; border: 4px double #7D5A1E; margin: 10px; }
+
+        .watermark-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.08; z-index: 0; }
+        .watermark-logo img { width: 430px; height: auto; object-fit: contain; }
+
+        .page-wrapper { padding: 30px 46px; border: 4px double #7D5A1E; margin: 10px; position: relative; z-index: 1; }
 
         .header { display: table; width: 100%; margin-bottom: 10px; }
         .header-logo-cell { display: table-cell; width: 85px; vertical-align: middle; text-align: center; }
@@ -40,35 +44,34 @@
         .issuance { font-size: 11.5pt; line-height: 2.4; margin-top: 26px; }
         .sello { font-size: 10pt; font-style: italic; margin-top: 4px; color: #666; }
 
-        /* FIRMA — imagen SOBRE la línea */
         .signature-block { margin-top: 44px; text-align: center; }
-        .sig-img {
-            max-height: 65px;
-            max-width: 210px;
-            object-fit: contain;
-            display: block;
-            margin: 0 auto;       /* imagen centrada, pegada a la línea */
-        }
-        .sig-line {
-            display: inline-block;
-            width: 260px;
-            border-top: 2px solid #7D5A1E;
-            margin-top: 0;        /* línea inmediatamente bajo la imagen */
-            padding-top: 4px;
-        }
+        .sig-img { max-height: 65px; max-width: 210px; object-fit: contain; display: block; margin: 0 auto; }
+        .sig-line { display: inline-block; width: 260px; border-top: 2px solid #7D5A1E; margin-top: 0; padding-top: 4px; }
         .sig-name { font-size: 11pt; font-weight: bold; margin-bottom: 2px; color: #1a1a1a; margin-top: 4px; }
         .sig-title { font-size: 10pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #7D5A1E; }
     </style>
 </head>
 @php
-    $logoIglesiaPath  = ($iglesiaConfig?->path_logo) ? public_path('storage/' . $iglesiaConfig->path_logo) : null;
-    $logoEstaticoPath = public_path('image/Logo_guest.png');
+    // Igual que certificado-bautismo — usa resolvePublicFilePath
+    $resolvePublicFilePath = function (?string $path): ?string {
+        if (! $path) return null;
+        $normalized = trim((string) parse_url($path, PHP_URL_PATH) ?: $path);
+        $normalized = ltrim($normalized, '/\\');
+        if ($normalized === '') return null;
+        $candidate = str_starts_with($normalized, 'storage/')
+            ? public_path($normalized)
+            : public_path('storage/' . $normalized);
+        return is_file($candidate) ? $candidate : null;
+    };
 
-    $logoSrc = null;
-    if ($logoIglesiaPath && file_exists($logoIglesiaPath)) {
-        $logoSrc = $logoIglesiaPath;
-    } elseif (file_exists($logoEstaticoPath)) {
-        $logoSrc = $logoEstaticoPath;
+    $logoIglesiaPath        = $resolvePublicFilePath($iglesiaConfig?->path_logo);
+    $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
+    $logoEstaticoPath       = public_path('image/Logo_guest.png');
+
+    // Fallback al estático si no hay logo de iglesia
+    if (! $logoIglesiaPath && file_exists($logoEstaticoPath)) {
+        $logoIglesiaPath        = $logoEstaticoPath;
+        $logoIglesiaDerechaPath = $logoEstaticoPath;
     }
 
     $confirmado      = $confirmacion->feligres?->persona;
@@ -103,29 +106,36 @@
     $lugarExp     = $confirmacion->lugar_expedicion   ?? '';
     $notaMarginal = $confirmacion->nota_marginal      ?? '';
 
-    // Firma del encargado — imagen SOBRE la línea
-    $firmaPath = null;
-    if ($confirmacion->encargado?->path_firma_principal) {
-        $abs = public_path('storage/' . $confirmacion->encargado->path_firma_principal);
-        if (file_exists($abs)) { $firmaPath = $abs; }
-    }
+    $firmaPath = $resolvePublicFilePath($confirmacion->encargado?->path_firma_principal);
 @endphp
 <body>
+
+{{-- Marca de agua — igual que bautismo PDF --}}
+@if ($logoIglesiaPath)
+    <div class="watermark-logo">
+        <img src="{{ $logoIglesiaPath }}" alt="">
+    </div>
+@endif
+
 <div class="page-wrapper">
 
     <div class="header">
         <div class="header-logo-cell">
-            @if ($logoSrc)<img src="{{ $logoSrc }}" alt="Logo">@endif
+            @if ($logoIglesiaPath)
+                <img src="{{ $logoIglesiaPath }}" alt="Logo">
+            @endif
         </div>
         <div class="header-title-cell">
             <div class="parish-name">{{ $iglesiaNombre ?: 'Parroquia' }}</div>
             <div class="diocese-name">Di&oacute;cesis de Choluteca</div>
         </div>
         <div class="header-right-cell">
-            @if ($logoSrc)<img src="{{ $logoSrc }}" alt="Logo">@endif
+            {{-- Logo derecha — puede ser diferente --}}
+            @if ($logoIglesiaDerechaPath)
+                <img src="{{ $logoIglesiaDerechaPath }}" alt="Logo">
+            @endif
         </div>
     </div>
-    
 
     <hr class="hr-accent">
     <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
@@ -177,16 +187,13 @@
         <p class="sello">(Sello)</p>
     </div>
 
-    {{-- FIRMA: imagen encima de la línea --}}
     <div class="signature-block">
         @if ($firmaPath)
             <img src="{{ $firmaPath }}" alt="Firma" class="sig-img">
         @else
             <div style="height: 65px;"></div>
         @endif
-        <div>
-            <span class="sig-line"></span>
-        </div>
+        <div><span class="sig-line"></span></div>
         <p class="sig-name">{{ $encargadoNombre ?: '' }}</p>
         <p class="sig-title">P&aacute;rroco</p>
     </div>

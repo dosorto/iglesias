@@ -8,7 +8,6 @@ use App\Models\Curso;
 
 class CursoIndex extends Component
 {
-
     use WithPagination;
 
     public string $search = '';
@@ -23,7 +22,7 @@ class CursoIndex extends Component
         $this->resetPage();
     }
 
-    public function confirmCursoDeletion($id,$name)
+    public function confirmCursoDeletion($id, $name)
     {
         $this->cursoIdBeingDeleted = $id;
         $this->cursoNameBeingDeleted = $name;
@@ -32,46 +31,32 @@ class CursoIndex extends Component
 
     public function delete()
     {
-
-        if($this->cursoIdBeingDeleted){
-
+        if ($this->cursoIdBeingDeleted) {
             Curso::findOrFail($this->cursoIdBeingDeleted)->delete();
-
-            session()->flash('success','Curso eliminado correctamente');
-
+            session()->flash('success', 'Curso eliminado correctamente');
         }
 
         $this->showDeleteModal = false;
         $this->cursoIdBeingDeleted = null;
         $this->cursoNameBeingDeleted = '';
-
     }
 
     public function render()
     {
-
         $cursos = Curso::with([
-            'iglesia',
             'tipoCurso',
             'instructor.feligres.persona',
             'encargado.feligres.persona'
         ])
-        ->when($this->search,function($q){
-
-            $q->where('nombre','like','%'.$this->search.'%')
-            ->orWhereHas('iglesia',fn($i)=>
-                $i->where('nombre','like','%'.$this->search.'%')
-            )
-            ->orWhereHas('tipoCurso',fn($t)=>
-                $t->where('nombre','like','%'.$this->search.'%')
-            );
-
+        ->when($this->search, function ($q) {
+            $q->where('nombre', 'like', '%' . $this->search . '%')
+              ->orWhereHas('tipoCurso', fn($t) =>
+                    $t->where('nombre_curso', 'like', '%' . $this->search . '%')
+                );
         })
         ->latest()
         ->paginate($this->perPage);
 
-        return view('livewire.curso.curso-index',compact('cursos'));
-
+        return view('livewire.curso.curso-index', compact('cursos'));
     }
-
 }

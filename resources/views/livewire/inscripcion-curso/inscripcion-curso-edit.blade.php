@@ -85,8 +85,8 @@
                 Curso
             </label>
 
-            <select wire:model="curso_id"
-                    class="w-full border rounded-lg px-3 py-2">
+            <select wire:model.live="curso_id"
+                class="w-full border rounded-lg px-3 py-2">
 
                 <option value="">Seleccione curso</option>
 
@@ -107,6 +107,27 @@
             @enderror
 
         </div>
+
+
+
+
+        {{-- INSTRUCTOR --}}
+        <div>
+            <label class="text-xs font-semibold uppercase text-gray-500">
+                Instructor
+            </label>
+
+            <input type="text"
+                value="{{ $nombreInstructor }}"
+                readonly
+                placeholder="Seleccione un curso"
+                class="w-full border rounded-lg px-3 py-2 bg-gray-100">
+        </div>
+
+
+
+
+
 
 
         {{-- APROBADO --}}

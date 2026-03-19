@@ -1,6 +1,5 @@
 <div class="space-y-6">
 
-    {{-- ══ HEADER ════════════════════════════════════════════════════════ --}}
     <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-sky-600 to-blue-600
                 dark:from-sky-700 dark:to-blue-700 shadow-md px-6 py-5">
         <div class="absolute -top-6 -right-6 w-32 h-32 rounded-full bg-white/10 pointer-events-none"></div>
@@ -35,13 +34,16 @@
         </div>
     </div>
 
-    {{-- ══ INDICADOR DE PASOS ══════════════════════════════════════════════ --}}
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div class="flex items-center justify-between relative">
             <div class="absolute top-4 left-0 w-full h-[2px] bg-gray-200 dark:bg-gray-600"></div>
 
             @foreach ([1 => 'Curso', 2 => 'Tipo Curso', 3 => 'Instructor'] as $n => $label)
-                <div class="relative flex flex-col items-center w-full">
+                <div class="relative flex flex-col-reverse items-center w-full">
+                    <span class="text-xs mb-2 font-medium {{ $paso == $n ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400' }}">
+                        {{ $label }}
+                    </span>
+
                     <div class="w-8 h-8 rounded-full flex items-center justify-center font-semibold z-10
                         {{ $paso == $n ? 'bg-blue-600 text-white ring-4 ring-blue-100 dark:ring-blue-900' : ($paso > $n ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400') }}">
                         @if($paso > $n)
@@ -52,15 +54,20 @@
                             {{ $n }}
                         @endif
                     </div>
-                    <span class="text-xs mt-2 font-medium {{ $paso == $n ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400' }}">
-                        {{ $label }}
-                    </span>
                 </div>
             @endforeach
         </div>
     </div>
 
-    {{-- ══ PASO 1: DATOS DEL CURSO ══════════════════════════════════════════ --}}
+    @if (session()->has('success'))
+        <div class="rounded-xl border border-emerald-200 dark:border-emerald-700/50
+                    bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3">
+            <p class="text-sm text-emerald-700 dark:text-emerald-300 font-medium">
+                {{ session('success') }}
+            </p>
+        </div>
+    @endif
+
     @if($paso === 1)
         <div class="bg-white dark:bg-gray-800/80 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700/60
                     ring-1 ring-black/5 dark:ring-white/5">
@@ -115,7 +122,11 @@
                                       border border-gray-300 dark:border-gray-600
                                       bg-white dark:bg-gray-700/60
                                       text-gray-900 dark:text-white
-                                      focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                      focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                                      @error('fecha_inicio') border-red-400 @enderror" />
+                        @error('fecha_inicio')
+                            <p class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
@@ -128,40 +139,10 @@
                                       border border-gray-300 dark:border-gray-600
                                       bg-white dark:bg-gray-700/60
                                       text-gray-900 dark:text-white
-                                      focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                            Iglesia <span class="text-red-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <select wire:model="iglesia_id"
-                                    disabled
-                                    class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
-                                           border border-gray-200 dark:border-gray-600/60
-                                           bg-gray-100 dark:bg-gray-700/40
-                                           text-gray-700 dark:text-gray-300
-                                           cursor-not-allowed opacity-80
-                                           @error('iglesia_id') border-red-400 @enderror">
-                                <option value="">— Selecciona una iglesia —</option>
-                                @foreach($iglesias as $ig)
-                                    <option value="{{ $ig->id }}">{{ $ig->nombre }}</option>
-                                @endforeach
-                            </select>
-                            <div class="absolute inset-y-0 right-8 flex items-center pointer-events-none">
-                                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                </svg>
-                            </div>
-                        </div>
-                        @error('iglesia_id')
-                            <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
-                                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                {{ $message }}
-                            </p>
+                                      focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                                      @error('fecha_fin') border-red-400 @enderror" />
+                        @error('fecha_fin')
+                            <p class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -170,7 +151,6 @@
         </div>
     @endif
 
-    {{-- ══ PASO 2: TIPO CURSO ══════════════════════════════════════════════ --}}
     @if($paso === 2)
         <div class="bg-white dark:bg-gray-800/80 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700/60
                     ring-1 ring-black/5 dark:ring-white/5">
@@ -184,110 +164,129 @@
             </div>
 
             <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                        Seleccionar tipo de curso <span class="text-red-500">*</span>
+                    </label>
 
-                {{-- Si ya se seleccionó un tipo, mostrar chip con opción de cambiar --}}
-                @if($tipo_curso_id)
-                    <div class="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                        <div class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    <select wire:model="tipo_curso_id"
+                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                   border border-gray-300 dark:border-gray-600
+                                   bg-white dark:bg-gray-700/60
+                                   text-gray-900 dark:text-white
+                                   focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                                   @error('tipo_curso_id') border-red-400 @enderror">
+                        <option value="">-- Selecciona un tipo de curso --</option>
+                        @foreach($tipos as $tipo)
+                            <option value="{{ $tipo->id }}">{{ $tipo->nombre_curso }}</option>
+                        @endforeach
+                    </select>
+
+                    @error('tipo_curso_id')
+                        <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            <p class="text-sm font-semibold text-green-800 dark:text-green-200">{{ $buscar_tipo_curso }}</p>
-                        </div>
-                        <button type="button" wire:click="resetTipoCurso"
-                                class="text-xs font-medium text-green-700 dark:text-green-300 hover:text-green-900 dark:hover:text-green-100 flex items-center gap-1 transition-colors">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                            Cambiar
-                        </button>
-                    </div>
-                @else
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                            Buscar tipo de curso
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg wire:loading.remove wire:target="buscar_tipo_curso"
-                                     class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                                </svg>
-                                <svg wire:loading wire:target="buscar_tipo_curso"
-                                     class="h-4 w-4 text-blue-500 dark:text-blue-400 animate-spin" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-                                </svg>
-                            </div>
-                            <input type="text"
-                                   wire:model.live.debounce.300ms="buscar_tipo_curso"
-                                   placeholder="Escribe al menos 2 caracteres…"
-                                   autocomplete="off"
-                                   class="block w-full pl-9 pr-3 py-2.5 text-sm rounded-lg transition-colors
-                                          border border-gray-300 dark:border-gray-600
-                                          bg-white dark:bg-gray-700/60
-                                          text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500
-                                          focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                        </div>
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
 
-                        @error('buscar_tipo_curso')
-                            <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
-                                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                {{ $message }}
-                            </p>
-                        @enderror
-
-                        @if(strlen(trim($buscar_tipo_curso)) >= 2)
-                            @if(count($tipoCursoResultados) > 0)
-                                <div class="mt-3 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
-                                    <ul class="divide-y divide-gray-100 dark:divide-gray-700">
-                                        @foreach($tipoCursoResultados as $tipo)
-                                            <li>
-                                                <button type="button"
-                                                        wire:click="seleccionarTipoCurso({{ $tipo->id }})"
-                                                        class="w-full flex items-center gap-3 px-4 py-3 text-left
-                                                               hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors">
-                                                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                                                        <span class="text-white font-bold text-xs">
-                                                            {{ strtoupper(substr($tipo->nombre_curso, 0, 1)) }}
-                                                        </span>
-                                                    </div>
-                                                    <div>
-                                                        <p class="text-sm font-semibold text-gray-900 dark:text-white">
-                                                            {{ $tipo->nombre_curso }}
-                                                        </p>
-                                                        @if($tipo->descripcion_curso)
-                                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">
-                                                                {{ $tipo->descripcion_curso }}
-                                                            </p>
-                                                        @endif
-                                                    </div>
-                                                </button>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @else
-                                <div class="mt-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    <p class="text-xs text-amber-800 dark:text-amber-300">
-                                        No se encontró ningún tipo de curso con <strong>"{{ $buscar_tipo_curso }}"</strong>.
-                                    </p>
-                                </div>
-                            @endif
-                        @endif
-                    </div>
+                @if(! $showCrearTipoCurso)
+                    <button type="button"
+                            wire:click="abrirCrearTipoCurso"
+                            class="w-full py-2.5 text-sm font-semibold
+                                   text-emerald-700 dark:text-emerald-300
+                                   border border-emerald-300 dark:border-emerald-600 rounded-xl
+                                   hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all">
+                        + Registrar nuevo tipo de curso
+                    </button>
                 @endif
 
+                @if($showCrearTipoCurso)
+                    <div class="rounded-xl border border-emerald-200 dark:border-emerald-700/50
+                                bg-gradient-to-b from-emerald-50/80 to-transparent
+                                dark:from-emerald-900/15 dark:to-transparent overflow-hidden">
+
+                        <div class="flex items-center justify-between px-5 py-3
+                                    border-b border-emerald-100 dark:border-emerald-800/40
+                                    bg-emerald-50 dark:bg-emerald-900/20">
+                            <h4 class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+                                Registrar nuevo tipo de curso
+                            </h4>
+                            <button type="button" wire:click="cancelarCrearTipoCurso"
+                                    class="p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-200
+                                           hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="p-5 space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                    Nombre del tipo de curso <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text"
+                                       wire:model="nuevo_tipo_nombre"
+                                       placeholder="Ej: Discipulado"
+                                       class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                              border border-gray-300 dark:border-gray-600
+                                              bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                              focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                              @error('nuevo_tipo_nombre') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror" />
+                                @error('nuevo_tipo_nombre')
+                                    <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                    Descripción
+                                </label>
+                                <textarea wire:model="nuevo_tipo_descripcion"
+                                          rows="3"
+                                          placeholder="Descripción opcional del tipo de curso..."
+                                          class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                                 border border-gray-300 dark:border-gray-600
+                                                 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                                 focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none
+                                                 @error('nuevo_tipo_descripcion') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror"></textarea>
+                                @error('nuevo_tipo_descripcion')
+                                    <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="flex justify-end gap-3 pt-2 border-t border-emerald-100 dark:border-emerald-800/40">
+                                <button type="button"
+                                        wire:click="cancelarCrearTipoCurso"
+                                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all
+                                               bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600
+                                               text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                                    Cancelar
+                                </button>
+
+                                <button type="button"
+                                        wire:click="guardarNuevoTipoCurso"
+                                        wire:loading.attr="disabled"
+                                        wire:target="guardarNuevoTipoCurso"
+                                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold
+                                               shadow-md shadow-emerald-500/30 transition-all
+                                               bg-gradient-to-r from-emerald-500 to-emerald-600
+                                               hover:from-emerald-600 hover:to-emerald-700
+                                               text-white disabled:opacity-60">
+                                    <span wire:loading.remove wire:target="guardarNuevoTipoCurso">Guardar</span>
+                                    <span wire:loading wire:target="guardarNuevoTipoCurso">Guardando...</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     @endif
 
-    {{-- ══ PASO 3: INSTRUCTOR ══════════════════════════════════════════════ --}}
     @if($paso === 3)
         <div class="bg-white dark:bg-gray-800/80 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700/60
                     ring-1 ring-black/5 dark:ring-white/5">
@@ -301,108 +300,493 @@
             </div>
 
             <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                        Seleccionar instructor <span class="text-red-500">*</span>
+                    </label>
 
-                {{-- Si ya se seleccionó un instructor, mostrar chip con opción de cambiar --}}
-                @if($instructor_id)
-                    <div class="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                        <div class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    <select wire:model="instructor_id"
+                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                   border border-gray-300 dark:border-gray-600
+                                   bg-white dark:bg-gray-700/60
+                                   text-gray-900 dark:text-white
+                                   focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                                   @error('instructor_id') border-red-400 @enderror">
+                        <option value="">-- Selecciona un instructor --</option>
+                        @foreach($instructores as $inst)
+                            <option value="{{ $inst->id }}">
+                                {{ $inst->feligres?->persona?->nombre_completo ?? 'Instructor sin nombre' }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    @error('instructor_id')
+                        <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            <p class="text-sm font-semibold text-green-800 dark:text-green-200">{{ $buscar_instructor }}</p>
-                        </div>
-                        <button type="button" wire:click="resetInstructor"
-                                class="text-xs font-medium text-green-700 dark:text-green-300 hover:text-green-900 dark:hover:text-green-100 flex items-center gap-1 transition-colors">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                            Cambiar
-                        </button>
-                    </div>
-                @else
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                            Buscar instructor
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg wire:loading.remove wire:target="buscar_instructor"
-                                     class="h-4 w-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                                </svg>
-                                <svg wire:loading wire:target="buscar_instructor"
-                                     class="h-4 w-4 text-blue-500 dark:text-blue-400 animate-spin" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-                                </svg>
-                            </div>
-                            <input type="text"
-                                   wire:model.live.debounce.300ms="buscar_instructor"
-                                   placeholder="Escribe al menos 2 caracteres…"
-                                   autocomplete="off"
-                                   class="block w-full pl-9 pr-3 py-2.5 text-sm rounded-lg transition-colors
-                                          border border-gray-300 dark:border-gray-600
-                                          bg-white dark:bg-gray-700/60
-                                          text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500
-                                          focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                        </div>
+                            {{ $message }}
+                        </p>
+                    @enderror
+                </div>
 
-                        @error('instructor_id')
-                            <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
-                                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                {{ $message }}
-                            </p>
-                        @enderror
-
-                        @if(strlen(trim($buscar_instructor)) >= 2)
-                            @if(count($instructorResultados) > 0)
-                                <div class="mt-3 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
-                                    <ul class="divide-y divide-gray-100 dark:divide-gray-700">
-                                        @foreach($instructorResultados as $inst)
-                                            <li>
-                                                <button type="button"
-                                                        wire:click="seleccionarInstructor({{ $inst->id }})"
-                                                        class="w-full flex items-center gap-3 px-4 py-3 text-left
-                                                               hover:bg-gray-50 dark:hover:bg-gray-700/60 transition-colors">
-                                                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                                                        <span class="text-white font-bold text-xs">
-                                                            {{ strtoupper(substr($inst->feligres?->persona?->primer_nombre ?? '?', 0, 1)) }}
-                                                        </span>
-                                                    </div>
-                                                    <div>
-                                                        <p class="text-sm font-semibold text-gray-900 dark:text-white">
-                                                            {{ $inst->feligres?->persona?->nombre_completo }}
-                                                        </p>
-                                                    </div>
-                                                </button>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @else
-                                <div class="mt-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    <p class="text-xs text-amber-800 dark:text-amber-300">
-                                        No se encontró ningún instructor con <strong>"{{ $buscar_instructor }}"</strong>.
-                                    </p>
-                                </div>
-                            @endif
-                        @endif
-                    </div>
+                @if(! $showCrearInstructor)
+                    <button type="button"
+                            wire:click="abrirCrearInstructor"
+                            class="w-full py-2.5 text-sm font-semibold
+                                   text-emerald-700 dark:text-emerald-300
+                                   border border-emerald-300 dark:border-emerald-600 rounded-xl
+                                   hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all">
+                        + Registrar nuevo instructor
+                    </button>
                 @endif
 
+                @if($showCrearInstructor)
+                    <div class="rounded-xl border border-sky-200 dark:border-sky-700/50
+                                bg-gradient-to-b from-sky-50/80 to-transparent
+                                dark:from-sky-900/15 dark:to-transparent overflow-hidden">
+
+                        <div class="flex items-center justify-between px-5 py-3
+                                    border-b border-sky-100 dark:border-sky-800/40
+                                    bg-sky-50 dark:bg-sky-900/20">
+                            <h4 class="text-sm font-semibold text-sky-800 dark:text-sky-300">
+                                Registrar nuevo instructor
+                            </h4>
+                            <button type="button" wire:click="cancelarCrearInstructor"
+                                    class="p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-200
+                                           hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="p-5 space-y-4">
+                            @error('iglesia_id')
+                                <div class="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700">
+                                    <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                </div>
+                            @enderror
+
+                            @if($instructor_estado === 'idle')
+                                <div class="flex gap-3">
+                                    <div class="relative flex-1">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                            </svg>
+                                        </div>
+                                        <input type="text"
+                                               wire:model="instructor_busqueda"
+                                               placeholder="Buscar por DNI o nombre..."
+                                               autocomplete="off"
+                                               wire:keydown.enter="buscarPersonaInstructor"
+                                               class="block w-full pl-10 pr-4 py-2.5 text-sm rounded-lg transition-colors
+                                                      border border-gray-300 dark:border-gray-600
+                                                      bg-gray-50 dark:bg-gray-700/60
+                                                      text-gray-900 dark:text-white dark:placeholder-gray-400
+                                                      focus:ring-2 focus:ring-sky-500 focus:border-transparent" />
+                                    </div>
+
+                                    <button type="button"
+                                            wire:click="buscarPersonaInstructor"
+                                            wire:loading.attr="disabled"
+                                            wire:target="buscarPersonaInstructor"
+                                            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold
+                                                   bg-sky-600 hover:bg-sky-700 text-white shadow-sm transition-all disabled:opacity-60">
+                                        <svg wire:loading.remove wire:target="buscarPersonaInstructor"
+                                             class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                        </svg>
+                                        <svg wire:loading wire:target="buscarPersonaInstructor"
+                                             class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                                        </svg>
+                                        Buscar
+                                    </button>
+                                </div>
+
+                                @error('instructor_busqueda')
+                                    <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            @endif
+
+                            @if($instructor_estado === 'multiples' && !empty($resultadosBusqueda))
+                                <div class="space-y-2">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        Se encontraron {{ count($resultadosBusqueda) }} personas. Selecciona una:
+                                    </p>
+
+                                    <div class="space-y-1.5 max-h-64 overflow-y-auto pr-1">
+                                        @foreach ($resultadosBusqueda as $res)
+                                            <button type="button"
+                                                    wire:click="seleccionarPersonaInstructor({{ $res['id'] }})"
+                                                    class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-left
+                                                           border border-gray-200 dark:border-gray-600
+                                                           bg-white dark:bg-gray-700/40
+                                                           hover:bg-sky-50 dark:hover:bg-sky-900/20
+                                                           hover:border-sky-300 dark:hover:border-sky-600
+                                                           transition-all group">
+                                                <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-600
+                                                            flex items-center justify-center flex-shrink-0
+                                                            group-hover:bg-sky-100 dark:group-hover:bg-sky-900/40">
+                                                    <svg class="w-4 h-4 text-gray-400 group-hover:text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                                                        {{ $res['nombre_completo'] }}
+                                                    </p>
+                                                    <p class="text-xs text-gray-400 mt-0.5">
+                                                        DNI: {{ $res['dni'] }}
+                                                        @if (!empty($res['telefono']))
+                                                            &middot; {{ $res['telefono'] }}
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                                <svg class="w-4 h-4 text-gray-300 group-hover:text-sky-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                                </svg>
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if($instructor_estado === 'sin_feligres' && $personaInstructor)
+                                <div class="p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20
+                                            border border-amber-200 dark:border-amber-700/50 space-y-3">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-600
+                                                    flex items-center justify-center flex-shrink-0 shadow-sm">
+                                            <span class="text-white font-bold text-sm">
+                                                {{ strtoupper(substr($personaInstructor['nombre_completo'], 0, 1)) }}
+                                            </span>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="font-semibold text-gray-900 dark:text-white truncate text-sm">
+                                                {{ $personaInstructor['nombre_completo'] }}
+                                            </p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                DNI: {{ $personaInstructor['dni'] }}
+                                            </p>
+                                            <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold
+                                                         bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
+                                                Persona encontrada — no está registrada como feligrés
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex justify-end gap-3 pt-2 border-t border-amber-100 dark:border-amber-800/40">
+                                        <button type="button"
+                                                wire:click="cancelarCrearInstructor"
+                                                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all
+                                                       bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600
+                                                       text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                                            Cancelar
+                                        </button>
+
+                                        <button type="button"
+                                                wire:click="guardarInstructorDesdePersonaExistente"
+                                                wire:loading.attr="disabled"
+                                                wire:target="guardarInstructorDesdePersonaExistente"
+                                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold
+                                                       shadow-md shadow-amber-500/30 transition-all
+                                                       bg-gradient-to-r from-amber-500 to-orange-600
+                                                       hover:from-amber-600 hover:to-orange-700
+                                                       text-white disabled:opacity-60">
+                                            <span wire:loading.remove wire:target="guardarInstructorDesdePersonaExistente">
+                                                Registrar como instructor
+                                            </span>
+                                            <span wire:loading wire:target="guardarInstructorDesdePersonaExistente">
+                                                Guardando...
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if($instructor_estado === 'found' && $personaInstructor)
+                                <div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20
+                                            border border-emerald-200 dark:border-emerald-700/50 space-y-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600
+                                                    flex items-center justify-center flex-shrink-0 shadow-sm">
+                                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="font-semibold text-gray-900 dark:text-white truncate text-sm">
+                                                {{ $personaInstructor['nombre_completo'] }}
+                                            </p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                DNI: {{ $personaInstructor['dni'] }}
+                                            </p>
+                                            <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold
+                                                         bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">
+                                                Feligrés encontrado — listo para registrarse como instructor
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex justify-end gap-3 pt-2 border-t border-emerald-100 dark:border-emerald-800/40">
+                                        <button type="button"
+                                                wire:click="cancelarCrearInstructor"
+                                                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all
+                                                       bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600
+                                                       text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                                            Cancelar
+                                        </button>
+
+                                        <button type="button"
+                                                wire:click="guardarInstructorDesdePersonaExistente"
+                                                wire:loading.attr="disabled"
+                                                wire:target="guardarInstructorDesdePersonaExistente"
+                                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold
+                                                       shadow-md shadow-emerald-500/30 transition-all
+                                                       bg-gradient-to-r from-emerald-500 to-emerald-600
+                                                       hover:from-emerald-600 hover:to-emerald-700
+                                                       text-white disabled:opacity-60">
+                                            <span wire:loading.remove wire:target="guardarInstructorDesdePersonaExistente">
+                                                Registrar instructor
+                                            </span>
+                                            <span wire:loading wire:target="guardarInstructorDesdePersonaExistente">
+                                                Guardando...
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if($instructor_estado === 'sin_persona')
+                                <div class="rounded-xl border border-emerald-200 dark:border-emerald-700/50
+                                            bg-gradient-to-b from-emerald-50/80 to-transparent
+                                            dark:from-emerald-900/15 dark:to-transparent overflow-hidden">
+
+                                    <div class="flex items-center justify-between px-5 py-3
+                                                border-b border-emerald-100 dark:border-emerald-800/40
+                                                bg-emerald-50 dark:bg-emerald-900/20">
+                                        <h4 class="text-sm font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                      d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                                            </svg>
+                                            Crear persona e instructor
+                                        </h4>
+                                        <button type="button" wire:click="cancelarCrearInstructor"
+                                                class="p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-200
+                                                       hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <div class="p-5 space-y-5">
+                                        <div>
+                                            <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3
+                                                       flex items-center gap-2
+                                                       before:content-[''] before:flex-1 before:h-px before:bg-gray-200 dark:before:bg-gray-700
+                                                       after:content-[''] after:flex-1 after:h-px after:bg-gray-200 dark:after:bg-gray-700">
+                                                Datos Personales
+                                            </p>
+
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <div class="sm:col-span-2">
+                                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                                        Número de Identidad <span class="text-red-500">*</span>
+                                                    </label>
+                                                    <input type="text"
+                                                           wire:model="i_dni"
+                                                           inputmode="numeric"
+                                                           oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                                                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                                                  border border-gray-300 dark:border-gray-600
+                                                                  bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                                                  focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                                                  @error('i_dni') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror" />
+                                                    @error('i_dni')
+                                                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                                    @enderror
+                                                </div>
+
+                                                <div>
+                                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                                        Primer Nombre <span class="text-red-500">*</span>
+                                                    </label>
+                                                    <input type="text"
+                                                           wire:model="i_primer_nombre"
+                                                           oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'')"
+                                                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                                                  border border-gray-300 dark:border-gray-600
+                                                                  bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                                                  focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                                                  @error('i_primer_nombre') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror" />
+                                                    @error('i_primer_nombre')
+                                                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                                    @enderror
+                                                </div>
+
+                                                <div>
+                                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                                        Segundo Nombre
+                                                    </label>
+                                                    <input type="text"
+                                                           wire:model="i_segundo_nombre"
+                                                           oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'')"
+                                                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                                                  border border-gray-300 dark:border-gray-600
+                                                                  bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                                                  focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                                                </div>
+
+                                                <div>
+                                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                                        Primer Apellido <span class="text-red-500">*</span>
+                                                    </label>
+                                                    <input type="text"
+                                                           wire:model="i_primer_apellido"
+                                                           oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'')"
+                                                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                                                  border border-gray-300 dark:border-gray-600
+                                                                  bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                                                  focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                                                  @error('i_primer_apellido') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror" />
+                                                    @error('i_primer_apellido')
+                                                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                                    @enderror
+                                                </div>
+
+                                                <div>
+                                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                                        Segundo Apellido
+                                                    </label>
+                                                    <input type="text"
+                                                           wire:model="i_segundo_apellido"
+                                                           oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'')"
+                                                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                                                  border border-gray-300 dark:border-gray-600
+                                                                  bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                                                  focus:ring-2 focus:ring-emerald-500 focus:border-transparent" />
+                                                </div>
+
+                                                <div>
+                                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                                        Fecha de Nacimiento
+                                                    </label>
+                                                    <input type="date" wire:model="i_fecha_nacimiento"
+                                                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                                                  border border-gray-300 dark:border-gray-600
+                                                                  bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                                                  focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                                                  @error('i_fecha_nacimiento') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror" />
+                                                    @error('i_fecha_nacimiento')
+                                                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                                    @enderror
+                                                </div>
+
+                                                <div>
+                                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                                        Sexo
+                                                    </label>
+                                                    <select wire:model="i_sexo"
+                                                            class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                                                   border border-gray-300 dark:border-gray-600
+                                                                   bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                                                   focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                                                   @error('i_sexo') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror">
+                                                        <option value="">Seleccionar...</option>
+                                                        <option value="M">Masculino</option>
+                                                        <option value="F">Femenino</option>
+                                                    </select>
+                                                    @error('i_sexo')
+                                                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                                    @enderror
+                                                </div>
+
+                                                <div>
+                                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                                        Teléfono
+                                                    </label>
+                                                    <input type="text"
+                                                           wire:model="i_telefono"
+                                                           inputmode="numeric"
+                                                           oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                                                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                                                  border border-gray-300 dark:border-gray-600
+                                                                  bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                                                  focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                                                  @error('i_telefono') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror" />
+                                                    @error('i_telefono')
+                                                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                                    @enderror
+                                                </div>
+
+                                                <div>
+                                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                                        Correo Electrónico
+                                                    </label>
+                                                    <input type="email" wire:model="i_email"
+                                                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                                                  border border-gray-300 dark:border-gray-600
+                                                                  bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                                                  focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                                                  @error('i_email') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror" />
+                                                    @error('i_email')
+                                                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex justify-end gap-3 pt-2 border-t border-emerald-100 dark:border-emerald-800/40">
+                                            <button type="button"
+                                                    wire:click="cancelarCrearInstructor"
+                                                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all
+                                                           bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600
+                                                           text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                                                Cancelar
+                                            </button>
+
+                                            <button type="button"
+                                                    wire:click="guardarMiniInstructorPersona"
+                                                    wire:loading.attr="disabled"
+                                                    wire:target="guardarMiniInstructorPersona"
+                                                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold
+                                                           shadow-md shadow-emerald-500/30 transition-all
+                                                           bg-gradient-to-r from-emerald-500 to-emerald-600
+                                                           hover:from-emerald-600 hover:to-emerald-700
+                                                           text-white disabled:opacity-60">
+                                                <svg wire:loading wire:target="guardarMiniInstructorPersona"
+                                                     class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                                                </svg>
+                                                <span wire:loading.remove wire:target="guardarMiniInstructorPersona">Guardar instructor</span>
+                                                <span wire:loading wire:target="guardarMiniInstructorPersona">Guardando...</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     @endif
 
-    {{-- ══ BOTONES DE NAVEGACIÓN ══════════════════════════════════════════ --}}
     <div class="flex items-center justify-between">
         @if($paso > 1)
             <button wire:click="anteriorPaso"
+                    type="button"
                     class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all
                            bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600
                            text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
@@ -417,6 +801,7 @@
 
         @if($paso < 3)
             <button wire:click="siguientePaso"
+                    type="button"
                     class="inline-flex items-center gap-2.5 px-7 py-2.5 rounded-lg text-sm font-bold
                            shadow-md shadow-blue-500/30 transition-all duration-150
                            bg-gradient-to-r from-sky-500 to-blue-600
@@ -431,6 +816,7 @@
             </button>
         @else
             <button wire:click="guardar"
+                    type="button"
                     wire:loading.attr="disabled"
                     class="inline-flex items-center gap-2.5 px-7 py-2.5 rounded-lg text-sm font-bold
                            shadow-md shadow-emerald-500/30 transition-all duration-150

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\InscripcionCurso;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Curso extends BaseModel
@@ -12,7 +13,6 @@ class Curso extends BaseModel
 
     protected $fillable = [
         'encargado_id',
-        'iglesia_id',
         'tipo_curso_id',
         'instructor_id',
         'nombre',
@@ -29,11 +29,6 @@ class Curso extends BaseModel
         'fecha_fin' => 'date',
     ];
 
-    public function iglesia()
-    {
-        return $this->belongsTo(TenantIglesia::class, 'iglesia_id');
-    }
-
     public function encargado()
     {
         return $this->belongsTo(Encargado::class, 'encargado_id');
@@ -47,5 +42,10 @@ class Curso extends BaseModel
     public function instructor()
     {
         return $this->belongsTo(Instructor::class, 'instructor_id');
+    }
+
+    public function inscripcionesCurso()
+    {
+        return $this->hasMany(InscripcionCurso::class, 'curso_id');
     }
 }

@@ -8,7 +8,10 @@
     $ministro      = $confirmacion->ministro?->persona;
     $encargado     = $confirmacion->encargado?->feligres?->persona;
     $iglesiaNombre = $iglesiaConfig?->nombre ?? $confirmacion->iglesia?->nombre ?? '';
-    $logoIglesia = $iglesiaConfig?->logo_url ?? asset('image/Logo_guest.png');
+
+    // Logos — igual que bautismo-show
+    $logoIglesia        = $iglesiaConfig?->logo_url        ?? asset('image/Logo_guest.png');
+    $logoIglesiaDerecha = $iglesiaConfig?->logo_derecha_url ?? $logoIglesia;
 
     $mesesEs = [
         1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',
@@ -154,10 +157,19 @@
 
     {{-- ======================= CERTIFICATE MAIN AREA ======================= --}}
     <div class="flex-1 min-w-0">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8">
+        {{-- relative overflow-hidden igual que bautismo para la marca de agua --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8 relative overflow-hidden">
+
+            {{-- Marca de agua — igual que bautismo --}}
+            @if ($logoIglesia)
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+                    <img src="{{ $logoIglesia }}" alt=""
+                         class="w-[320px] md:w-[420px] object-contain opacity-[0.08]">
+                </div>
+            @endif
 
             @if ($errors->any())
-                <div class="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg px-4 py-3 text-sm text-red-700 dark:text-red-400">
+                <div class="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg px-4 py-3 text-sm text-red-700 dark:text-red-400 relative z-10">
                     <ul class="list-disc list-inside space-y-1">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -166,8 +178,8 @@
                 </div>
             @endif
 
-            {{-- HEADER --}}
-            <div class="flex items-center gap-3 mb-4">
+            {{-- HEADER — logo izquierda diferente al derecha, igual que bautismo --}}
+            <div class="flex items-center gap-3 mb-4 relative z-10">
                 <div class="shrink-0">
                     <img src="{{ $logoIglesia }}" alt="Logo" class="h-16 w-16 object-contain">
                 </div>
@@ -178,26 +190,27 @@
                     <p class="text-sm uppercase tracking-widest text-gray-500 dark:text-gray-400 mt-0.5">Di&oacute;cesis de Choluteca</p>
                 </div>
                 <div class="shrink-0">
-                    <img src="{{ $logoIglesia }}" alt="Logo" class="h-16 w-16 object-contain">
+                    {{-- Logo derecha — puede ser diferente al izquierdo --}}
+                    <img src="{{ $logoIglesiaDerecha }}" alt="Logo" class="h-16 w-16 object-contain">
                 </div>
             </div>
 
-            <div class="border-t border-[#7D5A1E] my-1"></div>
-            <div class="text-center text-[#7D5A1E] text-xs tracking-[12px] my-1">&bull; &bull; &bull;</div>
-            <div class="border-t border-[#7D5A1E] my-1"></div>
-            <div class="text-center my-3">
+            <div class="border-t border-[#7D5A1E] my-1 relative z-10"></div>
+            <div class="text-center text-[#7D5A1E] text-xs tracking-[12px] my-1 relative z-10">&bull; &bull; &bull;</div>
+            <div class="border-t border-[#7D5A1E] my-1 relative z-10"></div>
+            <div class="text-center my-3 relative z-10">
                 <span class="inline-block bg-[#7D5A1E] text-white text-sm font-bold uppercase tracking-[4px] px-8 py-2">
                     Certificaci&oacute;n de Confirmaci&oacute;n
                 </span>
             </div>
-            <div class="border-t border-[#7D5A1E] my-1"></div>
-            <div class="text-center text-[#7D5A1E] text-xs tracking-[12px] my-1">&bull; &bull; &bull;</div>
-            <div class="border-t border-[#7D5A1E] mb-5"></div>
+            <div class="border-t border-[#7D5A1E] my-1 relative z-10"></div>
+            <div class="text-center text-[#7D5A1E] text-xs tracking-[12px] my-1 relative z-10">&bull; &bull; &bull;</div>
+            <div class="border-t border-[#7D5A1E] mb-5 relative z-10"></div>
 
             @php $placeholderClass = 'text-gray-400 dark:text-gray-500 italic text-sm'; @endphp
 
             {{-- CERTIFICATE BODY --}}
-            <div class="font-serif text-gray-800 dark:text-gray-200 leading-relaxed space-y-4 text-sm md:text-[14px]">
+            <div class="font-serif text-gray-800 dark:text-gray-200 leading-relaxed space-y-4 text-sm md:text-[14px] relative z-10">
 
                 <p>El infrascrito encargado del archivo de esta parroquia certifica que</p>
 
@@ -244,7 +257,7 @@
                     </p>
                 </div>
 
-                {{-- DADO EN — una sola línea --}}
+                {{-- DADO EN --}}
                 <p class="flex flex-wrap items-end gap-x-1 gap-y-2 pt-4">
                     <span>Dado en</span>
                     <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[160px] pl-1 font-medium {{ $lugar_expedicion ? '' : $placeholderClass }}">
@@ -266,12 +279,11 @@
 
                 <p class="text-xs italic text-gray-400 mt-1">(Sello)</p>
 
-                {{-- FIRMA CENTRADA — igual al formato de la imagen (párroco con firma arriba) --}}
+                {{-- FIRMA CENTRADA --}}
                 <div class="flex justify-center pt-8 pb-2">
                     <div class="text-center">
                         @php $firmaPath = $confirmacion->encargado?->path_firma_principal; @endphp
 
-                        {{-- Espacio para la firma (imagen o área de subida) --}}
                         @if ($firmaPath)
                             <div class="mb-1 flex justify-center">
                                 <img src="{{ Storage::url($firmaPath) }}"
@@ -314,7 +326,6 @@
                             @endcan
                         @endif
 
-                        {{-- Línea con nombre encargado arriba y "Párroco" abajo — igual imagen --}}
                         <div class="w-64 border-t border-gray-500 dark:border-gray-400 pt-2 mx-auto">
                             @if ($encargado?->nombre_completo)
                                 <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">

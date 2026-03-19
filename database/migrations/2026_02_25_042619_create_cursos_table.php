@@ -12,7 +12,6 @@ return new class extends Migration {
 
     // obligatorias
     $table->foreignId('encargado_id')->constrained('encargado')->restrictOnDelete();
-    $table->foreignId('iglesia_id')->constrained('iglesias')->restrictOnDelete();
     $table->foreignId('tipo_curso_id')->constrained('tipos_curso')->restrictOnDelete();
     $table->foreignId('instructor_id')->constrained('instructores')->restrictOnDelete();
 
