@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
         // 2) Roles y permisos (siempre primero para evitar errores de integridad referencial)
         $this->call(RolesAndPermissionsSeeder::class);
 
-        // 3) Catálogos/base (antes de tablas que dependan de ellos)
+        // 3) Catálogos/base (antes de tablas que dependan de ellos para evitar errores de integridad referencial)
         $this->call(TipoCursoSeeder::class);
         $this->call(ReligionSeeder::class);
 
