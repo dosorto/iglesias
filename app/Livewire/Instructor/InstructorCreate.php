@@ -213,3 +213,8 @@ class InstructorCreate extends Component
         return view('livewire.instructor.instructor-create');
     }
 }
+
+
+
+
+
