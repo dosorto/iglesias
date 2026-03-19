@@ -1,28 +1,30 @@
 <div class="space-y-6">
 
-    {{-- HEADER --}}
+    @php
+        $vieneDeCurso = filled(request()->query('curso_id'));
+    @endphp
 
     @if (session()->has('success'))
-    <div class="mb-4 rounded-lg bg-emerald-100 px-4 py-3 text-emerald-700 border border-emerald-200">
-        {{ session('success') }}
-    </div>
-@endif
+        <div class="mb-4 rounded-lg bg-emerald-100 px-4 py-3 text-emerald-700 border border-emerald-200">
+            {{ session('success') }}
+        </div>
+    @endif
 
-@if (session()->has('error'))
-    <div class="mb-4 rounded-lg bg-red-100 px-4 py-3 text-red-700 border border-red-200">
-        {{ session('error') }}
-    </div>
-@endif
+    @if (session()->has('error'))
+        <div class="mb-4 rounded-lg bg-red-100 px-4 py-3 text-red-700 border border-red-200">
+            {{ session('error') }}
+        </div>
+    @endif
 
-@if ($errors->any())
-    <div class="mb-4 rounded-lg bg-red-100 px-4 py-3 text-red-700 border border-red-200">
-        <ul class="list-disc pl-5 text-sm">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+    @if ($errors->any())
+        <div class="mb-4 rounded-lg bg-red-100 px-4 py-3 text-red-700 border border-red-200">
+            <ul class="list-disc pl-5 text-sm">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
     <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600
                 dark:from-indigo-700 dark:to-violet-700 shadow-md px-6 py-5">
@@ -33,7 +35,6 @@
         <div class="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
 
             <div class="flex items-center gap-3">
-
                 <div class="flex-shrink-0 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/>
@@ -49,10 +50,9 @@
                         Busca una persona por DNI para inscribirla en un curso
                     </p>
                 </div>
-
             </div>
 
-            <a href="{{ route('inscripcion-curso.index') }}"
+            <a href="{{ $vieneDeCurso ? route('curso.show', $curso_id) : route('inscripcion-curso.index') }}"
                class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg
                       bg-white/15 hover:bg-white/25 border border-white/20
                       text-white text-sm font-medium transition-all duration-150">
@@ -63,20 +63,14 @@
                 </svg>
 
                 Volver
-
             </a>
-
         </div>
-
     </div>
 
-
-    {{-- PERSONA --}}
     <div class="bg-white dark:bg-gray-800/80 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700/60
                 ring-1 ring-black/5 dark:ring-white/5">
 
         <div class="flex items-center gap-3 px-6 py-4 border-b border-gray-100 dark:border-gray-700/60">
-
             <span class="inline-flex items-center justify-center w-7 h-7 rounded-full
                          bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300
                          text-xs font-bold ring-2 ring-indigo-200 dark:ring-indigo-700/50">
@@ -86,30 +80,22 @@
             <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-100 tracking-wide uppercase">
                 Persona
             </h2>
-
         </div>
 
         <div class="p-6">
-
-            {{-- Persona seleccionada --}}
             @if ($personaSeleccionada)
-
                 <div class="flex items-center justify-between p-4 rounded-xl
                             bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700/50">
 
                     <div class="flex items-center gap-3">
-
                         <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600
                                     flex items-center justify-center flex-shrink-0 shadow-sm">
-
                             <span class="text-white font-bold text-sm">
                                 {{ strtoupper(substr($personaSeleccionada['nombre'], 0, 1)) }}
                             </span>
-
                         </div>
 
                         <div>
-
                             <p class="font-semibold text-gray-900 dark:text-white text-sm">
                                 {{ $personaSeleccionada['nombre'] }}
                             </p>
@@ -122,20 +108,12 @@
                                          bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">
                                 ✓ Seleccionada
                             </span>
-
                         </div>
-
                     </div>
-
                 </div>
-
             @else
-
-                {{-- BUSCADOR DNI --}}
                 <div class="flex items-center gap-3">
-
                     <div class="flex-1 relative">
-
                         <input type="text"
                                wire:model="dniBusqueda"
                                placeholder="Ingresa el DNI de la persona..."
@@ -146,22 +124,17 @@
                                       focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
 
                         <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-
                             <svg class="w-4 h-4 text-gray-400"
                                  fill="none"
                                  stroke="currentColor"
                                  viewBox="0 0 24 24">
-
                                 <path stroke-linecap="round"
                                       stroke-linejoin="round"
                                       stroke-width="2"
                                       d="M21 21l-6-6m2-5a7 7 0 11-14 0
                                          7 7 0 0114 0z"/>
-
                             </svg>
-
                         </div>
-
                     </div>
 
                     <button type="button"
@@ -170,40 +143,28 @@
                                    bg-orange-500 hover:bg-orange-600
                                    text-white text-sm font-medium
                                    rounded-lg shadow-sm transition">
-
                         <svg class="w-4 h-4"
                              fill="none"
                              stroke="currentColor"
                              viewBox="0 0 24 24">
-
                             <path stroke-linecap="round"
                                   stroke-linejoin="round"
                                   stroke-width="2"
                                   d="M21 21l-6-6m2-5a7 7 0 11-14 0
                                      7 7 0 0114 0z"/>
-
                         </svg>
 
                         Buscar
-
                     </button>
-
                 </div>
-
             @endif
-
         </div>
-
     </div>
 
-
-
-    {{-- DATOS INSCRIPCIÓN --}}
     <div class="bg-white dark:bg-gray-800/80 rounded-xl shadow-sm border ring-1 ring-black/5 dark:ring-white/5
                 {{ $feligres_id ? '' : 'opacity-60 pointer-events-none' }}">
 
         <div class="flex items-center gap-3 px-6 py-4 border-b border-gray-100 dark:border-gray-700/60">
-
             <span class="inline-flex items-center justify-center w-7 h-7 rounded-full
                          bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300
                          text-xs font-bold">
@@ -213,133 +174,104 @@
             <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-100 tracking-wide uppercase">
                 Datos de Inscripción
             </h2>
-
         </div>
-
 
         <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            {{-- Curso --}}
             <div>
-
                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Curso
                 </label>
 
-                <select wire:model.live="curso_id"
-                        class="w-full mt-1 border-gray-300 dark:border-gray-600 rounded-lg
-                            bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
-
-                    <option value="">Seleccionar curso</option>
-
-                    @foreach($cursos as $curso)
-                        <option value="{{ $curso->id }}">
-                            {{ $curso->nombre }}
-                        </option>
-                    @endforeach
-                </select>
-
-            </div>
-
-
-
-            
-
-
-
-
-            {{-- Instructor --}}
-                <div>
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        Instructor
-                    </label>
+                @if($vieneDeCurso)
+                    <input type="hidden" wire:model="curso_id">
 
                     <input type="text"
-                        value="{{ $nombreInstructor }}"
-                        readonly
-                        class="w-full mt-1 border-gray-300 dark:border-gray-600 rounded-lg
-                                bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="Seleccione un curso">
-                </div>
+                           value="{{ optional($cursos->firstWhere('id', $curso_id))->nombre ?? 'Curso seleccionado' }}"
+                           readonly
+                           class="w-full mt-1 border-gray-300 dark:border-gray-600 rounded-lg
+                                  bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white">
+                @else
+                    <select wire:model.live="curso_id"
+                            class="w-full mt-1 border-gray-300 dark:border-gray-600 rounded-lg
+                                   bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <option value="">Seleccionar curso</option>
 
+                        @foreach($cursos as $curso)
+                            <option value="{{ $curso->id }}">
+                                {{ $curso->nombre }}
+                            </option>
+                        @endforeach
+                    </select>
+                @endif
+            </div>
 
-
-            {{-- Fecha inscripción --}}
             <div>
+                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Instructor
+                </label>
 
+                <input type="text"
+                       value="{{ $nombreInstructor }}"
+                       readonly
+                       class="w-full mt-1 border-gray-300 dark:border-gray-600 rounded-lg
+                              bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
+                       placeholder="Seleccione un curso">
+            </div>
+
+            <div>
                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Fecha de inscripción
                 </label>
 
                 <input type="date"
-                    wire:model="fecha_inscripcion"
-                    class="w-full mt-1 border-gray-300 dark:border-gray-600 rounded-lg
-                            bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
-
+                       wire:model="fecha_inscripcion"
+                       class="w-full mt-1 border-gray-300 dark:border-gray-600 rounded-lg
+                              bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
             </div>
 
-
-            {{-- Aprobado --}}
             <div>
-
                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Aprobado
                 </label>
 
                 <select wire:model="aprobado"
                         class="w-full mt-1 border-gray-300 dark:border-gray-600 rounded-lg
-                            bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
-
+                               bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
                     <option value="">Seleccionar</option>
                     <option value="1">Sí</option>
                     <option value="0">No</option>
-
                 </select>
-
             </div>
 
-
-            {{-- Certificado emitido --}}
             <div>
-
                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Certificado emitido
                 </label>
 
                 <select wire:model="certificado_emitido"
                         class="w-full mt-1 border-gray-300 dark:border-gray-600 rounded-lg
-                            bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
-
+                               bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
                     <option value="0">No</option>
                     <option value="1">Sí</option>
-
                 </select>
-
             </div>
 
-
-            {{-- Fecha certificado --}}
             <div>
-
                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Fecha certificado
                 </label>
 
                 <input type="date"
-                    wire:model="fecha_certificado"
-                    class="w-full mt-1 border-gray-300 dark:border-gray-600 rounded-lg
-                            bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
-
+                       wire:model="fecha_certificado"
+                       class="w-full mt-1 border-gray-300 dark:border-gray-600 rounded-lg
+                              bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
             </div>
-
         </div>
 
-
-
-        {{-- BOTONES --}}
         <div class="flex items-center justify-between mt-8 pt-5 border-t border-gray-100 dark:border-gray-700/50 px-6 pb-6">
 
-            <a href="{{ route('inscripcion-curso.index') }}"
+            <a href="{{ $vieneDeCurso ? route('curso.show', $curso_id) : route('inscripcion-curso.index') }}"
                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium
                       bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
                 Cancelar
@@ -349,16 +281,12 @@
                     wire:click="guardar"
                     wire:loading.attr="disabled"
                     @disabled(!$feligres_id)
-
                     class="inline-flex items-center gap-2.5 px-7 py-2.5 rounded-lg text-sm font-bold
                            bg-gradient-to-r from-emerald-500 to-emerald-600
                            hover:from-emerald-600 hover:to-emerald-700
                            text-white">
-
                 Guardar Inscripción
-
             </button>
-
         </div>
 
     </div>

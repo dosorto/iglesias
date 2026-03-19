@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\InscripcionCurso;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Curso extends BaseModel
@@ -41,5 +42,10 @@ class Curso extends BaseModel
     public function instructor()
     {
         return $this->belongsTo(Instructor::class, 'instructor_id');
+    }
+
+    public function inscripcionesCurso()
+    {
+        return $this->hasMany(InscripcionCurso::class, 'curso_id');
     }
 }
