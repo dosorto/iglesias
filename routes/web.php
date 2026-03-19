@@ -410,6 +410,29 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:iglesias.logo')
     ->get('/iglesia/logo', \App\Livewire\Iglesia\IglesiaLogoUpdate::class)
     ->name('iglesia.logo');
+
+    // Confirmacion 
+    Route::middleware('permission:confirmacion.view')
+        ->get('/confirmacion', [\App\Http\Controllers\ConfirmacionController::class, 'index'])
+        ->name('confirmacion.index');
+
+    Route::middleware('permission:confirmacion.create')
+        ->get('/confirmacion/create', [\App\Http\Controllers\ConfirmacionController::class, 'create'])
+        ->name('confirmacion.create');
+
+    Route::middleware('permission:confirmacion.view')
+        ->get('/confirmacion/{confirmacion}', [\App\Http\Controllers\ConfirmacionController::class, 'show'])
+        ->name('confirmacion.show');
+
+    Route::middleware('permission:confirmacion.edit')
+        ->get('/confirmacion/{confirmacion}/edit', [\App\Http\Controllers\ConfirmacionController::class, 'edit'])
+        ->name('confirmacion.edit');
+
+    Route::middleware('permission:confirmacion.view')
+        ->get('/confirmacion/{confirmacion}/certificado/pdf', [\App\Http\Controllers\ConfirmacionController::class, 'certificadoPdf'])
+        ->name('confirmacion.certificado.pdf');
+
+
 });
 
 require __DIR__.'/auth.php';
