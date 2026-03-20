@@ -35,11 +35,11 @@ class DatabaseSeeder extends Seeder
         // 6) Dependientes de feligreses
         $this->call(EncargadoSeeder::class);
         $this->call(InstructorSeeder::class);
-
+/*
         // 7) Cursos e inscripciones
         $this->call(CursoSeeder::class);
         $this->call(InscripcionCursoSeeder::class);
-
+*/
         // 8) Sacramentos
         $this->call(BautismoSeeder::class);
         $this->call(PrimeraComunionSeeder::class);
@@ -49,7 +49,7 @@ class DatabaseSeeder extends Seeder
         // 9) Emisiones / certificados
         $this->call(ConstanciaSeeder::class);
         $this->call(EmisionDetalleSeeder::class);
-        $this->call(CertificadoCursoSeeder::class);
+       // $this->call(CertificadoCursoSeeder::class);
 
         $this->call(TenantRolesSeeder::class);
     }

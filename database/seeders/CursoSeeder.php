@@ -1,5 +1,5 @@
 <?php
-
+/*
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -95,3 +95,5 @@ class CursoSeeder extends Seeder
         DB::table('cursos')->insert($cursos);
     }
 }
+
+*/
