@@ -77,6 +77,16 @@
             margin-top: 1px;
             color: #555;
         }
+        .header-address {
+            font-size: 9.5pt;
+            margin-top: 3px;
+            color: #222;
+            letter-spacing: 0.4px;
+        }
+        .header-divider {
+            border-top: 2px solid #8aa8bc;
+            margin: 5px 0 7px;
+        }
         .header-right-cell {
             display: table-cell;
             width: 72px;
@@ -321,8 +331,9 @@
             @endif
         </div>
         <div class="header-title-cell">
-            <div class="parish-name">{{ $iglesiaNombreHeader }}</div>
+            <div class="parish-name">Parroquia{{ $iglesiaNombreHeader ? ' ' . $iglesiaNombreHeader : '' }}</div>
             <div class="diocese-name">Di&oacute;cesis de Choluteca</div>
+            <div class="header-address">Monjarás, Marcovia, Choluteca, Honduras, C.A.</div>
         </div>
         <div class="header-right-cell">
             @if ($logoIglesiaDerechaPath)
@@ -330,6 +341,8 @@
             @endif
         </div>
     </div>
+
+    <div class="header-divider"></div>
 
     <hr class="hr-accent">
     <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>

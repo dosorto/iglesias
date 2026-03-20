@@ -44,6 +44,10 @@ Route::middleware(['auth'])->group(function () {
         ->get('/settings', fn () => view('settings.index'))
         ->name('settings.index');
 
+    Route::middleware('permission:bautismo.view|matrimonio.view|confirmacion.view|primera-comunion.view')
+        ->get('/sacramentos', fn () => view('sacramentos.index'))
+        ->name('sacramentos.index');
+
     Route::middleware('permission:roles.view')
         ->get('/configuracion/certificado-bautismo', fn () => view('configuracion.certificado-bautismo'))
         ->name('configuracion.certificado-bautismo');

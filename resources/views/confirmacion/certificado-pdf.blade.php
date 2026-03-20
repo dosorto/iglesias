@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -6,11 +6,22 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #1a1a1a; background: #fff; }
-
-        .watermark-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.08; z-index: 0; }
-        .watermark-logo img { width: 430px; height: auto; object-fit: contain; }
-
         .page-wrapper { padding: 30px 46px; border: 4px double #7D5A1E; margin: 10px; position: relative; z-index: 1; }
+
+        .watermark-logo {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.08;
+            z-index: 0;
+        }
+
+        .watermark-logo img {
+            width: 430px;
+            height: auto;
+            object-fit: contain;
+        }
 
         .header { display: table; width: 100%; margin-bottom: 10px; }
         .header-logo-cell { display: table-cell; width: 85px; vertical-align: middle; text-align: center; }
@@ -21,6 +32,8 @@
 
         .parish-name { font-size: 19pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; line-height: 1.1; }
         .diocese-name { font-size: 12pt; text-transform: uppercase; letter-spacing: 3px; color: #4a7aad; margin-top: 3px; }
+        .header-address { font-size: 11pt; margin-top: 4px; color: #222; letter-spacing: 0.5px; }
+        .header-divider { border-top: 2px solid #8aa8bc; margin: 6px 0 8px; }
 
         .hr-accent { border: none; border-top: 1px solid #7D5A1E; margin: 3px 0; }
         .ornament { text-align: center; color: #7D5A1E; font-size: 11pt; letter-spacing: 8px; margin: 3px 0; }
@@ -45,18 +58,28 @@
         .sello { font-size: 10pt; font-style: italic; margin-top: 4px; color: #666; }
 
         .signature-block { margin-top: 44px; text-align: center; }
-        .sig-img { max-height: 65px; max-width: 210px; object-fit: contain; display: block; margin: 0 auto; }
-        .sig-line { display: inline-block; width: 260px; border-top: 2px solid #7D5A1E; margin-top: 0; padding-top: 4px; }
+        .sig-img {
+            max-height: 65px;
+            max-width: 210px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+        .sig-line {
+            display: inline-block;
+            width: 260px;
+            border-top: 2px solid #7D5A1E;
+            margin-top: 0;
+            padding-top: 4px;
+        }
         .sig-name { font-size: 11pt; font-weight: bold; margin-bottom: 2px; color: #1a1a1a; margin-top: 4px; }
         .sig-title { font-size: 10pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #7D5A1E; }
     </style>
 </head>
 @php
-    // Igual que certificado-bautismo — usa resolvePublicFilePath
     $resolvePublicFilePath = function (?string $path): ?string {
         if (! $path) return null;
-        $normalized = trim((string) parse_url($path, PHP_URL_PATH) ?: $path);
-        $normalized = ltrim($normalized, '/\\');
+        $normalized = ltrim(trim((string) parse_url($path, PHP_URL_PATH) ?: $path), '/\\');
         if ($normalized === '') return null;
         $candidate = str_starts_with($normalized, 'storage/')
             ? public_path($normalized)
@@ -64,14 +87,15 @@
         return is_file($candidate) ? $candidate : null;
     };
 
-    $logoIglesiaPath        = $resolvePublicFilePath($iglesiaConfig?->path_logo);
+    $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
-    $logoEstaticoPath       = public_path('image/Logo_guest.png');
 
-    // Fallback al estático si no hay logo de iglesia
-    if (! $logoIglesiaPath && file_exists($logoEstaticoPath)) {
-        $logoIglesiaPath        = $logoEstaticoPath;
-        $logoIglesiaDerechaPath = $logoEstaticoPath;
+    $logoEstaticoPath = public_path('image/Logo_guest.png');
+    if (! $logoIglesiaPath && is_file($logoEstaticoPath)) {
+        $logoIglesiaPath = $logoEstaticoPath;
+    }
+    if (! $logoIglesiaDerechaPath) {
+        $logoIglesiaDerechaPath = $logoIglesiaPath;
     }
 
     $confirmado      = $confirmacion->feligres?->persona;
@@ -106,36 +130,34 @@
     $lugarExp     = $confirmacion->lugar_expedicion   ?? '';
     $notaMarginal = $confirmacion->nota_marginal      ?? '';
 
-    $firmaPath = $resolvePublicFilePath($confirmacion->encargado?->path_firma_principal);
+    $firmaPath = null;
+    if ($confirmacion->encargado?->path_firma_principal) {
+        $firmaPath = $resolvePublicFilePath($confirmacion->encargado->path_firma_principal);
+    }
 @endphp
 <body>
-
-{{-- Marca de agua — igual que bautismo PDF --}}
 @if ($logoIglesiaPath)
     <div class="watermark-logo">
-        <img src="{{ $logoIglesiaPath }}" alt="">
+        <img src="{{ $logoIglesiaPath }}" alt="Marca de agua">
     </div>
 @endif
-
 <div class="page-wrapper">
 
     <div class="header">
         <div class="header-logo-cell">
-            @if ($logoIglesiaPath)
-                <img src="{{ $logoIglesiaPath }}" alt="Logo">
-            @endif
+            @if ($logoIglesiaPath)<img src="{{ $logoIglesiaPath }}" alt="Logo">@endif
         </div>
         <div class="header-title-cell">
-            <div class="parish-name">{{ $iglesiaNombre ?: 'Parroquia' }}</div>
+            <div class="parish-name">Parroquia{{ $iglesiaNombre ? ' ' . $iglesiaNombre : '' }}</div>
             <div class="diocese-name">Di&oacute;cesis de Choluteca</div>
+            <div class="header-address">Monjarás, Marcovia, Choluteca, Honduras, C.A.</div>
         </div>
         <div class="header-right-cell">
-            {{-- Logo derecha — puede ser diferente --}}
-            @if ($logoIglesiaDerechaPath)
-                <img src="{{ $logoIglesiaDerechaPath }}" alt="Logo">
-            @endif
+            @if ($logoIglesiaDerechaPath)<img src="{{ $logoIglesiaDerechaPath }}" alt="Logo">@endif
         </div>
     </div>
+
+    <div class="header-divider"></div>
 
     <hr class="hr-accent">
     <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
