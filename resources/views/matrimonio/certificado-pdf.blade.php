@@ -373,7 +373,7 @@
             <span class="line-field line-field-xl">{{ $sacerdote }}</span>
         </p>
 
-        <p>debidamente autorizado.</p>
+        <p>debidamente autorizado. </p>
     </div>
 
     {{-- ===== TESTIGOS ===== --}}

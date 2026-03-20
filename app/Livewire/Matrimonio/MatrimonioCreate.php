@@ -321,7 +321,7 @@ class MatrimonioCreate extends Component
                 'primer_apellido'  => Str::title($this->mini_p_primer_apellido),
                 'segundo_apellido' => $this->mini_p_segundo_apellido ? Str::title($this->mini_p_segundo_apellido) : null,
                 'fecha_nacimiento' => $this->mini_p_fecha_nacimiento ?: null,
-                'sexo'             => $this->mini_p_sexo === 'Masculino' ? 'M' : ($this->mini_p_sexo === 'Femenino' ? 'F' : null),
+                'sexo'             => $this->mini_p_sexo === 'M' ? 'M' : ($this->mini_p_sexo === 'F' ? 'F' : null),
                 'telefono'         => $this->mini_p_telefono ?: null,
                 'email'            => $this->mini_p_email    ?: null,
             ]);

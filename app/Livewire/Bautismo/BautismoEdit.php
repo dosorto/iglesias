@@ -3,8 +3,12 @@
 namespace App\Livewire\Bautismo;
 
 use App\Models\Bautismo;
-use App\Models\Iglesias;
 use App\Models\Encargado;
+use App\Models\Feligres;
+use App\Models\Iglesias;
+use App\Models\Persona;
+use App\Models\TenantIglesia;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class BautismoEdit extends Component
@@ -25,10 +29,38 @@ class BautismoEdit extends Component
     public string $exp_mes          = '';
     public string $exp_ano          = '';
 
+    public string $bautizado_dni         = '';
+    public ?array $bautizado_persona     = null;
+    public ?int   $bautizado_feligres_id = null;
+    public string $bautizado_estado      = 'idle';
+
+    public string $padre_dni         = '';
+    public ?array $padre_persona     = null;
+    public ?int   $padre_feligres_id = null;
+    public string $padre_estado      = 'idle';
+
+    public string $madre_dni         = '';
+    public ?array $madre_persona     = null;
+    public ?int   $madre_feligres_id = null;
+    public string $madre_estado      = 'idle';
+
+    public string $padrino_dni         = '';
+    public ?array $padrino_persona     = null;
+    public ?int   $padrino_feligres_id = null;
+    public string $padrino_estado      = 'idle';
+
+    public string $madrina_dni         = '';
+    public ?array $madrina_persona     = null;
+    public ?int   $madrina_feligres_id = null;
+    public string $madrina_estado      = 'idle';
+
+    public array   $busqueda_resultados = [];
+    public ?string $busqueda_rol        = null;
+
     public function mount(Bautismo $bautismo): void
     {
         $this->bautismo       = $bautismo;
-        $this->iglesia_id     = $bautismo->iglesia_id;
+        $this->iglesia_id     = session('tenant') ? TenantIglesia::currentId() : $bautismo->iglesia_id;
         $this->encargado_id   = $bautismo->encargado_id;
         $this->fecha_bautismo = $bautismo->fecha_bautismo?->format('Y-m-d') ?? '';
         $this->libro_bautismo = $bautismo->libro_bautismo ?? '';
@@ -43,12 +75,49 @@ class BautismoEdit extends Component
         $this->exp_dia = $fechaExp?->day ? (string) $fechaExp->day : '';
         $this->exp_mes = $fechaExp?->month ? (string) $fechaExp->month : '';
         $this->exp_ano = $fechaExp?->year ? (string) ($fechaExp->year - 2000) : '';
+
+        $this->cargarRolExistente('bautizado', $bautismo->bautizado_id);
+        $this->cargarRolExistente('padre', $bautismo->padre_id);
+        $this->cargarRolExistente('madre', $bautismo->madre_id);
+        $this->cargarRolExistente('padrino', $bautismo->padrino_id);
+        $this->cargarRolExistente('madrina', $bautismo->madrina_id);
+    }
+
+    private function cargarRolExistente(string $rol, ?int $feligresId): void
+    {
+        if (! $feligresId) {
+            return;
+        }
+
+        $feligres = Feligres::with('persona')->find($feligresId);
+        if (! $feligres || ! $feligres->persona) {
+            return;
+        }
+
+        $persona = $feligres->persona;
+        $this->{"{$rol}_persona"} = [
+            'id'              => $persona->id,
+            'dni'             => $persona->dni,
+            'nombre_completo' => $persona->nombre_completo,
+            'telefono'        => $persona->telefono ?? null,
+            'email'           => $persona->email ?? null,
+        ];
+        $this->{"{$rol}_feligres_id"} = $feligresId;
+        $this->{"{$rol}_dni"}         = $persona->dni;
+        $this->{"{$rol}_estado"}      = 'found';
     }
 
     protected function rules(): array
     {
+        $tenantIglesiaId = session('tenant') ? TenantIglesia::currentId() : null;
+
         return [
-            'iglesia_id'     => ['required', 'integer', 'exists:iglesias,id'],
+            'iglesia_id'     => array_filter([
+                'required',
+                'integer',
+                'exists:iglesias,id',
+                $tenantIglesiaId ? Rule::in([$tenantIglesiaId]) : null,
+            ]),
             'encargado_id'   => ['required', 'integer', 'exists:encargado,id'],
             'fecha_bautismo' => ['required', 'date', 'before_or_equal:today'],
             'libro_bautismo' => ['nullable', 'string', 'max:100'],
@@ -61,6 +130,11 @@ class BautismoEdit extends Component
             'exp_dia'          => ['nullable', 'integer', 'min:1', 'max:31'],
             'exp_mes'          => ['nullable', 'integer', 'min:1', 'max:12'],
             'exp_ano'          => ['nullable', 'integer', 'min:0', 'max:99'],
+            'bautizado_feligres_id' => ['required', 'integer', 'exists:feligres,id'],
+            'padre_feligres_id'     => ['nullable', 'integer', 'exists:feligres,id'],
+            'madre_feligres_id'     => ['nullable', 'integer', 'exists:feligres,id'],
+            'padrino_feligres_id'   => ['nullable', 'integer', 'exists:feligres,id'],
+            'madrina_feligres_id'   => ['nullable', 'integer', 'exists:feligres,id'],
         ];
     }
 
@@ -83,16 +157,177 @@ class BautismoEdit extends Component
             'lugar_expedicion.max'          => 'El lugar de expedición no puede superar los 150 caracteres.',
             'exp_dia.min'                   => 'El día de expedición debe ser entre 1 y 31.',
             'exp_mes.min'                   => 'El mes de expedición debe ser entre 1 y 12.',
+            'bautizado_feligres_id.required'=> 'Debes seleccionar un bautizado válido.',
+            'bautizado_feligres_id.exists'  => 'El bautizado seleccionado no es válido.',
+            'padre_feligres_id.exists'      => 'El padre seleccionado no es válido.',
+            'madre_feligres_id.exists'      => 'La madre seleccionada no es válida.',
+            'padrino_feligres_id.exists'    => 'El padrino seleccionado no es válido.',
+            'madrina_feligres_id.exists'    => 'La madrina seleccionada no es válida.',
         ];
     }
 
     public function updated(string $field): void
     {
-        $this->validateOnly($field);
+        if (array_key_exists($field, $this->rules())) {
+            $this->validateOnly($field);
+        }
+    }
+
+    public function buscarPersona(string $rol): void
+    {
+        $input = trim($this->{"{$rol}_dni"});
+
+        if (empty($input)) {
+            $this->addError("{$rol}_dni", 'Ingresa un DNI o nombre para buscar.');
+            return;
+        }
+
+        if (ctype_digit($input)) {
+            $personas = Persona::where('dni', $input)->get();
+        } else {
+            if (mb_strlen($input) < 3) {
+                $this->addError("{$rol}_dni", 'Ingresa al menos 3 caracteres para buscar por nombre.');
+                return;
+            }
+
+            $term = '%' . $input . '%';
+            $personas = Persona::where(function ($q) use ($term) {
+                $q->where('primer_nombre', 'like', $term)
+                    ->orWhere('segundo_nombre', 'like', $term)
+                    ->orWhere('primer_apellido', 'like', $term)
+                    ->orWhere('segundo_apellido', 'like', $term);
+            })->orderBy('primer_apellido')->orderBy('primer_nombre')->limit(15)->get();
+        }
+
+        if ($personas->isEmpty()) {
+            $this->{"{$rol}_persona"}     = null;
+            $this->{"{$rol}_feligres_id"} = null;
+            $this->{"{$rol}_estado"}      = 'sin_persona';
+            $this->busqueda_resultados      = [];
+            $this->busqueda_rol             = null;
+            return;
+        }
+
+        if ($personas->count() === 1) {
+            $this->asignarPersonaARol($rol, $personas->first());
+            return;
+        }
+
+        if ($rol === 'bautizado') {
+            $yaBautizadoFeligresIds = Bautismo::where('id', '!=', $this->bautismo->id)
+                ->whereNotNull('bautizado_id')
+                ->pluck('bautizado_id')
+                ->toArray();
+
+            $personasBautizadas = Feligres::whereIn('id', $yaBautizadoFeligresIds)
+                ->pluck('id_persona')
+                ->toArray();
+
+            $personas = $personas->whereNotIn('id', $personasBautizadas);
+
+            if ($personas->isEmpty()) {
+                $this->{"{$rol}_estado"} = 'sin_persona';
+                $this->addError("{$rol}_dni", 'No se encontraron personas disponibles para ser bautizadas (todas ya fueron bautizadas).');
+                return;
+            }
+        }
+
+        $this->busqueda_resultados = $personas->map(fn ($p) => [
+            'id'              => $p->id,
+            'dni'             => $p->dni,
+            'nombre_completo' => $p->nombre_completo,
+            'telefono'        => $p->telefono ?? null,
+        ])->toArray();
+
+        $this->busqueda_rol      = $rol;
+        $this->{"{$rol}_estado"} = 'multiples';
+    }
+
+    public function seleccionarResultado(int $personaId): void
+    {
+        $rol = $this->busqueda_rol;
+        if (! $rol) {
+            return;
+        }
+
+        $persona = Persona::findOrFail($personaId);
+        $this->asignarPersonaARol($rol, $persona);
+    }
+
+    private function asignarPersonaARol(string $rol, Persona $persona): void
+    {
+        $roles = ['bautizado', 'padre', 'madre', 'padrino', 'madrina'];
+        $labels = [
+            'bautizado' => 'Bautizado',
+            'padre'     => 'Padre',
+            'madre'     => 'Madre',
+            'padrino'   => 'Padrino',
+            'madrina'   => 'Madrina',
+        ];
+
+        foreach ($roles as $r) {
+            if ($r === $rol) {
+                continue;
+            }
+            $existente = $this->{"{$r}_persona"};
+            if ($existente && $existente['id'] === $persona->id) {
+                $this->addError("{$rol}_dni", "Esta persona ya está asignada como {$labels[$r]}.");
+                return;
+            }
+        }
+
+        $feligres = Feligres::where('id_persona', $persona->id)->first();
+
+        if ($rol === 'bautizado' && $feligres) {
+            $yaBautizado = Bautismo::where('id', '!=', $this->bautismo->id)
+                ->where('bautizado_id', $feligres->id)
+                ->exists();
+            if ($yaBautizado) {
+                $this->addError("{$rol}_dni", 'Esta persona ya fue bautizada anteriormente.');
+                return;
+            }
+        }
+
+        $this->{"{$rol}_persona"} = [
+            'id'              => $persona->id,
+            'dni'             => $persona->dni,
+            'nombre_completo' => $persona->nombre_completo,
+            'telefono'        => $persona->telefono ?? null,
+            'email'           => $persona->email ?? null,
+        ];
+        $this->{"{$rol}_dni"} = $persona->dni;
+
+        if ($feligres) {
+            $this->{"{$rol}_feligres_id"} = $feligres->id;
+            $this->{"{$rol}_estado"}      = 'found';
+        } else {
+            $this->{"{$rol}_feligres_id"} = null;
+            $this->{"{$rol}_estado"}      = 'sin_feligres';
+        }
+
+        $this->busqueda_resultados = [];
+        $this->busqueda_rol        = null;
+    }
+
+    public function limpiarRol(string $rol): void
+    {
+        $this->{"{$rol}_dni"}         = '';
+        $this->{"{$rol}_persona"}     = null;
+        $this->{"{$rol}_feligres_id"} = null;
+        $this->{"{$rol}_estado"}      = 'idle';
+
+        if ($this->busqueda_rol === $rol) {
+            $this->busqueda_resultados = [];
+            $this->busqueda_rol        = null;
+        }
     }
 
     public function guardar(): void
     {
+        if (session('tenant')) {
+            $this->iglesia_id = TenantIglesia::currentId();
+        }
+
         $this->validate();
 
         $fechaExp = null;
@@ -112,6 +347,11 @@ class BautismoEdit extends Component
             'iglesia_id'     => $this->iglesia_id,
             'encargado_id'   => $this->encargado_id,
             'fecha_bautismo' => $this->fecha_bautismo,
+            'bautizado_id'   => $this->bautizado_feligres_id,
+            'padre_id'       => $this->padre_feligres_id,
+            'madre_id'       => $this->madre_feligres_id,
+            'padrino_id'     => $this->padrino_feligres_id,
+            'madrina_id'     => $this->madrina_feligres_id,
             'libro_bautismo' => $this->libro_bautismo ?: null,
             'folio'          => $this->folio ?: null,
             'partida_numero' => $this->partida_numero ?: null,
@@ -128,10 +368,15 @@ class BautismoEdit extends Component
 
     public function render()
     {
-        $centralConn = config('tenancy.central_connection', 'mysql');
-        $iglesias   = Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get();
+        if (session('tenant')) {
+            $iglesias = TenantIglesia::query()->where('id', TenantIglesia::currentId())->get();
+        } else {
+            $centralConn = config('tenancy.central_connection', 'mysql');
+            $iglesias = Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get();
+        }
+        $iglesiaActual = $iglesias->firstWhere('id', $this->iglesia_id);
         $encargados = Encargado::with('feligres.persona')->get();
 
-        return view('livewire.bautismo.bautismo-edit', compact('iglesias', 'encargados'));
+        return view('livewire.bautismo.bautismo-edit', compact('iglesias', 'iglesiaActual', 'encargados'));
     }
 }

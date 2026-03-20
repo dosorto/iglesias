@@ -283,8 +283,15 @@ class PrimeraComunionEdit extends Component
 
     protected function rules(): array
     {
+        $tenantIglesiaId = session('tenant') ? TenantIglesia::currentId() : null;
+
         return [
-            'iglesia_id'             => ['required','integer','exists:iglesias,id'],
+            'iglesia_id'             => array_filter([
+                'required',
+                'integer',
+                'exists:iglesias,id',
+                $tenantIglesiaId ? Rule::in([$tenantIglesiaId]) : null,
+            ]),
             'fecha_primera_comunion' => ['required','date','before_or_equal:today'],
             'libro_comunion'         => ['nullable','string','max:100'],
             'folio'                  => ['nullable','string','max:50'],
@@ -303,7 +310,9 @@ class PrimeraComunionEdit extends Component
 
     public function save(): void
     {
-        $this->iglesia_id = session('tenant') ? TenantIglesia::currentId() : $this->primeraComunion->id_iglesia;
+        $this->iglesia_id = session('tenant')
+            ? TenantIglesia::currentId()
+            : ($this->iglesia_id ?: $this->primeraComunion->id_iglesia);
         $this->validate();
 
         $fechaExp = null;
@@ -314,7 +323,7 @@ class PrimeraComunionEdit extends Component
         }
 
         $this->primeraComunion->update([
-            'id_iglesia'             => $this->primeraComunion->id_iglesia,
+            'id_iglesia'             => $this->iglesia_id,
             'fecha_primera_comunion' => $this->fecha_primera_comunion,
             'libro_comunion'         => $this->libro_comunion      ?: null,
             'folio'                  => $this->folio                ?: null,

@@ -19,12 +19,6 @@ class RolesCreate extends Component
         ];
     }
 
-    public function mount()
-    {
-        // Cargar permisos disponibles
-        $this->permissions = Permission::all();
-    }
-
     public function store()
     {
         $this->validate();

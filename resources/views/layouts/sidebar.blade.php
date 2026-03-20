@@ -116,7 +116,7 @@
             @endcanany
 
             {{-- ── Actos Parroquiales ────────────────────────── --}}
-            @canany(['bautismo.view','curso.view'])
+            @canany(['bautismo.view','confirmacion.view','curso.view','matrimonio.view'])
                 <li class="pt-3">
                     <p class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">
                         Actos Parroquiales
@@ -131,6 +131,18 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>
                         </svg>
                         <span class="ml-3">Bautismos</span>
+                    </a>
+                </li>
+            @endcan
+
+            @can('confirmacion.view')
+                <li>
+                    <a href="{{ route('confirmacion.index') }}"
+                       class="flex items-center p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group">
+                        <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="ml-3">Confirmación</span>
                     </a>
                 </li>
             @endcan
