@@ -17,6 +17,8 @@
 
         .parish-name { font-size: 19pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; line-height: 1.1; }
         .diocese-name { font-size: 13pt; text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; color: #555; }
+        .header-address { font-size: 11pt; margin-top: 4px; color: #222; letter-spacing: 0.5px; }
+        .header-divider { border-top: 2px solid #8aa8bc; margin: 6px 0 8px; }
 
         .hr-accent { border: none; border-top: 1px solid #7D5A1E; margin: 3px 0; }
         .ornament { text-align: center; color: #7D5A1E; font-size: 11pt; letter-spacing: 8px; margin: 3px 0; }
@@ -25,6 +27,21 @@
 
         .body-text { font-size: 11.5pt; line-height: 2.2; }
         .body-text p { margin-bottom: 6px; }
+
+        .watermark-logo {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.08;
+            z-index: 0;
+        }
+
+        .watermark-logo img {
+            width: 430px;
+            height: auto;
+            object-fit: contain;
+        }
 
         .underline { display: inline-block; border-bottom: 1px solid #333; vertical-align: bottom; }
         .name-line { display: block; width: 100%; border-bottom: 2px solid #7D5A1E; margin: 8px 0 12px; min-height: 22px; font-size: 13pt; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 1px; color: #1a1a1a; }
@@ -53,14 +70,25 @@
     </style>
 </head>
 @php
-    $logoIglesiaPath  = ($iglesiaConfig?->path_logo) ? public_path('storage/' . $iglesiaConfig->path_logo) : null;
-    $logoEstaticoPath = public_path('image/Logo_guest.png');
+    $resolvePublicFilePath = function (?string $path): ?string {
+        if (! $path) return null;
+        $normalized = ltrim(trim((string) parse_url($path, PHP_URL_PATH) ?: $path), '/\\');
+        if ($normalized === '') return null;
+        $candidate = str_starts_with($normalized, 'storage/')
+            ? public_path($normalized)
+            : public_path('storage/' . $normalized);
+        return is_file($candidate) ? $candidate : null;
+    };
 
-    $logoSrc = null;
-    if ($logoIglesiaPath && file_exists($logoIglesiaPath)) {
-        $logoSrc = $logoIglesiaPath;
-    } elseif (file_exists($logoEstaticoPath)) {
-        $logoSrc = $logoEstaticoPath;
+    $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
+    $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
+
+    $logoEstaticoPath = public_path('image/Logo_guest.png');
+    if (! $logoIglesiaPath && is_file($logoEstaticoPath)) {
+        $logoIglesiaPath = $logoEstaticoPath;
+    }
+    if (! $logoIglesiaDerechaPath) {
+        $logoIglesiaDerechaPath = $logoIglesiaPath;
     }
 
     $iglesia         = $primeraComunion->iglesia;
@@ -97,20 +125,28 @@
     $notaMarginal     = $primeraComunion->nota_marginal     ?? '';
 @endphp
 <body>
+@if ($logoIglesiaPath)
+    <div class="watermark-logo">
+        <img src="{{ $logoIglesiaPath }}" alt="Marca de agua">
+    </div>
+@endif
 <div class="page-wrapper">
 
     <div class="header">
         <div class="header-logo-cell">
-            @if ($logoSrc)<img src="{{ $logoSrc }}" alt="Logo">@endif
+            @if ($logoIglesiaPath)<img src="{{ $logoIglesiaPath }}" alt="Logo">@endif
         </div>
         <div class="header-title-cell">
-            <div class="parish-name">{{ $iglesiaNombre ?: 'Parroquia' }}</div>
+            <div class="parish-name">Parroquia{{ $iglesiaNombre ? ' ' . $iglesiaNombre : '' }}</div>
             <div class="diocese-name">Di&oacute;cesis de Choluteca</div>
+            <div class="header-address">Monjarás, Marcovia, Choluteca, Honduras, C.A.</div>
         </div>
         <div class="header-right-cell">
-            @if ($logoSrc)<img src="{{ $logoSrc }}" alt="Logo">@endif
+            @if ($logoIglesiaDerechaPath)<img src="{{ $logoIglesiaDerechaPath }}" alt="Logo">@endif
         </div>
     </div>
+
+    <div class="header-divider"></div>
 
     <hr class="hr-accent">
     <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>

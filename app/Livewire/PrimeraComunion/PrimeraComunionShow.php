@@ -27,6 +27,18 @@ class PrimeraComunionShow extends Component
     public bool $previewMode = false;
     public $firma_nueva = null;
 
+    private function cargarDatosExpedicionDesdeRegistro(): void
+    {
+        $this->nota_marginal     = $this->primeraComunion->nota_marginal ?? '';
+        $this->lugar_celebracion = $this->primeraComunion->lugar_celebracion ?? '';
+        $this->lugar_expedicion  = $this->primeraComunion->lugar_expedicion ?? '';
+
+        $fe = $this->primeraComunion->fecha_expedicion;
+        $this->exp_dia = $fe ? (string) $fe->day : '';
+        $this->exp_mes = $fe ? (string) $fe->month : '';
+        $this->exp_ano = $fe ? (string) ($fe->year - 2000) : '';
+    }
+
     public function mount(PrimeraComunion $primeraComunion): void
     {
         $this->primeraComunion = $primeraComunion->load([
@@ -55,14 +67,7 @@ class PrimeraComunionShow extends Component
             }
         }
 
-        $this->nota_marginal     = $primeraComunion->nota_marginal     ?? '';
-        $this->lugar_celebracion = $primeraComunion->lugar_celebracion ?? '';
-        $this->lugar_expedicion  = $primeraComunion->lugar_expedicion  ?? '';
-
-        $fe = $primeraComunion->fecha_expedicion;
-        $this->exp_dia = $fe ? (string) $fe->day           : '';
-        $this->exp_mes = $fe ? (string) $fe->month         : '';
-        $this->exp_ano = $fe ? (string) ($fe->year - 2000) : '';
+        $this->cargarDatosExpedicionDesdeRegistro();
     }
 
     public function togglePreview(): void
@@ -136,6 +141,7 @@ class PrimeraComunionShow extends Component
         ]);
 
         $this->primeraComunion->refresh();
+        $this->cargarDatosExpedicionDesdeRegistro();
         session()->flash('success', 'Borrador guardado correctamente.');
     }
 

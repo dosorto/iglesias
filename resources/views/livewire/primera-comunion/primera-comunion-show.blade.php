@@ -33,6 +33,12 @@
     $nota_marginal     = $this->nota_marginal      ?? '';
     $auditHistory      = $this->auditHistory;
     $estadoRegistro    = $this->estadoRegistro ?? 'Borrador';
+
+    $previewVersion = max(
+        $primeraComunion->updated_at?->timestamp ?? 0,
+        $iglesiaConfig?->updated_at?->timestamp ?? 0,
+    );
+    $pdfPreviewUrl = route('primera-comunion.certificado.pdf', $primeraComunion) . '?v=' . ($previewVersion ?: time());
 @endphp
 
 <div class="flex flex-col lg:flex-row gap-5 items-start">
@@ -104,6 +110,50 @@
             </div>
         </div>
 
+        {{-- EXPEDICIÓN CONSTANCIA --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 space-y-3">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Expedición Certificado</p>
+
+            <div>
+                <label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Lugar</label>
+                <input wire:model="lugar_expedicion" type="text"
+                       class="w-full px-2 py-1.5 text-xs rounded-md border border-gray-300 dark:border-gray-600
+                              bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                              focus:ring-1 focus:ring-blue-500 focus:border-transparent">
+            </div>
+
+            <div>
+                <label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Día / Mes / Año</label>
+                <div class="grid grid-cols-3 gap-1">
+                    <input wire:model="exp_dia" type="number" min="1" max="31" placeholder="DD"
+                           class="px-2 py-1.5 text-xs rounded-md border border-gray-300 dark:border-gray-600
+                                  bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                                  focus:ring-1 focus:ring-blue-500 focus:border-transparent">
+                    <input wire:model="exp_mes" type="number" min="1" max="12" placeholder="MM"
+                           class="px-2 py-1.5 text-xs rounded-md border border-gray-300 dark:border-gray-600
+                                  bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                                  focus:ring-1 focus:ring-blue-500 focus:border-transparent">
+                    <input wire:model="exp_ano" type="number" min="0" max="99" placeholder="AA"
+                           class="px-2 py-1.5 text-xs rounded-md border border-gray-300 dark:border-gray-600
+                                  bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                                  focus:ring-1 focus:ring-blue-500 focus:border-transparent">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Nota Marginal</label>
+                <textarea wire:model="nota_marginal" rows="2"
+                          class="w-full px-2 py-1.5 text-xs rounded-md border border-gray-300 dark:border-gray-600
+                                 bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                                 focus:ring-1 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+            </div>
+
+            <button wire:click="saveCertificate"
+                    class="w-full px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors">
+                Guardar datos expedición
+            </button>
+        </div>
+
         {{-- HISTORIAL DE VERSIONES --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
             <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Historial de Versiones</p>
@@ -156,188 +206,79 @@
 
     </aside>
 
-    {{-- ======================= CERTIFICATE MAIN AREA ======================= --}}
-    <div class="flex-1 min-w-0">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8 relative overflow-hidden">
+    {{-- ======================= MAIN CONTENT ======================= --}}
+    <div class="flex-1 min-w-0 space-y-4">
 
-            @if ($logoIglesia)
-                <div class="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
-                    <img src="{{ $logoIglesia }}" alt=""
-                         class="w-[320px] md:w-[420px] object-contain opacity-[0.08]">
-                </div>
-            @endif
-
-            @if ($errors->any())
-                <div class="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg px-4 py-3 text-sm text-red-700 dark:text-red-400">
-                    <ul class="list-disc list-inside space-y-1">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            {{-- ─── CERTIFICATE HEADER con logos ─── --}}
-            <div class="flex items-center gap-3 mb-4">
-                <div class="shrink-0">
-                    <img src="{{ $logoIglesia }}" alt="Logo" class="h-16 w-16 object-contain">
-                </div>
-                <div class="flex-1 text-center">
-                    <h1 class="text-lg md:text-xl font-black uppercase tracking-widest text-gray-900 dark:text-white leading-tight">
-                        {{ $iglesiaNombre ?: 'Parroquia' }}
-                    </h1>
-                    <p class="text-sm uppercase tracking-widest text-gray-500 dark:text-gray-400 mt-0.5">Di&oacute;cesis de Choluteca</p>
-                </div>
-                <div class="shrink-0">
-                    <img src="{{ $logoIglesiaDerecha }}" alt="Logo" class="h-16 w-16 object-contain">
-                </div>
-            </div>
-
-            <div class="border-t border-[#7D5A1E] my-1"></div>
-            <div class="text-center text-[#7D5A1E] text-xs tracking-[12px] my-1">&bull; &bull; &bull;</div>
-            <div class="border-t border-[#7D5A1E] my-1"></div>
-            <div class="text-center my-3">
-                <span class="inline-block bg-[#7D5A1E] text-white text-sm font-bold uppercase tracking-[4px] px-8 py-2">
-                    Certificaci&oacute;n de Primera Comuni&oacute;n
-                </span>
-            </div>
-            <div class="border-t border-[#7D5A1E] my-1"></div>
-            <div class="text-center text-[#7D5A1E] text-xs tracking-[12px] my-1">&bull; &bull; &bull;</div>
-            <div class="border-t border-[#7D5A1E] mb-6"></div>
-
-            @php $placeholderClass = 'text-gray-400 dark:text-gray-500 italic text-sm'; @endphp
-
-            {{-- ─── CERTIFICATE BODY ─── --}}
-            <div class="font-serif text-gray-800 dark:text-gray-200 leading-loose space-y-5 text-sm md:text-[14px]">
-
-                <p>El infrascrito encargado del archivo de esta parroquia certifica que</p>
-
-                <div class="py-1">
-                    <span class="block border-b-2 border-gray-500 dark:border-gray-400 pb-1
-                                 text-base md:text-lg font-semibold text-center text-gray-900 dark:text-white min-h-[28px]">
-                        {{ $comulgante?->nombre_completo ?: '' }}
-                    </span>
-                </div>
-                @if ($comulgante?->dni)
-                    <p class="text-center text-xs text-gray-400 font-mono -mt-3">DNI: {{ $comulgante->dni }}</p>
-                @endif
-
-                <p class="flex flex-wrap items-end gap-x-1 gap-y-2">
-                    <span>Hizo su</span>
-                    <strong>PRIMERA COMUNIÓN</strong>
-                    <span>el día</span>
-                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[80px] text-center font-medium {{ $diaComunion ? '' : $placeholderClass }}">
-                        {{ $diaComunion ?: '' }}
-                    </span>
-                    <span>del mes</span>
-                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[160px] text-center font-medium {{ $mesComunion ? '' : $placeholderClass }}">
-                        {{ $mesComunion ?: '' }}
-                    </span>
-                </p>
-
-                <p class="flex flex-wrap items-end gap-x-1 gap-y-2">
-                    <span>año</span>
-                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[120px] text-center font-medium {{ $anoComunion ? '' : $placeholderClass }}">
-                        {{ $anoComunion ?: '' }}
-                    </span>
-                </p>
-
-                <p class="flex flex-wrap items-end gap-x-1 gap-y-2">
-                    <span>En</span>
-                    <span class="border-b border-gray-400 dark:border-gray-500 flex-1 min-w-[300px] font-medium {{ $lugar_celebracion ? '' : $placeholderClass }}">
-                        {{ $lugar_celebracion ?: '' }}
-                    </span>
-                </p>
-
-                {{-- NOTA MARGINAL --}}
-                <div class="flex flex-wrap items-start gap-x-2 gap-y-1 pt-2">
-                    <span class="font-bold shrink-0">NOTA MARGINAL:</span>
-                    <p class="border-b border-gray-400 dark:border-gray-500 flex-1 min-w-[200px] pb-0.5 {{ $nota_marginal ? '' : $placeholderClass }}">
-                        {{ $nota_marginal ?: '—' }}
+        {{-- TÍTULO --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <h1 class="text-xl font-bold text-gray-900 dark:text-white">Constancia de Primera Comunión</h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        {{ $diaComunion ? "celebrada el {$diaComunion} de {$mesComunion} de {$anoComunion}" : '—' }}
+                        @if($iglesiaNombre) &bull; {{ $iglesiaNombre }} @endif
                     </p>
                 </div>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                    #{{ $primeraComunion->id }}
+                </span>
+            </div>
+        </div>
 
-                {{-- DADO EN — una sola línea --}}
-                <p class="flex flex-wrap items-end gap-x-1 gap-y-2 pt-4">
-                    <span>Dado en</span>
-                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[160px] pl-1 font-medium {{ $lugar_expedicion ? '' : $placeholderClass }}">
-                        {{ $lugar_expedicion ?: '' }}
-                    </span>
-                    <span>a los</span>
-                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[50px] text-center font-medium {{ $diaExp ? '' : $placeholderClass }}">
-                        {{ $diaExp ?: '' }}
-                    </span>
-                    <span>del mes de</span>
-                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[130px] text-center font-medium {{ $mesExp ? '' : $placeholderClass }}">
-                        {{ $mesExp ?: '' }}
-                    </span>
-                    <span>año</span>
-                    <span class="border-b border-gray-400 dark:border-gray-500 inline-block min-w-[80px] text-center font-medium {{ $anoExp ? '' : $placeholderClass }}">
-                        {{ $anoExp ? '20' . str_pad($anoExp, 2, '0', STR_PAD_LEFT) : '' }}
-                    </span>
-                </p>
-
-                <p class="text-xs italic text-gray-400 mt-1">(Sello)</p>
-
-                {{-- FIRMA DEL ENCARGADO — centrada, nombre encargado arriba, "Párroco" abajo --}}
-                <div class="flex justify-center pt-8 pb-2">
-                    <div class="text-center">
-                        @php $firmaPath = $primeraComunion->encargado?->path_firma_principal; @endphp
-
-                        @if ($firmaPath)
-                            <div class="mb-1 flex justify-center">
-                                <img src="{{ Storage::url($firmaPath) }}"
-                                     alt="Firma encargado"
-                                     class="max-h-16 max-w-[220px] object-contain">
-                            </div>
-                            @can('primera-comunion.edit')
-                                <div class="mt-1 mb-2">
-                                    <label class="text-xs text-gray-400 cursor-pointer hover:text-blue-500 underline">
-                                        Cambiar firma
-                                        <input type="file" wire:model="firma_nueva" accept="image/*" class="hidden">
-                                    </label>
-                                    @if ($firma_nueva)
-                                        <div class="flex items-center gap-2 mt-1 justify-center">
-                                            <img src="{{ $firma_nueva->temporaryUrl() }}" class="max-h-10 max-w-[140px] object-contain rounded border border-gray-300">
-                                            <button wire:click="uploadFirma" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded">Guardar</button>
-                                            <button wire:click="$set('firma_nueva', null)" class="text-xs text-gray-400 hover:text-red-500">✕</button>
-                                        </div>
-                                    @endif
-                                    @error('firma_nueva') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-                                </div>
-                            @endcan
-                        @else
-                            @can('primera-comunion.edit')
-                                <div class="mb-2 border border-dashed border-gray-400 dark:border-gray-500 rounded p-3 flex flex-col items-center gap-1">
-                                    <p class="text-xs text-gray-400">Sin firma. Agregar:</p>
-                                    <input type="file" wire:model="firma_nueva" accept="image/*"
-                                           class="text-xs text-gray-500 dark:text-gray-400 file:mr-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:text-xs file:bg-gray-100 dark:file:bg-gray-700 file:text-gray-700 dark:file:text-gray-300">
-                                    @if ($firma_nueva)
-                                        <div class="flex items-center gap-2 mt-1">
-                                            <img src="{{ $firma_nueva->temporaryUrl() }}" class="max-h-10 max-w-[140px] object-contain rounded border border-gray-300">
-                                            <button wire:click="uploadFirma" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded">Guardar</button>
-                                            <button wire:click="$set('firma_nueva', null)" class="text-xs text-gray-400 hover:text-red-500">✕</button>
-                                        </div>
-                                    @endif
-                                    @error('firma_nueva') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-                                </div>
-                            @else
-                                <div class="mb-2 h-10"></div>
-                            @endcan
-                        @endif
-
-                        {{-- Nombre del encargado arriba de la línea, "Párroco" debajo --}}
-                        <div class="w-64 border-t border-gray-500 dark:border-gray-400 pt-2 mx-auto">
-                            @if ($encargado?->nombre_completo)
-                                <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                                    {{ $encargado->nombre_completo }}
-                                </p>
-                            @endif
-                            <p class="text-xs font-bold uppercase tracking-[3px] mt-0.5">Párroco</p>
-                        </div>
-                    </div>
+        {{-- COMULGANTE --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">Comulgante</p>
+            <div class="flex items-center gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/40">
+                <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+                    <span class="text-white text-sm font-bold">{{ strtoupper(substr($comulgante?->primer_nombre ?? '?', 0, 1)) }}</span>
                 </div>
+                <div>
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $comulgante?->nombre_completo ?? '—' }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">DNI: {{ $comulgante?->dni ?? '—' }}</p>
+                </div>
+            </div>
+        </div>
 
+        {{-- MINISTROS --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">Catequista, Ministro y Párroco</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                @foreach ([
+                    ['label' => 'Catequista', 'persona' => $catequista, 'color' => 'violet'],
+                    ['label' => 'Ministro', 'persona' => $ministro, 'color' => 'teal'],
+                    ['label' => 'Párroco', 'persona' => $parroco, 'color' => 'amber'],
+                ] as $item)
+                    <div class="p-3 rounded-lg border bg-{{ $item['color'] }}-50 dark:bg-{{ $item['color'] }}-900/20 border-{{ $item['color'] }}-200 dark:border-{{ $item['color'] }}-700/40">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-{{ $item['color'] }}-600 dark:text-{{ $item['color'] }}-400">{{ $item['label'] }}</p>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white mt-1">{{ $item['persona']?->nombre_completo ?? '—' }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">DNI: {{ $item['persona']?->dni ?? '—' }}</p>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- OBSERVACIONES --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Nota Marginal</p>
+            <p class="text-sm text-gray-700 dark:text-gray-300">{{ $nota_marginal ?: '—' }}</p>
+        </div>
+
+        {{-- VISTA PREVIA CONSTANCIA --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
+            <div class="flex items-center justify-between gap-3 mb-4">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Vista Previa de Constancia</p>
+                <a href="{{ route('primera-comunion.certificado.pdf', $primeraComunion) }}" target="_blank"
+                   class="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+                    Abrir PDF
+                </a>
+            </div>
+
+            <div class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-50 dark:bg-gray-900">
+                <iframe
+                    src="{{ $pdfPreviewUrl }}"
+                    class="w-full h-[980px]"
+                    title="Vista previa constancia de primera comunion">
+                </iframe>
             </div>
         </div>
     </div>

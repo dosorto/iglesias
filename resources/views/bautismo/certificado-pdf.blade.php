@@ -74,6 +74,16 @@
             margin-top: 3px;
             color: #555;
         }
+        .header-address {
+            font-size: 11pt;
+            margin-top: 4px;
+            color: #222;
+            letter-spacing: 0.5px;
+        }
+        .header-divider {
+            border-top: 2px solid #8aa8bc;
+            margin: 6px 0 8px;
+        }
         .header-right-cell {
             display: table-cell;
             width: 85px;
@@ -207,6 +217,13 @@
             font-size: 10.5pt;
             margin-top: 1px;
         }
+        body.is-landscape .header-address {
+            font-size: 9pt;
+            margin-top: 2px;
+        }
+        body.is-landscape .header-divider {
+            margin: 4px 0 6px;
+        }
         body.is-landscape .ornament {
             margin: 1px 0;
         }
@@ -295,9 +312,9 @@
             @endif
         </div>
         <div class="header-title-cell">
-            @php $iglesiaNombreHeader = $iglesiaConfig?->nombre ?? $bautismo->iglesia?->nombre ?? ''; @endphp
-            <div class="parish-name">{{ $iglesiaNombreHeader ?: 'Parroquia' }}</div>
-            <div class="diocese-name">Parroquia</div>
+            <div class="parish-name">Parroquia{{ ($iglesiaConfig?->nombre ?? $bautismo->iglesia?->nombre) ? ' ' . ($iglesiaConfig?->nombre ?? $bautismo->iglesia?->nombre) : '' }}</div>
+            <div class="diocese-name">Di&oacute;cesis de Choluteca</div>
+            <div class="header-address">Monjarás, Marcovia, Choluteca, Honduras, C.A.</div>
         </div>
         <div class="header-right-cell">
             @if ($logoIglesiaDerechaPath && file_exists($logoIglesiaDerechaPath))
@@ -305,6 +322,8 @@
             @endif
         </div>
     </div>
+
+    <div class="header-divider"></div>
 
     <hr class="hr-accent">
     <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
