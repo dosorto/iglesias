@@ -108,65 +108,25 @@
                         </li>
                     @endcan
 
-                    {{-- Bautismos --}}
-                    @can('bautismo.view')
+                    {{-- Sacramentos --}}
+                    @canany(['bautismo.view', 'matrimonio.view', 'confirmacion.view', 'primera-comunion.view'])
                         <li>
-                            <a href="{{ route('bautismo.index') }}"
+                            <a href="{{ route('sacramentos.index') }}"
                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
                                       rounded-xl text-gray-700 dark:text-gray-200 hover:bg-sky-100 dark:hover:bg-sky-900
                                       hover:text-sky-600 dark:hover:text-sky-400 transition-colors duration-200 group"
-                               title="{{ $isCollapsed ? 'Bautismos' : '' }}">
+                               title="{{ $isCollapsed ? 'Sacramentos' : '' }}">
                                 <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors duration-200"
                                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+                                          d="M12 2l2.2 4.5 5 .7-3.6 3.5.9 4.9L12 13.9 7.5 15.6l.9-4.9-3.6-3.5 5-.7L12 2z" />
                                 </svg>
                                 @if(!$isCollapsed)
-                                    <span class="ml-3">Bautismos</span>
+                                    <span class="ml-3">Sacramentos</span>
                                 @endif
                             </a>
                         </li>
-                    @endcan
-
-                    {{-- Matrimonios --}}
-                    @can('matrimonio.view')
-                        <li>
-                            <a href="{{ route('matrimonio.index') }}"
-                               class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
-                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-rose-100 dark:hover:bg-rose-900
-                                      hover:text-rose-600 dark:hover:text-rose-400 transition-colors duration-200 group"
-                               title="{{ $isCollapsed ? 'Matrimonios' : '' }}">
-                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors duration-200"
-                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                                </svg>
-                                @if(!$isCollapsed)
-                                    <span class="ml-3">Matrimonios</span>
-                                @endif
-                            </a>
-                        </li>
-                    @endcan
-                    
-                     {{-- Confirmacion --}}
-                    @can('confirmacion.view')
-                        <li>
-                            <a href="{{ route('confirmacion.index') }}"
-                              class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
-                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-sky-100 dark:hover:bg-sky-900
-                                      hover:text-sky-600 dark:hover:text-sky-400 transition-colors duration-200 group"
-                               title="{{ $isCollapsed ? 'Confirmacion' : '' }}">
-                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors duration-200"
-                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>
-                                </svg>
-                                @if(!$isCollapsed)
-                                    <span class="ml-3">Confirmacion</span>
-                                @endif
-                            </a>
-                        </li>
-                    @endcan
+                    @endcanany
 
                     {{-- Cursos --}}
                     @can('curso.view')
@@ -211,25 +171,6 @@
                         </li>
                     @endcan
                     
-                    {{-- Primera Comunion --}}
-                    @can('primera-comunion.view')
-                        <li>
-                            <a href="{{ route('primera-comunion.index') }}"
-                               class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
-                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-purple-100 dark:hover:bg-purple-900
-                                      hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200 group"
-                               title="{{ $isCollapsed ? 'primera-comunion' : '' }}">
-                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200"
-                                     fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
-                                </svg>
-                                @if(!$isCollapsed)
-                                    <span class="ml-3">Primera Comunion </span>
-                                @endif
-                            </a>
-                        </li>
-                    @endcan
-
                     {{-- Religion --}}
                     @can('religion.view')
                         <li>
@@ -271,25 +212,6 @@
 
                         </a>
                     </li>
-                    @endcan
-
-                    {{-- Tipos de Cursos --}}
-                    @can('tipocurso.view')
-                        <li>
-                            <a href="{{ route('tipocurso.index') }}"
-                               class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
-                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-teal-100 dark:hover:bg-teal-900
-                                      hover:text-teal-600 dark:hover:text-teal-400 transition-colors duration-200 group"
-                               title="{{ $isCollapsed ? 'Tipos de Cursos' : '' }}">
-                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200"
-                                     fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
-                                </svg>
-                                @if(!$isCollapsed)
-                                    <span class="ml-3">Tipos de Cursos</span>
-                                @endif
-                            </a>
-                        </li>
                     @endcan
 
                     {{-- Usuarios --}}

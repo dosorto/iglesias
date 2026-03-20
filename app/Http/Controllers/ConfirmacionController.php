@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Confirmacion;
+use App\Models\Iglesias;
 use App\Models\TenantIglesia;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -41,8 +42,12 @@ class ConfirmacionController extends Controller
             'encargado.feligres.persona',
         ]);
 
-        // igual que BautismoController — TenantIglesia tiene path_logo y path_logo_derecha
         $iglesiaConfig = TenantIglesia::current();
+
+        if (! $iglesiaConfig) {
+            $iglesiaId     = session('tenant.id_iglesia');
+            $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
+        }
 
         $pdf = Pdf::loadView(
             'confirmacion.certificado-pdf',
