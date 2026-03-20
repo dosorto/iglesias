@@ -145,310 +145,355 @@
 
             </div>
 
-            {{-- ══ SECCIÓN 2: Catequista, Ministro, Párroco — ACORDEÓN ══ --}}
-            <div x-data="{ open: {{ ($catequista_estado === 'found' || $ministro_estado === 'found' || $parroco_estado === 'found') ? 'true' : 'false' }} }"
-                 class="border border-gray-200 dark:border-gray-700/60 rounded-xl overflow-hidden">
+           {{-- ══ SECCIÓN 2: Catequista y Ministro — sin Párroco manual (se toma del encargado) ══ --}}
+<div x-data="{ open: {{ ($catequista_estado === 'found' || $ministro_estado === 'found') ? 'true' : 'false' }} }"
+     class="border border-gray-200 dark:border-gray-700/60 rounded-xl overflow-hidden">
 
-                <button type="button" @click="open = !open"
-                        class="w-full flex items-center justify-between px-5 py-4
-                               bg-gray-50 dark:bg-gray-800/80 hover:bg-gray-100 dark:hover:bg-gray-700/60
-                               transition-colors">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
-                            <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                        </div>
-                        <div class="text-left">
-                            <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">Catequista, Ministro y Párroco</p>
-                            <p class="text-xs text-gray-400 mt-0.5">
-                                @php
-                                    $asignadosPc = collect([
-                                        'catequista' => $catequista_estado,
-                                        'ministro'   => $ministro_estado,
-                                        'parroco'    => $parroco_estado,
-                                    ])->filter(fn($e) => $e === 'found');
-                                @endphp
-                                @if ($asignadosPc->isNotEmpty())
-                                    <span class="text-emerald-600 dark:text-emerald-400 font-medium">{{ $asignadosPc->count() }} asignado(s)</span>
-                                @else
-                                    <span class="italic">todos opcionales</span>
-                                @endif
-                            </p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        @if ($catequista_estado === 'found') <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">✓ Cat</span> @endif
-                        @if ($ministro_estado === 'found')   <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">✓ Min</span> @endif
-                        @if ($parroco_estado === 'found')    <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">✓ Pár</span> @endif
-                        <svg class="w-5 h-5 text-gray-400 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </div>
-                </button>
-
-                <div x-show="open"
-                     x-transition:enter="transition ease-out duration-200"
-                     x-transition:enter-start="opacity-0 -translate-y-2"
-                     x-transition:enter-end="opacity-100 translate-y-0"
-                     x-transition:leave="transition ease-in duration-150"
-                     x-transition:leave-start="opacity-100 translate-y-0"
-                     x-transition:leave-end="opacity-0 -translate-y-2"
-                     class="border-t border-gray-200 dark:border-gray-700/60">
-
+    <button type="button" @click="open = !open"
+            class="w-full flex items-center justify-between px-5 py-4
+                   bg-gray-50 dark:bg-gray-800/80 hover:bg-gray-100 dark:hover:bg-gray-700/60
+                   transition-colors">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+                <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </div>
+            <div class="text-left">
+                <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">Catequista y Ministro</p>
+                <p class="text-xs text-gray-400 mt-0.5">
                     @php
-                        $rolesEdit = [
-                            ['key' => 'catequista', 'label' => 'Catequista'],
-                            ['key' => 'ministro',   'label' => 'Ministro'],
-                            ['key' => 'parroco',    'label' => 'Párroco'],
-                        ];
+                        $asignadosPc = collect([
+                            'catequista' => $catequista_estado,
+                            'ministro'   => $ministro_estado,
+                        ])->filter(fn($e) => $e === 'found');
                     @endphp
+                    @if ($asignadosPc->isNotEmpty())
+                        <span class="text-emerald-600 dark:text-emerald-400 font-medium">{{ $asignadosPc->count() }} asignado(s)</span>
+                    @else
+                        <span class="italic">todos opcionales</span>
+                    @endif
+                </p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            @if ($catequista_estado === 'found') <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">✓ Cat</span> @endif
+            @if ($ministro_estado === 'found')   <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">✓ Min</span> @endif
+            <svg class="w-5 h-5 text-gray-400 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </div>
+    </button>
 
-                    <div class="divide-y divide-gray-100 dark:divide-gray-700/60">
-                        @foreach ($rolesEdit as $rc)
-                            @php
-                                $key        = $rc['key'];
-                                $rolDni     = $this->{"{$key}_dni"};
-                                $rolPersona = $this->{"{$key}_persona"};
-                                $rolEstado  = $this->{"{$key}_estado"};
-                                $isMiniOpen = ($mini_rol === $key);
-                            @endphp
+    <div x-show="open"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 -translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 -translate-y-2"
+         class="border-t border-gray-200 dark:border-gray-700/60">
 
-                            <div class="px-5 py-4 {{ $rolEstado === 'found' ? 'bg-emerald-50/40 dark:bg-emerald-900/5' : '' }}">
+        @php
+            $rolesEdit = [
+                ['key' => 'catequista', 'label' => 'Catequista'],
+                ['key' => 'ministro',   'label' => 'Ministro'],
+            ];
+        @endphp
 
-                                <div class="flex items-center gap-3 mb-3">
-                                    <div @class([
-                                        'w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold',
-                                        'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300' => $rolEstado === 'found',
-                                        'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400' => $rolEstado !== 'found',
-                                    ])>
-                                        @if ($rolEstado === 'found')
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-                                            </svg>
-                                        @else
-                                            {{ strtoupper(substr($rc['label'], 0, 1)) }}
-                                        @endif
-                                    </div>
-                                    <div class="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
-                                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ $rc['label'] }}</span>
-                                        <span class="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500">Opcional</span>
-                                        @if ($rolEstado === 'found')
-                                            <span class="text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">
-                                                ✓ {{ $rolPersona['nombre_completo'] }}
-                                            </span>
-                                        @elseif ($rolEstado === 'idle')
-                                            <span class="text-[10px] text-gray-400 italic">Sin asignar</span>
-                                        @endif
-                                    </div>
-                                    @if ($rolEstado !== 'idle' || $isMiniOpen)
-                                        <button type="button" wire:click="limpiarRol('{{ $key }}')"
-                                                class="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium
-                                                       text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100
-                                                       border border-red-200 dark:border-red-800/40 transition-all">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                            </svg>
-                                            Quitar
-                                        </button>
-                                    @endif
-                                </div>
+        <div class="divide-y divide-gray-100 dark:divide-gray-700/60">
+            @foreach ($rolesEdit as $rc)
+                @php
+                    $key        = $rc['key'];
+                    $rolDni     = $this->{"{$key}_dni"};
+                    $rolPersona = $this->{"{$key}_persona"};
+                    $rolEstado  = $this->{"{$key}_estado"};
+                    $isMiniOpen = ($mini_rol === $key);
+                @endphp
 
-                                {{-- IDLE --}}
-                                @if ($rolEstado === 'idle' && ! $isMiniOpen)
-                                    <div class="flex gap-2 ml-11">
-                                        <div class="relative flex-1">
-                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                                                </svg>
-                                            </div>
-                                            <input type="text" wire:model="{{ $key }}_dni"
-                                                   placeholder="DNI o nombre..." autocomplete="off"
-                                                   wire:keydown.enter="buscarPersona('{{ $key }}')"
-                                                   class="block w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600
-                                                          bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white dark:placeholder-gray-400
-                                                          focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                                        </div>
-                                        <button type="button" wire:click="buscarPersona('{{ $key }}')"
-                                                wire:loading.attr="disabled" wire:target="buscarPersona('{{ $key }}')"
-                                                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold
-                                                       bg-blue-600 hover:bg-blue-700 text-white transition-all disabled:opacity-60">
-                                            <svg wire:loading.remove wire:target="buscarPersona('{{ $key }}')" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                                            </svg>
-                                            <svg wire:loading wire:target="buscarPersona('{{ $key }}')" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-                                            </svg>
-                                            Buscar
-                                        </button>
-                                    </div>
-                                    @error("{$key}_dni") <p class="ml-11 mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
-                                @endif
+                <div class="px-5 py-4 {{ $rolEstado === 'found' ? 'bg-emerald-50/40 dark:bg-emerald-900/5' : '' }}">
 
-                                {{-- MÚLTIPLES --}}
-                                @if ($rolEstado === 'multiples' && $busqueda_rol === $key)
-                                    <div class="ml-11 space-y-1.5 max-h-48 overflow-y-auto mt-2">
-                                        <p class="text-xs text-gray-500 mb-1">{{ count($busqueda_resultados) }} resultados:</p>
-                                        @foreach ($busqueda_resultados as $res)
-                                            <button type="button" wire:click="seleccionarResultado({{ $res['id'] }})"
-                                                    class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left border border-gray-200 dark:border-gray-600
-                                                           bg-white dark:bg-gray-700/40 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 transition-all group text-sm">
-                                                <span class="font-medium text-gray-900 dark:text-white flex-1 truncate">{{ $res['nombre_completo'] }}</span>
-                                                <span class="text-xs text-gray-400 font-mono shrink-0">{{ $res['dni'] }}</span>
-                                                <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                                </svg>
-                                            </button>
-                                        @endforeach
-                                    </div>
-                                @endif
-
-                                {{-- SIN FELIGRÉS --}}
-                                @if ($rolEstado === 'sin_feligres')
-                                    <div class="ml-11 mt-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50">
-                                        <p class="text-xs font-medium text-amber-700 dark:text-amber-300 mb-2">
-                                            <strong>{{ $rolPersona['nombre_completo'] }}</strong> no es feligrés
-                                        </p>
-                                        @if (! $isMiniOpen)
-                                            <button type="button" wire:click="abrirRegistrarFeligres('{{ $key }}')"
-                                                    class="text-xs font-semibold text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-600 rounded-lg px-3 py-1.5 hover:bg-amber-100 transition-all">
-                                                + Registrar como Feligrés
-                                            </button>
-                                        @endif
-                                    </div>
-                                @endif
-
-                                {{-- SIN PERSONA --}}
-                                @if ($rolEstado === 'sin_persona')
-                                    <div class="ml-11 mt-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/50 space-y-2">
-                                        <p class="text-xs font-medium text-red-700 dark:text-red-300">Sin resultados para "{{ $rolDni }}"</p>
-                                        <div class="flex gap-2">
-                                            <input type="text" wire:model="{{ $key }}_dni" autocomplete="off"
-                                                   class="flex-1 px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                                            <button type="button" wire:click="buscarPersona('{{ $key }}')"
-                                                    class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg">Buscar</button>
-                                        </div>
-                                        @if (! $isMiniOpen)
-                                            <button type="button" wire:click="abrirCrearPersona('{{ $key }}')"
-                                                    class="w-full py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-600 rounded-lg hover:bg-emerald-50 transition-all">
-                                                + Registrar nuevo feligrés
-                                            </button>
-                                        @endif
-                                    </div>
-                                @endif
-
-                                {{-- MINI-FORM: CREAR PERSONA --}}
-                                @if ($isMiniOpen && $mini_tipo === 'persona')
-                                    <div class="ml-11 mt-3 rounded-xl border border-emerald-200 dark:border-emerald-700/50 overflow-hidden">
-                                        <div class="flex items-center justify-between px-4 py-2.5 bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40">
-                                            <span class="text-xs font-bold text-emerald-800 dark:text-emerald-300">Nuevo feligrés — {{ $rc['label'] }}</span>
-                                            <button type="button" wire:click="cancelarMini" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                                            </button>
-                                        </div>
-                                        <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                            <div class="sm:col-span-2">
-                                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Número de Identidad <span class="text-red-500">*</span></label>
-                                                <input type="text" wire:model="mini_p_dni" placeholder="Ej: 0801199912345"
-                                                       class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 @error('mini_p_dni') border-red-400 @enderror" />
-                                                @error('mini_p_dni') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Primer Nombre <span class="text-red-500">*</span></label>
-                                                <input type="text" wire:model="mini_p_primer_nombre" oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'').replace(/\b\w/g,c=>c.toUpperCase())"
-                                                       class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 @error('mini_p_primer_nombre') border-red-400 @enderror" />
-                                                @error('mini_p_primer_nombre') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Segundo Nombre</label>
-                                                <input type="text" wire:model="mini_p_segundo_nombre" oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'').replace(/\b\w/g,c=>c.toUpperCase())"
-                                                       class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500" />
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Primer Apellido <span class="text-red-500">*</span></label>
-                                                <input type="text" wire:model="mini_p_primer_apellido" oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'').replace(/\b\w/g,c=>c.toUpperCase())"
-                                                       class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 @error('mini_p_primer_apellido') border-red-400 @enderror" />
-                                                @error('mini_p_primer_apellido') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Segundo Apellido</label>
-                                                <input type="text" wire:model="mini_p_segundo_apellido" oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'').replace(/\b\w/g,c=>c.toUpperCase())"
-                                                       class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500" />
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Fecha de Nacimiento <span class="text-red-500">*</span></label>
-                                                <input type="date" wire:model="mini_p_fecha_nacimiento"
-                                                       class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 @error('mini_p_fecha_nacimiento') border-red-400 @enderror" />
-                                                @error('mini_p_fecha_nacimiento') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Sexo <span class="text-red-500">*</span></label>
-                                                <select wire:model="mini_p_sexo"
-                                                        class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 @error('mini_p_sexo') border-red-400 @enderror">
-                                                    <option value="">Seleccionar...</option>
-                                                    <option value="M">Masculino</option>
-                                                    <option value="F">Femenino</option>
-                                                </select>
-                                                @error('mini_p_sexo') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Teléfono <span class="text-red-500">*</span></label>
-                                                <input type="text" wire:model="mini_p_telefono" oninput="this.value=this.value.replace(/[^0-9+\-]/g,'')" placeholder="+504 0000-0000"
-                                                       class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 @error('mini_p_telefono') border-red-400 @enderror" />
-                                                @error('mini_p_telefono') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Correo Electrónico</label>
-                                                <input type="email" wire:model="mini_p_email" placeholder="ejemplo@correo.com"
-                                                       class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500" />
-                                            </div>
-                                            <div class="sm:col-span-2 flex justify-end gap-2 pt-2 border-t border-emerald-100 dark:border-emerald-800/40">
-                                                <button type="button" wire:click="cancelarMini"
-                                                        class="px-4 py-2 text-xs font-medium rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 transition-all">Cancelar</button>
-                                                <button type="button" wire:click="guardarMiniPersona" wire:loading.attr="disabled" wire:target="guardarMiniPersona"
-                                                        class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white transition-all disabled:opacity-60">
-                                                    <svg wire:loading wire:target="guardarMiniPersona" class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
-                                                    <span wire:loading.remove wire:target="guardarMiniPersona">Guardar</span>
-                                                    <span wire:loading wire:target="guardarMiniPersona">Guardando...</span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-
-                                {{-- MINI-FORM: REGISTRAR FELIGRÉS --}}
-                                @if ($isMiniOpen && $mini_tipo === 'feligres')
-                                    <div class="ml-11 mt-3 rounded-xl border border-blue-200 dark:border-blue-700/50 overflow-hidden">
-                                        <div class="flex items-center justify-between px-4 py-2.5 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-100 dark:border-blue-800/40">
-                                            <span class="text-xs font-bold text-blue-800 dark:text-blue-300">Registrar como Feligrés — {{ $rolPersona['nombre_completo'] ?? '' }}</span>
-                                            <button type="button" wire:click="cancelarMini" class="text-gray-400 hover:text-gray-600">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                                            </button>
-                                        </div>
-                                        <div class="p-4">
-                                            <p class="text-xs text-blue-600 dark:text-blue-400 mb-3">Se registrará en la iglesia activa del sistema.</p>
-                                            <div class="flex justify-end gap-2">
-                                                <button type="button" wire:click="cancelarMini"
-                                                        class="px-4 py-2 text-xs font-medium rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 transition-all">Cancelar</button>
-                                                <button type="button" wire:click="guardarMiniFeligres" wire:loading.attr="disabled" wire:target="guardarMiniFeligres"
-                                                        class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white transition-all disabled:opacity-60">
-                                                    <svg wire:loading wire:target="guardarMiniFeligres" class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
-                                                    <span wire:loading.remove wire:target="guardarMiniFeligres">Registrar Feligrés</span>
-                                                    <span wire:loading wire:target="guardarMiniFeligres">Guardando...</span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-
-                            </div>
-                        @endforeach
+                    <div class="flex items-center gap-3 mb-3">
+                        <div @class([
+                            'w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold',
+                            'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300' => $rolEstado === 'found',
+                            'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400' => $rolEstado !== 'found',
+                        ])>
+                            @if ($rolEstado === 'found')
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            @else
+                                {{ strtoupper(substr($rc['label'], 0, 1)) }}
+                            @endif
+                        </div>
+                        <div class="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
+                            <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ $rc['label'] }}</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500">Opcional</span>
+                            @if ($rolEstado === 'found')
+                                <span class="text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">
+                                    ✓ {{ $rolPersona['nombre_completo'] }}
+                                </span>
+                            @elseif ($rolEstado === 'idle')
+                                <span class="text-[10px] text-gray-400 italic">Sin asignar</span>
+                            @endif
+                        </div>
+                        @if ($rolEstado !== 'idle' || $isMiniOpen)
+                            <button type="button" wire:click="limpiarRol('{{ $key }}')"
+                                    class="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium
+                                           text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100
+                                           border border-red-200 dark:border-red-800/40 transition-all">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                                Quitar
+                            </button>
+                        @endif
                     </div>
+
+                    {{-- IDLE --}}
+                    @if ($rolEstado === 'idle' && ! $isMiniOpen)
+                        <div class="flex gap-2 ml-11">
+                            <div class="relative flex-1">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                    </svg>
+                                </div>
+                                <input type="text" wire:model="{{ $key }}_dni"
+                                       placeholder="DNI o nombre..." autocomplete="off"
+                                       wire:keydown.enter="buscarPersona('{{ $key }}')"
+                                       class="block w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600
+                                              bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white dark:placeholder-gray-400
+                                              focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                            </div>
+                            <button type="button" wire:click="buscarPersona('{{ $key }}')"
+                                    wire:loading.attr="disabled" wire:target="buscarPersona('{{ $key }}')"
+                                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold
+                                           bg-blue-600 hover:bg-blue-700 text-white transition-all disabled:opacity-60">
+                                <svg wire:loading.remove wire:target="buscarPersona('{{ $key }}')" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                                <svg wire:loading wire:target="buscarPersona('{{ $key }}')" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                                </svg>
+                                Buscar
+                            </button>
+                        </div>
+                        @error("{$key}_dni") <p class="ml-11 mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
+                    @endif
+
+                    {{-- MÚLTIPLES --}}
+                    @if ($rolEstado === 'multiples' && $busqueda_rol === $key)
+                        <div class="ml-11 space-y-1.5 max-h-48 overflow-y-auto mt-2">
+                            <p class="text-xs text-gray-500 mb-1">{{ count($busqueda_resultados) }} resultados:</p>
+                            @foreach ($busqueda_resultados as $res)
+                                <button type="button" wire:click="seleccionarResultado({{ $res['id'] }})"
+                                        class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left border border-gray-200 dark:border-gray-600
+                                               bg-white dark:bg-gray-700/40 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 transition-all group text-sm">
+                                    <span class="font-medium text-gray-900 dark:text-white flex-1 truncate">{{ $res['nombre_completo'] }}</span>
+                                    <span class="text-xs text-gray-400 font-mono shrink-0">{{ $res['dni'] }}</span>
+                                    <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    {{-- SIN FELIGRÉS --}}
+                    @if ($rolEstado === 'sin_feligres')
+                        <div class="ml-11 mt-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50">
+                            <p class="text-xs font-medium text-amber-700 dark:text-amber-300 mb-2">
+                                <strong>{{ $rolPersona['nombre_completo'] }}</strong> no es feligrés
+                            </p>
+                            @if (! $isMiniOpen)
+                                <button type="button" wire:click="abrirRegistrarFeligres('{{ $key }}')"
+                                        class="text-xs font-semibold text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-600 rounded-lg px-3 py-1.5 hover:bg-amber-100 transition-all">
+                                    + Registrar como Feligrés
+                                </button>
+                            @endif
+                        </div>
+                    @endif
+
+                    {{-- SIN PERSONA --}}
+                    @if ($rolEstado === 'sin_persona')
+                        <div class="ml-11 mt-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/50 space-y-2">
+                            <p class="text-xs font-medium text-red-700 dark:text-red-300">Sin resultados para "{{ $rolDni }}"</p>
+                            <div class="flex gap-2">
+                                <input type="text" wire:model="{{ $key }}_dni" autocomplete="off"
+                                       class="flex-1 px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                                <button type="button" wire:click="buscarPersona('{{ $key }}')"
+                                        class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg">Buscar</button>
+                            </div>
+                            @if (! $isMiniOpen)
+                                <button type="button" wire:click="abrirCrearPersona('{{ $key }}')"
+                                        class="w-full py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-600 rounded-lg hover:bg-emerald-50 transition-all">
+                                    + Registrar nuevo feligrés
+                                </button>
+                            @endif
+                        </div>
+                    @endif
+
+                    {{-- MINI-FORM: CREAR PERSONA --}}
+                    @if ($isMiniOpen && $mini_tipo === 'persona')
+                        <div class="ml-11 mt-3 rounded-xl border border-emerald-200 dark:border-emerald-700/50 overflow-hidden">
+                            <div class="flex items-center justify-between px-4 py-2.5 bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-800/40">
+                                <span class="text-xs font-bold text-emerald-800 dark:text-emerald-300">Nuevo feligrés — {{ $rc['label'] }}</span>
+                                <button type="button" wire:click="cancelarMini" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                            <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="sm:col-span-2">
+                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Número de Identidad <span class="text-red-500">*</span></label>
+                                    <input type="text" wire:model="mini_p_dni" placeholder="Ej: 0801199912345"
+                                           class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 @error('mini_p_dni') border-red-400 @enderror" />
+                                    @error('mini_p_dni') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Primer Nombre <span class="text-red-500">*</span></label>
+                                    <input type="text" wire:model="mini_p_primer_nombre" oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'').replace(/\b\w/g,c=>c.toUpperCase())"
+                                           class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 @error('mini_p_primer_nombre') border-red-400 @enderror" />
+                                    @error('mini_p_primer_nombre') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Segundo Nombre</label>
+                                    <input type="text" wire:model="mini_p_segundo_nombre" oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'').replace(/\b\w/g,c=>c.toUpperCase())"
+                                           class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Primer Apellido <span class="text-red-500">*</span></label>
+                                    <input type="text" wire:model="mini_p_primer_apellido" oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'').replace(/\b\w/g,c=>c.toUpperCase())"
+                                           class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 @error('mini_p_primer_apellido') border-red-400 @enderror" />
+                                    @error('mini_p_primer_apellido') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Segundo Apellido</label>
+                                    <input type="text" wire:model="mini_p_segundo_apellido" oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g,'').replace(/\b\w/g,c=>c.toUpperCase())"
+                                           class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Fecha de Nacimiento <span class="text-red-500">*</span></label>
+                                    <input type="date" wire:model="mini_p_fecha_nacimiento"
+                                           class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 @error('mini_p_fecha_nacimiento') border-red-400 @enderror" />
+                                    @error('mini_p_fecha_nacimiento') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Sexo <span class="text-red-500">*</span></label>
+                                    <select wire:model="mini_p_sexo"
+                                            class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 @error('mini_p_sexo') border-red-400 @enderror">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="M">Masculino</option>
+                                        <option value="F">Femenino</option>
+                                    </select>
+                                    @error('mini_p_sexo') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Teléfono <span class="text-red-500">*</span></label>
+                                    <input type="text" wire:model="mini_p_telefono" oninput="this.value=this.value.replace(/[^0-9+\-]/g,'')" placeholder="+504 0000-0000"
+                                           class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 @error('mini_p_telefono') border-red-400 @enderror" />
+                                    @error('mini_p_telefono') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Correo Electrónico</label>
+                                    <input type="email" wire:model="mini_p_email" placeholder="ejemplo@correo.com"
+                                           class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500" />
+                                </div>
+                                <div class="sm:col-span-2 flex justify-end gap-2 pt-2 border-t border-emerald-100 dark:border-emerald-800/40">
+                                    <button type="button" wire:click="cancelarMini"
+                                            class="px-4 py-2 text-xs font-medium rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 transition-all">Cancelar</button>
+                                    <button type="button" wire:click="guardarMiniPersona" wire:loading.attr="disabled" wire:target="guardarMiniPersona"
+                                            class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white transition-all disabled:opacity-60">
+                                        <svg wire:loading wire:target="guardarMiniPersona" class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
+                                        <span wire:loading.remove wire:target="guardarMiniPersona">Guardar</span>
+                                        <span wire:loading wire:target="guardarMiniPersona">Guardando...</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- MINI-FORM: REGISTRAR FELIGRÉS --}}
+                    @if ($isMiniOpen && $mini_tipo === 'feligres')
+                        <div class="ml-11 mt-3 rounded-xl border border-blue-200 dark:border-blue-700/50 overflow-hidden">
+                            <div class="flex items-center justify-between px-4 py-2.5 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-100 dark:border-blue-800/40">
+                                <span class="text-xs font-bold text-blue-800 dark:text-blue-300">Registrar como Feligrés — {{ $rolPersona['nombre_completo'] ?? '' }}</span>
+                                <button type="button" wire:click="cancelarMini" class="text-gray-400 hover:text-gray-600">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <p class="text-xs text-blue-600 dark:text-blue-400 mb-3">Se registrará en la iglesia activa del sistema.</p>
+                                <div class="flex justify-end gap-2">
+                                    <button type="button" wire:click="cancelarMini"
+                                            class="px-4 py-2 text-xs font-medium rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 transition-all">Cancelar</button>
+                                    <button type="button" wire:click="guardarMiniFeligres" wire:loading.attr="disabled" wire:target="guardarMiniFeligres"
+                                            class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white transition-all disabled:opacity-60">
+                                        <svg wire:loading wire:target="guardarMiniFeligres" class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
+                                        <span wire:loading.remove wire:target="guardarMiniFeligres">Registrar Feligrés</span>
+                                        <span wire:loading wire:target="guardarMiniFeligres">Guardando...</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                </div>
+            @endforeach
+        </div>
+    </div>
+</div>
+
+
+{{-- ══ PÁRROCO AUTOMÁTICO (encargado activo) ══ --}}
+<div class="border {{ $encargado_info ? 'border-teal-200 dark:border-teal-700/50' : 'border-gray-200 dark:border-gray-700/60' }} rounded-xl overflow-hidden">
+    <div class="flex items-center gap-3 px-5 py-3.5
+                {{ $encargado_info ? 'bg-teal-50 dark:bg-teal-900/10' : 'bg-gray-50 dark:bg-gray-800/80' }}
+                border-b {{ $encargado_info ? 'border-teal-100 dark:border-teal-800/40' : 'border-gray-200 dark:border-gray-700/60' }}">
+        <div class="w-8 h-8 rounded-full {{ $encargado_info ? 'bg-teal-100 dark:bg-teal-900/40' : 'bg-gray-100 dark:bg-gray-700' }} flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4 {{ $encargado_info ? 'text-teal-600 dark:text-teal-400' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+        </div>
+        <div>
+            <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">Párroco</p>
+            <p class="text-xs text-gray-400 mt-0.5">Se toma automáticamente del encargado activo</p>
+        </div>
+        @if ($encargado_info)
+            <span class="ml-auto text-[10px] px-2 py-0.5 rounded-full font-semibold bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300">
+                ✓ Asignado
+            </span>
+        @endif
+    </div>
+
+    <div class="px-5 py-4">
+        @if ($encargado_info)
+            <div class="flex items-center gap-3 p-3 rounded-lg bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-700/40">
+                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shrink-0 shadow-sm">
+                    <span class="text-white text-sm font-bold">{{ strtoupper(substr($encargado_info['nombre_completo'], 0, 1)) }}</span>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $encargado_info['nombre_completo'] }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">DNI: {{ $encargado_info['dni'] }}</p>
+                    <span class="inline-block mt-0.5 text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300">
+                        Encargado activo
+                    </span>
                 </div>
             </div>
+        @else
+            <div class="flex items-center gap-2.5 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50">
+                <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <p class="text-xs text-amber-700 dark:text-amber-300">No hay ningún encargado activo configurado.</p>
+            </div>
+        @endif
+    </div>
+</div>
 
             {{-- ══ SECCIÓN 3: Certificado ══ --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-4 border-t border-dashed border-gray-200 dark:border-gray-700/60">

@@ -78,7 +78,6 @@
                 ['key' => 'feligres',   'label' => 'Comulgante', 'required' => true,  'accent' => 'sky'],
                 ['key' => 'catequista', 'label' => 'Catequista', 'required' => false, 'accent' => 'violet'],
                 ['key' => 'ministro',   'label' => 'Ministro',   'required' => false, 'accent' => 'indigo'],
-                ['key' => 'parroco',    'label' => 'Párroco',    'required' => false, 'accent' => 'teal'],
             ];
         @endphp
 
@@ -513,9 +512,6 @@
                                             class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all
                                                    bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600
                                                    text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                        </svg>
                                         Cancelar
                                     </button>
                                     <button type="button"
@@ -531,11 +527,6 @@
                                              class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-                                        </svg>
-                                        <svg wire:loading.remove wire:target="guardarMiniPersona"
-                                             class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                  d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
                                         </svg>
                                         <span wire:loading.remove wire:target="guardarMiniPersona">Guardar</span>
                                         <span wire:loading wire:target="guardarMiniPersona">Guardando...</span>
@@ -643,6 +634,66 @@
             </div>
         @endforeach
 
+        {{-- PÁRROCO AUTOMÁTICO (encargado activo) --}}
+        <div class="bg-white dark:bg-gray-800/80 rounded-xl shadow-sm border overflow-hidden
+                    ring-1 ring-black/5 dark:ring-white/5
+                    {{ $encargado_info ? 'border-teal-200 dark:border-teal-700/50' : 'border-gray-200 dark:border-gray-700/60' }}">
+
+            <div class="flex items-center gap-2.5 px-6 py-3.5 border-b border-gray-100 dark:border-gray-700/60
+                        {{ $encargado_info ? 'bg-teal-50/60 dark:bg-teal-900/10' : 'bg-gray-50/80 dark:bg-gray-800/80' }}">
+                <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Párroco</h3>
+                <span class="px-2 py-0.5 rounded-full text-xs font-medium
+                             bg-teal-100 dark:bg-teal-900/40 text-teal-600 dark:text-teal-400">
+                    Automático
+                </span>
+                @if ($encargado_info)
+                    <span class="px-2 py-0.5 rounded-full text-xs font-semibold
+                                 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">
+                        &#x2713; Asignado
+                    </span>
+                @endif
+            </div>
+
+            <div class="p-5">
+                @if ($encargado_info)
+                    <div class="flex items-center gap-3 p-4 rounded-xl
+                                bg-teal-50 dark:bg-teal-900/20
+                                border border-teal-200 dark:border-teal-700/50">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-cyan-600
+                                    flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-semibold text-gray-900 dark:text-white truncate text-sm">
+                                {{ $encargado_info['nombre_completo'] }}
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                DNI: {{ $encargado_info['dni'] }}
+                            </p>
+                            <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold
+                                         bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300">
+                                Encargado activo del sistema
+                            </span>
+                        </div>
+                    </div>
+                @else
+                    <div class="flex items-center gap-2.5 p-4 rounded-xl
+                                bg-amber-50 dark:bg-amber-900/20
+                                border border-amber-200 dark:border-amber-700/50">
+                        <svg class="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <p class="text-sm text-amber-700 dark:text-amber-300">
+                            No hay ningún encargado activo configurado en el sistema.
+                        </p>
+                    </div>
+                @endif
+            </div>
+        </div>
+
         {{-- Error global comulgante --}}
         @error('feligres_dni')
             <div class="flex items-center gap-2 p-4 rounded-xl bg-red-50 dark:bg-red-900/20
@@ -678,15 +729,14 @@
 
                 @php
                     $sumRoles = [
-                        ['key' => 'feligres',   'label' => 'Comulgante'],
-                        ['key' => 'catequista', 'label' => 'Catequista'],
-                        ['key' => 'ministro',   'label' => 'Ministro'],
-                        ['key' => 'parroco',    'label' => 'Párroco'],
+                        ['key' => 'feligres',   'label' => 'Comulgante', 'persona' => $feligres_persona],
+                        ['key' => 'catequista', 'label' => 'Catequista', 'persona' => $catequista_persona],
+                        ['key' => 'ministro',   'label' => 'Ministro',   'persona' => $ministro_persona],
                     ];
                 @endphp
 
                 @foreach ($sumRoles as $sr)
-                    @php $sp = $this->{"{$sr['key']}_persona"}; @endphp
+                    @php $sp = $sr['persona']; @endphp
                     <div class="p-3 rounded-lg {{ $sp ? 'bg-emerald-50 dark:bg-emerald-900/15' : 'bg-gray-50 dark:bg-gray-700/40' }}">
                         <span class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide">{{ $sr['label'] }}</span>
                         <p class="font-semibold text-gray-900 dark:text-white mt-0.5">
@@ -699,6 +749,19 @@
                         </p>
                     </div>
                 @endforeach
+
+                {{-- Párroco (encargado) en el resumen --}}
+                <div class="p-3 rounded-lg {{ $encargado_info ? 'bg-teal-50 dark:bg-teal-900/15' : 'bg-gray-50 dark:bg-gray-700/40' }}">
+                    <span class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide">Párroco</span>
+                    <p class="font-semibold text-gray-900 dark:text-white mt-0.5">
+                        @if ($encargado_info)
+                            {{ $encargado_info['nombre_completo'] }}
+                            <span class="text-xs text-teal-600 dark:text-teal-400 font-normal ml-1">(encargado)</span>
+                        @else
+                            <span class="text-gray-400 font-normal">Sin encargado activo</span>
+                        @endif
+                    </p>
+                </div>
 
             </div>
         </div>
@@ -719,7 +782,6 @@
 
             <div class="p-6 grid grid-cols-1 sm:grid-cols-3 gap-5">
 
-                {{-- Fecha de Primera Comunión --}}
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                         Fecha de Primera Comunión <span class="text-red-500">*</span>
