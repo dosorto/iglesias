@@ -8,6 +8,8 @@ use App\Models\Encargado;
 use App\Models\Feligres;
 use App\Models\Persona;
 use App\Models\TenantIglesia;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -27,6 +29,8 @@ class MatrimonioEdit extends Component
     public string $exp_dia           = '';
     public string $exp_mes           = '';
     public string $exp_ano           = '';
+
+    public ?array $encargado_info = null;
 
     // Roles editables: esposo, esposa, testigos
     public string $esposo_dni         = '';
@@ -53,6 +57,20 @@ class MatrimonioEdit extends Component
     public array   $busqueda_resultados = [];
     public ?string $busqueda_rol        = null;
 
+    public ?string $mini_rol               = null;
+    public ?string $mini_tipo              = null;
+    public string  $mini_p_dni             = '';
+    public string  $mini_p_primer_nombre   = '';
+    public string  $mini_p_segundo_nombre  = '';
+    public string  $mini_p_primer_apellido = '';
+    public string  $mini_p_segundo_apellido= '';
+    public string  $mini_p_fecha_nacimiento= '';
+    public string  $mini_p_sexo            = '';
+    public string  $mini_p_telefono        = '';
+    public string  $mini_p_email           = '';
+    public string  $mini_f_fecha_ingreso   = '';
+    public string  $mini_f_estado          = 'Activo';
+
     public function mount(Matrimonio $matrimonio): void
     {
         $this->matrimonio       = $matrimonio;
@@ -70,11 +88,42 @@ class MatrimonioEdit extends Component
         $this->exp_dia = $fechaExp?->day   ? (string) $fechaExp->day   : '';
         $this->exp_mes = $fechaExp?->month ? (string) $fechaExp->month : '';
         $this->exp_ano = $fechaExp?->year  ? (string) ($fechaExp->year - 2000) : '';
+        $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
+
+        $this->cargarEncargado();
 
         $this->cargarRolExistente('esposo', $matrimonio->esposo_id);
         $this->cargarRolExistente('esposa', $matrimonio->esposa_id);
         $this->cargarRolExistente('testigo1', $matrimonio->testigo1_id);
         $this->cargarRolExistente('testigo2', $matrimonio->testigo2_id);
+    }
+
+    private function cargarEncargado(): void
+    {
+        $encargado = null;
+
+        if ($this->matrimonio->encargado_id) {
+            $encargado = Encargado::with('feligres.persona')->find($this->matrimonio->encargado_id);
+        }
+
+        if (! $encargado) {
+            $encargado = Encargado::with('feligres.persona')->where('estado', 'Activo')->first();
+        }
+
+        if ($encargado?->feligres?->persona) {
+            $persona = $encargado->feligres->persona;
+            $this->encargado_info = [
+                'encargado_id'    => $encargado->id,
+                'feligres_id'     => $encargado->feligres->id,
+                'nombre_completo' => $persona->nombre_completo,
+                'dni'             => $persona->dni,
+            ];
+            $this->encargado_id = $encargado->id;
+            return;
+        }
+
+        $this->encargado_info = null;
+        $this->encargado_id = null;
     }
 
     private function cargarRolExistente(string $rol, ?int $feligresId): void
@@ -197,6 +246,10 @@ class MatrimonioEdit extends Component
 
         $this->busqueda_resultados = [];
         $this->busqueda_rol        = null;
+
+        if ($this->mini_rol === $rol) {
+            $this->cancelarMini();
+        }
     }
 
     public function limpiarRol(string $rol): void
@@ -210,6 +263,142 @@ class MatrimonioEdit extends Component
             $this->busqueda_resultados = [];
             $this->busqueda_rol        = null;
         }
+
+        if ($this->mini_rol === $rol) {
+            $this->cancelarMini();
+        }
+    }
+
+    public function abrirCrearPersona(string $rol): void
+    {
+        $dni = trim($this->{"{$rol}_dni"});
+
+        $this->mini_rol   = $rol;
+        $this->mini_tipo  = 'persona';
+        $this->mini_p_dni = ctype_digit($dni) ? $dni : '';
+
+        $this->reset([
+            'mini_p_primer_nombre', 'mini_p_segundo_nombre',
+            'mini_p_primer_apellido', 'mini_p_segundo_apellido',
+            'mini_p_telefono', 'mini_p_email',
+        ]);
+
+        $this->resetErrorBag();
+    }
+
+    public function abrirRegistrarFeligres(string $rol): void
+    {
+        $this->mini_rol             = $rol;
+        $this->mini_tipo            = 'feligres';
+        $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
+        $this->mini_f_estado        = 'Activo';
+
+        $this->resetErrorBag();
+    }
+
+    public function cancelarMini(): void
+    {
+        $this->mini_rol  = null;
+        $this->mini_tipo = null;
+
+        $this->reset([
+            'mini_p_dni', 'mini_p_primer_nombre', 'mini_p_segundo_nombre',
+            'mini_p_primer_apellido', 'mini_p_segundo_apellido',
+            'mini_p_fecha_nacimiento', 'mini_p_sexo',
+            'mini_p_telefono', 'mini_p_email',
+        ]);
+
+        $this->mini_f_estado        = 'Activo';
+        $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
+        $this->resetErrorBag();
+    }
+
+    public function guardarMiniPersona(): void
+    {
+        $this->validate([
+            'mini_p_dni'              => ['required', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
+            'mini_p_primer_nombre'    => ['required', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
+            'mini_p_primer_apellido'  => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
+            'mini_p_segundo_nombre'   => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
+            'mini_p_segundo_apellido' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
+            'mini_p_fecha_nacimiento' => ['required', 'date', 'before:today'],
+            'mini_p_sexo'             => ['required', 'in:M,F'],
+            'mini_p_telefono'         => ['required', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
+            'mini_p_email'            => ['nullable', 'email', 'max:255'],
+            'mini_f_fecha_ingreso'    => ['nullable', 'date'],
+            'mini_f_estado'           => ['required', 'in:Activo,Inactivo'],
+        ]);
+
+        $rol = $this->mini_rol;
+
+        DB::transaction(function () use ($rol) {
+            if (session('tenant')) {
+                $this->iglesia_id = TenantIglesia::currentId();
+            }
+
+            $persona = Persona::create([
+                'dni'              => $this->mini_p_dni,
+                'primer_nombre'    => Str::title($this->mini_p_primer_nombre),
+                'segundo_nombre'   => $this->mini_p_segundo_nombre ? Str::title($this->mini_p_segundo_nombre) : null,
+                'primer_apellido'  => Str::title($this->mini_p_primer_apellido),
+                'segundo_apellido' => $this->mini_p_segundo_apellido ? Str::title($this->mini_p_segundo_apellido) : null,
+                'fecha_nacimiento' => $this->mini_p_fecha_nacimiento ?: null,
+                'sexo'             => $this->mini_p_sexo,
+                'telefono'         => $this->mini_p_telefono ?: null,
+                'email'            => $this->mini_p_email ?: null,
+            ]);
+
+            $feligres = Feligres::create([
+                'id_persona'    => $persona->id,
+                'id_iglesia'    => $this->iglesia_id,
+                'fecha_ingreso' => $this->mini_f_fecha_ingreso ?: now()->format('Y-m-d'),
+                'estado'        => $this->mini_f_estado,
+            ]);
+
+            $this->{"{$rol}_persona"} = [
+                'id'              => $persona->id,
+                'dni'             => $persona->dni,
+                'nombre_completo' => $persona->nombre_completo,
+                'telefono'        => $persona->telefono ?? null,
+                'email'           => $persona->email ?? null,
+            ];
+
+            $this->{"{$rol}_feligres_id"} = $feligres->id;
+            $this->{"{$rol}_estado"}      = 'found';
+            $this->{"{$rol}_dni"}         = $persona->dni;
+        });
+
+        $this->cancelarMini();
+    }
+
+    public function guardarMiniFeligres(): void
+    {
+        $this->validate([
+            'iglesia_id'           => ['required'],
+            'mini_f_fecha_ingreso' => ['nullable', 'date'],
+            'mini_f_estado'        => ['required', 'in:Activo,Inactivo'],
+        ], [
+            'iglesia_id.required' => 'No se pudo determinar la iglesia.',
+        ]);
+
+        if (session('tenant')) {
+            $this->iglesia_id = TenantIglesia::currentId();
+        }
+
+        $rol = $this->mini_rol;
+        $persona = $this->{"{$rol}_persona"};
+
+        $feligres = Feligres::create([
+            'id_persona'    => $persona['id'],
+            'id_iglesia'    => $this->iglesia_id,
+            'fecha_ingreso' => $this->mini_f_fecha_ingreso ?: null,
+            'estado'        => $this->mini_f_estado,
+        ]);
+
+        $this->{"{$rol}_feligres_id"} = $feligres->id;
+        $this->{"{$rol}_estado"}      = 'found';
+
+        $this->cancelarMini();
     }
 
     protected function rules(): array
@@ -277,6 +466,9 @@ class MatrimonioEdit extends Component
             $this->iglesia_id = TenantIglesia::currentId();
         }
 
+        $this->cargarEncargado();
+        $this->encargado_id = $this->encargado_info['encargado_id'] ?? null;
+
         $this->validate();
 
         $fechaExp = null;
@@ -322,8 +514,7 @@ class MatrimonioEdit extends Component
             $iglesias = Iglesias::on($centralConn)->where('estado', 'Activo')->orderBy('nombre')->get();
         }
         $iglesiaActual = $iglesias->firstWhere('id', $this->iglesia_id);
-        $encargados  = Encargado::with('feligres.persona')->get();
 
-        return view('livewire.matrimonio.matrimonio-edit', compact('iglesias', 'iglesiaActual', 'encargados'));
+        return view('livewire.matrimonio.matrimonio-edit', compact('iglesias', 'iglesiaActual'));
     }
 }

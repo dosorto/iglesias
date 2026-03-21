@@ -461,7 +461,6 @@
         </div>
         <div>
             <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">Párroco</p>
-            <p class="text-xs text-gray-400 mt-0.5">Se toma automáticamente del encargado activo</p>
         </div>
         @if ($encargado_info)
             <span class="ml-auto text-[10px] px-2 py-0.5 rounded-full font-semibold bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300">
