@@ -177,6 +177,7 @@
                         Instructor <span class="text-red-500">*</span>
                     </label>
                     <select wire:model="instructor_id"
+                            @if($isInstructorView) disabled @endif
                             class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                    border border-gray-300 dark:border-gray-600
                                    bg-white dark:bg-gray-700/60
@@ -195,6 +196,11 @@
                             {{ $message }}
                         </p>
                     @enderror
+                    @if($isInstructorView)
+                        <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                            Vista de instructor: este curso solo puede permanecer asignado a tu perfil.
+                        </p>
+                    @endif
                 </div>
 
             </div>

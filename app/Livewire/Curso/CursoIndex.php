@@ -5,6 +5,9 @@ namespace App\Livewire\Curso;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Curso;
+use App\Models\Instructor;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class CursoIndex extends Component
 {
@@ -43,20 +46,70 @@ class CursoIndex extends Component
 
     public function render()
     {
-        $cursos = Curso::with([
+        $authUser = Auth::user();
+        $currentUser = $authUser ? User::with('roles')->find($authUser->id) : null;
+        $isInstructorView = (bool) ($currentUser?->roles?->contains('name', 'instructor'));
+
+        $query = Curso::with([
             'tipoCurso',
             'instructor.feligres.persona',
             'encargado.feligres.persona'
-        ])
-        ->when($this->search, function ($q) {
-            $q->where('nombre', 'like', '%' . $this->search . '%')
-              ->orWhereHas('tipoCurso', fn($t) =>
-                    $t->where('nombre_curso', 'like', '%' . $this->search . '%')
-                );
-        })
-        ->latest()
-        ->paginate($this->perPage);
+        ]);
 
-        return view('livewire.curso.curso-index', compact('cursos'));
+        if ($isInstructorView) {
+            $instructorId = $this->resolveCurrentInstructorId();
+
+            if ($instructorId) {
+                $query->where('instructor_id', $instructorId);
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+        }
+
+        $query->when($this->search, function ($q) {
+            $q->where(function ($searchQ) {
+                $searchQ->where('nombre', 'like', '%' . $this->search . '%')
+                    ->orWhereHas('tipoCurso', fn($t) =>
+                        $t->where('nombre_curso', 'like', '%' . $this->search . '%')
+                    );
+            });
+        });
+
+        $cursos = $query->latest()->paginate($this->perPage);
+
+        return view('livewire.curso.curso-index', compact('cursos', 'isInstructorView'));
+    }
+
+    private function resolveCurrentInstructorId(): ?int
+    {
+        $authUser = Auth::user();
+
+        if (! $authUser || ! $authUser->email) {
+            return null;
+        }
+
+        $email = strtolower(trim($authUser->email));
+
+        $instructorByEmail = Instructor::whereHas('feligres.persona', function ($q) use ($email) {
+            $q->whereRaw('LOWER(email) = ?', [$email]);
+        })->first();
+
+        if ($instructorByEmail) {
+            return $instructorByEmail->id;
+        }
+
+        if (preg_match('/^instructor\.([0-9]+)(?:\+[0-9]+)?@tenant\.local$/', $email, $matches)) {
+            $dni = $matches[1] ?? null;
+
+            if ($dni) {
+                $instructorByDni = Instructor::whereHas('feligres.persona', function ($q) use ($dni) {
+                    $q->where('dni', $dni);
+                })->first();
+
+                return $instructorByDni?->id;
+            }
+        }
+
+        return null;
     }
 }

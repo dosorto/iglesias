@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
@@ -26,6 +28,24 @@ class TenantRolesSeeder extends Seeder
 
             ['name' => 'audit.view',    'display_name' => 'Ver Logs del Sistema'],
             ['name' => 'audit.export',  'display_name' => 'Exportar Logs del Sistema'],
+
+            ['name' => 'personas.view',   'display_name' => 'Ver Personas'],
+            ['name' => 'personas.create', 'display_name' => 'Crear Personas'],
+            ['name' => 'personas.edit',   'display_name' => 'Editar Personas'],
+            ['name' => 'personas.delete', 'display_name' => 'Eliminar Personas'],
+            ['name' => 'personas.export', 'display_name' => 'Exportar Personas'],
+
+            ['name' => 'iglesias.view',   'display_name' => 'Ver Iglesias'],
+            ['name' => 'iglesias.create', 'display_name' => 'Crear Iglesias'],
+            ['name' => 'iglesias.edit',   'display_name' => 'Editar Iglesias'],
+            ['name' => 'iglesias.delete', 'display_name' => 'Eliminar Iglesias'],
+            ['name' => 'iglesias.export', 'display_name' => 'Exportar Iglesias'],
+
+            ['name' => 'religion.view',   'display_name' => 'Ver Religion'],
+            ['name' => 'religion.create', 'display_name' => 'Crear Religion'],
+            ['name' => 'religion.edit',   'display_name' => 'Editar Religion'],
+            ['name' => 'religion.delete', 'display_name' => 'Eliminar Religion'],
+            ['name' => 'religion.export', 'display_name' => 'Exportar Religion'],
 
             ['name' => 'feligres.view',   'display_name' => 'Ver Feligreses'],
             ['name' => 'feligres.create', 'display_name' => 'Crear Feligreses'],
@@ -96,8 +116,61 @@ class TenantRolesSeeder extends Seeder
             Permission::updateOrCreate(['name' => $p['name']], ['display_name' => $p['display_name']]);
         }
 
-        // Admin solo tiene estos permisos — SIN personas, iglesias, religion
+        // Root con acceso total en el tenant
+        $rootRole = Role::firstOrCreate(['name' => 'root']);
+        $rootRole->syncPermissions(Permission::all());
+
+        // Admin: sin personas, iglesias, religion (igual que seeder central)
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
-        $adminRole->syncPermissions(Permission::all());
+        $adminRole->syncPermissions(
+            Permission::whereNotIn('name', [
+                'personas.view',   'personas.create', 'personas.edit',   'personas.delete', 'personas.export',
+                'iglesias.view',   'iglesias.create', 'iglesias.edit',   'iglesias.delete', 'iglesias.export',
+                'religion.view',   'religion.create', 'religion.edit',   'religion.delete', 'religion.export',
+            ])->get()
+        );
+
+        // Instructor con permisos operativos de instructores
+        $instructorRole = Role::firstOrCreate(['name' => 'instructor']);
+        $instructorRole->syncPermissions(
+            Permission::whereIn('name', [
+                'instructor.view',
+                'instructor.create',
+                'instructor.edit',
+                'instructor.delete',
+                'curso.view',
+                'curso.edit',
+                'inscripcion-curso.view',
+                'inscripcion-curso.create',
+                'inscripcion-curso.edit',
+                'inscripcion-curso.delete',
+            ])->get()
+        );
+
+        // Usuario root por defecto del tenant
+        $adminUser = User::role('admin')
+            ->whereNotNull('id_iglesia')
+            ->first();
+
+        $idIglesiaRoot = $adminUser?->id_iglesia;
+
+        $rootUser = User::withTrashed()->firstOrCreate(
+            ['email' => 'root@tenant.local'],
+            [
+                'name' => 'Root Tenant',
+                'password' => Hash::make('password'),
+                'id_iglesia' => $idIglesiaRoot,
+            ]
+        );
+
+        if ($rootUser->trashed()) {
+            $rootUser->restore();
+        }
+
+        if ($idIglesiaRoot) {
+            $rootUser->update(['id_iglesia' => $idIglesiaRoot]);
+        }
+
+        $rootUser->syncRoles([$rootRole->name]);
     }
 }

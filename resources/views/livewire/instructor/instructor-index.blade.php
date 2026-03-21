@@ -31,6 +31,28 @@
         </div>
     @endif
 
+    @if (session()->has('instructor_credentials'))
+        @php($credentials = session('instructor_credentials'))
+        <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+            <div class="flex items-start">
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M22 12a10 10 0 11-20 0 10 10 0 0120 0z"></path>
+                </svg>
+                <div>
+                    <p class="text-amber-800 dark:text-amber-200 font-semibold">Credenciales temporales del instructor</p>
+                    <p class="text-amber-800 dark:text-amber-200 text-sm mt-1">Correo: {{ $credentials['email'] ?? '-' }}</p>
+                    @if(!empty($credentials['password']))
+                        <p class="text-amber-800 dark:text-amber-200 text-sm">Clave temporal: {{ $credentials['password'] }}</p>
+                        <p class="text-amber-700 dark:text-amber-300 text-xs mt-2">Comparte esta clave solo una vez; se ocultará automáticamente después del primer login del instructor.</p>
+                    @else
+                        <p class="text-amber-800 dark:text-amber-200 text-sm">No se genero nueva clave temporal.</p>
+                        <p class="text-amber-700 dark:text-amber-300 text-xs mt-2">{{ $credentials['note'] ?? 'Este instructor ya tenia una cuenta activa y debe usar su contrasena actual.' }}</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- Table Container --}}
     <div class="content-container mx-auto w-full max-w-7xl">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">

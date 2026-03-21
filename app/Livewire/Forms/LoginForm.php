@@ -3,6 +3,7 @@
 namespace App\Livewire\Forms;
 
 use App\Models\Iglesias;
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -35,6 +36,7 @@ class LoginForm extends Form
 
         // 1. Try central DB first (root / superadmin users)
         if (Auth::attempt($this->only(['email', 'password']), $this->remember)) {
+            $this->hideTemporaryPasswordAfterInstructorLogin();
             RateLimiter::clear($this->throttleKey());
             return;
         }
@@ -88,6 +90,7 @@ class LoginForm extends Form
 
                 // Authenticate against the tenant DB
                 if (Auth::attempt($this->only(['email', 'password']), $this->remember)) {
+                    $this->hideTemporaryPasswordAfterInstructorLogin();
                     RateLimiter::clear($this->throttleKey());
                     return;
                 }
@@ -128,5 +131,26 @@ class LoginForm extends Form
     protected function throttleKey(): string
     {
         return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
+    }
+
+    private function hideTemporaryPasswordAfterInstructorLogin(): void
+    {
+        $authUser = Auth::user();
+
+        if (! $authUser) {
+            return;
+        }
+
+        $user = User::with('roles')->find($authUser->id);
+
+        if (! $user || empty($user->password_visible)) {
+            return;
+        }
+
+        $isInstructor = $user->roles->contains('name', 'instructor');
+
+        if ($isInstructor) {
+            $user->update(['password_visible' => null]);
+        }
     }
 }

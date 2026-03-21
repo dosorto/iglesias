@@ -22,9 +22,11 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'organization_id',
+        'id_iglesia',
         'name',
         'email',
         'password',
+        'password_visible',
         'created_by',
         'deleted_by',
         'updated_by',

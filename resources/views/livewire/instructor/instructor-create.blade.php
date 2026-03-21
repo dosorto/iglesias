@@ -117,10 +117,8 @@
                         <input type="text"
                                wire:model="persona_dni"
                                wire:keydown.enter="buscarPersona"
-                               placeholder="Ingresa el DNI de la persona..."
-                               inputmode="numeric"
+                               placeholder="Ingresa el DNI o nombre de la persona..."
                                autocomplete="off"
-                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                class="block w-full pl-10 pr-4 py-2.5 text-sm rounded-lg transition-colors
                                       border border-gray-300 dark:border-gray-600
                                       bg-gray-50 dark:bg-gray-700/60
@@ -161,7 +159,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         <p class="text-sm text-red-800 dark:text-red-300">
-                            No se encontró ninguna persona con el DNI <strong>{{ $persona_dni }}</strong>.
+                            No se encontró ninguna persona con el criterio <strong>{{ $persona_dni }}</strong>.
                         </p>
                     </div>
 
@@ -169,9 +167,8 @@
                         <input type="text"
                                wire:model="persona_dni"
                                wire:keydown.enter="buscarPersona"
-                               inputmode="numeric"
                                autocomplete="off"
-                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                               placeholder="Ingresa el DNI o nombre de la persona..."
                                class="flex-1 px-3 py-2 text-sm rounded-lg transition-colors
                                       border border-gray-300 dark:border-gray-600
                                       bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white

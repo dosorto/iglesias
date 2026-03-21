@@ -6,10 +6,13 @@ use Livewire\Component;
 use App\Models\Persona;
 use App\Models\Instructor;
 use App\Models\Feligres;
+use App\Models\User;
 use App\Models\TenantIglesia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Livewire\WithFileUploads;
+use Spatie\Permission\Models\Role;
 
 class InstructorCreate extends Component
 {
@@ -65,11 +68,17 @@ class InstructorCreate extends Component
         if (preg_match('/^[0-9]+$/', $valor)) {
             $query->where('dni', $valor);
         } else {
-            $query->where(function ($q) use ($valor) {
-                $q->where('primer_nombre', 'like', "%{$valor}%")
-                    ->orWhere('segundo_nombre', 'like', "%{$valor}%")
-                    ->orWhere('primer_apellido', 'like', "%{$valor}%")
-                    ->orWhere('segundo_apellido', 'like', "%{$valor}%");
+            $terminos = preg_split('/\s+/', $valor, -1, PREG_SPLIT_NO_EMPTY);
+
+            $query->where(function ($q) use ($terminos) {
+                foreach ($terminos as $termino) {
+                    $q->where(function ($subQuery) use ($termino) {
+                        $subQuery->where('primer_nombre', 'like', "%{$termino}%")
+                            ->orWhere('segundo_nombre', 'like', "%{$termino}%")
+                            ->orWhere('primer_apellido', 'like', "%{$termino}%")
+                            ->orWhere('segundo_apellido', 'like', "%{$termino}%");
+                    });
+                }
             });
         }
 
@@ -327,7 +336,12 @@ class InstructorCreate extends Component
                     'updated_by' => Auth::id(),
                 ]);
 
+                $credentials = $this->asegurarUsuarioInstructor($feligres, $iglesiaId);
+
                 session()->flash('success', 'Instructor restaurado correctamente.');
+                if ($credentials) {
+                    session()->flash('instructor_credentials', $credentials);
+                }
                 $this->redirect(route('instructor.index'), navigate: false);
                 return;
             } 
@@ -346,8 +360,111 @@ class InstructorCreate extends Component
             'created_by' => Auth::id(),
         ]);
 
+        $credentials = $this->asegurarUsuarioInstructor($feligres, $iglesiaId);
+
         session()->flash('success', 'Instructor registrado correctamente.');
+        if ($credentials) {
+            session()->flash('instructor_credentials', $credentials);
+        }
         $this->redirect(route('instructor.index'), navigate: false);
+    }
+
+    private function asegurarUsuarioInstructor(Feligres $feligres, int $iglesiaId): ?array
+    {
+        $persona = $feligres->persona;
+
+        if (! $persona) {
+            return null;
+        }
+
+        $emailBase = trim((string) ($persona->email ?? ''));
+        if ($emailBase === '') {
+            $dni = trim((string) ($persona->dni ?? ''));
+            $suffix = $dni !== '' ? $dni : (string) $persona->id;
+            $emailBase = "instructor.{$suffix}@tenant.local";
+        }
+
+        $email = $this->resolverEmailDisponible($emailBase);
+
+        $nombre = trim($persona->nombre_completo ?: (($persona->primer_nombre ?? '') . ' ' . ($persona->primer_apellido ?? '')));
+        if ($nombre === '') {
+            $nombre = 'Instructor';
+        }
+
+        $user = User::withTrashed()->where('email', $email)->first();
+        $generatedPassword = $this->generarContrasenaTemporal($persona->primer_nombre ?? null);
+        $credentials = null;
+
+        if (! $user) {
+            $user = User::create([
+                'name' => $nombre,
+                'email' => $email,
+                'password' => Hash::make($generatedPassword),
+                'password_visible' => $generatedPassword,
+                'id_iglesia' => $iglesiaId,
+            ]);
+
+            $credentials = [
+                'email' => $email,
+                'password' => $generatedPassword,
+            ];
+        } elseif ($user->trashed()) {
+            $user->restore();
+            $user->update([
+                'name' => $nombre,
+                'password' => Hash::make($generatedPassword),
+                'password_visible' => $generatedPassword,
+                'id_iglesia' => $iglesiaId,
+            ]);
+
+            $credentials = [
+                'email' => $email,
+                'password' => $generatedPassword,
+            ];
+        } else {
+            $user->update([
+                'name' => $nombre,
+                'id_iglesia' => $iglesiaId,
+            ]);
+
+            $credentials = [
+                'email' => $email,
+                'password' => null,
+                'note' => 'El correo ya existia en este tenant. Se asigno rol instructor y debe usar su contrasena actual.',
+            ];
+        }
+
+        $role = Role::firstOrCreate(['name' => 'instructor']);
+        $user->syncRoles([$role->name]);
+
+        return $credentials;
+    }
+
+    private function resolverEmailDisponible(string $emailBase): string
+    {
+        $email = strtolower($emailBase);
+
+        if (! User::where('email', $email)->exists()) {
+            return $email;
+        }
+
+        [$localPart, $domain] = array_pad(explode('@', $email, 2), 2, 'tenant.local');
+
+        $i = 1;
+        do {
+            $candidate = "{$localPart}+{$i}@{$domain}";
+            $i++;
+        } while (User::where('email', $candidate)->exists());
+
+        return $candidate;
+    }
+
+    private function generarContrasenaTemporal(?string $primerNombre): string
+    {
+        $base = strtolower(trim((string) $primerNombre));
+        $base = preg_replace('/[^a-z0-9]/', '', $base) ?: 'usuario';
+
+        return $base . random_int(1000, 9999);
     }
 
     public function render()

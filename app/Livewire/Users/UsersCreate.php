@@ -3,6 +3,7 @@
 namespace App\Livewire\Users;
 
 use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
@@ -14,6 +15,7 @@ class UsersCreate extends Component
     public $password = '';
     public $password_confirmation = '';
     public $selectedRoles = [];
+    public bool $canAssignRootRole = false;
 
     protected function rules()
     {
@@ -28,6 +30,11 @@ class UsersCreate extends Component
     public function store()
     {
         $this->validate();
+
+        if (in_array('root', $this->selectedRoles, true) && ! $this->canAssignRootRole) {
+            session()->flash('error', 'Solo un usuario root puede asignar el rol root.');
+            return;
+        }
 
         $user = User::create([
             'name' => $this->name,
@@ -46,8 +53,13 @@ class UsersCreate extends Component
 
     public function render()
     {
+        $authUser = Auth::user();
+        $currentUser = $authUser ? User::with('roles')->find($authUser->id) : null;
+        $this->canAssignRootRole = (bool) ($currentUser?->roles?->contains('name', 'root'));
+
         return view('livewire.users.users-create', [
             'roles' => Role::all(),
+            'canAssignRootRole' => $this->canAssignRootRole,
         ]);
     }
 }

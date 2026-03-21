@@ -1,12 +1,17 @@
 <div class="space-y-6">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Cursos</h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-1">Administra los cursos disponibles en el sistema</p>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                {{ $isInstructorView ? 'Mis Cursos' : 'Gestión de Cursos' }}
+            </h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">
+                {{ $isInstructorView ? 'Vista de instructor: solo cursos asignados a tu perfil.' : 'Administra los cursos disponibles en el sistema' }}
+            </p>
         </div>
 
         <div class="flex flex-wrap gap-2">
             @can('curso.create')
+                @if(! $isInstructorView)
                 <a href="{{ route('curso.create') }}"
                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center shadow-sm">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -14,6 +19,7 @@
                     </svg>
                     Nuevo Curso
                 </a>
+                @endif
             @endcan
         </div>
     </div>

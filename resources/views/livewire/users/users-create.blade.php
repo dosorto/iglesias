@@ -4,6 +4,12 @@
         <p class="text-gray-600 dark:text-gray-300">Agrega un nuevo usuario al sistema</p>
     </div>
 
+    @if (session()->has('error'))
+        <div class="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <p class="text-red-800 dark:text-red-200 font-medium text-sm">{{ session('error') }}</p>
+        </div>
+    @endif
+
     <form wire:submit="store" class="space-y-6">
         <!-- Nombre -->
         <div>
@@ -76,6 +82,9 @@
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Roles</h2>
             <div class="grid md:grid-cols-2 gap-4">
                 @foreach($roles as $role)
+                    @if($role->name === 'root' && ! $canAssignRootRole)
+                        @continue
+                    @endif
                     <label class="flex items-center">
                         <input
                             type="checkbox"

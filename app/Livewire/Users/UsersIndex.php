@@ -5,6 +5,7 @@ namespace App\Livewire\Users;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\User;
 
@@ -64,17 +65,57 @@ class UsersIndex extends Component
 
     public function confirmDelete($userId)
     {
-        $this->userToDelete = User::findOrFail($userId);
+        $targetUser = User::findOrFail($userId);
+
+        if (! $this->canDeleteUser($targetUser)) {
+            session()->flash('error', 'No tienes permiso para eliminar este usuario.');
+            return;
+        }
+
+        $this->userToDelete = $targetUser;
         $this->showDeleteModal = true;
     }
 
     public function delete()
     {
         if ($this->userToDelete) {
-            $this->userToDelete->delete();
+            $targetUser = User::find($this->userToDelete->id);
+
+            if (! $targetUser || ! $this->canDeleteUser($targetUser)) {
+                session()->flash('error', 'No tienes permiso para eliminar este usuario.');
+                $this->closeDeleteModal();
+                return;
+            }
+
+            $targetUser->delete();
             session()->flash('success', 'Usuario eliminado correctamente');
         }
         $this->closeDeleteModal();
+    }
+
+    private function canDeleteUser(User $targetUser): bool
+    {
+        $authUser = Auth::user();
+        $currentUser = $authUser ? User::find($authUser->id) : null;
+
+        if (! $currentUser) {
+            return false;
+        }
+
+        // Ningún usuario puede eliminar su propia cuenta.
+        if ((int) $currentUser->id === (int) $targetUser->id) {
+            return false;
+        }
+
+        $currentIsAdmin = $currentUser->roles()->where('name', 'admin')->exists();
+        $targetIsRoot = $targetUser->roles()->where('name', 'root')->exists();
+
+        // Admin no puede eliminar usuarios root.
+        if ($currentIsAdmin && $targetIsRoot) {
+            return false;
+        }
+
+        return true;
     }
 
     public function closeDeleteModal()
@@ -85,7 +126,14 @@ class UsersIndex extends Component
 
     public function confirmResetPassword($userId)
     {
-        $this->userToReset = User::findOrFail($userId);
+        $targetUser = User::findOrFail($userId);
+
+        if (! $this->canResetPasswordForUser($targetUser)) {
+            session()->flash('error', 'No tienes permiso para resetear la contraseña de este usuario.');
+            return;
+        }
+
+        $this->userToReset = $targetUser;
         $this->sendByEmail = false; // Por defecto no enviar por email
         $this->showResetPasswordModal = true;
     }
@@ -103,16 +151,25 @@ class UsersIndex extends Component
             return;
         }
 
+        $targetUser = User::find($this->userToReset->id);
+
+        if (! $targetUser || ! $this->canResetPasswordForUser($targetUser)) {
+            session()->flash('error', 'No tienes permiso para resetear la contraseña de este usuario.');
+            $this->closeResetPasswordModal();
+            return;
+        }
+
         $newPassword = Str::random(10);
 
-        $this->userToReset->update([
-            'password' => Hash::make($newPassword)
+        $targetUser->update([
+            'password' => Hash::make($newPassword),
+            'password_visible' => $newPassword,
         ]);
 
         if ($this->sendByEmail) {
             // Aquí iría la lógica para enviar email
             // Por ahora solo mostramos un mensaje
-            session()->flash('success', "Nueva contraseña generada y enviada al correo: {$this->userToReset->email}");
+            session()->flash('success', "Nueva contraseña generada y enviada al correo: {$targetUser->email}");
         } else {
             session()->flash('success', "Nueva contraseña generada: $newPassword");
         }
@@ -120,8 +177,32 @@ class UsersIndex extends Component
         $this->closeResetPasswordModal();
     }
 
+    private function canResetPasswordForUser(User $targetUser): bool
+    {
+        $authUser = Auth::user();
+        $currentUser = $authUser ? User::find($authUser->id) : null;
+
+        if (! $currentUser) {
+            return false;
+        }
+
+        $currentIsAdmin = $currentUser->roles()->where('name', 'admin')->exists();
+        $targetIsRoot = $targetUser->roles()->where('name', 'root')->exists();
+
+        // Admin no puede resetear contraseñas de usuarios root.
+        if ($currentIsAdmin && $targetIsRoot) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function render()
     {
+        $authUser = Auth::user();
+        $currentUser = $authUser ? User::with('roles')->find($authUser->id) : null;
+        $canViewTemporaryPasswords = (bool) ($currentUser?->roles?->contains('name', 'root'));
+
         $query = User::with('roles')
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
@@ -137,6 +218,7 @@ class UsersIndex extends Component
 
         return view('livewire.users.users-index', [
             'users' => $users,
+            'canViewTemporaryPasswords' => $canViewTemporaryPasswords,
         ]);
     }
 }

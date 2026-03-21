@@ -29,6 +29,17 @@
         </div>
     @endif
 
+    @if (session()->has('error'))
+        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-red-600 dark:text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M22 12a10 10 0 11-20 0 10 10 0 0120 0z"></path>
+                </svg>
+                <p class="text-red-800 dark:text-red-200 font-medium">{{ session('error') }}</p>
+            </div>
+        </div>
+    @endif
+
     {{-- Table Container - Centered and 3/4 width --}}
     <div class="content-container mx-auto w-full max-w-7xl">
         {{-- Table --}}
@@ -119,6 +130,15 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                         @forelse($users as $user)
+                            @php
+                                $isCurrentUser = auth()->id() === $user->id;
+                                $currentRoles = auth()->user()?->roles;
+                                $adminTryingRoot = ($currentRoles && $currentRoles->contains('name', 'admin'))
+                                    && $user->roles->contains('name', 'root');
+                                $canEditUser = auth()->user()?->can('users.edit') && ! $adminTryingRoot;
+                                $canDeleteUser = auth()->user()?->can('users.delete') && ! $isCurrentUser && ! $adminTryingRoot;
+                                $canResetPasswordUser = ! $adminTryingRoot;
+                            @endphp
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
@@ -140,6 +160,11 @@
                                     <div class="text-xs text-gray-500 dark:text-gray-400">
                                         ID: {{ $user->id }}
                                     </div>
+                                    @if($canViewTemporaryPasswords)
+                                        <div class="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                                            Clave temporal: {{ $user->password_visible ?: 'No disponible' }}
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4">
                                     @if($user->roles->count() > 0)
@@ -161,27 +186,29 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center space-x-2">
-                                        @can('users.edit')
-                                            <button
-                                                onclick="window.location.href='{{ route('users.edit', $user) }}'"
+                                        @if($canEditUser)
+                                            <a
+                                                href="{{ route('users.edit', $user) }}"
                                                 class="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
                                                 title="Editar usuario">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                 </svg>
+                                            </a>
+                                        @endif
+
+                                        @if($canResetPasswordUser)
+                                            <button
+                                                wire:click="confirmResetPassword({{ $user->id }})"
+                                                class="p-1 text-yellow-600 hover:text-yellow-800 dark:text-yellow-400 dark:hover:text-yellow-300 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded transition-colors"
+                                                title="Resetear contraseña">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                                                </svg>
                                             </button>
-                                        @endcan
+                                        @endif
 
-                                        <button
-                                            wire:click="confirmResetPassword({{ $user->id }})"
-                                            class="p-1 text-yellow-600 hover:text-yellow-800 dark:text-yellow-400 dark:hover:text-yellow-300 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded transition-colors"
-                                            title="Resetear contraseña">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
-                                            </svg>
-                                        </button>
-
-                                        @can('users.delete')
+                                        @if($canDeleteUser)
                                             <button
                                                 wire:click="confirmDelete({{ $user->id }})"
                                                 class="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
@@ -190,7 +217,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                 </svg>
                                             </button>
-                                        @endcan
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
