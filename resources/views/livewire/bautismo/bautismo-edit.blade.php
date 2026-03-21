@@ -152,13 +152,7 @@
                                   focus:ring-2 focus:ring-indigo-500 focus:border-transparent
                                   @error('libro_bautismo') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror" />
                     @error('libro_bautismo')
-                        <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            {{ $message }}
-                        </p>
+                        <p class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -176,13 +170,7 @@
                                   focus:ring-2 focus:ring-indigo-500 focus:border-transparent
                                   @error('folio') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror" />
                     @error('folio')
-                        <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            {{ $message }}
-                        </p>
+                        <p class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -200,172 +188,232 @@
                                   focus:ring-2 focus:ring-indigo-500 focus:border-transparent
                                   @error('partida_numero') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror" />
                     @error('partida_numero')
-                        <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            {{ $message }}
-                        </p>
+                        <p class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
 
             </div>
 
-            <div class="pt-2 border-t border-gray-100 dark:border-gray-700/60 space-y-3">
-                <div>
-                    <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Personas Asignadas</h3>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Edita los vínculos de bautizado, padres y padrinos.</p>
-                </div>
+            {{-- ══ ACORDEÓN: Personas Asignadas ══ --}}
+            @php
+                $rolesConfig = [
+                    ['key' => 'bautizado', 'label' => 'Bautizado',  'short' => 'Bau', 'required' => true],
+                    ['key' => 'padre',     'label' => 'Padre',      'short' => 'P',   'required' => false],
+                    ['key' => 'madre',     'label' => 'Madre',      'short' => 'M',   'required' => false],
+                    ['key' => 'padrino',   'label' => 'Padrino',    'short' => 'Pd',  'required' => false],
+                    ['key' => 'madrina',   'label' => 'Madrina',    'short' => 'Md',  'required' => false],
+                ];
+                $asignadosBau = collect($rolesConfig)->filter(fn($r) => $this->{"{$r['key']}_estado"} === 'found');
+            @endphp
 
-                @php
-                    $rolesConfig = [
-                        ['key' => 'bautizado', 'label' => 'Bautizado', 'required' => true],
-                        ['key' => 'padre', 'label' => 'Padre', 'required' => false],
-                        ['key' => 'madre', 'label' => 'Madre', 'required' => false],
-                        ['key' => 'padrino', 'label' => 'Padrino', 'required' => false],
-                        ['key' => 'madrina', 'label' => 'Madrina', 'required' => false],
-                    ];
-                @endphp
+            <div x-data="{ open: {{ $asignadosBau->isNotEmpty() ? 'true' : 'false' }} }"
+                 class="border border-gray-200 dark:border-gray-700/60 rounded-xl overflow-hidden">
 
-                <div class="rounded-xl border border-gray-200 dark:border-gray-700/60 divide-y divide-gray-100 dark:divide-gray-700/60 overflow-hidden">
-                    @foreach ($rolesConfig as $rc)
-                        @php
-                            $key       = $rc['key'];
-                            $rolDni    = $this->{"{$key}_dni"};
-                            $rolPersona= $this->{"{$key}_persona"};
-                            $rolEstado = $this->{"{$key}_estado"};
-                        @endphp
+                <button type="button" @click="open = !open"
+                        class="w-full flex items-center justify-between px-5 py-4
+                               bg-gray-50 dark:bg-gray-800/80 hover:bg-gray-100 dark:hover:bg-gray-700/60
+                               transition-colors group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">Bautizado, Padres y Padrinos</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                                Bautizado, padre, madre, padrino y madrina
+                                @if ($asignadosBau->isNotEmpty())
+                                    — <span class="text-emerald-600 dark:text-emerald-400 font-medium">{{ $asignadosBau->count() }} asignado(s)</span>
+                                @else
+                                    — <span class="italic">sin asignar</span>
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        @foreach ($rolesConfig as $r)
+                            @if ($this->{"{$r['key']}_estado"} === 'found')
+                                <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold
+                                             bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">
+                                    ✓ {{ $r['short'] }}
+                                </span>
+                            @endif
+                        @endforeach
+                        <svg class="w-5 h-5 text-gray-400 transition-transform duration-200"
+                             :class="open ? 'rotate-180' : ''"
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                </button>
 
-                        <div class="px-5 py-4 {{ $rolEstado === 'found' ? 'bg-emerald-50/40 dark:bg-emerald-900/5' : '' }}">
-                            <div class="flex items-center gap-3 mb-3">
-                                <div @class([
-                                    'w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold',
-                                    'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300' => $rolEstado === 'found',
-                                    'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'               => $rolEstado !== 'found',
-                                ])>
-                                    @if ($rolEstado === 'found')
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-                                        </svg>
-                                    @else
-                                        {{ strtoupper(substr($rc['label'], 0, 1)) }}
+                <div x-show="open"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 -translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 -translate-y-2"
+                     class="border-t border-gray-200 dark:border-gray-700/60">
+
+                    <div class="divide-y divide-gray-100 dark:divide-gray-700/60">
+                        @foreach ($rolesConfig as $rc)
+                            @php
+                                $key        = $rc['key'];
+                                $rolDni     = $this->{"{$key}_dni"};
+                                $rolPersona = $this->{"{$key}_persona"};
+                                $rolEstado  = $this->{"{$key}_estado"};
+                            @endphp
+
+                            <div class="px-5 py-4 {{ $rolEstado === 'found' ? 'bg-emerald-50/40 dark:bg-emerald-900/5' : '' }}">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div @class([
+                                        'w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold',
+                                        'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300' => $rolEstado === 'found',
+                                        'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'               => $rolEstado !== 'found',
+                                    ])>
+                                        @if ($rolEstado === 'found')
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        @else
+                                            {{ strtoupper(substr($rc['label'], 0, 1)) }}
+                                        @endif
+                                    </div>
+
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ $rc['label'] }}</span>
+                                            @if ($rc['required'])
+                                                <span class="text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300">Obligatorio</span>
+                                            @else
+                                                <span class="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500">Opcional</span>
+                                            @endif
+                                            @if ($rolEstado === 'found')
+                                                <span class="text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">
+                                                    ✓ {{ $rolPersona['nombre_completo'] }}
+                                                </span>
+                                            @elseif ($rolEstado === 'idle')
+                                                <span class="text-[10px] text-gray-400 dark:text-gray-500 italic">Sin asignar</span>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    @if ($rolEstado !== 'idle')
+                                        <button type="button" wire:click="limpiarRol('{{ $key }}')"
+                                                class="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium
+                                                       text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30
+                                                       border border-red-200 dark:border-red-800/40 transition-all">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                            Quitar
+                                        </button>
                                     @endif
                                 </div>
 
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center gap-2 flex-wrap">
-                                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ $rc['label'] }}</span>
-                                        @if ($rc['required'])
-                                            <span class="text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300">Obligatorio</span>
-                                        @else
-                                            <span class="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500">Opcional</span>
-                                        @endif
-
-                                        @if ($rolEstado === 'found')
-                                            <span class="text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">
-                                                ✓ {{ $rolPersona['nombre_completo'] }}
-                                            </span>
-                                        @elseif ($rolEstado === 'idle')
-                                            <span class="text-[10px] text-gray-400 dark:text-gray-500 italic">Sin asignar</span>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                @if ($rolEstado !== 'idle')
-                                    <button type="button" wire:click="limpiarRol('{{ $key }}')"
-                                            class="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium
-                                                   text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30
-                                                   border border-red-200 dark:border-red-800/40 transition-all">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                        </svg>
-                                        Quitar
-                                    </button>
-                                @endif
-                            </div>
-
-                            @if ($rolEstado === 'idle')
-                                <div class="flex gap-2 ml-11">
-                                    <div class="relative flex-1">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                @if ($rolEstado === 'idle')
+                                    <div class="flex gap-2 ml-11">
+                                        <div class="relative flex-1">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                                </svg>
+                                            </div>
+                                            <input type="text"
+                                                   wire:model="{{ $key }}_dni"
+                                                   wire:keydown.enter="buscarPersona('{{ $key }}')"
+                                                   placeholder="DNI o nombre del {{ strtolower($rc['label']) }}..."
+                                                   class="block w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600
+                                                          bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white dark:placeholder-gray-400
+                                                          focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
+                                        </div>
+                                        <button type="button"
+                                                wire:click="buscarPersona('{{ $key }}')"
+                                                wire:loading.attr="disabled" wire:target="buscarPersona('{{ $key }}')"
+                                                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold
+                                                       bg-indigo-600 hover:bg-indigo-700 text-white transition-all disabled:opacity-60">
+                                            <svg wire:loading.remove wire:target="buscarPersona('{{ $key }}')" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                                             </svg>
-                                        </div>
-                                        <input type="text"
-                                               wire:model="{{ $key }}_dni"
-                                               wire:keydown.enter="buscarPersona('{{ $key }}')"
-                                               placeholder="DNI o nombre del {{ strtolower($rc['label']) }}..."
-                                               class="block w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600
-                                                      bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white dark:placeholder-gray-400
-                                                      focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
-                                    </div>
-                                    <button type="button"
-                                            wire:click="buscarPersona('{{ $key }}')"
-                                            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold
-                                                   bg-indigo-600 hover:bg-indigo-700 text-white transition-all">
-                                        Buscar
-                                    </button>
-                                </div>
-                                @error("{$key}_dni")
-                                    <p class="ml-11 mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                                @enderror
-                            @endif
-
-                            @if ($rolEstado === 'multiples' && $busqueda_rol === $key)
-                                <div class="ml-11 space-y-1.5 max-h-48 overflow-y-auto mt-2">
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">{{ count($busqueda_resultados) }} resultados - selecciona uno:</p>
-                                    @foreach ($busqueda_resultados as $res)
-                                        <button type="button"
-                                                wire:click="seleccionarResultado({{ $res['id'] }})"
-                                                class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left
-                                                       border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700/40
-                                                       hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:border-indigo-300
-                                                       transition-all group text-sm">
-                                            <span class="font-medium text-gray-900 dark:text-white flex-1 truncate">{{ $res['nombre_completo'] }}</span>
-                                            <span class="text-xs text-gray-400 font-mono shrink-0">{{ $res['dni'] }}</span>
-                                            <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                            <svg wire:loading wire:target="buscarPersona('{{ $key }}')" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
                                             </svg>
+                                            Buscar
                                         </button>
-                                    @endforeach
-                                </div>
-                            @endif
+                                    </div>
+                                    @error("{$key}_dni")
+                                        <p class="ml-11 mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                    @enderror
+                                @endif
 
-                            @if ($rolEstado === 'found')
-                                <div class="ml-11 mt-2 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700/50">
-                                    <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">{{ $rolPersona['nombre_completo'] }}</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                        DNI: {{ $rolPersona['dni'] }}
-                                        @if ($rolPersona['telefono'])
-                                            &nbsp;&middot;&nbsp;{{ $rolPersona['telefono'] }}
-                                        @endif
-                                    </p>
-                                </div>
-                            @endif
+                                @if ($rolEstado === 'multiples' && $busqueda_rol === $key)
+                                    <div class="ml-11 space-y-1.5 max-h-48 overflow-y-auto mt-2">
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">{{ count($busqueda_resultados) }} resultados — selecciona uno:</p>
+                                        @foreach ($busqueda_resultados as $res)
+                                            <button type="button"
+                                                    wire:click="seleccionarResultado({{ $res['id'] }})"
+                                                    class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left
+                                                           border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700/40
+                                                           hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:border-indigo-300
+                                                           transition-all group text-sm">
+                                                <span class="font-medium text-gray-900 dark:text-white flex-1 truncate">{{ $res['nombre_completo'] }}</span>
+                                                <span class="text-xs text-gray-400 font-mono shrink-0">{{ $res['dni'] }}</span>
+                                                <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                                </svg>
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                @endif
 
-                            @if ($rolEstado === 'sin_feligres')
-                                <div class="ml-11 mt-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50">
-                                    <p class="text-xs font-medium text-amber-700 dark:text-amber-300">
-                                        <strong>{{ $rolPersona['nombre_completo'] }}</strong> existe pero no está registrada como feligrés.
-                                    </p>
-                                </div>
-                            @endif
+                                @if ($rolEstado === 'found')
+                                    <div class="ml-11 mt-2 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700/50">
+                                        <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">{{ $rolPersona['nombre_completo'] }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                            DNI: {{ $rolPersona['dni'] }}
+                                            @if ($rolPersona['telefono'] ?? null)
+                                                &nbsp;&middot;&nbsp;{{ $rolPersona['telefono'] }}
+                                            @endif
+                                        </p>
+                                    </div>
+                                @endif
 
-                            @if ($rolEstado === 'sin_persona')
-                                <div class="ml-11 mt-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/50">
-                                    <p class="text-xs font-medium text-red-700 dark:text-red-300">No se encontró ninguna persona para "{{ $rolDni }}".</p>
-                                </div>
-                            @endif
-                        </div>
-                    @endforeach
+                                @if ($rolEstado === 'sin_feligres')
+                                    <div class="ml-11 mt-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50">
+                                        <p class="text-xs font-medium text-amber-700 dark:text-amber-300">
+                                            <strong>{{ $rolPersona['nombre_completo'] }}</strong> existe pero no está registrada como feligrés.
+                                        </p>
+                                    </div>
+                                @endif
+
+                                @if ($rolEstado === 'sin_persona')
+                                    <div class="ml-11 mt-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/50 space-y-2">
+                                        <p class="text-xs font-medium text-red-700 dark:text-red-300">No se encontró ninguna persona para "{{ $rolDni }}".</p>
+                                        <div class="flex gap-2">
+                                            <input type="text" wire:model="{{ $key }}_dni" autocomplete="off"
+                                                   class="flex-1 px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600
+                                                          bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                                          focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
+                                            <button type="button" wire:click="buscarPersona('{{ $key }}')"
+                                                    class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg">
+                                                Buscar
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
-
-                @error('bautizado_feligres_id')
-                    <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                @enderror
             </div>
+
+            @error('bautizado_feligres_id')
+                <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+            @enderror
 
             {{-- ── Observaciones ───────────────────────────────────────── --}}
             <div>
@@ -381,13 +429,7 @@
                                  focus:ring-2 focus:ring-indigo-500 focus:border-transparent
                                  @error('observaciones') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror"></textarea>
                 @error('observaciones')
-                    <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        {{ $message }}
-                    </p>
+                    <p class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                 @enderror
                 <p class="mt-1 text-xs text-gray-400 dark:text-gray-500 text-right">
                     {{ strlen($observaciones ?? '') }} / 500
@@ -467,18 +509,10 @@
                                        focus:ring-2 focus:ring-indigo-500 focus:border-transparent
                                        @error('exp_mes') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror">
                             <option value="">Mes</option>
-                            <option value="1">ene</option>
-                            <option value="2">feb</option>
-                            <option value="3">mar</option>
-                            <option value="4">abr</option>
-                            <option value="5">may</option>
-                            <option value="6">jun</option>
-                            <option value="7">jul</option>
-                            <option value="8">ago</option>
-                            <option value="9">sep</option>
-                            <option value="10">oct</option>
-                            <option value="11">nov</option>
-                            <option value="12">dic</option>
+                            <option value="1">ene</option><option value="2">feb</option><option value="3">mar</option>
+                            <option value="4">abr</option><option value="5">may</option><option value="6">jun</option>
+                            <option value="7">jul</option><option value="8">ago</option><option value="9">sep</option>
+                            <option value="10">oct</option><option value="11">nov</option><option value="12">dic</option>
                         </select>
                     </div>
                     <div>
@@ -494,15 +528,9 @@
                     </div>
                 </div>
 
-                @error('exp_dia')
-                    <p class="-mt-3 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                @enderror
-                @error('exp_mes')
-                    <p class="-mt-3 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                @enderror
-                @error('exp_ano')
-                    <p class="-mt-3 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                @enderror
+                @error('exp_dia') <p class="-mt-3 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
+                @error('exp_mes') <p class="-mt-3 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
+                @error('exp_ano') <p class="-mt-3 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
             </div>
 
             {{-- ── Barra de acciones ───────────────────────────────────── --}}

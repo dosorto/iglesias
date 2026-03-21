@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Persona;
 use App\Models\Feligres;
 use App\Models\Iglesias;
+use App\Models\Encargado;
 use App\Models\TenantIglesia;
 use App\Models\PrimeraComunion;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,10 @@ class PrimeraComunionCreate extends Component
     // Fecha (se captura en paso 2)
     public string $fecha_primera_comunion = '';
 
-    // Roles - paso 1
+    // Encargado activo (párroco automático)
+    public ?array $encargado_info = null;
+
+    // Roles - paso 1 (sin párroco manual)
     public string $feligres_dni         = '';
     public ?array $feligres_persona     = null;
     public ?int   $feligres_feligres_id = null;
@@ -37,11 +41,6 @@ class PrimeraComunionCreate extends Component
     public ?array $ministro_persona     = null;
     public ?int   $ministro_feligres_id = null;
     public string $ministro_estado      = 'idle';
-
-    public string $parroco_dni         = '';
-    public ?array $parroco_persona     = null;
-    public ?int   $parroco_feligres_id = null;
-    public string $parroco_estado      = 'idle';
 
     // Búsqueda con resultados múltiples (compartido)
     public array   $busqueda_resultados = [];
@@ -77,6 +76,26 @@ class PrimeraComunionCreate extends Component
 
         if (session('tenant')) {
             $this->iglesia_id = TenantIglesia::currentId();
+        }
+
+        // Cargar encargado activo (párroco automático)
+        $this->cargarEncargado();
+    }
+
+    private function cargarEncargado(): void
+    {
+        $encargado = Encargado::with('feligres.persona')
+            ->where('estado', 'Activo')
+            ->first();
+
+        if ($encargado?->feligres?->persona) {
+            $persona = $encargado->feligres->persona;
+            $this->encargado_info = [
+                'encargado_id'   => $encargado->id,
+                'feligres_id'    => $encargado->feligres->id,
+                'nombre_completo' => $persona->nombre_completo,
+                'dni'            => $persona->dni,
+            ];
         }
     }
 
@@ -115,7 +134,6 @@ class PrimeraComunionCreate extends Component
         }
 
         if (ctype_digit($input)) {
-            // Búsqueda exacta por DNI
             $personas = Persona::where('dni', $input)->get();
         } else {
             if (mb_strlen($input) < 3) {
@@ -145,7 +163,6 @@ class PrimeraComunionCreate extends Component
             return;
         }
 
-        // Múltiples resultados — mostrar lista
         $this->busqueda_resultados = $personas->map(fn ($p) => [
             'id'              => $p->id,
             'dni'             => $p->dni,
@@ -172,15 +189,13 @@ class PrimeraComunionCreate extends Component
 
     private function asignarPersonaARol(string $rol, Persona $persona): void
     {
-        $roles = ['feligres', 'catequista', 'ministro', 'parroco'];
+        $roles = ['feligres', 'catequista', 'ministro'];
         $labels = [
             'feligres'   => 'Comulgante',
             'catequista' => 'Catequista',
             'ministro'   => 'Ministro',
-            'parroco'    => 'Párroco',
         ];
 
-        // Validar que la persona no esté ya en otro rol
         foreach ($roles as $r) {
             if ($r === $rol) continue;
             $existente = $this->{"{$r}_persona"};
@@ -413,13 +428,19 @@ class PrimeraComunionCreate extends Component
             return;
         }
 
+        // Obtener el encargado activo para guardarlo como párroco
+        $encargado = Encargado::with('feligres')
+            ->where('estado', 'Activo')
+            ->first();
+
         PrimeraComunion::create([
             'id_iglesia'             => $this->iglesia_id,
             'fecha_primera_comunion' => $this->fecha_primera_comunion,
             'id_feligres'            => $this->feligres_feligres_id,
             'id_catequista'          => $this->catequista_feligres_id,
             'id_ministro'            => $this->ministro_feligres_id,
-            'id_parroco'             => $this->parroco_feligres_id,
+            'id_parroco'             => $encargado?->feligres?->id,
+            'encargado_id'           => $encargado?->id,
             'libro_comunion'         => $this->libro_comunion ?: null,
             'folio'                  => $this->folio          ?: null,
             'partida_numero'         => $this->partida_numero ?: null,

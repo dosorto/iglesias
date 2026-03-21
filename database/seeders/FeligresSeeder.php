@@ -17,7 +17,7 @@ class FeligresSeeder extends Seeder
             'id_persona'    => 1,
             'id_iglesia'    => 1,
             'fecha_ingreso' => '2020-01-15',
-            'estado'        => 'Activo',
+            
         ]);
 
         
@@ -25,14 +25,14 @@ class FeligresSeeder extends Seeder
             'id_persona'    => 2,
             'id_iglesia'    => 1,
             'fecha_ingreso' => '2020-03-10',
-            'estado'        => 'Activo',
+            
         ]);
 
         Feligres::create([
             'id_persona'    => 3,
             'id_iglesia'    => 1,
             'fecha_ingreso' => '2019-06-22',
-            'estado'        => 'Activo',
+            
         ]);
 
         Feligres::create([
@@ -46,7 +46,7 @@ class FeligresSeeder extends Seeder
             'id_persona'    => 5,
             'id_iglesia'    => 1,
             'fecha_ingreso' => '2018-12-01',
-            'estado'        => 'Inactivo',
+            
         ]);
 
         Feligres::create([
@@ -60,14 +60,14 @@ class FeligresSeeder extends Seeder
             'id_persona'    => 7,
             'id_iglesia'    => 1,
             'fecha_ingreso' => '2017-07-30',
-            'estado'        => 'Suspendido',
+            
         ]);
 
         Feligres::create([
             'id_persona'    => 8,
             'id_iglesia'    => 1,
             'fecha_ingreso' => '2023-04-18',
-            'estado'        => 'Activo',
+            
         ]);
 
 

@@ -7,6 +7,7 @@ use App\Models\Iglesias;
 use App\Models\TenantIglesia;
 use App\Models\Feligres;
 use App\Models\Persona;
+use App\Models\Encargado;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +34,10 @@ class PrimeraComunionEdit extends Component
 
     public $firma_nueva = null;
 
-    // Roles según el create: catequista, ministro, párroco
+    // Encargado activo (párroco automático)
+    public ?array $encargado_info = null;
+
+    // Roles editables: solo catequista y ministro
     public string $catequista_dni         = '';
     public ?array $catequista_persona     = null;
     public ?int   $catequista_feligres_id = null;
@@ -43,11 +47,6 @@ class PrimeraComunionEdit extends Component
     public ?array $ministro_persona     = null;
     public ?int   $ministro_feligres_id = null;
     public string $ministro_estado      = 'idle';
-
-    public string $parroco_dni         = '';
-    public ?array $parroco_persona     = null;
-    public ?int   $parroco_feligres_id = null;
-    public string $parroco_estado      = 'idle';
 
     public array   $busqueda_resultados = [];
     public ?string $busqueda_rol        = null;
@@ -86,10 +85,36 @@ class PrimeraComunionEdit extends Component
 
         $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
 
-        // Cargar roles existentes
-        $this->cargarRolExistente('catequista', $primeraComunion->catequista_id ?? null);
-        $this->cargarRolExistente('ministro',   $primeraComunion->ministro_id   ?? null);
-        $this->cargarRolExistente('parroco',    $primeraComunion->parroco_id    ?? null);
+        // Cargar encargado activo (párroco automático)
+        $this->cargarEncargado();
+
+        // Cargar roles editables existentes
+        $this->cargarRolExistente('catequista', $primeraComunion->id_catequista ?? null);
+        $this->cargarRolExistente('ministro',   $primeraComunion->id_ministro   ?? null);
+    }
+
+    private function cargarEncargado(): void
+    {
+        // Primero intentar el encargado asignado al registro
+        $encargado = null;
+        if ($this->primeraComunion->encargado_id) {
+            $encargado = Encargado::with('feligres.persona')->find($this->primeraComunion->encargado_id);
+        }
+
+        // Si no tiene asignado, tomar el activo del sistema
+        if (! $encargado) {
+            $encargado = Encargado::with('feligres.persona')->where('estado', 'Activo')->first();
+        }
+
+        if ($encargado?->feligres?->persona) {
+            $persona = $encargado->feligres->persona;
+            $this->encargado_info = [
+                'encargado_id'    => $encargado->id,
+                'feligres_id'     => $encargado->feligres->id,
+                'nombre_completo' => $persona->nombre_completo,
+                'dni'             => $persona->dni,
+            ];
+        }
     }
 
     private function cargarRolExistente(string $rol, ?int $feligresId): void
@@ -157,8 +182,8 @@ class PrimeraComunionEdit extends Component
 
     private function asignarPersonaARol(string $rol, Persona $persona): void
     {
-        $roles  = ['catequista', 'ministro', 'parroco'];
-        $labels = ['catequista' => 'Catequista', 'ministro' => 'Ministro', 'parroco' => 'Párroco'];
+        $roles  = ['catequista', 'ministro'];
+        $labels = ['catequista' => 'Catequista', 'ministro' => 'Ministro'];
 
         foreach ($roles as $r) {
             if ($r === $rol) continue;
@@ -322,6 +347,15 @@ class PrimeraComunionEdit extends Component
             } catch (\Exception) {}
         }
 
+        // Resolver encargado activo para actualizar párroco
+        $encargado = null;
+        if ($this->primeraComunion->encargado_id) {
+            $encargado = Encargado::with('feligres')->find($this->primeraComunion->encargado_id);
+        }
+        if (! $encargado) {
+            $encargado = Encargado::with('feligres')->where('estado', 'Activo')->first();
+        }
+
         $this->primeraComunion->update([
             'id_iglesia'             => $this->iglesia_id,
             'fecha_primera_comunion' => $this->fecha_primera_comunion,
@@ -333,9 +367,10 @@ class PrimeraComunionEdit extends Component
             'lugar_celebracion'      => $this->lugar_celebracion    ?: null,
             'lugar_expedicion'       => $this->lugar_expedicion     ?: null,
             'fecha_expedicion'       => $fechaExp,
-            'catequista_id'          => $this->catequista_feligres_id,
-            'ministro_id'            => $this->ministro_feligres_id,
-            'parroco_id'             => $this->parroco_feligres_id,
+            'id_catequista'          => $this->catequista_feligres_id,
+            'id_ministro'            => $this->ministro_feligres_id,
+            'id_parroco'             => $encargado?->feligres?->id,
+            'encargado_id'           => $encargado?->id,
         ]);
 
         session()->flash('success', 'Primera comunión actualizada correctamente.');
