@@ -45,55 +45,14 @@ class CursoSeeder extends Seeder
             [
                 $enc          => 1,
                 $ig           => 1,
-                $tc           => 4,  // Curso Confirmación
+                $tc           => 2,  // Curso Confirmación
                 $ins          => 1,
                 'nombre'      => 'Curso Confirmación – Grupo A',
-                'fecha_inicio'=> '2026-02-03',
-                'fecha_fin'   => '2026-04-15',
-                'estado'      => 'Activo',
+                'fecha_inicio'=> '2026-01-15',
+                'fecha_fin'   => '2026-03-15',
+                'estado'      => 'Finalizado',
                 'created_at'  => now(),
                 'updated_at'  => now(),
             ],
-            [
-                $enc          => 1,
-                $ig           => 1,
-                $tc           => 5,  // Curso Prematrimonial
-                $ins          => 1,
-                'nombre'      => 'Curso Prematrimonial – Grupo A',
-                'fecha_inicio'=> '2026-03-01',
-                'fecha_fin'   => '2026-03-29',
-                'estado'      => 'Activo',
-                'created_at'  => now(),
-                'updated_at'  => now(),
-            ],
-            [
-                $enc          => 1,
-                $ig           => 1,
-                $tc           => 7,  // Catequesis Infantil
-                $ins          => 1,
-                'nombre'      => 'Catequesis Infantil – Ciclo 2026',
-                'fecha_inicio'=> '2026-02-09',
-                'fecha_fin'   => '2026-11-30',
-                'estado'      => 'Activo',
-                'created_at'  => now(),
-                'updated_at'  => now(),
-            ],
-            [
-                $enc          => 1,
-                $ig           => 1,
-                $tc           => 1,  // Curso Bautismo
-                $ins          => 1,
-                'nombre'      => 'Curso Bautismo – Grupo B',
-                'fecha_inicio'=> '2026-04-01',
-                'fecha_fin'   => '2026-04-18',
-                'estado'      => 'Pendiente',
-                'created_at'  => now(),
-                'updated_at'  => now(),
-            ],
-        ];
-
-        DB::table('cursos')->insert($cursos);
-    }
 }
-
 */
