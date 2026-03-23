@@ -22,6 +22,10 @@
 
             {{-- Contenido principal --}}
             <div class="flex-1">
+                @php
+                    $isInstructorOnly = auth()->user()?->hasRole('instructor')
+                        && ! auth()->user()?->hasAnyRole(['root', 'admin']);
+                @endphp
 
                 {{-- Sección Principal --}}
                 @if(!$isCollapsed)
@@ -90,7 +94,7 @@
                     @endcan
 
                     {{-- Instructores --}}
-                    @can('instructor.view')
+                    @if(auth()->user()?->can('instructor.view') && ! $isInstructorOnly)
                         <li>
                             <a href="{{ route('instructor.index') }}"
                             class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
@@ -106,7 +110,7 @@
                                 @endif
                             </a>
                         </li>
-                    @endcan
+                    @endif
 
                     {{-- Sacramentos --}}
                     @canany(['bautismo.view', 'matrimonio.view', 'confirmacion.view', 'primera-comunion.view'])
