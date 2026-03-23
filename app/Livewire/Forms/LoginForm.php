@@ -47,6 +47,8 @@ class LoginForm extends Form
 
         $iglesias = Iglesias::whereNotNull('db_database')->get();
 
+        $tenantMatches = [];
+
         foreach ($iglesias as $iglesia) {
             $tenantConfig = array_merge($baseConfig, [
                 'host'     => $iglesia->db_host     ?? $baseConfig['host'],
@@ -67,33 +69,59 @@ class LoginForm extends Form
                 ->first();
 
             if ($tenantUser && Hash::check($this->password, $tenantUser->password)) {
-                // Found — configure the real tenant connection for this request
-                $tenantConnection = config('tenancy.tenant_connection', 'tenant');
+                $tenantMatches[] = [
+                    'iglesia'      => $iglesia,
+                    'tenantConfig' => $tenantConfig,
+                ];
+            }
+        }
 
-                config([
-                    "database.connections.{$tenantConnection}" => $tenantConfig,
-                    'database.default'                          => $tenantConnection,
+        // If credentials match multiple tenants (e.g. root@tenant.local), avoid logging into a random DB.
+        if (count($tenantMatches) > 1) {
+            $sessionTenantId = session('tenant.id_iglesia');
+
+            if ($sessionTenantId) {
+                $tenantMatches = array_values(array_filter(
+                    $tenantMatches,
+                    fn (array $match) => (int) $match['iglesia']->id === (int) $sessionTenantId
+                ));
+            }
+
+            if (count($tenantMatches) !== 1) {
+                RateLimiter::hit($this->throttleKey());
+
+                throw ValidationException::withMessages([
+                    'form.email' => 'Estas credenciales existen en varios tenants. Usa una contraseña distinta para este tenant o restablécela desde su propia base.',
                 ]);
-                DB::purge($tenantConnection);
-                DB::reconnect($tenantConnection);
+            }
+        }
 
-                // Store tenant data in session so future requests use the right DB
-                session()->put('tenant', [
-                    'id_iglesia' => $iglesia->id,
-                    'connection' => $tenantConnection,
-                    'host'       => $iglesia->db_host,
-                    'port'       => $iglesia->db_port,
-                    'database'   => $iglesia->db_database,
-                    'username'   => $iglesia->db_username,
-                    'password'   => $iglesia->db_password,
-                ]);
+        if (count($tenantMatches) === 1) {
+            $matchedIglesia = $tenantMatches[0]['iglesia'];
+            $matchedConfig = $tenantMatches[0]['tenantConfig'];
+            $tenantConnection = config('tenancy.tenant_connection', 'tenant');
 
-                // Authenticate against the tenant DB
-                if (Auth::attempt($this->only(['email', 'password']), $this->remember)) {
-                    $this->hideTemporaryPasswordAfterInstructorLogin();
-                    RateLimiter::clear($this->throttleKey());
-                    return;
-                }
+            config([
+                "database.connections.{$tenantConnection}" => $matchedConfig,
+                'database.default'                          => $tenantConnection,
+            ]);
+            DB::purge($tenantConnection);
+            DB::reconnect($tenantConnection);
+
+            session()->put('tenant', [
+                'id_iglesia' => $matchedIglesia->id,
+                'connection' => $tenantConnection,
+                'host'       => $matchedIglesia->db_host,
+                'port'       => $matchedIglesia->db_port,
+                'database'   => $matchedIglesia->db_database,
+                'username'   => $matchedIglesia->db_username,
+                'password'   => $matchedIglesia->db_password,
+            ]);
+
+            if (Auth::attempt($this->only(['email', 'password']), $this->remember)) {
+                $this->hideTemporaryPasswordAfterInstructorLogin();
+                RateLimiter::clear($this->throttleKey());
+                return;
             }
         }
 
