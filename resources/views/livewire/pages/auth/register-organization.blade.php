@@ -125,7 +125,7 @@ new #[Layout('layouts.guest')] class extends Component
             $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
 
             $user = User::create([
-                'id_iglesia'        => $iglesia->id,
+                'id_iglesia'        => $iglesiaTenantId,
                 'name'              => $validated['name'],
                 'email'             => strtolower($validated['email']),
                 'email_verified_at' => now(),

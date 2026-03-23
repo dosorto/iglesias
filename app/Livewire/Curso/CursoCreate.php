@@ -9,6 +9,7 @@ use App\Models\TipoCurso;
 use App\Models\Instructor;
 use App\Models\Persona;
 use App\Models\Feligres;
+use App\Models\TenantIglesia;
 use Illuminate\Support\Facades\Auth;
 
 class CursoCreate extends Component
@@ -60,11 +61,13 @@ class CursoCreate extends Component
 
     public function mount(): void
     {
+        $this->iglesia_id = TenantIglesia::currentId();
+
         $encargado = Encargado::with('feligres')->first();
 
         if ($encargado) {
             $this->encargado_id = $encargado->id;
-            $this->iglesia_id = $encargado->feligres?->id_iglesia;
+            $this->iglesia_id = $encargado->feligres?->id_iglesia ?: $this->iglesia_id;
         }
     }
 
@@ -495,6 +498,7 @@ class CursoCreate extends Component
             'fecha_inicio' => ['required', 'date'],
             'fecha_fin' => ['nullable', 'date', 'after_or_equal:fecha_inicio'],
             'estado' => ['required', 'in:Activo,Finalizado,Cancelado'],
+            'iglesia_id' => ['required', 'exists:iglesias,id'],
             'encargado_id' => ['required', 'exists:encargado,id'],
             'tipo_curso_id' => ['required', 'exists:tipos_curso,id'],
             'instructor_id' => ['required', 'exists:instructores,id'],
@@ -512,6 +516,9 @@ class CursoCreate extends Component
             'estado.required' => 'El estado es obligatorio.',
             'estado.in' => 'El estado seleccionado no es válido.',
 
+            'iglesia_id.required' => 'No se pudo determinar la iglesia del curso.',
+            'iglesia_id.exists' => 'La iglesia seleccionada no existe.',
+
             'encargado_id.required' => 'Debe existir un encargado para registrar el curso.',
             'encargado_id.exists' => 'El encargado seleccionado no existe.',
 
@@ -527,6 +534,7 @@ class CursoCreate extends Component
             'fecha_inicio' => $this->fecha_inicio,
             'fecha_fin' => $this->fecha_fin,
             'estado' => $this->estado,
+            'iglesia_id' => $this->iglesia_id,
             'encargado_id' => $this->encargado_id,
             'tipo_curso_id' => $this->tipo_curso_id,
             'instructor_id' => $this->instructor_id,

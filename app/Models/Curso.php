@@ -12,6 +12,7 @@ class Curso extends BaseModel
     protected $table = 'cursos';
 
     protected $fillable = [
+        'iglesia_id',
         'encargado_id',
         'tipo_curso_id',
         'instructor_id',
