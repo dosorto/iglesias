@@ -19,6 +19,7 @@ return new class extends Migration {
     $table->date('fecha_inicio')->nullable();
     $table->date('fecha_fin')->nullable();
     $table->string('estado', 20)->default('Activo'); // Activo, Finalizado, Cancelado
+    $table->foreignId('iglesia_id')->nullable()->constrained('iglesias')->nullOnDelete();
 
     $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
     $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
