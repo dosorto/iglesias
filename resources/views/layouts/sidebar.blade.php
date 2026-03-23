@@ -10,7 +10,7 @@
             <svg class="w-8 h-8 text-blue-600 dark:text-blue-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
             </svg>
-            <span class="text-xl font-bold text-gray-900 dark:text-white">DAO Admin</span>
+            <span class="text-xl font-bold text-gray-900 dark:text-white"> Admin</span>
         </div>
 
         <ul class="space-y-2 font-medium">
@@ -59,7 +59,15 @@
             @endcan
 
             {{-- ── Membresía ─────────────────────────────────── --}}
-            @canany(['personas.view','feligres.view','encargado.view','instructor.view'])
+            @php
+                $isInstructorOnly = auth()->user()?->can('instructor.view')
+                    && ! auth()->user()?->can('users.view')
+                    && ! auth()->user()?->can('roles.view');
+
+                $showInstructorMenu = auth()->user()?->can('instructor.view')
+                    && ! $isInstructorOnly;
+            @endphp
+            @if(auth()->user()?->canAny(['personas.view','feligres.view','encargado.view']) || $showInstructorMenu)
                 <li class="pt-3">
                     <p class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">
                         Membresía
@@ -102,7 +110,7 @@
                     </li>
                 @endcan
 
-                @can('instructor.view')
+                @if($showInstructorMenu)
                     <li>
                         <a href="{{ route('instructor.index') }}"
                            class="flex items-center p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group">
@@ -112,8 +120,8 @@
                             <span class="ml-3">Instructores</span>
                         </a>
                     </li>
-                @endcan
-            @endcanany
+                @endif
+            @endif
 
             {{-- ── Actos Parroquiales ────────────────────────── --}}
             @canany(['bautismo.view','confirmacion.view','curso.view','matrimonio.view','primera-comunion.view'])
