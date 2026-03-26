@@ -5,7 +5,6 @@ namespace App\Livewire\Curso;
 use Livewire\Component;
 use App\Models\Curso;
 use App\Models\Instructor;
-use App\Models\InscripcionCurso;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,8 +13,11 @@ class CursoShow extends Component
     public Curso $curso;
     public bool $isInstructorView = false;
 
-    public bool $showDeleteModal = false;
-    public ?int $inscripcionIdAEliminar = null;
+    public ?int $inscripcionSeleccionadaId = null;
+
+    protected $listeners = [
+        'matriculadoEliminado' => 'recargarCurso',
+    ];
 
     public function mount(Curso $curso): void
     {
@@ -30,25 +32,24 @@ class CursoShow extends Component
         ]);
     }
 
-    public function confirmarQuitarMatriculado(int $inscripcionId): void
+    public function verMatriculado(int $inscripcionId): void
     {
-        $this->inscripcionIdAEliminar = $inscripcionId;
-        $this->showDeleteModal = true;
+        $existe = $this->curso->inscripcionesCurso->contains('id', $inscripcionId);
+
+        if (! $existe) {
+            return;
+        }
+
+        $this->inscripcionSeleccionadaId = $inscripcionId;
     }
 
-    public function cancelarQuitarMatriculado(): void
+    public function cerrarDetalleMatriculado(): void
     {
-        $this->showDeleteModal = false;
-        $this->inscripcionIdAEliminar = null;
+        $this->inscripcionSeleccionadaId = null;
     }
 
-    public function quitarMatriculado(int $inscripcionId): void
+    public function recargarCurso(): void
     {
-        $inscripcion = InscripcionCurso::where('curso_id', $this->curso->id)
-            ->findOrFail($inscripcionId);
-
-        $inscripcion->delete();
-
         $this->curso->load([
             'tipoCurso',
             'instructor.feligres.persona',
@@ -57,17 +58,9 @@ class CursoShow extends Component
             'inscripcionesCurso.feligres.persona',
         ]);
 
+        $this->inscripcionSeleccionadaId = null;
+
         session()->flash('success', 'Matriculado quitado correctamente.');
-    }
-
-    public function quitarMatriculadoConfirmado(): void
-    {
-        if (! $this->inscripcionIdAEliminar) {
-            return;
-        }
-
-        $this->quitarMatriculado($this->inscripcionIdAEliminar);
-        $this->cancelarQuitarMatriculado();
     }
 
     public function render()

@@ -132,12 +132,6 @@
                                         <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                             Fecha inscripción
                                         </th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                            Aprobado
-                                        </th>
-                                        <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                            Certificado
-                                        </th>
                                         <th class="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                             Acciones
                                         </th>
@@ -159,49 +153,56 @@
                                                 {{ optional($inscripcion->fecha_inscripcion)->format('d/m/Y') ?? 'N/A' }}
                                             </td>
 
-                                            <td class="px-4 py-3 text-sm">
-                                                @if($inscripcion->aprobado)
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
-                                                        Sí
-                                                    </span>
-                                                @else
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                                                        No
-                                                    </span>
-                                                @endif
-                                            </td>
-
-                                            <td class="px-4 py-3 text-sm">
-                                                @if($inscripcion->certificado_emitido)
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                                        Emitido
-                                                    </span>
-                                                @else
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                                                        No
-                                                    </span>
-                                                @endif
-                                            </td>
-
                                             <td class="px-4 py-3 text-sm text-right">
                                                 <div class="flex justify-end gap-2">
-                                                    @can('inscripcion-curso.edit')
-                                                        <a href="{{ route('inscripcion-curso.edit', $inscripcion) }}"
-                                                           class="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
-                                                            Editar
-                                                        </a>
-                                                    @endcan
-
-                                                    @can('inscripcion-curso.delete')
+                                                    @if($inscripcionSeleccionadaId === $inscripcion->id)
                                                         <button type="button"
-                                                                wire:click="confirmarQuitarMatriculado({{ $inscripcion->id }})"
-                                                                class="px-3 py-1.5 text-xs font-medium rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors">
-                                                            Quitar
+                                                                wire:click="cerrarDetalleMatriculado"
+                                                                class="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition-colors">
+                                                            Ocultar
                                                         </button>
-                                                    @endcan
+                                                    @else
+                                                        <button type="button"
+                                                                wire:click="verMatriculado({{ $inscripcion->id }})"
+                                                                class="px-3 py-1.5 text-xs font-medium rounded-lg bg-sky-600 text-white hover:bg-sky-700 transition-colors">
+                                                            Show
+                                                        </button>
+                                                    @endif
                                                 </div>
                                             </td>
                                         </tr>
+
+                                        @if($inscripcionSeleccionadaId === $inscripcion->id)
+                                            <tr class="bg-sky-50/40 dark:bg-sky-900/10">
+                                                <td colspan="4" class="px-4 py-4">
+                                                    <div class="rounded-xl border border-sky-200 dark:border-sky-800 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
+                                                        <div class="px-4 py-3 border-b border-sky-100 dark:border-sky-800 bg-sky-50 dark:bg-sky-900/20 flex items-center justify-between">
+                                                            <div>
+                                                                <h3 class="text-sm font-bold text-sky-900 dark:text-sky-200 uppercase tracking-wider">
+                                                                    Detalle del matriculado
+                                                                </h3>
+                                                                <p class="text-xs text-sky-700 dark:text-sky-300 mt-1">
+                                                                    {{ $inscripcion->feligres?->persona?->nombre_completo ?? 'N/A' }}
+                                                                </p>
+                                                            </div>
+
+                                                            <button type="button"
+                                                                    wire:click="cerrarDetalleMatriculado"
+                                                                    class="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                                                Cerrar
+                                                            </button>
+                                                        </div>
+
+                                                        <div class="p-4">
+                                                            <livewire:curso.matriculado-curso-show
+                                                                :inscripcionId="$inscripcion->id"
+                                                                :key="'matriculado-inline-'.$inscripcion->id"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endif
                                     @endforeach
                                 </tbody>
                             </table>
@@ -213,6 +214,8 @@
                     @endif
                 </div>
             </div>
+
+            
 
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
@@ -318,35 +321,4 @@
             </div>
         </div>
     </div>
-        @if($showDeleteModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-            <div class="w-full max-w-md rounded-xl bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700">
-                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">
-                        Confirmar eliminación
-                    </h3>
-                </div>
-
-                <div class="px-6 py-5">
-                    <p class="text-sm text-gray-600 dark:text-gray-300">
-                        ¿Seguro que deseas quitar este matriculado del curso?
-                    </p>
-                </div>
-
-                <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                    <button type="button"
-                            wire:click="cancelarQuitarMatriculado"
-                            class="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-medium">
-                        Cancelar
-                    </button>
-
-                    <button type="button"
-                            wire:click="quitarMatriculadoConfirmado"
-                            class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium">
-                        Sí, quitar
-                    </button>
-                </div>
-            </div>
-        </div>
-    @endif
 </div>

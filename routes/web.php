@@ -437,6 +437,9 @@ Route::middleware(['auth'])->group(function () {
         ->name('confirmacion.certificado.pdf');
 
 
+    Route::middleware('permission:inscripcion-curso.view')
+        ->get('/inscripcion-curso/{inscripcion}/certificado/pdf', [\App\Http\Controllers\InscripcionCursoController::class, 'certificadoPdf'])
+        ->name('inscripcion-curso.certificado.pdf');
 });
 
 require __DIR__.'/auth.php';
