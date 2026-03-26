@@ -20,9 +20,6 @@ class InscripcionCursoCreate extends Component
 
     // PASO 2
     public $fecha_inscripcion = null;
-    public $aprobado = 0;
-    public $certificado_emitido = 0;
-    public $fecha_certificado = null;
     public $dniBusqueda = '';
     public ?string $nombreInstructor = null;
 
@@ -119,9 +116,9 @@ class InscripcionCursoCreate extends Component
 
                 $existe->update([
                     'fecha_inscripcion' => $this->fecha_inscripcion,
-                    'aprobado' => $this->aprobado,
-                    'certificado_emitido' => $this->certificado_emitido,
-                    'fecha_certificado' => $this->fecha_certificado,
+                    'aprobado' => 0,
+                    'certificado_emitido' => 0,
+                    'fecha_certificado' => null,
                     'updated_by' => Auth::id(),
                     'deleted_by' => null,
                 ]);
@@ -138,9 +135,9 @@ class InscripcionCursoCreate extends Component
             'curso_id' => $this->curso_id,
             'feligres_id' => $this->feligres_id,
             'fecha_inscripcion' => $this->fecha_inscripcion,
-            'aprobado' => $this->aprobado,
-            'certificado_emitido' => $this->certificado_emitido,
-            'fecha_certificado' => $this->fecha_certificado,
+            'aprobado' => 0,
+            'certificado_emitido' => 0,
+            'fecha_certificado' => null,
             'created_by' => Auth::id(),
         ]);
 

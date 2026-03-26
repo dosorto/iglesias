@@ -34,6 +34,21 @@ class InscripcionCursoController extends Controller
             ->with('success','Inscripción eliminada correctamente.');
     }
 
+    public function certificadoPdf(\App\Models\InscripcionCurso $inscripcion)
+    {
+        $inscripcion->load([
+            'curso.instructor.feligres.persona',
+            'curso.encargado.feligres.persona',
+            'feligres.persona',
+        ]);
+
+        if (! $inscripcion->aprobado) {
+            abort(403, 'La inscripción no está aprobada.');
+        }
+
+        return view('certificados.curso-pdf', compact('inscripcion'));
+    }
+
     public function createFromInstructor(\App\Models\Instructor $instructor)
     {
         return view('instructor.inscripcion-create', [

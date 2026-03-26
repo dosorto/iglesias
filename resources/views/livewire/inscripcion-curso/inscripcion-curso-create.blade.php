@@ -56,12 +56,10 @@
                class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg
                       bg-white/15 hover:bg-white/25 border border-white/20
                       text-white text-sm font-medium transition-all duration-150">
-
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
-
                 Volver
             </a>
         </div>
@@ -153,7 +151,6 @@
                                   d="M21 21l-6-6m2-5a7 7 0 11-14 0
                                      7 7 0 0114 0z"/>
                         </svg>
-
                         Buscar
                     </button>
                 </div>
@@ -204,6 +201,10 @@
                         @endforeach
                     </select>
                 @endif
+
+                @error('curso_id')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <div>
@@ -228,49 +229,38 @@
                        wire:model="fecha_inscripcion"
                        class="w-full mt-1 border-gray-300 dark:border-gray-600 rounded-lg
                               bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
+
+                @error('fecha_inscripcion')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <div>
                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Aprobado
+                    Estado inicial
                 </label>
 
-                <select wire:model="aprobado"
-                        class="w-full mt-1 border-gray-300 dark:border-gray-600 rounded-lg
-                               bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
-                    <option value="">Seleccionar</option>
-                    <option value="1">Sí</option>
-                    <option value="0">No</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Certificado emitido
-                </label>
-
-                <select wire:model="certificado_emitido"
-                        class="w-full mt-1 border-gray-300 dark:border-gray-600 rounded-lg
-                               bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
-                    <option value="0">No</option>
-                    <option value="1">Sí</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Fecha certificado
-                </label>
-
-                <input type="date"
-                       wire:model="fecha_certificado"
-                       class="w-full mt-1 border-gray-300 dark:border-gray-600 rounded-lg
-                              bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
+                <div class="mt-1 rounded-lg border border-dashed border-gray-300 dark:border-gray-600
+                            bg-gray-50 dark:bg-gray-700/50 px-4 py-3">
+                    <p class="text-sm text-gray-700 dark:text-gray-200">
+                        La inscripción se guardará automáticamente como:
+                    </p>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                            Aprobado: No
+                        </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                            Certificado: No
+                        </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                            Fecha certificado: N/A
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="flex items-center justify-between mt-8 pt-5 border-t border-gray-100 dark:border-gray-700/50 px-6 pb-6">
-
             <a href="{{ $vieneDeCurso ? route('curso.show', $curso_id) : route('inscripcion-curso.index') }}"
                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium
                       bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
@@ -288,7 +278,5 @@
                 Guardar Inscripción
             </button>
         </div>
-
     </div>
-
 </div>
