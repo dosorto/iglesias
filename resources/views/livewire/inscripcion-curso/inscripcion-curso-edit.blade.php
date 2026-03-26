@@ -167,7 +167,9 @@
             <a href="{{ route('curso.show', $inscripcion->curso_id) }}"
                class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg">
                 Cancelar
-            </a>
+            </a>     
+
+              
 
             <button wire:click="update"
                     wire:loading.attr="disabled"
