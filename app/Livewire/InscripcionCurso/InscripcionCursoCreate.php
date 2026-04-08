@@ -6,7 +6,6 @@ use Livewire\Component;
 use App\Models\InscripcionCurso;
 use App\Models\Curso;
 use App\Models\Feligres;
-use App\Models\Instructor;
 use Illuminate\Support\Facades\Auth;
 
 class InscripcionCursoCreate extends Component
@@ -20,7 +19,8 @@ class InscripcionCursoCreate extends Component
 
     // PASO 2
     public $fecha_inscripcion = null;
-    public $dniBusqueda = '';
+    public string $nombreBusqueda = '';
+    public array $resultadosBusqueda = [];
     public ?string $nombreInstructor = null;
 
     public function mount(): void
@@ -147,35 +147,73 @@ class InscripcionCursoCreate extends Component
 
     public function buscarPersona(): void
     {
-        if (! $this->dniBusqueda) {
-            session()->flash('error', 'Ingresa un DNI para buscar');
+        $termino = trim($this->nombreBusqueda);
+
+        $this->resultadosBusqueda = [];
+        $this->feligres_id = null;
+        $this->personaSeleccionada = null;
+
+        if ($termino === '') {
+            session()->flash('error', 'Ingresa un nombre para buscar.');
             return;
         }
 
-        $feligres = Feligres::with('persona')
-            ->whereHas('persona', function ($q) {
-                $q->where('dni', $this->dniBusqueda);
+        $feligreses = Feligres::with('persona')
+            ->whereDoesntHave('instructor')
+            ->whereHas('persona', function ($q) use ($termino) {
+                $q->whereRaw(
+                    "CONCAT_WS(' ', primer_nombre, segundo_nombre, primer_apellido, segundo_apellido) LIKE ?",
+                    ['%' . $termino . '%']
+                );
             })
-            ->first();
+            ->limit(10)
+            ->get();
+
+        if ($feligreses->isEmpty()) {
+            session()->flash('error', 'No se encontraron personas con ese nombre.');
+            return;
+        }
+
+        if ($feligreses->count() === 1) {
+            $this->seleccionarPersona($feligreses->first()->id);
+            return;
+        }
+
+        $this->resultadosBusqueda = $feligreses->map(function ($feligres) {
+            return [
+                'id' => $feligres->id,
+                'nombre' => $feligres->persona->nombre_completo ?? 'N/A',
+                'dni' => $feligres->persona->dni ?? 'N/A',
+            ];
+        })->toArray();
+    }
+
+    public function seleccionarPersona(int $feligresId): void
+    {
+        $feligres = Feligres::with('persona')->find($feligresId);
 
         if (! $feligres) {
-            session()->flash('error', 'No se encontró persona con ese DNI');
-            return;
-        }
-
-        $esInstructor = Instructor::where('feligres_id', $feligres->id)->exists();
-
-        if ($esInstructor) {
-            session()->flash('error', 'Esta persona es un instructor y no puede inscribirse como estudiante.');
+            session()->flash('error', 'No se pudo seleccionar la persona.');
             return;
         }
 
         $this->feligres_id = $feligres->id;
 
         $this->personaSeleccionada = [
-            'nombre' => $feligres->persona->nombre_completo,
-            'dni' => $feligres->persona->dni,
+            'nombre' => $feligres->persona->nombre_completo ?? '',
+            'dni' => $feligres->persona->dni ?? '',
         ];
+
+        $this->resultadosBusqueda = [];
+        $this->nombreBusqueda = $feligres->persona->nombre_completo ?? '';
+    }
+
+    public function limpiarPersonaSeleccionada(): void
+    {
+        $this->feligres_id = null;
+        $this->personaSeleccionada = null;
+        $this->nombreBusqueda = '';
+        $this->resultadosBusqueda = [];
     }
 
     public function render()
