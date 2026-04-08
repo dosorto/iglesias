@@ -13,6 +13,8 @@ use Illuminate\Validation\Rule;
 
 class ConfirmacionEdit extends Component
 {
+    private const LUGAR_CONFIRMACION_FIJO = 'Monjaras, Marcovia, Choluteca, Honduras, C.A.';
+
     public Confirmacion $confirmacion;
 
     // Campos principales
@@ -85,13 +87,14 @@ class ConfirmacionEdit extends Component
             ? TenantIglesia::currentId()
             : $confirmacion->iglesia_id;
         $this->fecha_confirmacion = $confirmacion->fecha_confirmacion?->format('Y-m-d') ?? '';
-        $this->lugar_confirmacion = $confirmacion->lugar_confirmacion ?? '';
+        $this->lugar_confirmacion = self::LUGAR_CONFIRMACION_FIJO;
         $this->libro_confirmacion = $confirmacion->libro_confirmacion ?? '';
         $this->folio              = $confirmacion->folio ?? '';
         $this->partida_numero     = $confirmacion->partida_numero ?? '';
         $this->observaciones      = $confirmacion->observaciones ?? '';
         $this->nota_marginal      = $confirmacion->nota_marginal  ?? '';
         $this->lugar_expedicion   = $confirmacion->lugar_expedicion ?? '';
+        $this->aplicarLugarExpedicionPorDefecto();
 
         $fe = $confirmacion->fecha_expedicion;
         $this->exp_dia = $fe ? (string) $fe->day   : '';
@@ -106,6 +109,22 @@ class ConfirmacionEdit extends Component
         $this->cargarRolExistente('madre',    $confirmacion->madre_id);
         $this->cargarRolExistente('padrino',  $confirmacion->padrino_id);
         $this->cargarRolExistente('madrina',  $confirmacion->madrina_id);
+    }
+
+    private function aplicarLugarExpedicionPorDefecto(): void
+    {
+        if (trim($this->lugar_expedicion) !== '') {
+            return;
+        }
+
+        $direccion = trim((string) ($this->confirmacion->iglesia?->direccion ?? ''));
+        if ($direccion === '' && session('tenant')) {
+            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        }
+
+        if ($direccion !== '') {
+            $this->lugar_expedicion = $direccion;
+        }
     }
 
     private function cargarRolExistente(string $rol, ?int $feligresId): void
@@ -296,14 +315,14 @@ class ConfirmacionEdit extends Component
     public function guardarMiniPersona(): void
     {
         $this->validate([
-            'mini_p_dni'              => ['required', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
+            'mini_p_dni'              => ['nullable', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
             'mini_p_primer_nombre'    => ['required', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_primer_apellido'  => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_nombre'   => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_apellido' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_fecha_nacimiento' => ['required', 'date', 'before:today'],
             'mini_p_sexo'             => ['required', 'in:M,F'],
-            'mini_p_telefono'         => ['required', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
+            'mini_p_telefono'         => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
             'mini_p_email'            => ['nullable', 'email', 'max:255'],
             'mini_f_fecha_ingreso'    => ['nullable', 'date'],
             'mini_f_estado'           => ['required', 'in:Activo,Inactivo'],
@@ -317,7 +336,7 @@ class ConfirmacionEdit extends Component
                 : $this->iglesia_id;
 
             $persona = Persona::create([
-                'dni'              => $this->mini_p_dni,
+                'dni'              => $this->mini_p_dni ?: null,
                 'primer_nombre'    => $this->mini_p_primer_nombre,
                 'segundo_nombre'   => $this->mini_p_segundo_nombre  ?: null,
                 'primer_apellido'  => $this->mini_p_primer_apellido,
@@ -406,6 +425,8 @@ class ConfirmacionEdit extends Component
         $this->iglesia_id = session('tenant')
             ? TenantIglesia::currentId()
             : $this->confirmacion->iglesia_id;
+
+        $this->lugar_confirmacion = self::LUGAR_CONFIRMACION_FIJO;
 
         $this->validate();
 

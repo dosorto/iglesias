@@ -54,7 +54,7 @@
                                class="block w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md
                                       focus:ring-2 focus:ring-rose-500 focus:border-transparent
                                       dark:bg-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-                               placeholder="Buscar por esposo/esposa, DNI o iglesia…">
+                               placeholder="Buscar por esposo/esposa, DNI o parroquia…">
                     </div>
                     <select wire:model.live="perPage"
                             class="block px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md
@@ -75,7 +75,7 @@
                     <tr>
                         <th class="px-6 py-3 text-left"><span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Esposo</span></th>
                         <th class="px-6 py-3 text-left"><span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Esposa</span></th>
-                        <th class="px-6 py-3 text-left"><span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Iglesia</span></th>
+                        <th class="px-6 py-3 text-left"><span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Parroquia</span></th>
                         <th class="px-6 py-3 text-left"><span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fecha</span></th>
                         <th class="px-6 py-3 text-left"><span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Encargado</span></th>
                         <th class="px-6 py-3 text-left"><span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Libro / Partida</span></th>
@@ -114,7 +114,7 @@
                                 </div>
                             </td>
 
-                            {{-- Iglesia --}}
+                            {{-- Parroquia --}}
                             <td class="px-6 py-4">
                                 <span class="text-sm text-gray-700 dark:text-gray-300">{{ $m->iglesia?->nombre ?? '—' }}</span>
                             </td>

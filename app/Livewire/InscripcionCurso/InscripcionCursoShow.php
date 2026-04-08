@@ -13,7 +13,8 @@ class InscripcionCursoShow extends Component
     public function mount(InscripcionCurso $inscripcion)
     {
         $this->inscripcion = $inscripcion->load([
-            'curso',
+            'curso.instructor.feligres.persona',
+            'curso.instructors.feligres.persona',
             'feligres.persona'
         ]);
     }

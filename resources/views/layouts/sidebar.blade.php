@@ -170,7 +170,7 @@
                             <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                             </svg>
-                            <span class="ml-3">Iglesias</span>
+                            <span class="ml-3">Parroquias</span>
                         </a>
                     </li>
                 @endcan
@@ -194,7 +194,7 @@
         <!-- Footer -->
         <div class="absolute bottom-4 left-3 right-3">
             <div class="p-3 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                <p class="text-xs text-gray-600 dark:text-gray-400 text-center">Sistema de Gestión Iglesia</p>
+                <p class="text-xs text-gray-600 dark:text-gray-400 text-center">Sistema de Gestión Parroquial</p>
             </div>
         </div>
     </div>

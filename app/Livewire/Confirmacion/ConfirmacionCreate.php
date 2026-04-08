@@ -13,6 +13,8 @@ use Illuminate\Validation\Rule;
 
 class ConfirmacionCreate extends Component
 {
+    private const LUGAR_CONFIRMACION_FIJO = 'Monjaras, Marcovia, Choluteca, Honduras, C.A.';
+
     // Wizard
     public int $paso = 1;
 
@@ -78,10 +80,12 @@ class ConfirmacionCreate extends Component
     public string $folio              = '';
     public string $partida_numero     = '';
     public string $observaciones      = '';
+    public string $nota_marginal      = '';
 
     public function mount(): void
     {
         $this->fecha_confirmacion   = now()->format('Y-m-d');
+        $this->lugar_confirmacion   = self::LUGAR_CONFIRMACION_FIJO;
         $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
         $this->iglesia_id           = TenantIglesia::currentId();
     }
@@ -313,14 +317,14 @@ class ConfirmacionCreate extends Component
     public function guardarMiniPersona(): void
     {
         $this->validate([
-            'mini_p_dni'              => ['required', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
+            'mini_p_dni'              => ['nullable', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
             'mini_p_primer_nombre'    => ['required', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_primer_apellido'  => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_nombre'   => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_apellido' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_fecha_nacimiento' => ['required', 'date', 'before:today'],
             'mini_p_sexo'             => ['required', 'in:M,F'],
-            'mini_p_telefono'         => ['required', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
+            'mini_p_telefono'         => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
             'mini_p_email'            => ['nullable', 'email', 'max:255'],
             'mini_f_fecha_ingreso'    => ['nullable', 'date'],
             'mini_f_estado'           => ['required', 'in:Activo,Inactivo'],
@@ -347,7 +351,7 @@ class ConfirmacionCreate extends Component
             }
 
             $persona = Persona::create([
-                'dni'              => $this->mini_p_dni,
+                'dni'              => $this->mini_p_dni ?: null,
                 'primer_nombre'    => $this->mini_p_primer_nombre,
                 'segundo_nombre'   => $this->mini_p_segundo_nombre  ?: null,
                 'primer_apellido'  => $this->mini_p_primer_apellido,
@@ -399,6 +403,8 @@ class ConfirmacionCreate extends Component
         if (session('tenant')) {
             $this->iglesia_id = TenantIglesia::currentId();
         }
+
+        $this->lugar_confirmacion = self::LUGAR_CONFIRMACION_FIJO;
 
         $rol     = $this->mini_rol;
         $persona = $this->{"{$rol}_persona"};
@@ -452,6 +458,7 @@ class ConfirmacionCreate extends Component
             'folio'               => $this->folio              ?: null,
             'partida_numero'      => $this->partida_numero     ?: null,
             'observaciones'       => $this->observaciones      ?: null,
+            'nota_marginal'       => $this->nota_marginal      ?: null,
         ]);
 
         session()->flash('success', 'Confirmación registrada correctamente.');

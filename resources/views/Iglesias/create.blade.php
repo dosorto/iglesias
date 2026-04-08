@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Nueva Iglesia')
+@section('title', 'Nueva Parroquia')
 
 @section('content')
 <div class="container-fluid max-w-4xl">
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Registrar Nueva Iglesia</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Registrar Nueva Parroquia</h1>
     </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
@@ -17,7 +17,7 @@
                 {{-- Nombre --}}
                 <div class="md:col-span-2">
                     <label for="nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Nombre de la Iglesia <span class="text-red-500">*</span>
+                        Nombre de la Parroquia <span class="text-red-500">*</span>
                     </label>
                     <input type="text" name="nombre" id="nombre" value="{{ old('nombre') }}" required
                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('nombre') border-red-500 @enderror"
@@ -120,7 +120,7 @@
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    Guardar Iglesia
+                    Guardar Parroquia
                 </button>
             </div>
         </form>

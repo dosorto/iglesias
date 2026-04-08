@@ -53,6 +53,7 @@ class CursoIndex extends Component
         $query = Curso::with([
             'tipoCurso',
             'instructor.feligres.persona',
+            'instructors.feligres.persona',
             'encargado.feligres.persona'
         ]);
 
@@ -60,7 +61,10 @@ class CursoIndex extends Component
             $instructorId = $this->resolveCurrentInstructorId();
 
             if ($instructorId) {
-                $query->where('instructor_id', $instructorId);
+                $query->where(function ($q) use ($instructorId) {
+                    $q->where('instructor_id', $instructorId)
+                        ->orWhereHas('instructors', fn ($iq) => $iq->where('instructores.id', $instructorId));
+                });
             } else {
                 $query->whereRaw('1 = 0');
             }

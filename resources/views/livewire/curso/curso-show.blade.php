@@ -68,7 +68,7 @@
 
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Instructor</label>
-                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $curso->instructor?->feligres?->persona?->nombre_completo ?? 'N/A' }}</p>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $curso->instructors->pluck('feligres.persona.nombre_completo')->filter()->join(', ') ?: ($curso->instructor?->feligres?->persona?->nombre_completo ?? 'N/A') }}</p>
                     </div>
 
                     <div>

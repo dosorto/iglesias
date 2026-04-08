@@ -471,10 +471,7 @@
 
     {{-- ===== FIRMA CURA PÁRROCO ===== --}}
     <div class="sig-right">
-        @if ($encargado?->nombre_completo)
-            <p class="sig-name">{{ $encargado->nombre_completo }}</p>
-        @endif
-        <div class="sig-line-accent">C U R A &nbsp; P&Aacute;RROCO</div>
+        <div class="sig-line-accent"></div>
     </div>
 
     {{-- ===== NOTA MARGINAL ===== --}}
@@ -509,7 +506,7 @@
                 <img src="{{ $firmaPath }}" style="max-height:50px; max-width:180px;">
             </p>
         @endif
-        <div class="sig-line-accent">F I R M A</div>
+        <div class="sig-line-accent"></div>
     </div>
 
 </div>

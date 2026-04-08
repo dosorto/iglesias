@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Configuración de la Iglesia')
+@section('title', 'Configuración de la Parroquia')
 
 @section('content')
 <div class="content-container space-y-6 max-w-4xl">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Configuración de la Iglesia</h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-1">Actualiza el nombre y la dirección de la iglesia activa.</p>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Configuración de la Parroquia</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">Actualiza el nombre y la dirección de la parroquia activa.</p>
         </div>
 
         <a href="{{ route('settings.index') }}"
@@ -26,7 +26,7 @@
 
             <div>
                 <label for="nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Nombre de la Iglesia <span class="text-red-500">*</span>
+                    Nombre de la Parroquia <span class="text-red-500">*</span>
                 </label>
                 <input type="text"
                        name="nombre"

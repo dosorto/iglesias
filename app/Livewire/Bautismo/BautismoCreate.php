@@ -88,10 +88,30 @@ class BautismoCreate extends Component
         $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
 
         $this->iglesia_id = TenantIglesia::currentId();
+        $this->aplicarLugarExpedicionPorDefecto();
 
         // Encargado por defecto: primer encargado disponible
         $encargadoDefault   = Encargado::with('feligres.persona')->where('estado', 'Activo')->first();
         $this->encargado_id = $encargadoDefault?->id;
+    }
+
+    private function aplicarLugarExpedicionPorDefecto(): void
+    {
+        if (trim($this->lugar_expedicion) !== '') {
+            return;
+        }
+
+        $direccion = '';
+
+        if (session('tenant')) {
+            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        } elseif ($this->iglesia_id) {
+            $direccion = trim((string) (Iglesias::query()->find($this->iglesia_id)?->direccion ?? ''));
+        }
+
+        if ($direccion !== '') {
+            $this->lugar_expedicion = $direccion;
+        }
     }
 
     // Navegacion
@@ -325,14 +345,14 @@ class BautismoCreate extends Component
     public function guardarMiniPersona(): void
     {
         $this->validate([
-            'mini_p_dni'              => ['required', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
+            'mini_p_dni'              => ['nullable', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
             'mini_p_primer_nombre'    => ['required', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_primer_apellido'  => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_nombre'   => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_apellido' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_fecha_nacimiento' => ['required', 'date', 'before:today'],
             'mini_p_sexo'             => ['required', 'in:M,F'],
-            'mini_p_telefono'         => ['required', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
+            'mini_p_telefono'         => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
             'mini_p_email'            => ['nullable', 'email', 'max:255'],
             'mini_f_fecha_ingreso'    => ['nullable', 'date'],
             'mini_f_estado'           => ['required', 'in:Activo,Inactivo'],
@@ -359,7 +379,7 @@ class BautismoCreate extends Component
             }
 
             $persona = Persona::create([
-                'dni'              => $this->mini_p_dni,
+                'dni'              => $this->mini_p_dni ?: null,
                 'primer_nombre'    => Str::title($this->mini_p_primer_nombre),
                 'segundo_nombre'   => $this->mini_p_segundo_nombre ? Str::title($this->mini_p_segundo_nombre) : null,
                 'primer_apellido'  => Str::title($this->mini_p_primer_apellido),
@@ -456,17 +476,9 @@ class BautismoCreate extends Component
             return;
         }
 
-        $fechaExp = null;
-        if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
-            try {
-                $fechaExp = \Carbon\Carbon::createFromDate(
-                    2000 + (int) $this->exp_ano,
-                    (int) $this->exp_mes,
-                    (int) $this->exp_dia
-                )->format('Y-m-d');
-            } catch (\Exception) {
-                $fechaExp = null;
-            }
+        $fechaExp = $this->resolverFechaExpedicion();
+        if ($fechaExp === false) {
+            return;
         }
 
         Bautismo::create([
@@ -506,5 +518,30 @@ class BautismoCreate extends Component
             'iglesias'   => $iglesias,
             'encargados' => Encargado::with('feligres.persona')->get(),
         ]);
+    }
+
+    private function resolverFechaExpedicion(): string|false|null
+    {
+        $dia = trim((string) $this->exp_dia);
+        $mes = trim((string) $this->exp_mes);
+        $ano = trim((string) $this->exp_ano);
+
+        if ($dia === '' && $mes === '' && $ano === '') {
+            return null;
+        }
+
+        if ($dia === '' || $mes === '' || $ano === '') {
+            $this->addError('exp_dia', 'Para la fecha de expedición debes completar día, mes y año.');
+            return false;
+        }
+
+        $year = 2000 + (int) $ano;
+
+        if (! checkdate((int) $mes, (int) $dia, $year)) {
+            $this->addError('exp_dia', 'La fecha de expedición no es válida.');
+            return false;
+        }
+
+        return sprintf('%04d-%02d-%02d', $year, (int) $mes, (int) $dia);
     }
 }

@@ -8,6 +8,7 @@ use App\Models\TenantIglesia;
 use App\Models\Feligres;
 use App\Models\Persona;
 use App\Models\Encargado;
+use App\Models\Bautismo;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\DB;
@@ -77,6 +78,7 @@ class PrimeraComunionEdit extends Component
         $this->nota_marginal          = $primeraComunion->nota_marginal     ?? '';
         $this->lugar_celebracion      = $primeraComunion->lugar_celebracion ?? '';
         $this->lugar_expedicion       = $primeraComunion->lugar_expedicion  ?? '';
+        $this->aplicarLugarExpedicionPorDefecto();
 
         $fe = $primeraComunion->fecha_expedicion;
         $this->exp_dia = $fe ? (string) $fe->day   : '';
@@ -91,6 +93,22 @@ class PrimeraComunionEdit extends Component
         // Cargar roles editables existentes
         $this->cargarRolExistente('catequista', $primeraComunion->id_catequista ?? null);
         $this->cargarRolExistente('ministro',   $primeraComunion->id_ministro   ?? null);
+    }
+
+    private function aplicarLugarExpedicionPorDefecto(): void
+    {
+        if (trim($this->lugar_expedicion) !== '') {
+            return;
+        }
+
+        $direccion = trim((string) ($this->primeraComunion->iglesia?->direccion ?? ''));
+        if ($direccion === '' && session('tenant')) {
+            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        }
+
+        if ($direccion !== '') {
+            $this->lugar_expedicion = $direccion;
+        }
     }
 
     private function cargarEncargado(): void
@@ -255,14 +273,14 @@ class PrimeraComunionEdit extends Component
     public function guardarMiniPersona(): void
     {
         $this->validate([
-            'mini_p_dni'              => ['required','string','min:8','max:20', Rule::unique('personas','dni')],
+            'mini_p_dni'              => ['nullable','string','min:8','max:20', Rule::unique('personas','dni')],
             'mini_p_primer_nombre'    => ['required','string','max:150','regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_primer_apellido'  => ['required','string','max:100','regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_nombre'   => ['nullable','string','max:150','regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_apellido' => ['nullable','string','max:100','regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_fecha_nacimiento' => ['required','date','before:today'],
             'mini_p_sexo'             => ['required','in:M,F'],
-            'mini_p_telefono'         => ['required','string','max:20','regex:/^[0-9+\-]+$/'],
+            'mini_p_telefono'         => ['nullable','string','max:20','regex:/^[0-9+\-]+$/'],
             'mini_p_email'            => ['nullable','email','max:255'],
             'mini_f_fecha_ingreso'    => ['nullable','date'],
             'mini_f_estado'           => ['required','in:Activo,Inactivo'],
@@ -271,7 +289,7 @@ class PrimeraComunionEdit extends Component
         DB::transaction(function () use ($rol) {
             $iglesiaId = session('tenant') ? TenantIglesia::currentId() : $this->iglesia_id;
             $persona   = Persona::create([
-                'dni' => $this->mini_p_dni, 'primer_nombre' => $this->mini_p_primer_nombre,
+                'dni' => $this->mini_p_dni ?: null, 'primer_nombre' => $this->mini_p_primer_nombre,
                 'segundo_nombre'   => $this->mini_p_segundo_nombre  ?: null,
                 'primer_apellido'  => $this->mini_p_primer_apellido,
                 'segundo_apellido' => $this->mini_p_segundo_apellido ?: null,
@@ -340,6 +358,10 @@ class PrimeraComunionEdit extends Component
             : ($this->iglesia_id ?: $this->primeraComunion->id_iglesia);
         $this->validate();
 
+        if (! $this->validarPadreNoSeaCatequista($this->primeraComunion->id_feligres, $this->catequista_feligres_id)) {
+            return;
+        }
+
         $fechaExp = null;
         if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
             try {
@@ -384,5 +406,24 @@ class PrimeraComunionEdit extends Component
             : Iglesias::find($this->primeraComunion->id_iglesia);
 
         return view('livewire.primera-comunion.primera-comunion-edit', compact('iglesiaActual'));
+    }
+
+    private function validarPadreNoSeaCatequista(?int $feligresId, ?int $catequistaId): bool
+    {
+        if (! $feligresId || ! $catequistaId) {
+            return true;
+        }
+
+        $padreId = Bautismo::where('bautizado_id', $feligresId)
+            ->whereNotNull('padre_id')
+            ->latest('id')
+            ->value('padre_id');
+
+        if ($padreId && (int) $padreId === (int) $catequistaId) {
+            $this->addError('catequista_dni', 'El padre del comulgante no puede ser asignado como catequista.');
+            return false;
+        }
+
+        return true;
     }
 }

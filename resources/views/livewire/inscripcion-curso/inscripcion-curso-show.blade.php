@@ -112,7 +112,7 @@ Instructor
 </p>
 
 <p class="text-sm font-medium text-gray-900 dark:text-white">
-{{ $inscripcion->curso->instructor->feligres->persona->nombre_completo ?? '—' }}
+{{ $inscripcion->curso?->instructors?->pluck('feligres.persona.nombre_completo')?->filter()?->join(', ') ?: ($inscripcion->curso?->instructor?->feligres?->persona?->nombre_completo ?? '—') }}
 </p>
 
 </div>

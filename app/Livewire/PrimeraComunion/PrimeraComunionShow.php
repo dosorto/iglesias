@@ -32,11 +32,28 @@ class PrimeraComunionShow extends Component
         $this->nota_marginal     = $this->primeraComunion->nota_marginal ?? '';
         $this->lugar_celebracion = $this->primeraComunion->lugar_celebracion ?? '';
         $this->lugar_expedicion  = $this->primeraComunion->lugar_expedicion ?? '';
+        $this->aplicarLugarExpedicionPorDefecto();
 
         $fe = $this->primeraComunion->fecha_expedicion;
         $this->exp_dia = $fe ? (string) $fe->day : '';
         $this->exp_mes = $fe ? (string) $fe->month : '';
         $this->exp_ano = $fe ? (string) ($fe->year - 2000) : '';
+    }
+
+    private function aplicarLugarExpedicionPorDefecto(): void
+    {
+        if (trim($this->lugar_expedicion) !== '') {
+            return;
+        }
+
+        $direccion = trim((string) ($this->primeraComunion->iglesia?->direccion ?? ''));
+        if ($direccion === '') {
+            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        }
+
+        if ($direccion !== '') {
+            $this->lugar_expedicion = $direccion;
+        }
     }
 
     public function mount(PrimeraComunion $primeraComunion): void

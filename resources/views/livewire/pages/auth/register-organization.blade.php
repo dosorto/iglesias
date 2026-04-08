@@ -34,6 +34,11 @@ new #[Layout('layouts.guest')] class extends Component
     public string $password              = '';
     public string $password_confirmation = '';
 
+    public function mount(): void
+    {
+        $this->ensureCatolicaReligion();
+    }
+
     public function nextStep(): void
     {
         $this->validateStepOne();
@@ -47,6 +52,7 @@ new #[Layout('layouts.guest')] class extends Component
 
     public function registerOrganization(): void
     {
+        $this->ensureCatolicaReligion();
         $this->validateStepOne();
         $validated = $this->validate([
             'name'     => ['required', 'string', 'min:3', 'max:255'],
@@ -155,13 +161,15 @@ new #[Layout('layouts.guest')] class extends Component
         event(new Registered($user));
         Auth::login($user);
 
-        session()->flash('success', 'La iglesia se ha creado correctamente. Ahora completa tu perfil de encargado.');
+        session()->flash('success', 'La parroquia se ha creado correctamente. Ahora completa tu perfil de encargado.');
 
         $this->redirect(route('register-perfil', absolute: false), navigate: true);
     }
 
     private function validateStepOne(): void
     {
+        $this->ensureCatolicaReligion();
+
         $this->validate([
             'nombre'           => ['required', 'string', 'min:3', 'max:200'],
             'direccion'        => ['required', 'string', 'min:5'],
@@ -170,7 +178,7 @@ new #[Layout('layouts.guest')] class extends Component
             'id_religion'      => ['required', 'exists:religion,id'],
             'path_logo'        => ['nullable', 'image', 'max:2048'],
         ], [
-            'nombre.required'      => 'El nombre de la iglesia es obligatorio.',
+            'nombre.required'      => 'El nombre de la parroquia es obligatorio.',
             'direccion.required'   => 'La ubicación física es necesaria.',
             'id_religion.required' => 'Debes seleccionar una religión.',
             'id_religion.exists'   => 'La religión seleccionada no es válida.',
@@ -178,11 +186,27 @@ new #[Layout('layouts.guest')] class extends Component
             'path_logo.max'        => 'El logo no debe superar los 2MB.',
         ]);
     }
+
+    private function ensureCatolicaReligion(): void
+    {
+        $religion = Religion::query()
+            ->where('religion', 'Católica')
+            ->orWhere('religion', 'Catolica')
+            ->first();
+
+        if (! $religion) {
+            $religion = Religion::query()->firstOrCreate([
+                'religion' => 'Católica',
+            ]);
+        }
+
+        $this->id_religion = (int) $religion->id;
+    }
 }; ?>
 
 <div class="space-y-6">
     <div class="text-center">
-        <h1 class="text-2xl font-bold text-gray-900">Crear Cuenta de Iglesia</h1>
+        <h1 class="text-2xl font-bold text-gray-900">Crear Cuenta de Parroquia</h1>
         <p class="mt-2 text-sm text-gray-600">Completa 2 pasos para iniciar con tu cuenta administradora.</p>
     </div>
 
@@ -193,7 +217,7 @@ new #[Layout('layouts.guest')] class extends Component
                 {{ $step > 1 ? 'bg-green-500 text-white' : ($step === 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500') }}">
                 {{ $step > 1 ? '✓' : '1' }}
             </span>
-            <span class="text-sm {{ $step >= 1 ? 'text-gray-900 font-medium' : 'text-gray-500' }}">Iglesia</span>
+            <span class="text-sm {{ $step >= 1 ? 'text-gray-900 font-medium' : 'text-gray-500' }}">Parroquia</span>
         </div>
         <div class="h-px flex-1 bg-gray-200"></div>
         <div class="flex items-center gap-2">
@@ -206,10 +230,10 @@ new #[Layout('layouts.guest')] class extends Component
     {{-- PASO 1 --}}
     @if ($step === 1)
         <form wire:submit="nextStep" class="space-y-4">
-            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Datos de la Iglesia</p>
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Datos de la Parroquia</p>
 
             <div>
-                <x-input-label for="nombre" value="Nombre de la Iglesia *" />
+                <x-input-label for="nombre" value="Nombre de la Parroquia *" />
                 <x-text-input wire:model="nombre" id="nombre" class="mt-1 block w-full" type="text" required autofocus />
                 <x-input-error :messages="$errors->get('nombre')" class="mt-1" />
             </div>
@@ -220,21 +244,11 @@ new #[Layout('layouts.guest')] class extends Component
                 <x-input-error :messages="$errors->get('direccion')" class="mt-1" />
             </div>
 
-            {{-- Religión --}}
+            {{-- Religión fija por rama iglesia test --}}
             <div>
-                <x-input-label for="id_religion" value="Religión *" />
-                <select wire:model="id_religion" id="id_religion" required
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm
-                               focus:border-indigo-500 focus:ring-indigo-500 text-sm
-                               dark:bg-gray-700 dark:border-gray-600 dark:text-white
-                               @error('id_religion') border-red-500 @enderror">
-                    <option value="">— Selecciona una religión —</option>
-                    @foreach (\App\Models\Religion::orderBy('religion')->get() as $rel)
-                        <option value="{{ $rel->id }}" {{ $id_religion == $rel->id ? 'selected' : '' }}>
-                            {{ $rel->religion }}
-                        </option>
-                    @endforeach
-                </select>
+                <x-input-label for="religion_display" value="Religión *" />
+                <x-text-input id="religion_display" class="mt-1 block w-full bg-gray-100" type="text" value="Católica" disabled readonly />
+                <input type="hidden" wire:model="id_religion">
                 <x-input-error :messages="$errors->get('id_religion')" class="mt-1" />
             </div>
 
@@ -245,15 +259,15 @@ new #[Layout('layouts.guest')] class extends Component
                     <x-input-error :messages="$errors->get('telefono_iglesia')" class="mt-1" />
                 </div>
                 <div>
-                    <x-input-label for="email_iglesia" value="Correo de la Iglesia" />
+                    <x-input-label for="email_iglesia" value="Correo de la Parroquia" />
                     <x-text-input wire:model="email_iglesia" id="email_iglesia" class="mt-1 block w-full" type="email" />
                     <x-input-error :messages="$errors->get('email_iglesia')" class="mt-1" />
                 </div>
             </div>
 
-            {{-- Logo de la Iglesia --}}
+            {{-- Logo de la Parroquia --}}
             <div>
-                <x-input-label value="Logo de la Iglesia (opcional)" class="mb-2" />
+                <x-input-label value="Logo de la Parroquia (opcional)" class="mb-2" />
 
                 <label for="path_logo"
                        class="group relative flex flex-col items-center justify-center w-full
@@ -344,12 +358,12 @@ new #[Layout('layouts.guest')] class extends Component
                 @if ($path_logo)
                     <div class="flex items-center gap-3 pb-2 border-b border-gray-200">
                         <img src="{{ $path_logo->temporaryUrl() }}"
-                             alt="Logo iglesia"
+                             alt="Logo parroquia"
                              class="w-12 h-12 rounded-lg object-contain border border-gray-200 bg-white" />
                         <span class="font-semibold text-base">{{ $nombre }}</span>
                     </div>
                 @else
-                    <div>Iglesia: <span class="font-semibold">{{ $nombre }}</span></div>
+                    <div>Parroquia: <span class="font-semibold">{{ $nombre }}</span></div>
                 @endif
                 @if($telefono_iglesia)
                     <div>Teléfono: <span class="font-semibold">{{ $telefono_iglesia }}</span></div>
@@ -390,7 +404,7 @@ new #[Layout('layouts.guest')] class extends Component
             <div class="flex items-center justify-between">
                 <x-secondary-button type="button" wire:click="previousStep">← Volver</x-secondary-button>
                 <x-primary-button>
-                    <span wire:loading.remove wire:target="registerOrganization">Crear Iglesia →</span>
+                    <span wire:loading.remove wire:target="registerOrganization">Crear Parroquia →</span>
                     <span wire:loading wire:target="registerOrganization">Creando...</span>
                 </x-primary-button>
             </div>

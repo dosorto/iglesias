@@ -22,6 +22,7 @@ class CursoEdit extends Component
     public $estado;
     public $tipo_curso_id;
     public $instructor_id;
+    public array $instructor_ids = [];
 
     public function mount(Curso $curso)
     {
@@ -35,12 +36,18 @@ class CursoEdit extends Component
         $this->estado = $curso->estado;
         $this->tipo_curso_id = $curso->tipo_curso_id;
         $this->instructor_id = $curso->instructor_id;
+        $this->instructor_ids = $curso->instructors()->pluck('instructores.id')->map(fn ($id) => (int) $id)->all();
+
+        if (empty($this->instructor_ids) && $curso->instructor_id) {
+            $this->instructor_ids = [(int) $curso->instructor_id];
+        }
     }
 
     public function update()
     {
         if ($this->isInstructorView && $this->currentInstructorId) {
             $this->instructor_id = $this->currentInstructorId;
+            $this->instructor_ids = [(int) $this->currentInstructorId];
         }
 
         $this->validate([
@@ -49,8 +56,9 @@ class CursoEdit extends Component
             'fecha_fin' => ['nullable', 'date', 'after_or_equal:fecha_inicio'],
             'estado' => ['required', 'in:Activo,Finalizado,Cancelado'],
             'tipo_curso_id' => ['required', 'exists:tipos_curso,id'],
-            'instructor_id' => [
-                'required',
+            'instructor_ids' => ['required', 'array', 'min:1'],
+            'instructor_ids.*' => [
+                'integer',
                 'exists:instructores,id',
                 $this->isInstructorView && $this->currentInstructorId
                     ? Rule::in([$this->currentInstructorId])
@@ -60,14 +68,23 @@ class CursoEdit extends Component
             'nombre.regex' => 'El nombre del curso debe contener al menos una letra.',
         ]);
 
+        $primaryInstructorId = (int) ($this->instructor_ids[0] ?? 0);
+
+        if ($primaryInstructorId <= 0) {
+            $this->addError('instructor_ids', 'Debe seleccionar al menos un instructor.');
+            return;
+        }
+
         $this->curso->update([
             'nombre' => $this->nombre,
             'fecha_inicio' => $this->fecha_inicio,
             'fecha_fin' => $this->fecha_fin,
             'estado' => $this->estado,
             'tipo_curso_id' => $this->tipo_curso_id,
-            'instructor_id' => $this->instructor_id,
+            'instructor_id' => $primaryInstructorId,
         ]);
+
+        $this->curso->instructors()->sync(array_values(array_unique(array_map('intval', $this->instructor_ids))));
 
         session()->flash('success', 'Curso actualizado');
 
@@ -103,7 +120,14 @@ class CursoEdit extends Component
 
         $this->currentInstructorId = $this->resolveCurrentInstructorId();
 
-        if (! $this->currentInstructorId || (int) $curso->instructor_id !== (int) $this->currentInstructorId) {
+        if (! $this->currentInstructorId) {
+            abort(403, 'No tienes permiso para editar este curso.');
+        }
+
+        $isAssigned = ((int) $curso->instructor_id === (int) $this->currentInstructorId)
+            || $curso->instructors()->where('instructores.id', $this->currentInstructorId)->exists();
+
+        if (! $isAssigned) {
             abort(403, 'No tienes permiso para editar este curso.');
         }
     }

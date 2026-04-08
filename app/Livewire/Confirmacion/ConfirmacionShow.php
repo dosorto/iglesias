@@ -57,11 +57,28 @@ class ConfirmacionShow extends Component
         $this->nota_marginal    = $confirmacion->nota_marginal    ?? '';
         $this->lugar_nacimiento = $confirmacion->lugar_nacimiento ?? '';
         $this->lugar_expedicion = $confirmacion->lugar_expedicion ?? '';
+        $this->aplicarLugarExpedicionPorDefecto();
 
         $fe = $confirmacion->fecha_expedicion;
         $this->exp_dia = $fe ? (string) $fe->day   : '';
         $this->exp_mes = $fe ? (string) $fe->month : '';
         $this->exp_ano = $fe ? (string) ($fe->year - 2000) : '';
+    }
+
+    private function aplicarLugarExpedicionPorDefecto(): void
+    {
+        if (trim($this->lugar_expedicion) !== '') {
+            return;
+        }
+
+        $direccion = trim((string) ($this->confirmacion->iglesia?->direccion ?? ''));
+        if ($direccion === '') {
+            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        }
+
+        if ($direccion !== '') {
+            $this->lugar_expedicion = $direccion;
+        }
     }
 
     public function togglePreview(): void

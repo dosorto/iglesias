@@ -78,7 +78,7 @@
                                 wire:model.live.debounce.300ms="search"
                                 type="text"
                                 class="block w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-                                placeholder="Buscar por nombre, DNI o iglesia..."
+                                placeholder="Buscar por nombre, DNI o parroquia..."
                             >
                         </div>
 

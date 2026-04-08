@@ -8,7 +8,7 @@
     @livewireStyles
 </head>
 
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+<body class="bg-[var(--color-blanco-liturgico)] dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
     {{-- Main Layout Container --}}
     <div class="flex h-screen overflow-hidden">
@@ -16,7 +16,7 @@
         @livewire('layouts.sidebar-toggle')
 
         {{-- Content Area (Wrapper) --}}
-        <div class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden bg-gray-100 dark:bg-gray-900">
+        <div class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden bg-[var(--color-marfil-calido)] dark:bg-gray-900">
             {{-- Navbar (Inside Wrapper) --}}
             @include('layouts.navbar')
 

@@ -14,14 +14,14 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans text-gray-900 antialiased bg-[#6C5DD3]"> <!-- Fondo morado igual que el home -->
+<body class="font-sans text-gray-900 antialiased bg-[#0F6E46]">
     <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
         
             <!-- ⚡ Logo central arriba -->
             <div class="mb-6">
                 <a href="/" wire:navigate>
                     <img src="{{ asset('image/Logo_guest.png') }}"
-                        alt="Logo Iglesia"
+                        alt="Logo Parroquia"
                         class="w-20 h-20 object-contain" />
                 </a>
             </div>

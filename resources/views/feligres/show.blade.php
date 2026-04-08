@@ -36,7 +36,7 @@
                         <p class="text-sm text-gray-500 dark:text-gray-400">DNI: {{ $feligre->persona->dni }}</p>
                     </div>
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Iglesia</label>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Parroquia</label>
                         <p class="text-md font-medium text-gray-900 dark:text-white">{{ $feligre->iglesia->nombre }}</p>
                     </div>
                     <div>

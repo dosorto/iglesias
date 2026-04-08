@@ -68,7 +68,7 @@
                 </p>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                     DNI: {{ $encargado->feligres->persona->dni ?? '—' }}
-                    &nbsp;·&nbsp; Iglesia: {{ $encargado->feligres->iglesia->nombre ?? '—' }}
+                    &nbsp;·&nbsp; Parroquia: {{ $encargado->feligres->iglesia->nombre ?? '—' }}
                 </p>
             </div>
 

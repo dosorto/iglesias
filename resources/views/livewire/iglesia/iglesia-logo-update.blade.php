@@ -14,9 +14,9 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold text-white leading-tight">Logo de la Iglesia</h1>
+                    <h1 class="text-xl font-bold text-white leading-tight">Logo de la Parroquia</h1>
                     <p class="text-indigo-100 text-sm mt-0.5">
-                        {{ $iglesia->nombre ?? 'Mi Iglesia' }}
+                        {{ $iglesia->nombre ?? 'Mi Parroquia' }}
                     </p>
                 </div>
             </div>
@@ -65,7 +65,7 @@
                     {{-- Logo existente --}}
                     <div class="relative">
                         <img src="{{ asset('storage/' . $iglesia->path_logo) }}"
-                             alt="Logo de la iglesia"
+                             alt="Logo de la parroquia"
                              class="w-40 h-40 object-contain rounded-2xl border border-gray-200 dark:border-gray-600
                                     shadow-sm bg-gray-50 dark:bg-gray-700/40" />
                         <div class="absolute -top-2 -right-2 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center shadow">

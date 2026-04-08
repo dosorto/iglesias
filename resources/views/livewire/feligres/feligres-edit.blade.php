@@ -212,10 +212,10 @@
         <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 
-                {{-- Iglesia --}}
+                {{-- Parroquia --}}
                 <div class="md:col-span-1">
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                        Iglesia <span class="text-red-500">*</span>
+                        Parroquia <span class="text-red-500">*</span>
                     </label>
                     <select wire:model="id_iglesia"
                             class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
@@ -224,7 +224,7 @@
                                    text-gray-900 dark:text-white
                                    focus:ring-2 focus:ring-emerald-500 focus:border-transparent
                                    @error('id_iglesia') border-red-400 @enderror">
-                        <option value="">Seleccionar Iglesia</option>
+                        <option value="">Seleccionar Parroquia</option>
                         @foreach ($iglesias as $ig)
                             <option value="{{ $ig->id }}">{{ $ig->nombre }}</option>
                         @endforeach

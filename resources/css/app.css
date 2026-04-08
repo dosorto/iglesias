@@ -5,14 +5,14 @@
 @tailwind utilities;
 
 :root {
-    --color-purpura-sagrado:  #4A1A6B;
-    --color-dorado-divino:    #C9A84C;
-    --color-azul-mariano:     #1B3A6B;
-    --color-blanco-liturgico: #F8F4EC;
-    --color-marfil-calido:    #EDE8DC;
-    --color-rojo-martir:      #8B1A1A;
-    --color-verde-esperanza:  #2D5A3D;
-    --color-gris-piedra:      #6B6560;
+    --color-purpura-sagrado:  #0D5C3A;
+    --color-dorado-divino:    #C8A547;
+    --color-azul-mariano:     #2A79B3;
+    --color-blanco-liturgico: #F4F5F2;
+    --color-marfil-calido:    #E9ECE5;
+    --color-rojo-martir:      #A13B3B;
+    --color-verde-esperanza:  #0F6E46;
+    --color-gris-piedra:      #253238;
 }
 
 @layer base {

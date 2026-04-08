@@ -88,6 +88,7 @@ class BautismoEdit extends Component
         $this->nota_marginal    = $bautismo->nota_marginal ?? '';
         $this->lugar_nacimiento = $bautismo->lugar_nacimiento ?? '';
         $this->lugar_expedicion = $bautismo->lugar_expedicion ?? '';
+        $this->aplicarLugarExpedicionPorDefecto();
 
         $fechaExp = $bautismo->fecha_expedicion;
         $this->exp_dia = $fechaExp?->day ? (string) $fechaExp->day : '';
@@ -102,6 +103,22 @@ class BautismoEdit extends Component
         $this->cargarRolExistente('madre', $bautismo->madre_id);
         $this->cargarRolExistente('padrino', $bautismo->padrino_id);
         $this->cargarRolExistente('madrina', $bautismo->madrina_id);
+    }
+
+    private function aplicarLugarExpedicionPorDefecto(): void
+    {
+        if (trim($this->lugar_expedicion) !== '') {
+            return;
+        }
+
+        $direccion = trim((string) ($this->bautismo->iglesia?->direccion ?? ''));
+        if ($direccion === '' && session('tenant')) {
+            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        }
+
+        if ($direccion !== '') {
+            $this->lugar_expedicion = $direccion;
+        }
     }
 
     private function cargarEncargado(): void
@@ -426,14 +443,14 @@ class BautismoEdit extends Component
     public function guardarMiniPersona(): void
     {
         $this->validate([
-            'mini_p_dni'              => ['required', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
+            'mini_p_dni'              => ['nullable', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')], 
             'mini_p_primer_nombre'    => ['required', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_primer_apellido'  => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_nombre'   => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_apellido' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_fecha_nacimiento' => ['required', 'date', 'before:today'],
             'mini_p_sexo'             => ['required', 'in:M,F'],
-            'mini_p_telefono'         => ['required', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
+            'mini_p_telefono'         => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
             'mini_p_email'            => ['nullable', 'email', 'max:255'],
             'mini_f_fecha_ingreso'    => ['nullable', 'date'],
             'mini_f_estado'           => ['required', 'in:Activo,Inactivo'],
@@ -447,7 +464,7 @@ class BautismoEdit extends Component
             }
 
             $persona = Persona::create([
-                'dni'              => $this->mini_p_dni,
+                'dni'              => $this->mini_p_dni ?: null,
                 'primer_nombre'    => Str::title($this->mini_p_primer_nombre),
                 'segundo_nombre'   => $this->mini_p_segundo_nombre ? Str::title($this->mini_p_segundo_nombre) : null,
                 'primer_apellido'  => Str::title($this->mini_p_primer_apellido),
@@ -522,17 +539,9 @@ class BautismoEdit extends Component
 
         $this->validate();
 
-        $fechaExp = null;
-        if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
-            try {
-                $fechaExp = \Carbon\Carbon::createFromDate(
-                    2000 + (int) $this->exp_ano,
-                    (int) $this->exp_mes,
-                    (int) $this->exp_dia
-                )->format('Y-m-d');
-            } catch (\Exception) {
-                $fechaExp = null;
-            }
+        $fechaExp = $this->resolverFechaExpedicion();
+        if ($fechaExp === false) {
+            return;
         }
 
         $this->bautismo->update([
@@ -569,5 +578,30 @@ class BautismoEdit extends Component
         $iglesiaActual = $iglesias->firstWhere('id', $this->iglesia_id);
 
         return view('livewire.bautismo.bautismo-edit', compact('iglesias', 'iglesiaActual'));
+    }
+
+    private function resolverFechaExpedicion(): string|false|null
+    {
+        $dia = trim((string) $this->exp_dia);
+        $mes = trim((string) $this->exp_mes);
+        $ano = trim((string) $this->exp_ano);
+
+        if ($dia === '' && $mes === '' && $ano === '') {
+            return null;
+        }
+
+        if ($dia === '' || $mes === '' || $ano === '') {
+            $this->addError('exp_dia', 'Para la fecha de expedición debes completar día, mes y año.');
+            return false;
+        }
+
+        $year = 2000 + (int) $ano;
+
+        if (! checkdate((int) $mes, (int) $dia, $year)) {
+            $this->addError('exp_dia', 'La fecha de expedición no es válida.');
+            return false;
+        }
+
+        return sprintf('%04d-%02d-%02d', $year, (int) $mes, (int) $dia);
     }
 }

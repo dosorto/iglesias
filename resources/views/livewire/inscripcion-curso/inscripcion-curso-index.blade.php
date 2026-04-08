@@ -126,7 +126,7 @@
 
                         {{-- INSTRUCTOR --}}
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                            {{ $inscripcion->curso?->instructor?->feligres?->persona?->nombre_completo ?? '—' }}
+                            {{ $inscripcion->curso?->instructors?->pluck('feligres.persona.nombre_completo')?->filter()?->join(', ') ?: ($inscripcion->curso?->instructor?->feligres?->persona?->nombre_completo ?? '—') }}
                         </td>
 
                         {{-- FECHA INSCRIPCION --}}

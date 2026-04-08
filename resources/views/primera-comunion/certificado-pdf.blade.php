@@ -200,8 +200,6 @@
         <div>
             <span class="sig-line"></span>
         </div>
-        <p class="sig-name">{{ $encargadoNombre ?: '' }}</p>
-        <p class="sig-title">P&aacute;rroco</p>
     </div>
 
 </div>

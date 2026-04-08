@@ -1,4 +1,4 @@
-<nav class="sticky top-0 z-30 w-full bg-gray-50 dark:bg-gray-900 border-b-2 border-gray-300 dark:border-gray-700 shadow-md transition-colors duration-300">
+<nav class="sticky top-0 z-30 w-full bg-white/95 dark:bg-gray-900 border-b border-[var(--color-dorado-divino)]/40 dark:border-gray-700 shadow-sm transition-colors duration-300">
     @php
         $activeChurchName = \App\Models\TenantIglesia::current()?->nombre ?: config('app.name');
     @endphp
@@ -7,22 +7,22 @@
         <div class="flex items-center gap-3">
             <button onclick="Livewire.find(document.getElementById('sidebar-component').getAttribute('wire:id')).toggleSidebar()"
                     type="button"
-                    class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 group"
+                    class="p-2 rounded-lg bg-emerald-50 dark:bg-gray-800 border border-emerald-200 dark:border-gray-700 hover:bg-emerald-100 dark:hover:bg-gray-700 transition-all duration-200 group"
                     title="Expandir/Contraer sidebar">
-                <svg id="sidebar-arrow" class="w-4 h-4 text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="sidebar-arrow" class="w-4 h-4 text-emerald-700 dark:text-gray-300 group-hover:text-emerald-800 dark:group-hover:text-white transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19l7-7-7-7"></path>
                 </svg>
             </button>
 
-            <span class="text-lg font-semibold text-gray-900 dark:text-white">
+            <span class="text-lg font-semibold text-[var(--color-purpura-sagrado)] dark:text-white">
                 {{ $activeChurchName }}
             </span>
         </div>
 
         <div class="flex items-center gap-4">
-            <button id="theme-toggle"
+                <button id="theme-toggle"
                     type="button"
-                    class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white rounded-lg text-sm p-2.5 transition-colors duration-200">
+                    class="text-gray-500 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-gray-800 hover:text-emerald-800 dark:hover:text-white rounded-lg text-sm p-2.5 transition-colors duration-200">
                 <svg id="theme-toggle-dark-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
                 </svg>
@@ -35,7 +35,7 @@
             <div class="relative">
                 <button id="dropdown-user" data-dropdown-toggle="dropdown-user-menu" 
                         class="flex items-center text-sm rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 transition-colors duration-200">
-                    <div class="w-8 h-8 bg-blue-500 dark:bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-xs">
+                    <div class="w-8 h-8 bg-[var(--color-dorado-divino)] rounded-full flex items-center justify-center text-white font-medium text-xs">
                         {{ strtoupper(substr(auth()->user()->name, 0, 1)) . (strpos(auth()->user()->name, ' ') ? strtoupper(substr(auth()->user()->name, strpos(auth()->user()->name, ' ') + 1, 1)) : '') }}
                     </div>
                 </button>

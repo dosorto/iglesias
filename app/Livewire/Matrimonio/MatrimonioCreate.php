@@ -84,9 +84,29 @@ class MatrimonioCreate extends Component
         $this->exp_mes              = now()->format('n');
         $this->exp_ano              = now()->format('y');
         $this->iglesia_id           = TenantIglesia::currentId();
+        $this->aplicarLugarExpedicionPorDefecto();
 
         $encargadoDefault   = Encargado::with('feligres.persona')->where('estado', 'Activo')->first();
         $this->encargado_id = $encargadoDefault?->id;
+    }
+
+    private function aplicarLugarExpedicionPorDefecto(): void
+    {
+        if (trim($this->lugar_expedicion) !== '') {
+            return;
+        }
+
+        $direccion = '';
+
+        if (session('tenant')) {
+            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        } elseif ($this->iglesia_id) {
+            $direccion = trim((string) (Iglesias::query()->find($this->iglesia_id)?->direccion ?? ''));
+        }
+
+        if ($direccion !== '') {
+            $this->lugar_expedicion = $direccion;
+        }
     }
 
     // Navegación
@@ -281,14 +301,14 @@ class MatrimonioCreate extends Component
     public function guardarMiniPersona(): void
     {
         $this->validate([
-            'mini_p_dni'              => ['required', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
+            'mini_p_dni'              => ['nullable', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
             'mini_p_primer_nombre'    => ['required', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_primer_apellido'  => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_nombre'   => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_apellido' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_fecha_nacimiento' => ['required', 'date', 'before:today'],
             'mini_p_sexo'             => ['required', 'in:M,F'],
-            'mini_p_telefono'         => ['required', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
+            'mini_p_telefono'         => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
             'mini_p_email'            => ['nullable', 'email', 'max:255'],
             'mini_f_fecha_ingreso'    => ['nullable', 'date'],
             'mini_f_estado'           => ['required', 'in:Activo,Inactivo'],
@@ -315,7 +335,7 @@ class MatrimonioCreate extends Component
             }
 
             $persona = Persona::create([
-                'dni'              => $this->mini_p_dni,
+                'dni'              => $this->mini_p_dni ?: null,
                 'primer_nombre'    => Str::title($this->mini_p_primer_nombre),
                 'segundo_nombre'   => $this->mini_p_segundo_nombre ? Str::title($this->mini_p_segundo_nombre) : null,
                 'primer_apellido'  => Str::title($this->mini_p_primer_apellido),
@@ -418,6 +438,10 @@ class MatrimonioCreate extends Component
             return;
         }
 
+        if (! $this->validarEspososSexoDiferente()) {
+            return;
+        }
+
         $fechaExp = null;
         if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
             try {
@@ -465,5 +489,26 @@ class MatrimonioCreate extends Component
         return view('livewire.matrimonio.matrimonio-create', [
             'iglesias'   => $iglesias,
         ]);
+    }
+
+    private function validarEspososSexoDiferente(): bool
+    {
+        if (! $this->esposo_feligres_id || ! $this->esposa_feligres_id) {
+            return true;
+        }
+
+        $esposoSexo = Feligres::with('persona:id,sexo')->find($this->esposo_feligres_id)?->persona?->sexo;
+        $esposaSexo = Feligres::with('persona:id,sexo')->find($this->esposa_feligres_id)?->persona?->sexo;
+
+        if (! $esposoSexo || ! $esposaSexo) {
+            return true;
+        }
+
+        if ($esposoSexo === $esposaSexo) {
+            $this->addError('esposa_dni', 'Solo se permite registrar matrimonio cuando ambos feligreses no tienen el mismo sexo.');
+            return false;
+        }
+
+        return true;
     }
 }

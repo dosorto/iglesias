@@ -414,10 +414,7 @@
                     <img src="{{ $firmaPath }}" alt="Firma del sacerdote" class="signature-image">
                 </div>
             @endif
-            <p style="font-size:9.4pt; margin-bottom: 14px;">Firma del Sacerdote celebrante:</p>
             <span class="priest-sig-line"></span>
-            <p class="priest-label">Sacerdote Celebrante</p>
-            <p class="priest-name">{{ $sacerdote }}</p>
         </div>
     </div>
 

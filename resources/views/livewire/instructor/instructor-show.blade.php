@@ -51,7 +51,7 @@
 
                     <div>
                         <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">
-                            Iglesia
+                            Parroquia
                         </label>
                         <p class="text-sm font-medium text-gray-900 dark:text-white">
                             {{ $instructor->feligres?->iglesia?->nombre ?? 'N/A' }}

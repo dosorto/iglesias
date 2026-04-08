@@ -53,14 +53,14 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Iglesia</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-300">Configura el nombre y la dirección de la iglesia activa</p>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Parroquia</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Configura el nombre y la dirección de la parroquia activa</p>
                 </div>
             </div>
 
             <div class="flex justify-between items-center gap-4">
                 <span class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ $iglesiaSettings?->nombre ? 'Activa: ' . $iglesiaSettings->nombre : 'No hay una iglesia activa en la sesión' }}
+                    {{ $iglesiaSettings?->nombre ? 'Activa: ' . $iglesiaSettings->nombre : 'No hay una parroquia activa en la sesión' }}
                 </span>
                 @if ($iglesiaSettings)
                     <a href="{{ route('configuracion.iglesia.edit') }}"
@@ -73,7 +73,7 @@
                     </a>
                 @else
                     <button disabled class="inline-flex items-center px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 text-sm font-medium rounded-lg cursor-not-allowed">
-                        Sin iglesia activa
+                        Sin parroquia activa
                     </button>
                 @endif
             </div>
@@ -177,7 +177,7 @@
         </div>
         @endcan
 
-        {{-- Logo de la Iglesia --}}
+        {{-- Logo de la Parroquia --}}
        @can('iglesias.logo')
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
             <div class="flex items-center mb-4">
@@ -188,7 +188,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Logo de la Iglesia</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Logo de la Parroquia</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-300">Aparece en los certificados PDF</p>
                 </div>
             </div>
@@ -238,7 +238,7 @@
 </div>
 @endcan
 
-        {{-- Logo e Imagen de Iglesia / Certificados --}}
+        {{-- Logo e Imagen de Parroquia / Certificados --}}
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
             <div class="flex items-center mb-4">
                 <div class="w-12 h-12 bg-teal-100 dark:bg-teal-900/30 rounded-lg flex items-center justify-center mr-4">
@@ -253,7 +253,7 @@
                 </div>
                 <div>
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Logo y Certificados</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-300">Logo de la iglesia y formato de certificados</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Logo de la parroquia y formato de certificados</p>
                 </div>
             </div>
             <div class="flex justify-between items-center">
