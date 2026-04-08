@@ -13,11 +13,7 @@ class CursoShow extends Component
     public Curso $curso;
     public bool $isInstructorView = false;
 
-    public ?int $inscripcionSeleccionadaId = null;
 
-    protected $listeners = [
-        'matriculadoEliminado' => 'recargarCurso',
-    ];
 
     public function mount(Curso $curso): void
     {
@@ -32,21 +28,7 @@ class CursoShow extends Component
         ]);
     }
 
-    public function verMatriculado(int $inscripcionId): void
-    {
-        $existe = $this->curso->inscripcionesCurso->contains('id', $inscripcionId);
 
-        if (! $existe) {
-            return;
-        }
-
-        $this->inscripcionSeleccionadaId = $inscripcionId;
-    }
-
-    public function cerrarDetalleMatriculado(): void
-    {
-        $this->inscripcionSeleccionadaId = null;
-    }
 
     public function recargarCurso(): void
     {
@@ -58,7 +40,6 @@ class CursoShow extends Component
             'inscripcionesCurso.feligres.persona',
         ]);
 
-        $this->inscripcionSeleccionadaId = null;
 
         session()->flash('success', 'Matriculado quitado correctamente.');
     }

@@ -70,17 +70,19 @@ class MatriculadoCursoShow extends Component
         $this->showDeleteModal = false;
     }
 
-    public function quitar(): void
+    public function quitar()
     {
         if (! $this->inscripcion) {
             return;
         }
 
+        $cursoId = $this->inscripcion->curso_id;
+
         $this->inscripcion->delete();
 
-        $this->showDeleteModal = false;
+        session()->flash('success', 'Matriculado quitado correctamente.');
 
-        $this->dispatch('matriculadoEliminado');
+        return redirect()->route('curso.show', $cursoId);
     }
 
     public function imprimirCertificado()

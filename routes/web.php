@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Role;
 use Livewire\Volt\Volt;
+use App\Livewire\Curso\MatriculadoCursoShow;
 
 Route::view('/', 'welcome');
 
@@ -178,9 +179,13 @@ Route::middleware(['auth'])->group(function () {
         ->put('/instructor/{instructor}', [\App\Http\Controllers\InstructorController::class, 'update'])
         ->name('instructor.update');
 
-    Route::middleware('permission:instructor.delete')
-        ->delete('/instructor/{instructor}', [\App\Http\Controllers\InstructorController::class, 'destroy'])
-        ->name('instructor.destroy');
+    Route::middleware('permission:inscripcion-curso.view')
+        ->get('/matriculado-curso/{inscripcionCurso}', [\App\Http\Controllers\InscripcionCursoController::class, 'matricula'])
+        ->name('matriculado-curso.show');
+
+    Route::middleware('permission:inscripcion-curso.view')
+    ->get('/matriculado-curso/{inscripcionId}', function ($inscripcionId) {return view('curso.matricula', compact('inscripcionId'));})
+    ->name('matriculado-curso.show');
 
     // Estudiantes
     Route::middleware('permission:estudiantes.view')

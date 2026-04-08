@@ -49,6 +49,13 @@ class InscripcionCursoController extends Controller
         return view('certificados.curso-pdf', compact('inscripcion'));
     }
 
+    public function matricula(\App\Models\InscripcionCurso $inscripcionCurso)
+    {
+        return view('curso.matricula', [
+            'inscripcionId' => $inscripcionCurso->id,
+        ]);
+    }
+
     public function createFromInstructor(\App\Models\Instructor $instructor)
     {
         return view('instructor.inscripcion-create', [
