@@ -155,54 +155,15 @@
 
                                             <td class="px-4 py-3 text-sm text-right">
                                                 <div class="flex justify-end gap-2">
-                                                    @if($inscripcionSeleccionadaId === $inscripcion->id)
-                                                        <button type="button"
-                                                                wire:click="cerrarDetalleMatriculado"
-                                                                class="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-500 text-white hover:bg-gray-600 transition-colors">
-                                                            Ocultar
-                                                        </button>
-                                                    @else
-                                                        <button type="button"
-                                                                wire:click="verMatriculado({{ $inscripcion->id }})"
-                                                                class="px-3 py-1.5 text-xs font-medium rounded-lg bg-sky-600 text-white hover:bg-sky-700 transition-colors">
-                                                            Show
-                                                        </button>
-                                                    @endif
+                                                    <a href="{{ route('matriculado-curso.show', $inscripcion->id) }}"
+                                                    class="px-3 py-1.5 text-xs font-medium rounded-lg bg-sky-600 text-white hover:bg-sky-700 transition-colors inline-block">
+                                                        Ver
+                                                    </a>
                                                 </div>
                                             </td>
                                         </tr>
 
-                                        @if($inscripcionSeleccionadaId === $inscripcion->id)
-                                            <tr class="bg-sky-50/40 dark:bg-sky-900/10">
-                                                <td colspan="4" class="px-4 py-4">
-                                                    <div class="rounded-xl border border-sky-200 dark:border-sky-800 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
-                                                        <div class="px-4 py-3 border-b border-sky-100 dark:border-sky-800 bg-sky-50 dark:bg-sky-900/20 flex items-center justify-between">
-                                                            <div>
-                                                                <h3 class="text-sm font-bold text-sky-900 dark:text-sky-200 uppercase tracking-wider">
-                                                                    Detalle del matriculado
-                                                                </h3>
-                                                                <p class="text-xs text-sky-700 dark:text-sky-300 mt-1">
-                                                                    {{ $inscripcion->feligres?->persona?->nombre_completo ?? 'N/A' }}
-                                                                </p>
-                                                            </div>
-
-                                                            <button type="button"
-                                                                    wire:click="cerrarDetalleMatriculado"
-                                                                    class="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
-                                                                Cerrar
-                                                            </button>
-                                                        </div>
-
-                                                        <div class="p-4">
-                                                            <livewire:curso.matriculado-curso-show
-                                                                :inscripcionId="$inscripcion->id"
-                                                                :key="'matriculado-inline-'.$inscripcion->id"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endif
+                                         
                                     @endforeach
                                 </tbody>
                             </table>
