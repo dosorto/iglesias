@@ -32,7 +32,7 @@ class MatrimonioEdit extends Component
 
     public ?array $encargado_info = null;
 
-    // Roles editables: esposo, esposa, testigos
+    // Roles editables: esposo, esposa,  testigos
     public string $esposo_dni         = '';
     public ?array $esposo_persona     = null;
     public ?int   $esposo_feligres_id = null;
