@@ -3,7 +3,7 @@
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Feligreses</h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-1">Administra el registro de feligreses y su vínculo con las iglesias</p>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">Administra el registro de feligreses</p>
         </div>
 
         <div class="flex flex-wrap gap-2">

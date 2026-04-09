@@ -74,6 +74,20 @@
         }
         .sig-name { font-size: 11pt; font-weight: bold; margin-bottom: 2px; color: #1a1a1a; margin-top: 4px; }
         .sig-title { font-size: 10pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #7D5A1E; }
+
+        .qr-verify {
+            margin-top: 12px;
+            font-size: 8pt;
+            color: #555;
+        }
+        .qr-verify img {
+            width: 70px;
+            height: 70px;
+            border: 1px solid #d1d5db;
+            padding: 2px;
+            background: #fff;
+        }
+        .qr-code { margin-top: 3px; letter-spacing: 0.4px; }
     </style>
 </head>
 @php
@@ -89,14 +103,6 @@
 
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
-
-    $logoEstaticoPath = public_path('image/Logo_guest.png');
-    if (! $logoIglesiaPath && is_file($logoEstaticoPath)) {
-        $logoIglesiaPath = $logoEstaticoPath;
-    }
-    if (! $logoIglesiaDerechaPath) {
-        $logoIglesiaDerechaPath = $logoIglesiaPath;
-    }
 
     $confirmado      = $confirmacion->feligres?->persona;
     $padrino         = $confirmacion->padrino?->persona;
@@ -134,6 +140,9 @@
     if ($confirmacion->encargado?->path_firma_principal) {
         $firmaPath = $resolvePublicFilePath($confirmacion->encargado->path_firma_principal);
     }
+    $codigoVerificacion = $codigoVerificacion ?? '';
+    $urlVerificacion = $urlVerificacion ?? '';
+    $qrDataUri = $qrDataUri ?? null;
 @endphp
 <body>
 @if ($logoIglesiaPath)
@@ -145,7 +154,11 @@
 
     <div class="header">
         <div class="header-logo-cell">
-            @if ($logoIglesiaPath)<img src="{{ $logoIglesiaPath }}" alt="Logo">@endif
+            @if ($logoIglesiaPath)
+                <img src="{{ $logoIglesiaPath }}" alt="Logo">
+            @else
+                <div class="logo-placeholder"></div>
+            @endif
         </div>
         <div class="header-title-cell">
             <div class="parish-name">Parroquia{{ $iglesiaNombre ? ' ' . $iglesiaNombre : '' }}</div>
@@ -153,7 +166,11 @@
             <div class="header-address">Monjarás, Marcovia, Choluteca, Honduras, C.A.</div>
         </div>
         <div class="header-right-cell">
-            @if ($logoIglesiaDerechaPath)<img src="{{ $logoIglesiaDerechaPath }}" alt="Logo">@endif
+            @if ($logoIglesiaDerechaPath)
+                <img src="{{ $logoIglesiaDerechaPath }}" alt="Logo">
+            @else
+                <div class="logo-placeholder"></div>
+            @endif
         </div>
     </div>
 
@@ -219,6 +236,12 @@
         <p class="sig-name">{{ $encargadoNombre ?: '' }}</p>
         <p class="sig-title">P&aacute;rroco</p>
     </div>
+
+    @if ($qrDataUri)
+        <div class="qr-verify">
+            <img src="{{ $qrDataUri }}" alt="QR de verificacion">
+        </div>
+    @endif
 
 </div>
 </body>

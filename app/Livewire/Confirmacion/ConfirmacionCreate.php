@@ -426,6 +426,8 @@ class ConfirmacionCreate extends Component
             $this->iglesia_id = TenantIglesia::currentId();
         }
 
+        $this->fecha_confirmacion = $this->fecha_confirmacion ?: now()->format('Y-m-d');
+
         $this->validate([
             'fecha_confirmacion' => ['required', 'date'],
         ], [
