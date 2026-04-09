@@ -268,6 +268,26 @@
             margin-top: 10px;
             margin-right: 10px;
         }
+
+        .qr-verify {
+            margin-top: 12px;
+            text-align: left;
+            font-size: 8pt;
+            color: #555;
+        }
+
+        .qr-verify img {
+            width: 70px;
+            height: 70px;
+            border: 1px solid #d1d5db;
+            padding: 2px;
+            background: #fff;
+        }
+
+        .qr-code {
+            margin-top: 3px;
+            letter-spacing: 0.4px;
+        }
     </style>
 </head>
 @php
@@ -293,6 +313,9 @@
     $certBgPath = $resolvePublicFilePath($iglesiaConfig?->path_certificado_bautismo);
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
+    $codigoVerificacion = $codigoVerificacion ?? '';
+    $urlVerificacion = $urlVerificacion ?? '';
+    $qrDataUri = $qrDataUri ?? null;
 @endphp
 <body class="{{ $isLandscape ? 'is-landscape' : '' }}" @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
 
@@ -511,6 +534,12 @@
         @endif
         <div class="sig-line-accent">F I R M A</div>
     </div>
+
+    @if ($qrDataUri)
+        <div class="qr-verify">
+            <img src="{{ $qrDataUri }}" alt="QR de verificacion">
+        </div>
+    @endif
 
 </div>
 </body>

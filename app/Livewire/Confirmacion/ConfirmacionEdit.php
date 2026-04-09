@@ -407,9 +407,11 @@ class ConfirmacionEdit extends Component
             ? TenantIglesia::currentId()
             : $this->confirmacion->iglesia_id;
 
+        $this->fecha_confirmacion = $this->fecha_confirmacion ?: now()->format('Y-m-d');
+
         $this->validate();
 
-        $fechaExp = null;
+        $fechaExp = now()->format('Y-m-d');
         if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
             try {
                 $fechaExp = \Carbon\Carbon::createFromDate(
@@ -418,7 +420,7 @@ class ConfirmacionEdit extends Component
                     (int) $this->exp_dia
                 )->format('Y-m-d');
             } catch (\Exception) {
-                $fechaExp = null;
+                $fechaExp = now()->format('Y-m-d');
             }
         }
 

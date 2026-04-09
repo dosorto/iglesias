@@ -3,6 +3,7 @@
 namespace App\Livewire\Bautismo;
 
 use App\Models\Bautismo;
+use App\Models\DocumentoGenerado;
 use App\Models\Encargado;
 use App\Models\Feligres;
 use App\Models\Iglesias;
@@ -517,12 +518,14 @@ class BautismoEdit extends Component
             $this->iglesia_id = TenantIglesia::currentId();
         }
 
+        $this->fecha_bautismo = $this->fecha_bautismo ?: now()->format('Y-m-d');
+
         $this->cargarEncargado();
         $this->encargado_id = $this->encargado_info['encargado_id'] ?? null;
 
         $this->validate();
 
-        $fechaExp = null;
+        $fechaExp = now()->format('Y-m-d');
         if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
             try {
                 $fechaExp = \Carbon\Carbon::createFromDate(
@@ -531,7 +534,7 @@ class BautismoEdit extends Component
                     (int) $this->exp_dia
                 )->format('Y-m-d');
             } catch (\Exception) {
-                $fechaExp = null;
+                $fechaExp = now()->format('Y-m-d');
             }
         }
 
@@ -553,6 +556,12 @@ class BautismoEdit extends Component
             'lugar_expedicion' => $this->lugar_expedicion ?: null,
             'fecha_expedicion' => $fechaExp,
         ]);
+
+        DocumentoGenerado::query()
+            ->where('tipo_documento', 'bautismo_certificado')
+            ->where('fuente_tipo', Bautismo::class)
+            ->where('fuente_id', (int) $this->bautismo->id)
+            ->delete();
 
         session()->flash('success', 'Bautismo actualizado correctamente.');
         $this->redirect(route('bautismo.index'), navigate: false);

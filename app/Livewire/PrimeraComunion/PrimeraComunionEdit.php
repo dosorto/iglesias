@@ -338,13 +338,18 @@ class PrimeraComunionEdit extends Component
         $this->iglesia_id = session('tenant')
             ? TenantIglesia::currentId()
             : ($this->iglesia_id ?: $this->primeraComunion->id_iglesia);
+
+        $this->fecha_primera_comunion = $this->fecha_primera_comunion ?: now()->format('Y-m-d');
+
         $this->validate();
 
-        $fechaExp = null;
+        $fechaExp = now()->format('Y-m-d');
         if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
             try {
                 $fechaExp = \Carbon\Carbon::createFromDate(2000 + (int)$this->exp_ano, (int)$this->exp_mes, (int)$this->exp_dia)->format('Y-m-d');
-            } catch (\Exception) {}
+            } catch (\Exception) {
+                $fechaExp = now()->format('Y-m-d');
+            }
         }
 
         // Resolver encargado activo para actualizar párroco
