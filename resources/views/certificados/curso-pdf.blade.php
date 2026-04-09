@@ -366,7 +366,7 @@
                 </p>
             @endif
 
-            <div class="sig-line-accent">A U T O R I Z A C I Ó N</div>
+            <div class="sig-line-accent">F I R M A</div>
         </div>
     </div>
 </body>
