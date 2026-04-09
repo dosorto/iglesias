@@ -144,8 +144,6 @@
         .line-field-lg { min-width: 260px; }
         .line-field-xl { min-width: 320px; }
 
-        .section-label { font-weight: bold; }
-
         .sig-right {
             width: 260px;
             margin-left: auto;
@@ -217,42 +215,23 @@
 </head>
 
 @php
-    $resolvePublicFilePath = function (?string $path): ?string {
-        if (! $path) {
-            return null;
-        }
-
-        $normalized = trim((string) parse_url($path, PHP_URL_PATH) ?: $path);
-        $normalized = ltrim($normalized, '/\\');
-
-        if ($normalized === '') {
-            return null;
-        }
-
-        $candidate = str_starts_with($normalized, 'storage/')
-            ? public_path($normalized)
-            : public_path('storage/' . $normalized);
-
-        return is_file($candidate) ? $candidate : null;
-    };
-
     $curso = $inscripcion->curso;
     $persona = $inscripcion->feligres?->persona;
     $instructor = $curso?->instructor?->feligres?->persona;
     $encargado = $curso?->encargado?->feligres?->persona;
 
-    $iglesiaNombre = 'Capacitaciones';
-    $logoIglesiaPath = null;
-    $logoIglesiaDerechaPath = null;
+    $iglesiaNombre = $iglesiaConfig?->nombre ?? 'Capacitaciones';
+    $logoIglesiaPath = $iglesiaConfig?->logo_url ?? asset('image/Logo_guest.png');
+    $logoIglesiaDerechaPath = $iglesiaConfig?->logo_derecha_url ?? $logoIglesiaPath;
 
     $fechaInicio = $curso?->fecha_inicio;
     $fechaFin = $curso?->fecha_fin;
     $fechaCertificado = $inscripcion->fecha_certificado;
 
     $mesesEs = [
-        1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',
-        5=>'mayo',6=>'junio',7=>'julio',8=>'agosto',
-        9=>'septiembre',10=>'octubre',11=>'noviembre',12=>'diciembre'
+        1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril',
+        5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto',
+        9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre',
     ];
 
     $diaCert = $fechaCertificado?->day ?? '';
