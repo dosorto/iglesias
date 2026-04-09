@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\InscripcionCurso;
-use App\Models\Iglesias;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\TenantIglesia;
+
 
 class InscripcionCursoController extends Controller
 {
@@ -35,6 +37,9 @@ class InscripcionCursoController extends Controller
             ->with('success','Inscripción eliminada correctamente.');
     }
 
+
+
+ 
     public function certificadoPdf(InscripcionCurso $inscripcion)
     {
         $inscripcion->load([
@@ -43,12 +48,15 @@ class InscripcionCursoController extends Controller
             'feligres.persona',
         ]);
 
-        $iglesiaConfig = Iglesias::currentFromSession() ?? Iglesias::query()->first();
+        $iglesiaConfig = TenantIglesia::current();
+        $orientation = $iglesiaConfig?->orientacion_certificado === 'landscape' ? 'landscape' : 'portrait';
 
-        return response()->view('certificados.curso-pdf', [
-            'inscripcion' => $inscripcion,
-            'iglesiaConfig' => $iglesiaConfig,
-        ]);
+        $pdf = Pdf::loadView('certificados.curso-pdf', compact('inscripcion', 'iglesiaConfig'))
+            ->setPaper('letter', $orientation);
+
+        $nombreArchivo = 'certificado-curso-' . $inscripcion->id . '.pdf';
+
+        return $pdf->stream($nombreArchivo);
     }
 
     public function matricula(\App\Models\InscripcionCurso $inscripcionCurso)

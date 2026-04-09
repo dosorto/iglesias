@@ -466,4 +466,56 @@ class MatrimonioCreate extends Component
             'iglesias'   => $iglesias,
         ]);
     }
+    
+    private function validarEspososSexoDiferente(): bool
+    {
+        if (! $this->esposo_feligres_id || ! $this->esposa_feligres_id) {
+            return true;
+        }
+
+        $esposoSexo = Feligres::with('persona:id,sexo')->find($this->esposo_feligres_id)?->persona?->sexo;
+        $esposaSexo = Feligres::with('persona:id,sexo')->find($this->esposa_feligres_id)?->persona?->sexo;
+
+        $esposoSexoCanon = $this->normalizarSexoCanonico($esposoSexo);
+        $esposaSexoCanon = $this->normalizarSexoCanonico($esposaSexo);
+
+        if (! $esposoSexoCanon || ! $esposaSexoCanon) {
+            return true;
+        }
+
+        if ($esposoSexoCanon === $esposaSexoCanon) {
+            $this->paso = 1;
+            $this->addError('esposa_dni', 'No se pueden casar los del mismo sexo.');
+            return false;
+        }
+
+        if ($esposoSexoCanon !== 'M' || $esposaSexoCanon !== 'F') {
+            $this->paso = 1;
+            $this->addError('esposo_dni', 'El matrimonio debe registrarse con hombre como esposo y mujer como esposa.');
+            return false;
+        }
+
+        return true;
+    }
+
+    private function normalizarSexoCanonico(?string $sexo): ?string
+    {
+        if (! $sexo) {
+            return null;
+        }
+
+        $valor = mb_strtolower(trim($sexo));
+
+        if (in_array($valor, ['m', 'masculino', 'hombre'], true)) {
+            return 'M';
+        }
+
+        if (in_array($valor, ['f', 'femenino', 'mujer'], true)) {
+            return 'F';
+        }
+
+        return null;
+    }
 }
+
+
