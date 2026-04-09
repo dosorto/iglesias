@@ -185,44 +185,43 @@
             margin-right: 24px;
             text-align: center;
         }
-
-        .print-actions {
-            margin: 16px auto;
-            width: fit-content;
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 10px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            color: white;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-print { background: #059669; }
-        .btn-back { background: #2563eb; }
-
-        @media print {
-            .print-actions { display: none; }
-            body { background: white; }
-        }
     </style>
 </head>
 
 @php
+    $resolvePublicFilePath = function (?string $path): ?string {
+        if (! $path) {
+            return null;
+        }
+
+        $normalized = trim((string) parse_url($path, PHP_URL_PATH) ?: $path);
+        $normalized = ltrim($normalized, '/\\');
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        $candidate = str_starts_with($normalized, 'storage/')
+            ? public_path($normalized)
+            : public_path('storage/' . $normalized);
+
+        return is_file($candidate) ? $candidate : null;
+    };
+
     $curso = $inscripcion->curso;
     $persona = $inscripcion->feligres?->persona;
     $instructor = $curso?->instructor?->feligres?->persona;
     $encargado = $curso?->encargado?->feligres?->persona;
 
     $iglesiaNombre = $iglesiaConfig?->nombre ?? 'Capacitaciones';
-    $logoIglesiaPath = $iglesiaConfig?->logo_url ?? asset('image/Logo_guest.png');
-    $logoIglesiaDerechaPath = $iglesiaConfig?->logo_derecha_url ?? $logoIglesiaPath;
+
+    // USAR RUTAS FÍSICAS COMO EN BAUTISMO
+    $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
+    $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
+
+    // Si tu firma está en instructor y existe ese campo, descomentá/adaptá
+    // $firmaPath = $resolvePublicFilePath($curso?->instructor?->path_firma_principal);
+    $firmaPath = null;
 
     $fechaInicio = $curso?->fecha_inicio;
     $fechaFin = $curso?->fecha_fin;
@@ -248,7 +247,7 @@
 @endphp
 
 <body>
-    @if ($logoIglesiaPath)
+    @if ($logoIglesiaPath && file_exists($logoIglesiaPath))
         <div class="watermark-logo">
             <img src="{{ $logoIglesiaPath }}" alt="Marca de agua">
         </div>
@@ -258,7 +257,7 @@
 
         <div class="header">
             <div class="header-logo-cell">
-                @if ($logoIglesiaPath)
+                @if ($logoIglesiaPath && file_exists($logoIglesiaPath))
                     <img src="{{ $logoIglesiaPath }}" alt="Logo">
                 @endif
             </div>
@@ -270,7 +269,7 @@
             </div>
 
             <div class="header-right-cell">
-                @if ($logoIglesiaDerechaPath)
+                @if ($logoIglesiaDerechaPath && file_exists($logoIglesiaDerechaPath))
                     <img src="{{ $logoIglesiaDerechaPath }}" alt="Logo">
                 @endif
             </div>
@@ -291,9 +290,7 @@
         <hr class="hr-accent">
 
         <div class="body-text">
-            <p>
-                El presente documento certifica que:
-            </p>
+            <p>El presente documento certifica que:</p>
 
             <p>
                 <span class="line-field line-field-xl">{{ $persona?->nombre_completo ?? 'N/A' }}</span>
@@ -304,9 +301,7 @@
                 <span class="line-field line-field-lg">{{ $persona?->dni ?? 'N/A' }}</span>
             </p>
 
-            <p>
-                ha aprobado satisfactoriamente el curso denominado:
-            </p>
+            <p>ha aprobado satisfactoriamente el curso denominado:</p>
 
             <p>
                 <span class="line-field line-field-xl">{{ $curso?->nombre ?? 'N/A' }}</span>
@@ -368,13 +363,14 @@
         </div>
 
         <div class="sig-bottom">
+            @if ($firmaPath && file_exists($firmaPath))
+                <p style="text-align:center; margin-bottom: 2px;">
+                    <img src="{{ $firmaPath }}" style="max-height:50px; max-width:180px;" alt="Firma">
+                </p>
+            @endif
+
             <div class="sig-line-accent">A U T O R I Z A C I Ó N</div>
         </div>
-    </div>
-
-    <div class="print-actions">
-        <button class="btn btn-print" onclick="window.print()">Imprimir</button>
-        <a href="{{ route('curso.show', $inscripcion->curso_id) }}" class="btn btn-back">Volver al curso</a>
     </div>
 </body>
 </html>
