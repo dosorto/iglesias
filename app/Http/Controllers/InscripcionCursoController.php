@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InscripcionCurso;
+use App\Models\Iglesias;
 
 class InscripcionCursoController extends Controller
 {
@@ -34,7 +35,7 @@ class InscripcionCursoController extends Controller
             ->with('success','Inscripción eliminada correctamente.');
     }
 
-    public function certificadoPdf(\App\Models\InscripcionCurso $inscripcion)
+    public function certificadoPdf(InscripcionCurso $inscripcion)
     {
         $inscripcion->load([
             'curso.instructor.feligres.persona',
@@ -42,11 +43,12 @@ class InscripcionCursoController extends Controller
             'feligres.persona',
         ]);
 
-        if (! $inscripcion->aprobado) {
-            abort(403, 'La inscripción no está aprobada.');
-        }
+        $iglesiaConfig = Iglesias::currentFromSession() ?? Iglesias::query()->first();
 
-        return view('certificados.curso-pdf', compact('inscripcion'));
+        return response()->view('certificados.curso-pdf', [
+            'inscripcion' => $inscripcion,
+            'iglesiaConfig' => $iglesiaConfig,
+        ]);
     }
 
     public function matricula(\App\Models\InscripcionCurso $inscripcionCurso)
