@@ -102,6 +102,11 @@ class MatrimonioCreate extends Component
                 $this->addError('esposa_dni', 'La esposa es obligatoria y debe estar registrada como feligrés.');
                 return;
             }
+            
+            // ✅ Validar que los esposos sean de sexo diferente
+            if (!$this->validarEspososSexoDiferente()) {
+                return;
+            }
         }
         $this->paso++;
         $this->resetErrorBag();
@@ -161,6 +166,7 @@ class MatrimonioCreate extends Component
             'dni'             => $p->dni,
             'nombre_completo' => $p->nombre_completo,
             'telefono'        => $p->telefono ?? null,
+            'sexo'            => $p->sexo,
         ])->toArray();
         $this->busqueda_rol          = $rol;
         $this->{"{$rol}_estado"}     = 'multiples';
@@ -206,6 +212,7 @@ class MatrimonioCreate extends Component
             'nombre_completo' => $persona->nombre_completo,
             'telefono'        => $persona->telefono ?? null,
             'email'           => $persona->email    ?? null,
+            'sexo'            => $persona->sexo,
         ];
         $this->{"{$rol}_dni"} = $persona->dni;
 
@@ -223,6 +230,9 @@ class MatrimonioCreate extends Component
         if ($this->mini_rol === $rol) {
             $this->cancelarMini();
         }
+
+        // Después de asignar, verificar si ya hay error de sexo
+        $this->validarEspososSexoDiferente();
     }
 
     // Limpiar un rol
@@ -238,6 +248,9 @@ class MatrimonioCreate extends Component
             $this->busqueda_resultados = [];
             $this->busqueda_rol        = null;
         }
+        
+        // Limpiar errores de sexo también
+        $this->resetErrorBag();
     }
 
     // Mini-form: abrir
@@ -339,6 +352,7 @@ class MatrimonioCreate extends Component
                 'nombre_completo' => $persona->nombre_completo,
                 'telefono'        => $persona->telefono ?? null,
                 'email'           => $persona->email    ?? null,
+                'sexo'            => $persona->sexo,
             ];
 
             $this->{"{$rol}_feligres_id"} = $feligres->id;
@@ -347,6 +361,9 @@ class MatrimonioCreate extends Component
         });
 
         $this->cancelarMini();
+        
+        // Verificar validación de sexo después de guardar
+        $this->validarEspososSexoDiferente();
     }
 
     // Mini-form: registrar persona existente como feligrés
@@ -379,6 +396,9 @@ class MatrimonioCreate extends Component
         $this->{"{$rol}_estado"}      = 'found';
 
         $this->cancelarMini();
+        
+        // Verificar validación de sexo después de guardar
+        $this->validarEspososSexoDiferente();
     }
 
     // Guardar matrimonio final
@@ -415,6 +435,11 @@ class MatrimonioCreate extends Component
         }
         if (! $this->esposa_feligres_id) {
             $this->addError('esposa_dni', 'La esposa es obligatoria.');
+            return;
+        }
+
+        // ✅ Validar sexo también al guardar
+        if (!$this->validarEspososSexoDiferente()) {
             return;
         }
 
@@ -467,37 +492,64 @@ class MatrimonioCreate extends Component
         ]);
     }
     
+    /**
+     * Valida que el esposo y la esposa sean de sexo diferente
+     * y que correspondan a hombre (M) y mujer (F) respectivamente
+     */
     private function validarEspososSexoDiferente(): bool
     {
+        // Si falta alguno de los dos, no validar aún
         if (! $this->esposo_feligres_id || ! $this->esposa_feligres_id) {
             return true;
         }
 
-        $esposoSexo = Feligres::with('persona:id,sexo')->find($this->esposo_feligres_id)?->persona?->sexo;
-        $esposaSexo = Feligres::with('persona:id,sexo')->find($this->esposa_feligres_id)?->persona?->sexo;
+        // Obtener el sexo directamente desde la base de datos para asegurar datos correctos
+        $esposoPersona = Persona::find($this->esposo_persona['id'] ?? null);
+        $esposaPersona = Persona::find($this->esposa_persona['id'] ?? null);
+        
+        if (!$esposoPersona || !$esposaPersona) {
+            return true;
+        }
+        
+        $esposoSexo = $esposoPersona->sexo;
+        $esposaSexo = $esposaPersona->sexo;
 
+        // Normalizar los valores
         $esposoSexoCanon = $this->normalizarSexoCanonico($esposoSexo);
         $esposaSexoCanon = $this->normalizarSexoCanonico($esposaSexo);
 
+        // Si no se puede determinar el sexo de alguno, permitir pasar (por si acaso)
         if (! $esposoSexoCanon || ! $esposaSexoCanon) {
             return true;
         }
 
+        // Validar que sean de sexo diferente
         if ($esposoSexoCanon === $esposaSexoCanon) {
             $this->paso = 1;
-            $this->addError('esposa_dni', 'No se pueden casar los del mismo sexo.');
+            $this->addError('esposa_dni', 'No se pueden casar personas del mismo sexo. El matrimonio debe ser entre un hombre y una mujer.');
+            $this->addError('esposo_dni', 'No se pueden casar personas del mismo sexo. El matrimonio debe ser entre un hombre y una mujer.');
             return false;
         }
 
-        if ($esposoSexoCanon !== 'M' || $esposaSexoCanon !== 'F') {
+        // Validar que esposo sea hombre y esposa mujer
+        if ($esposoSexoCanon !== 'M') {
             $this->paso = 1;
-            $this->addError('esposo_dni', 'El matrimonio debe registrarse con hombre como esposo y mujer como esposa.');
+            $this->addError('esposo_dni', 'El esposo debe ser de sexo masculino.');
+            return false;
+        }
+        
+        if ($esposaSexoCanon !== 'F') {
+            $this->paso = 1;
+            $this->addError('esposa_dni', 'La esposa debe ser de sexo femenino.');
             return false;
         }
 
         return true;
     }
 
+    /**
+     * Normaliza el valor del sexo a 'M' o 'F'
+     */
     private function normalizarSexoCanonico(?string $sexo): ?string
     {
         if (! $sexo) {
@@ -517,5 +569,3 @@ class MatrimonioCreate extends Component
         return null;
     }
 }
-
-

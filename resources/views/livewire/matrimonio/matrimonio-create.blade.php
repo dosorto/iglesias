@@ -69,6 +69,29 @@
         </div>
     </div>
 
+    {{-- ALERTA DE ERROR DE SEXO --}}
+    @if ($errors->has('esposo_dni') || $errors->has('esposa_dni'))
+        <div class="rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 p-4">
+            <div class="flex items-start gap-3">
+                <div class="flex-shrink-0">
+                    <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h4 class="text-sm font-semibold text-red-800 dark:text-red-300">No se puede registrar el matrimonio</h4>
+                    <p class="text-sm text-red-700 dark:text-red-400 mt-1">
+                        @error('esposo_dni') {{ $message }} @enderror
+                        @error('esposa_dni') {{ $message }} @enderror
+                    </p>
+                    <p class="text-xs text-red-600 dark:text-red-500 mt-2">
+                        El matrimonio debe ser entre un hombre y una mujer.
+                    </p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- PASO 1: PERSONAS --}}
     @if ($paso === 1)
     <div class="space-y-4">
@@ -117,6 +140,13 @@
                             <span class="px-2 py-0.5 rounded-full text-xs font-semibold
                                          bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">
                                 &#x2713; Registrado
+                            </span>
+                        @endif
+                        {{-- Mostrar el sexo si está disponible --}}
+                        @if ($rolPersona && isset($rolPersona['sexo']) && $rolPersona['sexo'])
+                            <span class="px-2 py-0.5 rounded-full text-xs font-medium
+                                         bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
+                                {{ $rolPersona['sexo'] === 'M' ? '♂ Hombre' : '♀ Mujer' }}
                             </span>
                         @endif
                     </div>
@@ -256,6 +286,9 @@
                                     @if ($rolPersona['telefono'])
                                         &nbsp;&middot;&nbsp;{{ $rolPersona['telefono'] }}
                                     @endif
+                                    @if (isset($rolPersona['sexo']) && $rolPersona['sexo'])
+                                        &nbsp;&middot;&nbsp;{{ $rolPersona['sexo'] === 'M' ? 'Hombre' : 'Mujer' }}
+                                    @endif
                                 </p>
                                 <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold
                                              bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">
@@ -281,6 +314,11 @@
                                         {{ $rolPersona['nombre_completo'] }}
                                     </p>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">DNI: {{ $rolPersona['dni'] }}</p>
+                                    @if (isset($rolPersona['sexo']) && $rolPersona['sexo'])
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                            Sexo: {{ $rolPersona['sexo'] === 'M' ? 'Hombre' : 'Mujer' }}
+                                        </p>
+                                    @endif
                                     <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold
                                                  bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
                                         Persona encontrada &mdash; no esta registrada como feligres
@@ -548,8 +586,6 @@
                                     </div>
                                 @endif
 
-                                {{-- Fecha de ingreso y estado se asignan automaticamente --}}
-
                                 <div class="flex gap-2 justify-end pt-2 border-t border-{{ $rc['accent'] }}-100 dark:border-{{ $rc['accent'] }}-800/40">
                                     <button type="button"
                                             wire:click="cancelarMini"
@@ -585,8 +621,6 @@
                 </div>
             </div>
         @endforeach
-
-        {{-- Fecha de matrimonio y celebrante se cargan automaticamente --}}
 
         {{-- Nav --}}
         <div class="flex justify-end">
