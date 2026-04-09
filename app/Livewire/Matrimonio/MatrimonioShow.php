@@ -53,17 +53,25 @@ class MatrimonioShow extends Component
         }
     }
 
+    private function resolverLugarExpedicionConfiguracion(): ?string
+    {
+        $direccion = trim((string) ($this->matrimonio->iglesia?->direccion ?? ''));
+        if ($direccion === '') {
+            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        }
+
+        return $direccion !== '' ? $direccion : null;
+    }
+
     public function saveCertificate(): void
     {
         $this->validate([
             'nota_marginal'    => ['nullable', 'string', 'max:500'],
-            'lugar_expedicion' => ['nullable', 'string', 'max:150'],
             'exp_dia'          => ['nullable', 'integer', 'min:1', 'max:31'],
             'exp_mes'          => ['nullable', 'integer', 'min:1', 'max:12'],
             'exp_ano'          => ['nullable', 'integer', 'min:0', 'max:99'],
         ], [
             'nota_marginal.max'    => 'La nota marginal no puede superar los 500 caracteres.',
-            'lugar_expedicion.max' => 'El lugar no puede superar los 150 caracteres.',
             'exp_dia.min'          => 'El día debe ser entre 1 y 31.',
             'exp_mes.min'          => 'El mes debe ser entre 1 y 12.',
         ]);
@@ -81,9 +89,12 @@ class MatrimonioShow extends Component
             }
         }
 
+        $lugarExpedicion = $this->resolverLugarExpedicionConfiguracion();
+        $this->lugar_expedicion = $lugarExpedicion ?? '';
+
         $this->matrimonio->update([
             'nota_marginal'    => $this->nota_marginal    ?: null,
-            'lugar_expedicion' => $this->lugar_expedicion ?: null,
+            'lugar_expedicion' => $lugarExpedicion,
             'fecha_expedicion' => $fechaExp,
         ]);
 

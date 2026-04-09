@@ -60,9 +60,16 @@ class ConfirmacionShow extends Component
         $this->aplicarLugarExpedicionPorDefecto();
 
         $fe = $confirmacion->fecha_expedicion;
-        $this->exp_dia = $fe ? (string) $fe->day   : '';
-        $this->exp_mes = $fe ? (string) $fe->month : '';
-        $this->exp_ano = $fe ? (string) ($fe->year - 2000) : '';
+        if ($fe) {
+            $this->exp_dia = (string) $fe->day;
+            $this->exp_mes = (string) $fe->month;
+            $this->exp_ano = (string) ($fe->year - 2000);
+        } else {
+            $today = now();
+            $this->exp_dia = (string) $today->day;
+            $this->exp_mes = (string) $today->month;
+            $this->exp_ano = $today->format('y');
+        }
     }
 
     private function aplicarLugarExpedicionPorDefecto(): void
@@ -79,6 +86,16 @@ class ConfirmacionShow extends Component
         if ($direccion !== '') {
             $this->lugar_expedicion = $direccion;
         }
+    }
+
+    private function resolverLugarExpedicionConfiguracion(): ?string
+    {
+        $direccion = trim((string) ($this->confirmacion->iglesia?->direccion ?? ''));
+        if ($direccion === '') {
+            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        }
+
+        return $direccion !== '' ? $direccion : null;
     }
 
     public function togglePreview(): void
@@ -119,14 +136,12 @@ class ConfirmacionShow extends Component
         $this->validate([
             'nota_marginal'    => ['nullable', 'string', 'max:500'],
             'lugar_nacimiento' => ['nullable', 'string', 'max:150'],
-            'lugar_expedicion' => ['nullable', 'string', 'max:150'],
             'exp_dia'          => ['nullable', 'integer', 'min:1', 'max:31'],
             'exp_mes'          => ['nullable', 'integer', 'min:1', 'max:12'],
             'exp_ano'          => ['nullable', 'integer', 'min:0', 'max:99'],
         ], [
             'nota_marginal.max'    => 'La nota marginal no puede superar los 500 caracteres.',
             'lugar_nacimiento.max' => 'El lugar de nacimiento no puede superar los 150 caracteres.',
-            'lugar_expedicion.max' => 'El lugar no puede superar los 150 caracteres.',
             'exp_dia.min'          => 'El día debe ser entre 1 y 31.',
             'exp_mes.min'          => 'El mes debe ser entre 1 y 12.',
         ]);
@@ -144,10 +159,13 @@ class ConfirmacionShow extends Component
             }
         }
 
+        $lugarExpedicion = $this->resolverLugarExpedicionConfiguracion();
+        $this->lugar_expedicion = $lugarExpedicion ?? '';
+
         $this->confirmacion->update([
             'nota_marginal'    => $this->nota_marginal    ?: null,
             'lugar_nacimiento' => $this->lugar_nacimiento ?: null,
-            'lugar_expedicion' => $this->lugar_expedicion ?: null,
+            'lugar_expedicion' => $lugarExpedicion,
             'fecha_expedicion' => $fechaExp,
         ]);
 

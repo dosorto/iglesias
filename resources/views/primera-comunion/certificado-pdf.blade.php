@@ -23,12 +23,17 @@
         .parish-name { font-size: 19pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; line-height: 1.1; }
         .diocese-name { font-size: 13pt; text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; color: #555; }
         .header-address { font-size: 11pt; margin-top: 4px; color: #222; letter-spacing: 0.5px; }
-        .header-divider { border-top: 2px solid #8aa8bc; margin: 6px 0 8px; }
+        .header-divider { border-top: 1px solid #6f99ad; margin: 7px 0 14px; }
 
-        .hr-accent { border: none; border-top: 1px solid #7D5A1E; margin: 3px 0; }
-        .ornament { text-align: center; color: #7D5A1E; font-size: 11pt; letter-spacing: 8px; margin: 3px 0; }
-        .cert-title-wrap { text-align: center; margin: 8px 0; }
-        .cert-title { display: inline-block; background: #7D5A1E; color: #fff; font-size: 13.5pt; font-weight: bold; letter-spacing: 4px; text-transform: uppercase; padding: 5px 32px; }
+        .doc-title {
+            text-align: center;
+            font-size: 15.5pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-decoration: underline;
+            letter-spacing: 0.4px;
+            margin-bottom: 12px;
+        }
 
         .body-text { font-size: 11.5pt; line-height: 2.2; }
         .body-text p { margin-bottom: 6px; }
@@ -52,9 +57,44 @@
         .name-line { display: block; width: 100%; border-bottom: 2px solid #7D5A1E; margin: 8px 0 12px; min-height: 22px; font-size: 13pt; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 1px; color: #1a1a1a; }
 
         .nota-marginal { font-size: 10.5pt; margin-top: 14px; line-height: 1.8; color: #444; }
-        .sello { font-size: 10pt; font-style: italic; margin-top: 4px; color: #666; }
 
-        .signature-block { margin-top: 50px; text-align: center; }
+        .bottom-signatures {
+            display: table;
+            width: 100%;
+            margin-top: 14px;
+            page-break-inside: avoid;
+        }
+
+        .seal-cell {
+            display: table-cell;
+            width: 50%;
+            vertical-align: bottom;
+            text-align: center;
+        }
+
+        .signature-cell {
+            display: table-cell;
+            width: 50%;
+            vertical-align: bottom;
+            text-align: center;
+        }
+
+        .sello {
+            width: 78px;
+            height: 78px;
+            margin: 0 auto;
+            border: 2px dashed #999;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 7.5pt;
+            color: #999;
+            line-height: 1.2;
+        }
+
+        .signature-block { margin-top: 0; text-align: center; }
         .sig-img { max-height: 65px; max-width: 210px; object-fit: contain; display: block; margin: 0 auto; }
         .sig-line { display: inline-block; width: 260px; border-top: 2px solid #7D5A1E; margin-top: 0; padding-top: 4px; }
         .sig-name { font-size: 11pt; font-weight: bold; margin-top: 4px; margin-bottom: 2px; color: #1a1a1a; }
@@ -102,13 +142,31 @@
     $mesComunion   = $fechaComunion ? $mesesEs[$fechaComunion->month] : '';
     $anoComunion   = $fechaComunion ? $fechaComunion->year            : '';
 
-    $fechaExp  = $primeraComunion->fecha_expedicion;
+    $fechaExp  = $primeraComunion->fecha_expedicion ?: now();
     $diaExp    = $fechaExp ? $fechaExp->day             : '';
     $mesExp    = $fechaExp ? $mesesEs[$fechaExp->month] : '';
     $anoExpMil = $fechaExp ? ($fechaExp->year - 2000)   : '';
 
-    $lugarCelebracion = $primeraComunion->lugar_celebracion ?? '';
-    $lugarExp         = $primeraComunion->lugar_expedicion  ?? '';
+    $lugarCelebracion = trim((string) ($primeraComunion->lugar_celebracion ?? ''));
+    if ($lugarCelebracion === '') {
+        $lugarCelebracion = trim((string) ($iglesiaConfig?->direccion ?? ''));
+    }
+    if ($lugarCelebracion === '') {
+        $lugarCelebracion = trim((string) ($iglesia?->direccion ?? ''));
+    }
+    if ($lugarCelebracion === '') {
+        $lugarCelebracion = 'Monjaras, Marcovia';
+    }
+    $lugarExp = trim((string) ($iglesiaConfig?->direccion ?? ''));
+    if ($lugarExp === '') {
+        $lugarExp = trim((string) ($iglesia?->direccion ?? ''));
+    }
+    if ($lugarExp === '') {
+        $lugarExp = trim((string) ($primeraComunion->lugar_expedicion ?? ''));
+    }
+    if ($lugarExp === '') {
+        $lugarExp = 'Monjaras, Marcovia, Choluteca, Honduras C. A.';
+    }
     $notaMarginal     = $primeraComunion->nota_marginal     ?? '';
 @endphp
 <body>
@@ -135,15 +193,7 @@
 
     <div class="header-divider"></div>
 
-    <hr class="hr-accent">
-    <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
-    <hr class="hr-accent">
-    <div class="cert-title-wrap">
-        <span class="cert-title">CERTIFICACI&Oacute;N DE PRIMERA COMUNI&Oacute;N</span>
-    </div>
-    <hr class="hr-accent">
-    <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
-    <hr class="hr-accent">
+    <div class="doc-title">CERTIFICACI&Oacute;N DE PRIMERA COMUNI&Oacute;N</div>
 
     <div class="body-text" style="margin-top: 20px;">
 
@@ -180,7 +230,7 @@
     <div class="body-text" style="margin-top: 40px;">
         <p>
             Dado en
-            <span class="underline" style="min-width:200px;">{{ $lugarExp }}</span>
+            <span>{{ $lugarExp }}</span>
             a los
             <span class="underline" style="min-width:80px; text-align:center;">{{ $diaExp }}</span>
             del mes de
@@ -188,17 +238,24 @@
             año
             <span class="underline" style="min-width:80px; text-align:center;">{{ $anoExpMil ? '20'.str_pad($anoExpMil, 2, '0', STR_PAD_LEFT) : '' }}</span>
         </p>
-        <p class="sello">(Sello)</p>
     </div>
 
-    <div class="signature-block">
-        @if ($firmaPath)
-            <img src="{{ $firmaPath }}" alt="Firma" class="sig-img">
-        @else
-            <div style="height: 65px;"></div>
-        @endif
-        <div>
-            <span class="sig-line"></span>
+    <div class="bottom-signatures">
+        <div class="seal-cell">
+            <div class="sello">Sello de la<br>Parroquia</div>
+        </div>
+        <div class="signature-cell">
+            <div class="signature-block">
+                @if ($firmaPath)
+                    <img src="{{ $firmaPath }}" alt="Firma" class="sig-img">
+                @else
+                    <div style="height: 65px;"></div>
+                @endif
+                <div>
+                    <span class="sig-line"></span>
+                </div>
+                <div class="sig-name">{{ $encargadoNombre }}</div>
+            </div>
         </div>
     </div>
 

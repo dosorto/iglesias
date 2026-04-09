@@ -115,6 +115,17 @@ class MatrimonioEdit extends Component
         }
     }
 
+    private function resolverLugarExpedicionConfiguracion(): ?string
+    {
+        if (session('tenant')) {
+            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        } else {
+            $direccion = trim((string) ($this->matrimonio->iglesia?->direccion ?? ''));
+        }
+
+        return $direccion !== '' ? $direccion : null;
+    }
+
     private function cargarEncargado(): void
     {
         $encargado = null;
@@ -440,7 +451,6 @@ class MatrimonioEdit extends Component
             'partida_numero'   => ['nullable', 'string', 'max:50'],
             'observaciones'    => ['nullable', 'string', 'max:500'],
             'nota_marginal'    => ['nullable', 'string', 'max:500'],
-            'lugar_expedicion' => ['nullable', 'string', 'max:150'],
             'exp_dia'          => ['nullable', 'integer', 'min:1', 'max:31'],
             'exp_mes'          => ['nullable', 'integer', 'min:1', 'max:12'],
             'exp_ano'          => ['nullable', 'integer', 'min:0', 'max:99'],
@@ -466,7 +476,6 @@ class MatrimonioEdit extends Component
             'partida_numero.max'             => 'La partida no puede superar los 50 caracteres.',
             'observaciones.max'              => 'Las observaciones no pueden superar los 500 caracteres.',
             'nota_marginal.max'              => 'La nota marginal no puede superar los 500 caracteres.',
-            'lugar_expedicion.max'           => 'El lugar de expedición no puede superar los 150 caracteres.',
             'exp_dia.min'                    => 'El día de expedición debe ser entre 1 y 31.',
             'exp_mes.min'                    => 'El mes de expedición debe ser entre 1 y 12.',
         ];
@@ -505,6 +514,9 @@ class MatrimonioEdit extends Component
             }
         }
 
+        $lugarExpedicion = $this->resolverLugarExpedicionConfiguracion();
+        $this->lugar_expedicion = $lugarExpedicion ?? '';
+
         $this->matrimonio->update([
             'iglesia_id'       => $this->iglesia_id,
             'encargado_id'     => $this->encargado_id,
@@ -518,7 +530,7 @@ class MatrimonioEdit extends Component
             'partida_numero'   => $this->partida_numero   ?: null,
             'observaciones'    => $this->observaciones    ?: null,
             'nota_marginal'    => $this->nota_marginal    ?: null,
-            'lugar_expedicion' => $this->lugar_expedicion ?: null,
+            'lugar_expedicion' => $lugarExpedicion,
             'fecha_expedicion' => $fechaExp,
         ]);
 
@@ -548,15 +560,42 @@ class MatrimonioEdit extends Component
         $esposoSexo = Feligres::with('persona:id,sexo')->find($this->esposo_feligres_id)?->persona?->sexo;
         $esposaSexo = Feligres::with('persona:id,sexo')->find($this->esposa_feligres_id)?->persona?->sexo;
 
-        if (! $esposoSexo || ! $esposaSexo) {
+        $esposoSexoCanon = $this->normalizarSexoCanonico($esposoSexo);
+        $esposaSexoCanon = $this->normalizarSexoCanonico($esposaSexo);
+
+        if (! $esposoSexoCanon || ! $esposaSexoCanon) {
             return true;
         }
 
-        if ($esposoSexo === $esposaSexo) {
-            $this->addError('esposa_dni', 'Solo se permite registrar matrimonio cuando ambos feligreses no tienen el mismo sexo.');
+        if ($esposoSexoCanon === $esposaSexoCanon) {
+            $this->addError('esposa_dni', 'No se pueden casar los del mismo sexo.');
+            return false;
+        }
+
+        if ($esposoSexoCanon !== 'M' || $esposaSexoCanon !== 'F') {
+            $this->addError('esposo_dni', 'El matrimonio debe registrarse con hombre como esposo y mujer como esposa.');
             return false;
         }
 
         return true;
+    }
+
+    private function normalizarSexoCanonico(?string $sexo): ?string
+    {
+        if (! $sexo) {
+            return null;
+        }
+
+        $valor = mb_strtolower(trim($sexo));
+
+        if (in_array($valor, ['m', 'masculino', 'hombre'], true)) {
+            return 'M';
+        }
+
+        if (in_array($valor, ['f', 'femenino', 'mujer'], true)) {
+            return 'F';
+        }
+
+        return null;
     }
 }

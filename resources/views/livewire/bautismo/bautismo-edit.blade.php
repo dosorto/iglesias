@@ -608,6 +608,23 @@
                     @enderror
                 </div>
 
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                        Párroco Celebrante / Anterior
+                    </label>
+                    <input type="text"
+                           wire:model.live.debounce.400ms="parroco_celebrante"
+                           placeholder="Ej: Pbro. Juan Pérez"
+                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                  border border-gray-300 dark:border-gray-600
+                                  bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white placeholder-gray-400
+                                  focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+                                  @error('parroco_celebrante') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror" />
+                    @error('parroco_celebrante')
+                        <p class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                         Lugar de Expedición
@@ -654,9 +671,9 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Año</label>
-                        <input type="number" min="0" max="99"
+                           <input type="number" min="1900" max="2100"
                                wire:model.live.debounce.400ms="exp_ano"
-                               placeholder="26"
+                               placeholder="2026"
                                class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                       border border-gray-300 dark:border-gray-600
                                       bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white placeholder-gray-400

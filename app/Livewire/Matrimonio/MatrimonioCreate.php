@@ -109,6 +109,17 @@ class MatrimonioCreate extends Component
         }
     }
 
+    private function resolverLugarExpedicionConfiguracion(): ?string
+    {
+        if (session('tenant')) {
+            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        } else {
+            $direccion = trim((string) (Iglesias::query()->find($this->iglesia_id)?->direccion ?? ''));
+        }
+
+        return $direccion !== '' ? $direccion : null;
+    }
+
     // Navegación
 
     public function siguientePaso(): void
@@ -120,6 +131,10 @@ class MatrimonioCreate extends Component
             }
             if (! $this->esposa_feligres_id) {
                 $this->addError('esposa_dni', 'La esposa es obligatoria y debe estar registrada como feligrés.');
+                return;
+            }
+
+            if (! $this->validarEspososSexoDiferente()) {
                 return;
             }
         }
@@ -416,7 +431,6 @@ class MatrimonioCreate extends Component
         $this->validate([
             'fecha_matrimonio' => ['required', 'date'],
             'nota_marginal'    => ['nullable', 'string', 'max:500'],
-            'lugar_expedicion' => ['nullable', 'string', 'max:150'],
             'exp_dia'          => ['nullable', 'integer', 'min:1', 'max:31'],
             'exp_mes'          => ['nullable', 'integer', 'min:1', 'max:12'],
             'exp_ano'          => ['nullable', 'integer', 'min:0', 'max:99'],
@@ -424,7 +438,6 @@ class MatrimonioCreate extends Component
             'fecha_matrimonio.required' => 'La fecha de matrimonio es obligatoria.',
             'fecha_matrimonio.date'     => 'La fecha de matrimonio no es válida.',
             'nota_marginal.max'         => 'La nota marginal no puede superar los 500 caracteres.',
-            'lugar_expedicion.max'      => 'El lugar no puede superar los 150 caracteres.',
             'exp_dia.min'               => 'El día debe ser entre 1 y 31.',
             'exp_mes.min'               => 'El mes debe ser entre 1 y 12.',
         ]);
@@ -455,6 +468,9 @@ class MatrimonioCreate extends Component
             }
         }
 
+        $lugarExpedicion = $this->resolverLugarExpedicionConfiguracion();
+        $this->lugar_expedicion = $lugarExpedicion ?? '';
+
         Matrimonio::create([
             'iglesia_id'       => $this->iglesia_id,
             'fecha_matrimonio' => $this->fecha_matrimonio,
@@ -468,7 +484,7 @@ class MatrimonioCreate extends Component
             'partida_numero'   => $this->partida_numero   ?: null,
             'observaciones'    => $this->observaciones    ?: null,
             'nota_marginal'    => $this->nota_marginal    ?: null,
-            'lugar_expedicion' => $this->lugar_expedicion ?: null,
+            'lugar_expedicion' => $lugarExpedicion,
             'fecha_expedicion' => $fechaExp,
         ]);
 
@@ -500,15 +516,44 @@ class MatrimonioCreate extends Component
         $esposoSexo = Feligres::with('persona:id,sexo')->find($this->esposo_feligres_id)?->persona?->sexo;
         $esposaSexo = Feligres::with('persona:id,sexo')->find($this->esposa_feligres_id)?->persona?->sexo;
 
-        if (! $esposoSexo || ! $esposaSexo) {
+        $esposoSexoCanon = $this->normalizarSexoCanonico($esposoSexo);
+        $esposaSexoCanon = $this->normalizarSexoCanonico($esposaSexo);
+
+        if (! $esposoSexoCanon || ! $esposaSexoCanon) {
             return true;
         }
 
-        if ($esposoSexo === $esposaSexo) {
-            $this->addError('esposa_dni', 'Solo se permite registrar matrimonio cuando ambos feligreses no tienen el mismo sexo.');
+        if ($esposoSexoCanon === $esposaSexoCanon) {
+            $this->paso = 1;
+            $this->addError('esposa_dni', 'No se pueden casar los del mismo sexo.');
+            return false;
+        }
+
+        if ($esposoSexoCanon !== 'M' || $esposaSexoCanon !== 'F') {
+            $this->paso = 1;
+            $this->addError('esposo_dni', 'El matrimonio debe registrarse con hombre como esposo y mujer como esposa.');
             return false;
         }
 
         return true;
+    }
+
+    private function normalizarSexoCanonico(?string $sexo): ?string
+    {
+        if (! $sexo) {
+            return null;
+        }
+
+        $valor = mb_strtolower(trim($sexo));
+
+        if (in_array($valor, ['m', 'masculino', 'hombre'], true)) {
+            return 'M';
+        }
+
+        if (in_array($valor, ['f', 'femenino', 'mujer'], true)) {
+            return 'F';
+        }
+
+        return null;
     }
 }

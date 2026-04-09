@@ -17,6 +17,7 @@ class BautismoShow extends Component
     
     // Certificate fields (editable from the show page)
     public string $nota_marginal    = '';
+    public string $parroco_celebrante = '';
     public string $lugar_nacimiento = '';
     public string $lugar_expedicion = '';
     public string $exp_dia          = '';
@@ -39,14 +40,22 @@ class BautismoShow extends Component
         ]);
 
         $this->nota_marginal    = $bautismo->nota_marginal    ?? '';
+        $this->parroco_celebrante = $bautismo->parroco_celebrante ?? '';
         $this->lugar_nacimiento = $bautismo->lugar_nacimiento  ?? '';
         $this->lugar_expedicion = $bautismo->lugar_expedicion ?? '';
         $this->aplicarLugarExpedicionPorDefecto();
 
         $fe = $bautismo->fecha_expedicion;
-        $this->exp_dia = $fe ? (string) $fe->day   : '';
-        $this->exp_mes = $fe ? (string) $fe->month : '';
-        $this->exp_ano = $fe ? (string) ($fe->year - 2000) : '';
+        if ($fe) {
+            $this->exp_dia = (string) $fe->day;
+            $this->exp_mes = (string) $fe->month;
+            $this->exp_ano = (string) $fe->year;
+        } else {
+            $today = now();
+            $this->exp_dia = (string) $today->day;
+            $this->exp_mes = (string) $today->month;
+            $this->exp_ano = (string) $today->year;
+        }
     }
 
     private function aplicarLugarExpedicionPorDefecto(): void
@@ -63,6 +72,16 @@ class BautismoShow extends Component
         if ($direccion !== '') {
             $this->lugar_expedicion = $direccion;
         }
+    }
+
+    private function resolverLugarExpedicionConfiguracion(): ?string
+    {
+        $direccion = trim((string) ($this->bautismo->iglesia?->direccion ?? ''));
+        if ($direccion === '') {
+            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        }
+
+        return $direccion !== '' ? $direccion : null;
     }
 
     public function togglePreview(): void
@@ -102,15 +121,15 @@ class BautismoShow extends Component
     {
         $this->validate([
             'nota_marginal'    => ['nullable', 'string', 'max:500'],
+            'parroco_celebrante' => ['nullable', 'string', 'max:150'],
             'lugar_nacimiento' => ['nullable', 'string', 'max:150'],
-            'lugar_expedicion' => ['nullable', 'string', 'max:150'],
             'exp_dia'          => ['nullable', 'integer', 'min:1', 'max:31'],
             'exp_mes'          => ['nullable', 'integer', 'min:1', 'max:12'],
-            'exp_ano'          => ['nullable', 'integer', 'min:0', 'max:99'],
+            'exp_ano'          => ['nullable', 'integer', 'digits:4', 'min:1900', 'max:2100'],
         ], [
             'nota_marginal.max'    => 'La nota marginal no puede superar los 500 caracteres.',
+            'parroco_celebrante.max' => 'El nombre del párroco celebrante no puede superar los 150 caracteres.',
             'lugar_nacimiento.max' => 'El lugar de nacimiento no puede superar los 150 caracteres.',
-            'lugar_expedicion.max' => 'El lugar no puede superar los 150 caracteres.',
             'exp_dia.min'          => 'El día debe ser entre 1 y 31.',
             'exp_mes.min'          => 'El mes debe ser entre 1 y 12.',
         ]);
@@ -119,7 +138,7 @@ class BautismoShow extends Component
         if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
             try {
                 $fechaExp = \Carbon\Carbon::createFromDate(
-                    2000 + (int) $this->exp_ano,
+                    (int) $this->exp_ano,
                     (int) $this->exp_mes,
                     (int) $this->exp_dia
                 )->format('Y-m-d');
@@ -128,10 +147,14 @@ class BautismoShow extends Component
             }
         }
 
+        $lugarExpedicion = $this->resolverLugarExpedicionConfiguracion();
+        $this->lugar_expedicion = $lugarExpedicion ?? '';
+
         $this->bautismo->update([
             'nota_marginal'    => $this->nota_marginal    ?: null,
+            'parroco_celebrante' => $this->parroco_celebrante ?: null,
             'lugar_nacimiento' => $this->lugar_nacimiento ?: null,
-            'lugar_expedicion' => $this->lugar_expedicion ?: null,
+            'lugar_expedicion' => $lugarExpedicion,
             'fecha_expedicion' => $fechaExp,
         ]);
 

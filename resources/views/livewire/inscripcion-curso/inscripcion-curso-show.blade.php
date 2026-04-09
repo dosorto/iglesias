@@ -107,13 +107,58 @@ Curso
 {{-- INSTRUCTOR --}}
 <div>
 
+@php
+	$instructoresCurso = collect([$inscripcion->curso?->instructor])
+		->filter()
+		->merge($inscripcion->curso?->instructors ?? collect())
+		->unique('id')
+		->values();
+
+	$resolverFirmaInstructor = function (?string $path): ?string {
+		if (! $path) {
+			return null;
+		}
+
+		$normalized = trim((string) parse_url($path, PHP_URL_PATH) ?: $path);
+		$normalized = ltrim($normalized, '/\\');
+
+		if ($normalized === '') {
+			return null;
+		}
+
+		return str_starts_with($normalized, 'storage/')
+			? asset($normalized)
+			: asset('storage/' . $normalized);
+	};
+@endphp
+
 <p class="text-xs font-semibold text-gray-500 uppercase mb-1">
 Instructor
 </p>
 
 <p class="text-sm font-medium text-gray-900 dark:text-white">
-{{ $inscripcion->curso?->instructors?->pluck('feligres.persona.nombre_completo')?->filter()?->join(', ') ?: ($inscripcion->curso?->instructor?->feligres?->persona?->nombre_completo ?? '—') }}
+{{ $instructoresCurso->pluck('feligres.persona.nombre_completo')->filter()->join(', ') ?: '—' }}
 </p>
+
+<div class="mt-2 space-y-2">
+	@forelse($instructoresCurso as $instructor)
+		@php $firmaInstructorUrl = $resolverFirmaInstructor($instructor->path_firma); @endphp
+		<div class="rounded-lg border border-gray-200 dark:border-gray-700 p-2">
+			<p class="text-[11px] text-gray-500 mb-1">
+				Firma: {{ $instructor->feligres?->persona?->nombre_completo ?? 'Instructor' }}
+			</p>
+			@if($firmaInstructorUrl)
+				<img src="{{ $firmaInstructorUrl }}"
+					 alt="Firma del instructor"
+					 class="max-h-16 rounded border border-gray-200 dark:border-gray-700 bg-white" />
+			@else
+				<p class="text-xs text-gray-400">Sin firma registrada</p>
+			@endif
+		</div>
+	@empty
+		<p class="text-xs text-gray-400">Sin instructor asignado.</p>
+	@endforelse
+</div>
 
 </div>
 

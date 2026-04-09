@@ -76,6 +76,7 @@ class BautismoCreate extends Component
     public string $partida_numero = '';
     public string $observaciones  = '';
     public string $nota_marginal    = '';
+    public string $parroco_celebrante = '';
     public string $lugar_nacimiento = '';
     public string $lugar_expedicion = '';
     public string $exp_dia          = '';
@@ -456,15 +457,17 @@ class BautismoCreate extends Component
         $this->validate([
             'fecha_bautismo' => ['required', 'date'],
             'nota_marginal'    => ['nullable', 'string', 'max:500'],
+            'parroco_celebrante' => ['nullable', 'string', 'max:150'],
             'lugar_nacimiento' => ['nullable', 'string', 'max:150'],
             'lugar_expedicion' => ['nullable', 'string', 'max:150'],
             'exp_dia'          => ['nullable', 'integer', 'min:1', 'max:31'],
             'exp_mes'          => ['nullable', 'integer', 'min:1', 'max:12'],
-            'exp_ano'          => ['nullable', 'integer', 'min:0', 'max:99'],
+            'exp_ano'          => ['nullable', 'integer', 'digits:4', 'min:1900', 'max:2100'],
         ], [
             'fecha_bautismo.required' => 'La fecha de bautismo es obligatoria.',
             'fecha_bautismo.date'     => 'La fecha de bautismo no es válida.',
             'nota_marginal.max'       => 'La nota marginal no puede superar los 500 caracteres.',
+            'parroco_celebrante.max'  => 'El nombre del párroco celebrante no puede superar los 150 caracteres.',
             'lugar_nacimiento.max'    => 'El lugar de nacimiento no puede superar los 150 caracteres.',
             'lugar_expedicion.max'    => 'El lugar no puede superar los 150 caracteres.',
             'exp_dia.min'             => 'El día debe ser entre 1 y 31.',
@@ -495,6 +498,7 @@ class BautismoCreate extends Component
             'partida_numero' => $this->partida_numero ?: null,
             'observaciones'  => $this->observaciones  ?: null,
             'nota_marginal'    => $this->nota_marginal    ?: null,
+            'parroco_celebrante' => $this->parroco_celebrante ?: null,
             'lugar_nacimiento' => $this->lugar_nacimiento ?: null,
             'lugar_expedicion' => $this->lugar_expedicion ?: null,
             'fecha_expedicion' => $fechaExp,
@@ -535,7 +539,7 @@ class BautismoCreate extends Component
             return false;
         }
 
-        $year = 2000 + (int) $ano;
+        $year = (int) $ano;
 
         if (! checkdate((int) $mes, (int) $dia, $year)) {
             $this->addError('exp_dia', 'La fecha de expedición no es válida.');

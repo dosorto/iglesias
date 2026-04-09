@@ -484,15 +484,6 @@
                                   focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Lugar de Expedición</label>
-                    <input wire:model.lazy="lugar_expedicion" type="text" placeholder="Ej: Parroquia San Pablo"
-                           class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600
-                                  bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white placeholder-gray-400
-                                  focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                    @error('lugar_expedicion') <p class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
-                </div>
-
                 <div class="sm:col-span-2">
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Observaciones</label>
                     <textarea wire:model.lazy="observaciones" rows="2" placeholder="Observaciones adicionales…"

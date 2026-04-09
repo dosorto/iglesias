@@ -129,14 +129,6 @@
             </div>
 
             <div>
-                <label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Lugar de Expedición</label>
-                <input wire:model="lugar_expedicion" type="text"
-                       class="w-full px-2 py-1.5 text-xs rounded-md border border-gray-300 dark:border-gray-600
-                              bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                              focus:ring-1 focus:ring-blue-500 focus:border-transparent">
-            </div>
-
-            <div>
                 <label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Día / Mes / Año</label>
                 <div class="grid grid-cols-3 gap-1">
                     <input wire:model="exp_dia" type="number" min="1" max="31" placeholder="DD"
@@ -147,7 +139,7 @@
                            class="px-2 py-1.5 text-xs rounded-md border border-gray-300 dark:border-gray-600
                                   bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                                   focus:ring-1 focus:ring-blue-500 focus:border-transparent">
-                    <input wire:model="exp_ano" type="number" min="0" max="99" placeholder="AA"
+                          <input wire:model="exp_ano" type="number" min="1900" max="2100" placeholder="AAAA"
                            class="px-2 py-1.5 text-xs rounded-md border border-gray-300 dark:border-gray-600
                                   bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                                   focus:ring-1 focus:ring-blue-500 focus:border-transparent">
@@ -161,6 +153,14 @@
                                  bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                                  focus:ring-1 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
             </div>
+
+                 <div>
+                  <label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Párroco Celebrante / Anterior</label>
+                  <input wire:model="parroco_celebrante" type="text"
+                      class="w-full px-2 py-1.5 text-xs rounded-md border border-gray-300 dark:border-gray-600
+                          bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                          focus:ring-1 focus:ring-blue-500 focus:border-transparent">
+                 </div>
 
             <button wire:click="saveCertificate"
                     class="w-full px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors">

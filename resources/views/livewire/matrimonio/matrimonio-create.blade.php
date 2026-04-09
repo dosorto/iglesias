@@ -648,14 +648,7 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Lugar de Expedición</label>
-                    <input wire:model="lugar_expedicion" type="text"
-                           class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600
-                                  bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
-                                  focus:ring-2 focus:ring-rose-500 focus:border-transparent">
-                </div>
-                <div>
+                <div class="sm:col-span-2">
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Fecha de Expedición</label>
                     <div class="grid grid-cols-3 gap-2">
                         <input wire:model="exp_dia" type="number" min="1" max="31" placeholder="Día"

@@ -54,10 +54,45 @@
         .name-line { display: block; width: 100%; border-bottom: 2px solid #333; margin: 8px 0 12px; min-height: 22px; font-size: 13pt; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
 
         .nota-marginal { font-size: 10.5pt; margin-top: 14px; line-height: 1.8; color: #444; }
-        .issuance { font-size: 11.5pt; line-height: 2.4; margin-top: 26px; }
-        .sello { font-size: 10pt; font-style: italic; margin-top: 4px; color: #666; }
+        .issuance { font-size: 11.5pt; line-height: 2.2; margin-top: 22px; }
 
-        .signature-block { margin-top: 44px; text-align: center; }
+        .bottom-signatures {
+            display: table;
+            width: 100%;
+            margin-top: 14px;
+            page-break-inside: avoid;
+        }
+
+        .seal-cell {
+            display: table-cell;
+            width: 50%;
+            vertical-align: bottom;
+            text-align: center;
+        }
+
+        .signature-cell {
+            display: table-cell;
+            width: 50%;
+            vertical-align: bottom;
+            text-align: center;
+        }
+
+        .sello {
+            width: 78px;
+            height: 78px;
+            margin: 0 auto;
+            border: 2px dashed #999;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 7.5pt;
+            color: #999;
+            line-height: 1.2;
+        }
+
+        .signature-block { margin-top: 0; text-align: center; }
         .sig-img {
             max-height: 65px;
             max-width: 210px;
@@ -121,13 +156,22 @@
     $mesConf = $fc ? $mesesEs[$fc->month] : '';
     $anoConf = $fc ? $fc->year            : '';
 
-    $fe        = $confirmacion->fecha_expedicion;
+    $fe        = $confirmacion->fecha_expedicion ?: now();
     $diaExp    = $fe ? $fe->day             : '';
     $mesExp    = $fe ? $mesesEs[$fe->month] : '';
     $anoExpMil = $fe ? ($fe->year - 2000)   : '';
 
     $lugarConf    = $confirmacion->lugar_confirmacion ?? '';
-    $lugarExp     = $confirmacion->lugar_expedicion   ?? '';
+    $lugarExp     = trim((string) ($iglesiaConfig?->direccion ?? ''));
+    if ($lugarExp === '') {
+        $lugarExp = trim((string) ($confirmacion->iglesia?->direccion ?? ''));
+    }
+    if ($lugarExp === '') {
+        $lugarExp = trim((string) ($confirmacion->lugar_expedicion ?? ''));
+    }
+    if ($lugarExp === '') {
+        $lugarExp = 'Monjaras, Marcovia, Choluteca, Honduras C. A.';
+    }
     $notaMarginal = $confirmacion->nota_marginal      ?? '';
 
     $firmaPath = null;
@@ -201,21 +245,28 @@
 
     <div class="issuance">
         <p>
-            Dado en <span class="field field-lg">{{ $lugarExp }}</span>
+            Dado en <span>{{ $lugarExp }}</span>
             a los <span class="field field-sm">{{ $diaExp }}</span>
             del mes de <span class="field field-md">{{ $mesExp }}</span>
             año <span class="field field-sm">{{ $anoExpMil ? '20'.$anoExpMil : '' }}</span>
         </p>
-        <p class="sello">(Sello)</p>
     </div>
 
-    <div class="signature-block">
-        @if ($firmaPath)
-            <img src="{{ $firmaPath }}" alt="Firma" class="sig-img">
-        @else
-            <div style="height: 65px;"></div>
-        @endif
-        <div><span class="sig-line"></span></div>
+    <div class="bottom-signatures">
+        <div class="seal-cell">
+            <div class="sello">Sello de la<br>Parroquia</div>
+        </div>
+        <div class="signature-cell">
+            <div class="signature-block">
+                @if ($firmaPath)
+                    <img src="{{ $firmaPath }}" alt="Firma" class="sig-img">
+                @else
+                    <div style="height: 65px;"></div>
+                @endif
+                <div><span class="sig-line"></span></div>
+                <div class="sig-name">{{ $encargadoNombre }}</div>
+            </div>
+        </div>
     </div>
 
 </div>
