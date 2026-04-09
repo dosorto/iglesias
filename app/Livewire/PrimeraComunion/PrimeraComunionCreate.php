@@ -416,6 +416,8 @@ class PrimeraComunionCreate extends Component
             $this->iglesia_id = TenantIglesia::currentId();
         }
 
+        $this->fecha_primera_comunion = $this->fecha_primera_comunion ?: now()->format('Y-m-d');
+
         $this->validate([
             'fecha_primera_comunion' => ['required', 'date'],
         ], [

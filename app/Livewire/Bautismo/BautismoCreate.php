@@ -433,6 +433,8 @@ class BautismoCreate extends Component
             $this->iglesia_id = TenantIglesia::currentId();
         }
 
+        $this->fecha_bautismo = $this->fecha_bautismo ?: now()->format('Y-m-d');
+
         $this->validate([
             'fecha_bautismo' => ['required', 'date'],
             'nota_marginal'    => ['nullable', 'string', 'max:500'],
@@ -456,7 +458,7 @@ class BautismoCreate extends Component
             return;
         }
 
-        $fechaExp = null;
+        $fechaExp = now()->format('Y-m-d');
         if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
             try {
                 $fechaExp = \Carbon\Carbon::createFromDate(
@@ -465,7 +467,7 @@ class BautismoCreate extends Component
                     (int) $this->exp_dia
                 )->format('Y-m-d');
             } catch (\Exception) {
-                $fechaExp = null;
+                $fechaExp = now()->format('Y-m-d');
             }
         }
 

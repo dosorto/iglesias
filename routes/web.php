@@ -10,6 +10,12 @@ use App\Livewire\Curso\MatriculadoCursoShow;
 
 Route::view('/', 'welcome');
 
+Route::get('/verificar-documento/{codigo}', [\App\Http\Controllers\DocumentoGeneradoController::class, 'verificar'])
+    ->name('documentos.verificar');
+
+Route::get('/verificar-documento/{codigo}/pdf', [\App\Http\Controllers\DocumentoGeneradoController::class, 'pdfPorCodigo'])
+    ->name('documentos.verificar.pdf');
+
 Route::middleware(['auth'])->group(function () {
     Route::view('dashboard', 'dashboard')
         ->middleware('verified')
@@ -52,6 +58,14 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:roles.view')
         ->get('/configuracion/certificado-bautismo', fn () => view('configuracion.certificado-bautismo'))
         ->name('configuracion.certificado-bautismo');
+
+    Route::middleware('permission:roles.view')
+        ->get('/configuracion/documentos-generados', fn () => view('configuracion.documentos-generados'))
+        ->name('configuracion.documentos-generados');
+
+    Route::middleware('permission:roles.view')
+        ->get('/configuracion/documentos-generados/{documentoGenerado}/pdf', [\App\Http\Controllers\DocumentoGeneradoController::class, 'pdf'])
+        ->name('configuracion.documentos-generados.pdf');
 
     Route::middleware('permission:roles.view')
         ->get('/configuracion/iglesia', [\App\Http\Controllers\IglesiaController::class, 'editConfiguracion'])
