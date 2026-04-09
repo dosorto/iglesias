@@ -214,14 +214,11 @@
     $encargado = $curso?->encargado?->feligres?->persona;
 
     $iglesiaNombre = $iglesiaConfig?->nombre ?? 'Capacitaciones';
-
-    // USAR RUTAS FÍSICAS COMO EN BAUTISMO
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
 
-    // Si tu firma está en instructor y existe ese campo, descomentá/adaptá
-    // $firmaPath = $resolvePublicFilePath($curso?->instructor?->path_firma_principal);
-    $firmaPath = null;
+    // FIRMA DEL INSTRUCTOR: el campo correcto es path_firma
+    $firmaPath = $resolvePublicFilePath($curso?->instructor?->path_firma);
 
     $fechaInicio = $curso?->fecha_inicio;
     $fechaFin = $curso?->fecha_fin;
@@ -365,7 +362,7 @@
         <div class="sig-bottom">
             @if ($firmaPath && file_exists($firmaPath))
                 <p style="text-align:center; margin-bottom: 2px;">
-                    <img src="{{ $firmaPath }}" style="max-height:50px; max-width:180px;" alt="Firma">
+                    <img src="{{ $firmaPath }}" style="max-height:50px; max-width:180px;" alt="Firma del instructor">
                 </p>
             @endif
 
