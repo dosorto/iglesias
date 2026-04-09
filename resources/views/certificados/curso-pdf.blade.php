@@ -372,6 +372,8 @@
         </div>
     </div>
 
+    
+
     <div class="print-actions">
         <button class="btn btn-print" onclick="window.print()">Imprimir</button>
         <a href="{{ route('curso.show', $inscripcion->curso_id) }}" class="btn btn-back">Volver al curso</a>

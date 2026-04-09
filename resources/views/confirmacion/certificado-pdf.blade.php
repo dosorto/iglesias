@@ -74,6 +74,13 @@
         }
         .sig-name { font-size: 11pt; font-weight: bold; margin-bottom: 2px; color: #1a1a1a; margin-top: 4px; }
         .sig-title { font-size: 10pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #7D5A1E; }
+
+        .logo-placeholder {
+            width: 75px;
+            height: 75px;
+            display: block;
+            background: transparent;
+        }
     </style>
 </head>
 @php
@@ -89,14 +96,6 @@
 
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
-
-    $logoEstaticoPath = public_path('image/Logo_guest.png');
-    if (! $logoIglesiaPath && is_file($logoEstaticoPath)) {
-        $logoIglesiaPath = $logoEstaticoPath;
-    }
-    if (! $logoIglesiaDerechaPath) {
-        $logoIglesiaDerechaPath = $logoIglesiaPath;
-    }
 
     $confirmado      = $confirmacion->feligres?->persona;
     $padrino         = $confirmacion->padrino?->persona;
@@ -145,7 +144,11 @@
 
     <div class="header">
         <div class="header-logo-cell">
-            @if ($logoIglesiaPath)<img src="{{ $logoIglesiaPath }}" alt="Logo">@endif
+            @if ($logoIglesiaPath)
+                <img src="{{ $logoIglesiaPath }}" alt="Logo">
+            @else
+                <div class="logo-placeholder"></div>
+            @endif
         </div>
         <div class="header-title-cell">
             <div class="parish-name">Parroquia{{ $iglesiaNombre ? ' ' . $iglesiaNombre : '' }}</div>
@@ -153,7 +156,11 @@
             <div class="header-address">Monjarás, Marcovia, Choluteca, Honduras, C.A.</div>
         </div>
         <div class="header-right-cell">
-            @if ($logoIglesiaDerechaPath)<img src="{{ $logoIglesiaDerechaPath }}" alt="Logo">@endif
+            @if ($logoIglesiaDerechaPath)
+                <img src="{{ $logoIglesiaDerechaPath }}" alt="Logo">
+            @else
+                <div class="logo-placeholder"></div>
+            @endif
         </div>
     </div>
 
