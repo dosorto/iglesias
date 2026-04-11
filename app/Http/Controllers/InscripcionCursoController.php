@@ -49,10 +49,9 @@ class InscripcionCursoController extends Controller
         ]);
 
         $iglesiaConfig = TenantIglesia::current();
-        $orientation = $iglesiaConfig?->orientacion_certificado === 'landscape' ? 'landscape' : 'portrait';
 
         $pdf = Pdf::loadView('certificados.curso-pdf', compact('inscripcion', 'iglesiaConfig'))
-            ->setPaper('letter', $orientation);
+            ->setPaper('letter', 'landscape');
 
         $nombreArchivo = 'certificado-curso-' . $inscripcion->id . '.pdf';
 
