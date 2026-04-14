@@ -457,6 +457,10 @@ Route::middleware(['auth'])->group(function () {
 
 
     Route::middleware('permission:inscripcion-curso.view')
+        ->get('/inscripcion-curso/certificados/aprobados/pdf', [\App\Http\Controllers\InscripcionCursoController::class, 'certificadosAprobadosPdf'])
+        ->name('inscripcion-curso.certificados-aprobados.pdf');
+
+    Route::middleware('permission:inscripcion-curso.view')
         ->get('/inscripcion-curso/{inscripcion}/certificado/pdf', [\App\Http\Controllers\InscripcionCursoController::class, 'certificadoPdf'])
         ->name('inscripcion-curso.certificado.pdf');
 });

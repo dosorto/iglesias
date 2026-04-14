@@ -31,6 +31,12 @@
         </div>
     @endif
 
+    @if (session()->has('error'))
+        <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-700 dark:bg-red-900/20 dark:text-red-300">
+            {{ session('error') }}
+        </div>
+    @endif
+
     @php
     $badgeClass = match(strtolower($curso->estado ?? '')) {
         'activo'     => 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
@@ -189,12 +195,31 @@
                 Matriculados
             </h2>
 
-            @can('inscripcion-curso.create')
-                <a href="{{ route('inscripcion-curso.create', ['curso_id' => $curso->id]) }}"
-                   class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors duration-200 text-sm font-medium">
-                    Agregar matriculado
-                </a>
-            @endcan
+            <div class="flex flex-wrap items-center gap-2">
+                @can('inscripcion-curso.view')
+                    <a href="{{ route('inscripcion-curso.certificados-aprobados.pdf', ['curso_id' => $curso->id]) }}"
+                       target="_blank"
+                       class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 text-sm font-medium">
+                        Generar certificados
+                    </a>
+                @endcan
+
+                @can('inscripcion-curso.edit')
+                    <button
+                        type="button"
+                        wire:click="aprobarTodosMatriculados"
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors duration-200 text-sm font-medium">
+                        Aprobar todos
+                    </button>
+                @endcan
+
+                @can('inscripcion-curso.create')
+                    <a href="{{ route('inscripcion-curso.create', ['curso_id' => $curso->id]) }}"
+                       class="inline-flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors duration-200 text-sm font-medium">
+                        Agregar matriculado
+                    </a>
+                @endcan
+            </div>
         </div>
 
         <div class="p-6">
@@ -211,6 +236,9 @@
                                 </th>
                                 <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                     Fecha inscripción
+                                </th>
+                                <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                    Aprobado
                                 </th>
                                 <th class="px-4 py-3 text-right text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                     Acciones
@@ -233,12 +261,41 @@
                                         {{ optional($inscripcion->fecha_inscripcion)->format('d/m/Y') ?? 'N/A' }}
                                     </td>
 
+                                    <td class="px-4 py-3 text-sm">
+                                        @can('inscripcion-curso.edit')
+                                            <button
+                                                type="button"
+                                                wire:click="toggleAprobadoMatriculado({{ $inscripcion->id }})"
+                                                class="px-2.5 py-1 text-xs font-semibold rounded transition-colors
+                                                       {{ $inscripcion->aprobado
+                                                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                            : 'bg-red-100 text-red-700 hover:bg-red-200' }}">
+                                                {{ $inscripcion->aprobado ? 'Sí' : 'No' }}
+                                            </button>
+                                        @else
+                                            <span class="px-2.5 py-1 text-xs font-semibold rounded
+                                                       {{ $inscripcion->aprobado
+                                                            ? 'bg-green-100 text-green-700'
+                                                            : 'bg-red-100 text-red-700' }}">
+                                                {{ $inscripcion->aprobado ? 'Sí' : 'No' }}
+                                            </span>
+                                        @endcan
+                                    </td>
+
                                     <td class="px-4 py-3 text-sm text-right">
                                         <div class="flex justify-end gap-2">
                                             <a href="{{ route('matriculado-curso.show', $inscripcion->id) }}"
                                                class="px-3 py-1.5 text-xs font-medium rounded-lg bg-sky-600 text-white hover:bg-sky-700 transition-colors inline-block">
                                                 Ver
                                             </a>
+
+                                            @if($inscripcion->aprobado)
+                                                <a href="{{ route('inscripcion-curso.certificado.pdf', $inscripcion->id) }}"
+                                                   target="_blank"
+                                                   class="px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors inline-block">
+                                                    Certificado
+                                                </a>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

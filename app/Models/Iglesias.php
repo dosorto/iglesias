@@ -45,6 +45,8 @@ class Iglesias extends Model
     protected $fillable = [
         'nombre',
         'direccion',
+        'header_diocesis',
+        'header_lugar',
         'parroco_nombre',
         'telefono',
         'email',

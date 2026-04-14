@@ -6,7 +6,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #1a1a1a; background: #fff; }
-        .page-wrapper { padding: 30px 46px; border: 4px double #7D5A1E; margin: 10px; position: relative; z-index: 1; }
+        .page-wrapper { padding: 30px 46px 28px; border: 6px double #7D5A1E; margin: 10px; position: relative; z-index: 1; }
 
         .watermark-logo {
             position: fixed;
@@ -75,14 +75,44 @@
         .sig-name { font-size: 11pt; font-weight: bold; margin-bottom: 2px; color: #1a1a1a; margin-top: 4px; }
         .sig-title { font-size: 10pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #7D5A1E; }
 
+        .footer-row {
+            display: table;
+            width: 100%;
+            margin-top: 10px;
+            page-break-inside: avoid;
+        }
+        .footer-seal,
+        .footer-qr,
+        .footer-signature {
+            display: table-cell;
+            vertical-align: bottom;
+        }
+        .footer-seal {
+            width: 33%;
+            text-align: left;
+        }
+        .footer-qr {
+            width: 34%;
+            text-align: center;
+        }
+        .footer-signature {
+            width: 33%;
+            text-align: right;
+        }
+
         .qr-verify {
-            margin-top: 12px;
+            position: static;
+            display: inline-block;
+            margin-top: 0;
+            text-align: center;
             font-size: 8pt;
             color: #555;
+            line-height: 1;
+            z-index: 2;
         }
         .qr-verify img {
-            width: 70px;
-            height: 70px;
+            width: 58px;
+            height: 58px;
             border: 1px solid #d1d5db;
             padding: 2px;
             background: #fff;
@@ -111,6 +141,8 @@
     $encargado       = $confirmacion->encargado?->feligres?->persona;
 
     $iglesiaNombre   = $iglesiaConfig?->nombre ?? $confirmacion->iglesia?->nombre ?? '';
+    $headerDiocesis = $iglesiaConfig?->header_diocesis ?: '';
+    $headerLugar = $iglesiaConfig?->direccion ?: '';
     $ministroNombre  = $ministro?->nombre_completo ?? '';
     $encargadoNombre = $encargado?->nombre_completo ?? '';
 
@@ -161,9 +193,9 @@
             @endif
         </div>
         <div class="header-title-cell">
-            <div class="parish-name">Parroquia{{ $iglesiaNombre ? ' ' . $iglesiaNombre : '' }}</div>
-            <div class="diocese-name">Di&oacute;cesis de Choluteca</div>
-            <div class="header-address">Monjarás, Marcovia, Choluteca, Honduras, C.A.</div>
+            <div class="parish-name">{{ $iglesiaNombre }}</div>
+            <div class="diocese-name">{{ $headerDiocesis }}</div>
+            <div class="header-address">{{ $headerLugar }}</div>
         </div>
         <div class="header-right-cell">
             @if ($logoIglesiaDerechaPath)
@@ -223,25 +255,34 @@
             del mes de <span class="field field-md">{{ $mesExp }}</span>
             año <span class="field field-sm">{{ $anoExpMil ? '20'.$anoExpMil : '' }}</span>
         </p>
-        <p class="sello">(Sello)</p>
     </div>
 
-    <div class="signature-block">
-        @if ($firmaPath)
-            <img src="{{ $firmaPath }}" alt="Firma" class="sig-img">
-        @else
-            <div style="height: 65px;"></div>
-        @endif
-        <div><span class="sig-line"></span></div>
-        <p class="sig-name">{{ $encargadoNombre ?: '' }}</p>
-        <p class="sig-title">P&aacute;rroco</p>
-    </div>
-
-    @if ($qrDataUri)
-        <div class="qr-verify">
-            <img src="{{ $qrDataUri }}" alt="QR de verificacion">
+    <div class="footer-row">
+        <div class="footer-seal">
+            <p class="sello">(Sello)</p>
         </div>
-    @endif
+
+        <div class="footer-qr">
+            @if ($qrDataUri)
+                <div class="qr-verify">
+                    <img src="{{ $qrDataUri }}" alt="QR de verificacion">
+                </div>
+            @endif
+        </div>
+
+        <div class="footer-signature">
+            <div class="signature-block" style="margin-top: 0; text-align: center;">
+                @if ($firmaPath)
+                    <img src="{{ $firmaPath }}" alt="Firma" class="sig-img">
+                @else
+                    <div style="height: 65px;"></div>
+                @endif
+                <div><span class="sig-line"></span></div>
+                <p class="sig-name">{{ $encargadoNombre ?: '' }}</p>
+                <p class="sig-title">P&aacute;rroco</p>
+            </div>
+        </div>
+    </div>
 
 </div>
 </body>

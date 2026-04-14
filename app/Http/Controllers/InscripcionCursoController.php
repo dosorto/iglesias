@@ -11,6 +11,7 @@ use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\RoundBlockSizeMode;
 use Endroid\QrCode\Writer\PngWriter;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -104,6 +105,60 @@ class InscripcionCursoController extends Controller
         );
 
         return response($pdfBinario, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $nombreArchivo . '"',
+        ]);
+    }
+
+    public function certificadosAprobadosPdf(Request $request)
+    {
+        $cursoId = (int) $request->integer('curso_id');
+
+        $query = InscripcionCurso::with([
+            'curso.instructor.feligres.persona',
+            'curso.encargado.feligres.persona',
+            'feligres.persona',
+        ])
+            ->where('aprobado', true);
+
+        if ($cursoId > 0) {
+            $query->where('curso_id', $cursoId);
+        }
+
+        $inscripciones = $query
+            ->orderByDesc('fecha_certificado')
+            ->orderByDesc('id')
+            ->get();
+
+        if ($inscripciones->isEmpty()) {
+            return redirect()->route('inscripcion-curso.index')
+                ->with('error', $cursoId > 0
+                    ? 'No hay certificados aprobados para este curso.'
+                    : 'No hay certificados aprobados para generar.');
+        }
+
+        foreach ($inscripciones as $inscripcion) {
+            if (! $inscripcion->certificado_emitido || ! $inscripcion->fecha_certificado) {
+                $inscripcion->update([
+                    'certificado_emitido' => true,
+                    'fecha_certificado' => $inscripcion->fecha_certificado ?: now()->toDateString(),
+                ]);
+            }
+        }
+
+        $inscripciones->load([
+            'curso.instructor.feligres.persona',
+            'curso.encargado.feligres.persona',
+            'feligres.persona',
+        ]);
+
+        $iglesiaConfig = TenantIglesia::current();
+        $nombreArchivo = 'certificados-cursos-aprobados-' . now()->format('Ymd-His') . '.pdf';
+
+        $pdf = Pdf::loadView('certificados.curso-masivo-pdf', compact('inscripciones', 'iglesiaConfig'))
+            ->setPaper('letter', 'landscape');
+
+        return response($pdf->output(), 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="' . $nombreArchivo . '"',
         ]);

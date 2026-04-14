@@ -245,7 +245,9 @@
     $instructor = $curso?->instructor?->feligres?->persona;
     $encargado = $curso?->encargado?->feligres?->persona;
 
-    $iglesiaNombre = $iglesiaConfig?->nombre ?? 'Capacitaciones';
+    $iglesiaNombre = $iglesiaConfig?->nombre ?? '';
+    $headerDiocesis = $iglesiaConfig?->header_diocesis ?: '';
+    $headerLugar = $iglesiaConfig?->direccion ?: '';
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
 
@@ -296,8 +298,8 @@
 
             <div class="header-title-cell">
                 <div class="parish-name">{{ $iglesiaNombre }}</div>
-                <div class="diocese-name">Sistema de Gestión de Capacitaciones</div>
-                <div class="header-address">Constancia formal de aprobación de curso</div>
+                <div class="diocese-name">{{ $headerDiocesis }}</div>
+                <div class="header-address">{{ $headerLugar }}</div>
             </div>
 
             <div class="header-right-cell">

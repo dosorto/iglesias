@@ -34,7 +34,7 @@
         }
 
         .page-wrapper {
-            padding: 18px 18px 24px 18px;
+            padding: 18px 18px 108px 18px;
             border: none;
             margin: 2px;
             position: relative;
@@ -267,9 +267,14 @@
         }
 
         .qr-verify {
-            margin-top: 12px;
+            position: fixed;
+            left: 40px;
+            bottom: 34px;
+            margin-top: 0;
             font-size: 8pt;
             color: #555;
+            line-height: 1;
+            z-index: 2;
         }
         .qr-verify img {
             width: 70px;
@@ -303,7 +308,9 @@
     $encargadoModel = $matrimonio->encargado;
     $firmaPath = $resolvePublicFilePath($encargadoModel?->path_firma_principal);
 
-    $iglesiaNombreHeader = $matrimonio->iglesia?->nombre ?? $iglesiaConfig?->nombre ?? 'Parroquia';
+    $iglesiaNombreHeader = $matrimonio->iglesia?->nombre ?? $iglesiaConfig?->nombre ?? '';
+    $headerDiocesis = $iglesiaConfig?->header_diocesis ?: '';
+    $headerLugar = $iglesiaConfig?->direccion ?: '';
 
     $mesesEs = [
         1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',
@@ -348,9 +355,9 @@
             @endif
         </div>
         <div class="header-title-cell">
-            <div class="parish-name">Parroquia{{ $iglesiaNombreHeader ? ' ' . $iglesiaNombreHeader : '' }}</div>
-            <div class="diocese-name">Di&oacute;cesis de Choluteca</div>
-            <div class="header-address">Monjarás, Marcovia, Choluteca, Honduras, C.A.</div>
+            <div class="parish-name">{{ $iglesiaNombreHeader }}</div>
+            <div class="diocese-name">{{ $headerDiocesis }}</div>
+            <div class="header-address">{{ $headerLugar }}</div>
         </div>
         <div class="header-right-cell">
             @if ($logoIglesiaDerechaPath)

@@ -9,6 +9,7 @@ use App\Models\Iglesias;
 use App\Models\TenantIglesia;
 use App\Models\Religion;
 use App\Services\Tenancy\TenantProvisioner;
+use Illuminate\Support\Facades\Schema;
 
 class IglesiaController extends Controller
 {
@@ -97,7 +98,22 @@ class IglesiaController extends Controller
 
         abort_unless($iglesia, 404, 'No se encontró una iglesia activa para configurar.');
 
-        $iglesia->update($request->validated());
+        $data = $request->validated();
+        $updates = [
+            'nombre' => $data['nombre'],
+            'direccion' => $data['direccion'],
+        ];
+
+        if (Schema::hasColumn('iglesias', 'header_diocesis')) {
+            $updates['header_diocesis'] = $data['header_diocesis'] ?? null;
+        }
+
+        if (Schema::hasColumn('iglesias', 'header_lugar')) {
+            // El lugar del encabezado siempre replica la dirección.
+            $updates['header_lugar'] = $data['direccion'] ?? null;
+        }
+
+        $iglesia->update($updates);
 
         return redirect()->route('configuracion.iglesia.edit')
             ->with('success', 'Configuración de la iglesia actualizada exitosamente.');

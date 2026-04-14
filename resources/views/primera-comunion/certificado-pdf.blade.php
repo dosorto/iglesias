@@ -11,7 +11,7 @@
         .watermark-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.08; z-index: 0; }
         .watermark-logo img { width: 430px; height: auto; object-fit: contain; }
 
-        .page-wrapper { padding: 26px 36px; border: 4px double #7D5A1E; margin: 10px; position: relative; z-index: 1; }
+        .page-wrapper { padding: 26px 36px 106px; border: 4px double #7D5A1E; margin: 10px; position: relative; z-index: 1; }
 
         .header { display: table; width: 100%; margin-bottom: 10px; }
         .header-logo-cell { display: table-cell; width: 85px; vertical-align: middle; text-align: center; }
@@ -46,9 +46,14 @@
         .sig-title { font-size: 11pt; font-weight: bold; color: #7D5A1E; letter-spacing: 1px; text-transform: uppercase; }
 
         .qr-verify {
-            margin-top: 12px;
+            position: fixed;
+            left: 42px;
+            bottom: 38px;
+            margin-top: 0;
             font-size: 8pt;
             color: #555;
+            line-height: 1;
+            z-index: 2;
         }
         .qr-verify img {
             width: 70px;
@@ -79,6 +84,8 @@
     $encargadoModel  = $primeraComunion->encargado;
     $encargadoPersn  = $encargadoModel?->feligres?->persona;
     $iglesiaNombre   = $iglesiaConfig?->nombre ?? $iglesia?->nombre ?? '';
+    $headerDiocesis = $iglesiaConfig?->header_diocesis ?: '';
+    $headerLugar = $iglesiaConfig?->direccion ?: '';
     $encargadoNombre = $encargadoPersn?->nombre_completo ?? '';
 
     $firmaPath = $resolvePublicFilePath($encargadoModel?->path_firma_principal);
@@ -122,9 +129,9 @@
             @endif
         </div>
         <div class="header-title-cell">
-            <div class="parish-name">Parroquia{{ $iglesiaNombre ? ' ' . $iglesiaNombre : '' }}</div>
-            <div class="diocese-name">Di&oacute;cesis de Choluteca</div>
-            <div class="header-address">Monjarás, Marcovia, Choluteca, Honduras, C.A.</div>
+            <div class="parish-name">{{ $iglesiaNombre }}</div>
+            <div class="diocese-name">{{ $headerDiocesis }}</div>
+            <div class="header-address">{{ $headerLugar }}</div>
         </div>
         <div class="header-right-cell">
             @if ($logoIglesiaDerechaPath)

@@ -16,6 +16,7 @@ class UpdateIglesiaConfiguracionRequest extends FormRequest
         return [
             'nombre' => ['required', 'string', 'max:200'],
             'direccion' => ['required', 'string', 'max:300'],
+            'header_diocesis' => ['nullable', 'string', 'max:200'],
         ];
     }
 
@@ -24,6 +25,7 @@ class UpdateIglesiaConfiguracionRequest extends FormRequest
         return [
             'nombre' => 'nombre de la iglesia',
             'direccion' => 'dirección',
+            'header_diocesis' => 'diócesis del encabezado',
         ];
     }
 }

@@ -31,8 +31,8 @@
         }
 
         .page-wrapper {
-            padding: 26px 36px;
-            border: 4px double #7D5A1E;
+            padding: 26px 36px 28px;
+            border: 6px double #7D5A1E;
             margin: 10px;
             position: relative;
             z-index: 1;
@@ -185,16 +185,38 @@
             margin-top: 4px;
             color: #666;
         }
+        .footer-row {
+            display: table;
+            width: 100%;
+            margin-top: 10px;
+            page-break-inside: avoid;
+        }
+        .footer-seal,
+        .footer-qr,
+        .footer-signature {
+            display: table-cell;
+            vertical-align: bottom;
+        }
+        .footer-seal {
+            width: 33%;
+            text-align: left;
+        }
+        .footer-qr {
+            width: 34%;
+            text-align: center;
+        }
+        .footer-signature {
+            width: 33%;
+            text-align: right;
+        }
         .sig-bottom {
-            margin-top: 34px;
             width: 260px;
-            margin-left: auto;
-            margin-right: 24px;
+            margin: 0 0 0 auto;
             text-align: center;
         }
 
         body.is-landscape .page-wrapper {
-            padding: 14px 22px;
+            padding: 14px 22px 20px;
             margin: 4px;
         }
         body.is-landscape .header {
@@ -264,21 +286,27 @@
             font-size: 9.5pt;
             line-height: 1.45;
         }
-        body.is-landscape .sig-bottom {
+        body.is-landscape .footer-row {
             margin-top: 10px;
-            margin-right: 10px;
+        }
+        body.is-landscape .sig-bottom {
+            width: 220px;
         }
 
         .qr-verify {
-            margin-top: 12px;
-            text-align: left;
+            position: static;
+            display: inline-block;
+            margin-top: 0;
+            text-align: center;
             font-size: 8pt;
             color: #555;
+            line-height: 1;
+            z-index: 2;
         }
 
         .qr-verify img {
-            width: 70px;
-            height: 70px;
+            width: 58px;
+            height: 58px;
             border: 1px solid #d1d5db;
             padding: 2px;
             background: #fff;
@@ -287,6 +315,11 @@
         .qr-code {
             margin-top: 3px;
             letter-spacing: 0.4px;
+        }
+
+        body.is-landscape .qr-verify img {
+            width: 60px;
+            height: 60px;
         }
     </style>
 </head>
@@ -313,6 +346,8 @@
     $certBgPath = $resolvePublicFilePath($iglesiaConfig?->path_certificado_bautismo);
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
+    $headerDiocesis = $iglesiaConfig?->header_diocesis ?: '';
+    $headerLugar = $iglesiaConfig?->direccion ?: '';
     $codigoVerificacion = $codigoVerificacion ?? '';
     $urlVerificacion = $urlVerificacion ?? '';
     $qrDataUri = $qrDataUri ?? null;
@@ -335,9 +370,9 @@
             @endif
         </div>
         <div class="header-title-cell">
-            <div class="parish-name">Parroquia{{ ($iglesiaConfig?->nombre ?? $bautismo->iglesia?->nombre) ? ' ' . ($iglesiaConfig?->nombre ?? $bautismo->iglesia?->nombre) : '' }}</div>
-            <div class="diocese-name">Di&oacute;cesis de Choluteca</div>
-            <div class="header-address">Monjarás, Marcovia, Choluteca, Honduras, C.A.</div>
+            <div class="parish-name">{{ $iglesiaConfig?->nombre ?? $bautismo->iglesia?->nombre ?? '' }}</div>
+            <div class="diocese-name">{{ $headerDiocesis }}</div>
+            <div class="header-address">{{ $headerLugar }}</div>
         </div>
         <div class="header-right-cell">
             @if ($logoIglesiaDerechaPath && file_exists($logoIglesiaDerechaPath))
@@ -522,24 +557,32 @@
             de dos mil
             <span class="line-field line-field-sm">{{ $anoExpMil ?: '' }}</span>
         </p>
-        <p class="sello">(Sello)</p>
     </div>
 
-    {{-- ===== FIRMA ENCARGADO ===== --}}
-    <div class="sig-bottom">
-        @if ($firmaPath && file_exists($firmaPath))
-            <p style="text-align:center; margin-bottom: 2px;">
-                <img src="{{ $firmaPath }}" style="max-height:50px; max-width:180px;">
-            </p>
-        @endif
-        <div class="sig-line-accent">F I R M A</div>
-    </div>
-
-    @if ($qrDataUri)
-        <div class="qr-verify">
-            <img src="{{ $qrDataUri }}" alt="QR de verificacion">
+    <div class="footer-row">
+        <div class="footer-seal">
+            <p class="sello">(Sello)</p>
         </div>
-    @endif
+
+        <div class="footer-qr">
+            @if ($qrDataUri)
+                <div class="qr-verify">
+                    <img src="{{ $qrDataUri }}" alt="QR de verificacion">
+                </div>
+            @endif
+        </div>
+
+        <div class="footer-signature">
+            <div class="sig-bottom">
+                @if ($firmaPath && file_exists($firmaPath))
+                    <p style="text-align:center; margin-bottom: 2px;">
+                        <img src="{{ $firmaPath }}" style="max-height:50px; max-width:180px;">
+                    </p>
+                @endif
+                <div class="sig-line-accent">F I R M A</div>
+            </div>
+        </div>
+    </div>
 
 </div>
 </body>

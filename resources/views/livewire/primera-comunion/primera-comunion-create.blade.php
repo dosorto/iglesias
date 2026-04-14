@@ -1,4 +1,18 @@
-<div class="space-y-6">
+<div class="space-y-6 sacramento-create-form">
+
+    @once
+        <style>
+            .sacramento-create-form input::placeholder,
+            .sacramento-create-form textarea::placeholder {
+                color: rgb(156 163 175 / 0.55);
+            }
+
+            .dark .sacramento-create-form input::placeholder,
+            .dark .sacramento-create-form textarea::placeholder {
+                color: rgb(156 163 175 / 0.45);
+            }
+        </style>
+    @endonce
 
     {{-- HEADER --}}
     <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-sky-600 to-blue-600

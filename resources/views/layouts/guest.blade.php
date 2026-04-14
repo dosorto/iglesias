@@ -14,22 +14,25 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans text-gray-900 antialiased bg-[#6C5DD3]"> <!-- Fondo morado igual que el home -->
-    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
-        
-            <!-- ⚡ Logo central arriba -->
-            <div class="mb-6">
-                <a href="/" wire:navigate>
-                    <img src="{{ asset('image/Logo_guest.png') }}"
-                        alt="Logo Iglesia"
-                        class="w-20 h-20 object-contain" />
+<body class="font-sans text-gray-900 antialiased bg-gradient-to-br from-[#efedf8] to-[#f4f1f7] min-h-screen">
+    <div class="min-h-screen flex flex-col items-center justify-between px-4 py-8">
+        <div class="w-full max-w-[420px]">
+            <div class="text-center mb-5">
+                <a href="/" wire:navigate class="inline-block font-serif text-5xl font-bold text-[#171b3d] leading-none">
+                    Holy Manager
                 </a>
             </div>
 
-        <!-- Contenedor blanco del formulario -->
-        <div class="w-full sm:max-w-md px-6 py-4 bg-white rounded-xl shadow-xl">
-            {{ $slot }}
+            <div class="w-full rounded-2xl border border-[#d8d7e9] bg-[#f8f8fc] p-6 shadow-[0_14px_32px_rgba(28,32,72,0.12)]">
+                {{ $slot }}
+            </div>
         </div>
+
+        <footer class="w-full max-w-[860px] mt-10 text-center text-sm text-[#64687c]">
+            <span class="font-serif italic text-[#1d2142]">Holy Manager</span>
+            <span class="mx-2">© 2026 Holy Manager.</span>
+            <span>Disenado para la gestion eclesial.</span>
+        </footer>
     </div>
 </body>
 </html>

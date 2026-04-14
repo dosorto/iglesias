@@ -40,22 +40,26 @@ class BautismoController extends Controller
     {
         $tipoDocumento = 'bautismo_certificado';
         $nombreArchivo = 'certificado-bautismo-' . $bautismo->id . '.pdf';
+        $layoutVersion = 'header-config-v3';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
 
         $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, Bautismo::class, (int) $bautismo->id, (int) $bautismo->iglesia_id);
         $payloadExistente = is_array($documentoExistente?->payload) ? $documentoExistente->payload : [];
         $urlQrExistente = (string) ($payloadExistente['url_qr'] ?? '');
+        $layoutVersionActual = (string) ($payloadExistente['layout_version'] ?? '');
+        $layoutActualizado = $layoutVersionActual === $layoutVersion;
         $snapshotConQr = ! empty($payloadExistente['html'])
             && ! empty($payloadExistente['codigo_verificacion'])
             && ! empty($payloadExistente['qr_data_uri'])
-            && str_ends_with(strtolower($urlQrExistente), '/pdf');
+            && str_ends_with(strtolower($urlQrExistente), '/pdf')
+            && $layoutActualizado;
         if ($documentoExistente && $snapshotConQr) {
             return Pdf::loadHTML($payloadExistente['html'])
                 ->setPaper($payloadExistente['paper_size'] ?? 'letter', $payloadExistente['orientation'] ?? 'portrait')
                 ->stream($documentoExistente->nombre_archivo);
         }
 
-        if ($documentoExistente && ! empty($documentoExistente->path_pdf) && Storage::disk('local')->exists($documentoExistente->path_pdf)) {
+        if ($documentoExistente && $layoutActualizado && ! empty($documentoExistente->path_pdf) && Storage::disk('local')->exists($documentoExistente->path_pdf)) {
             return response()->file(
                 Storage::disk('local')->path($documentoExistente->path_pdf),
                 [
@@ -113,6 +117,7 @@ class BautismoController extends Controller
                 'url_verificacion' => $urlVerificacion,
                 'url_qr' => $urlQr,
                 'qr_data_uri' => $qrDataUri,
+                'layout_version' => $layoutVersion,
                 'registro' => $bautismo->toArray(),
                 'iglesia_config' => $iglesiaConfig?->toArray(),
             ],
