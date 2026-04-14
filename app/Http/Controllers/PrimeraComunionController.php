@@ -51,7 +51,7 @@ class PrimeraComunionController extends Controller
         $nombreArchivo = 'certificado-primera-comunion-' . $primeraComunion->id . '.pdf';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
 
-        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, PrimeraComunion::class, (int) $primeraComunion->id);
+        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, PrimeraComunion::class, (int) $primeraComunion->id, (int) $primeraComunion->id_iglesia);
         $payloadExistente = is_array($documentoExistente?->payload) ? $documentoExistente->payload : [];
         $urlQrExistente = (string) ($payloadExistente['url_qr'] ?? '');
         $snapshotConQr = ! empty($payloadExistente['html'])

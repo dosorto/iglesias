@@ -30,6 +30,18 @@
     </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        @if (session('success'))
+            <div class="mx-4 mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-800 dark:border-emerald-800/40 dark:bg-emerald-900/20 dark:text-emerald-200">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="mx-4 mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800 dark:border-red-800/40 dark:bg-red-900/20 dark:text-red-200">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-50 dark:bg-gray-900/40">
@@ -37,7 +49,7 @@
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Emitido</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Tipo</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Fuente</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Archivo</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Persona relacionada</th>
                         <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Acciones</th>
                     </tr>
                 </thead>
@@ -53,8 +65,8 @@
                             <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
                                 {{ $this->nombreFuente($doc->fuente_tipo) }} #{{ $doc->fuente_id }}
                             </td>
-                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-200 max-w-[320px] truncate" title="{{ $doc->nombre_archivo }}">
-                                {{ $doc->nombre_archivo }}
+                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-200 max-w-[320px]">
+                                {{ $this->personaRelacionada($doc) }}
                             </td>
                             <td class="px-4 py-3 text-right">
                                 <div class="inline-flex items-center gap-2">
@@ -71,6 +83,21 @@
                                         <span class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200">
                                             Registro eliminado
                                         </span>
+                                    @endif
+
+                                    @if (auth()->user()?->hasRole('root'))
+                                        <button
+                                            type="button"
+                                            x-data="{}"
+                                            @click="
+                                                const valor = prompt('Esta acción eliminará permanentemente este documento. Escribe ELIMINAR para confirmar.');
+                                                if (valor === null) return;
+                                                $wire.eliminarPermanentemente({{ $doc->id }}, valor);
+                                            "
+                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-red-600 hover:bg-red-700 text-white"
+                                        >
+                                            Eliminar permanente
+                                        </button>
                                     @endif
                                 </div>
                             </td>

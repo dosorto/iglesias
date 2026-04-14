@@ -43,7 +43,7 @@ class ConfirmacionController extends Controller
         $nombreArchivo = 'certificado-confirmacion-' . $confirmacion->id . '.pdf';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
 
-        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, Confirmacion::class, (int) $confirmacion->id);
+        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, Confirmacion::class, (int) $confirmacion->id, (int) $confirmacion->iglesia_id);
         $payloadExistente = is_array($documentoExistente?->payload) ? $documentoExistente->payload : [];
         $urlQrExistente = (string) ($payloadExistente['url_qr'] ?? '');
         $snapshotConQr = ! empty($payloadExistente['html'])

@@ -30,12 +30,17 @@ class DocumentosGeneradosService
         return $baseUrl !== '' ? 'https://' . preg_replace('#^https?://#', '', $baseUrl) . $path : url($path);
     }
 
-    public function obtenerUltimo(string $tipoDocumento, string $fuenteTipo, int $fuenteId): ?DocumentoGenerado
+    public function obtenerUltimo(string $tipoDocumento, string $fuenteTipo, int $fuenteId, ?int $iglesiaId = null): ?DocumentoGenerado
     {
         return DocumentoGenerado::query()
             ->where('tipo_documento', $tipoDocumento)
             ->where('fuente_tipo', $fuenteTipo)
             ->where('fuente_id', $fuenteId)
+            ->when(
+                $iglesiaId !== null,
+                fn ($query) => $query->where('iglesia_id', $iglesiaId),
+                fn ($query) => $query->whereNull('iglesia_id')
+            )
             ->latest('id')
             ->first();
     }
@@ -55,6 +60,11 @@ class DocumentosGeneradosService
             ->where('tipo_documento', $tipoDocumento)
             ->where('fuente_tipo', $fuente::class)
             ->where('fuente_id', (int) $fuente->getKey())
+            ->when(
+                $iglesiaId !== null,
+                fn ($query) => $query->where('iglesia_id', $iglesiaId),
+                fn ($query) => $query->whereNull('iglesia_id')
+            )
             ->latest('id')
             ->first();
 

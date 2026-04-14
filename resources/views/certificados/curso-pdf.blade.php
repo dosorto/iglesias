@@ -18,6 +18,8 @@
             padding: 24px 30px;
             border: 2px solid #444;
             margin: 10px;
+            position: relative;
+            overflow: visible;
         }
 
         .watermark-logo {
@@ -174,13 +176,46 @@
         }
 
         .sig-bottom {
-            margin-top: 30px;
             width: 260px;
-            margin-left: auto;
-            margin-right: 20px;
             text-align: center;
             position: relative;
             z-index: 1;
+        }
+
+        .footer-row {
+            display: table;
+            width: 100%;
+            margin-top: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-left {
+            display: table-cell;
+            width: 100px;
+            vertical-align: bottom;
+        }
+
+        .footer-right {
+            display: table-cell;
+            text-align: right;
+            vertical-align: bottom;
+            padding-right: 20px;
+        }
+
+        .qr-verify {
+            font-size: 8pt;
+            color: #555;
+            z-index: 1;
+            line-height: 1;
+        }
+
+        .qr-verify img {
+            width: 58px;
+            height: 58px;
+            border: 1px solid #d1d5db;
+            padding: 2px;
+            background: #fff;
         }
     </style>
 </head>
@@ -237,6 +272,10 @@
     $diaFin = $fechaFin?->day ?? '';
     $mesFin = $fechaFin ? $mesesEs[$fechaFin->month] : '';
     $anoFin = $fechaFin?->year ?? '';
+
+    $codigoVerificacion = $codigoVerificacion ?? '';
+    $urlVerificacion = $urlVerificacion ?? '';
+    $qrDataUri = $qrDataUri ?? null;
 @endphp
 
 <body>
@@ -347,14 +386,26 @@
             </p>
         </div>
 
-        <div class="sig-bottom">
-            @if ($firmaPath && file_exists($firmaPath))
-                <p style="text-align:center; margin-bottom: 2px;">
-                    <img src="{{ $firmaPath }}" style="max-height:50px; max-width:180px;" alt="Firma del instructor">
-                </p>
-            @endif
+        <div class="footer-row">
+            <div class="footer-left">
+                @if ($qrDataUri)
+                    <div class="qr-verify">
+                        <img src="{{ $qrDataUri }}" alt="QR de verificacion">
+                    </div>
+                @endif
+            </div>
 
-            <div class="sig-line-accent">F I R M A</div>
+            <div class="footer-right">
+                <div class="sig-bottom">
+                    @if ($firmaPath && file_exists($firmaPath))
+                        <p style="text-align:center; margin-bottom: 2px;">
+                            <img src="{{ $firmaPath }}" style="max-height:50px; max-width:180px;" alt="Firma del instructor">
+                        </p>
+                    @endif
+
+                    <div class="sig-line-accent">F I R M A</div>
+                </div>
+            </div>
         </div>
     </div>
 

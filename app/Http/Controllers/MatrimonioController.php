@@ -42,7 +42,7 @@ class MatrimonioController extends Controller
         $nombreArchivo = 'constancia-matrimonio-' . $matrimonio->id . '.pdf';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
 
-        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, Matrimonio::class, (int) $matrimonio->id);
+        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, Matrimonio::class, (int) $matrimonio->id, (int) $matrimonio->iglesia_id);
         $payloadExistente = is_array($documentoExistente?->payload) ? $documentoExistente->payload : [];
         $urlQrExistente = (string) ($payloadExistente['url_qr'] ?? '');
         $snapshotConQr = ! empty($payloadExistente['html'])
