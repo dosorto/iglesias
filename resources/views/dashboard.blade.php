@@ -17,14 +17,14 @@
 
         return [
             'month' => (int) $month->month,
-            'year' => (int) $month->year,
+            'year'  => (int) $month->year,
             'label' => ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'][$month->month - 1],
         ];
     });
 
     $countByMonth = function (string $modelClass, string $dateColumn, int $year, int $month): int {
         $start = Carbon::create($year, $month, 1)->startOfMonth();
-        $end = Carbon::create($year, $month, 1)->endOfMonth();
+        $end   = Carbon::create($year, $month, 1)->endOfMonth();
 
         return $modelClass::query()
             ->whereBetween($dateColumn, [$start, $end])
@@ -32,22 +32,22 @@
     };
 
     $activityRows = $months->map(function (array $item) use ($countByMonth) {
-        $bautismos = $countByMonth(Bautismo::class, 'fecha_bautismo', $item['year'], $item['month']);
-        $matrimonios = $countByMonth(Matrimonio::class, 'fecha_matrimonio', $item['year'], $item['month']);
+        $bautismos      = $countByMonth(Bautismo::class, 'fecha_bautismo', $item['year'], $item['month']);
+        $matrimonios    = $countByMonth(Matrimonio::class, 'fecha_matrimonio', $item['year'], $item['month']);
         $confirmaciones = $countByMonth(Confirmacion::class, 'fecha_confirmacion', $item['year'], $item['month']);
-        $comuniones = $countByMonth(PrimeraComunion::class, 'fecha_primera_comunion', $item['year'], $item['month']);
+        $comuniones     = $countByMonth(PrimeraComunion::class, 'fecha_primera_comunion', $item['year'], $item['month']);
 
         return [
-            'label' => $item['label'],
-            'total' => $bautismos + $matrimonios + $confirmaciones + $comuniones,
-            'bautismos' => $bautismos,
-            'matrimonios' => $matrimonios,
+            'label'          => $item['label'],
+            'total'          => $bautismos + $matrimonios + $confirmaciones + $comuniones,
+            'bautismos'      => $bautismos,
+            'matrimonios'    => $matrimonios,
             'confirmaciones' => $confirmaciones,
-            'comuniones' => $comuniones,
+            'comuniones'     => $comuniones,
         ];
     });
 
-    $maxActivity = max(1, (int) $activityRows->max('total'));
+    $maxActivity  = max(1, (int) $activityRows->max('total'));
     $activityRows = $activityRows->map(function (array $row) use ($maxActivity) {
         $height = max(12, (int) round(($row['total'] / $maxActivity) * 100));
         $row['height'] = $height;
@@ -61,19 +61,33 @@
             $height <= 65 => 'h-28',
             $height <= 75 => 'h-32',
             $height <= 85 => 'h-36',
-            default => 'h-40',
+            default       => 'h-40',
         };
 
         return $row;
     });
 
-    $year = (int) $now->year;
-    $feligresCount = Feligres::count();
-    $bautismoYearCount = Bautismo::query()->whereYear('fecha_bautismo', $year)->count();
-    $matrimonioYearCount = Matrimonio::query()->whereYear('fecha_matrimonio', $year)->count();
-    $cursoCount = InscripcionCurso::count();
-    $confirmacionYearCount = Confirmacion::query()->whereYear('fecha_confirmacion', $year)->count();
-    $comunionYearCount = PrimeraComunion::query()->whereYear('fecha_primera_comunion', $year)->count();
+    // ── Métricas del mes actual ──────────────────────────────────────────────
+    $monthLabel = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                   'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][$now->month - 1];
+    $monthStart = $now->copy()->startOfMonth();
+    $monthEnd   = $now->copy()->endOfMonth();
+
+    $feligresCount          = Feligres::count();
+    $bautismoMonthCount     = Bautismo::query()->whereBetween('fecha_bautismo',            [$monthStart, $monthEnd])->count();
+    $matrimonioMonthCount   = Matrimonio::query()->whereBetween('fecha_matrimonio',          [$monthStart, $monthEnd])->count();
+    $cursoMonthCount        = InscripcionCurso::query()->whereBetween('created_at',          [$monthStart, $monthEnd])->count();
+    $confirmacionMonthCount = Confirmacion::query()->whereBetween('fecha_confirmacion',       [$monthStart, $monthEnd])->count();
+    $comunionMonthCount     = PrimeraComunion::query()->whereBetween('fecha_primera_comunion',[$monthStart, $monthEnd])->count();
+
+    // Resumen anual → panel lateral "Sacramentos"
+    $year                  = (int) $now->year;
+    $bautismoYearCount     = Bautismo::query()->whereYear('fecha_bautismo',             $year)->count();
+    $matrimonioYearCount   = Matrimonio::query()->whereYear('fecha_matrimonio',           $year)->count();
+    $confirmacionYearCount = Confirmacion::query()->whereYear('fecha_confirmacion',        $year)->count();
+    $comunionYearCount     = PrimeraComunion::query()->whereYear('fecha_primera_comunion', $year)->count();
+    $cursoCount            = InscripcionCurso::count();
+
     $recentFeligreses = Feligres::with('persona')->latest()->take(6)->get();
 @endphp
 
@@ -138,47 +152,53 @@
     </a>
 </div>
 
-{{-- MÉTRICAS --}}
+{{-- MÉTRICAS (mes actual) --}}
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+
+    {{-- Feligreses activos (total histórico) --}}
     <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 border-b-4 border-b-emerald-400">
         <div class="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
             <svg class="w-5 h-5 text-emerald-700 dark:text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
         </div>
-        <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ \App\Models\Feligres::count() }}</p>
+        <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $feligresCount }}</p>
         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Feligreses activos</p>
     </div>
 
+    {{-- Bautismos del mes --}}
     <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 border-b-4 border-b-sky-400">
         <div class="w-9 h-9 rounded-lg bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center mb-4">
             <svg class="w-5 h-5 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>
             </svg>
         </div>
-        <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $bautismoYearCount }}</p>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Bautismos (año)</p>
+        <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $bautismoMonthCount }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Bautismos · {{ $monthLabel }}</p>
     </div>
 
+    {{-- Matrimonios del mes --}}
     <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 border-b-4 border-b-rose-400">
         <div class="w-9 h-9 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center mb-4">
             <svg class="w-5 h-5 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
             </svg>
         </div>
-        <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $matrimonioYearCount }}</p>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Matrimonios</p>
+        <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $matrimonioMonthCount }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Matrimonios · {{ $monthLabel }}</p>
     </div>
 
+    {{-- Inscripciones a cursos del mes --}}
     <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 border-b-4 border-b-amber-400">
         <div class="w-9 h-9 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-4">
             <svg class="w-5 h-5 text-amber-700 dark:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v11.494m-5.747-8.12l11.494 4.373M6.253 14.373l11.494-4.373"/>
             </svg>
         </div>
-        <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $cursoCount }}</p>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Inscritos en cursos</p>
+        <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $cursoMonthCount }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Inscritos cursos · {{ $monthLabel }}</p>
     </div>
+
 </div>
 
 {{-- GRID PRINCIPAL --}}
@@ -296,9 +316,12 @@
             </a>
         </section>
 
-        {{-- SACRAMENTOS --}}
+        {{-- SACRAMENTOS (resumen anual) --}}
         <section class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-            <h2 class="text-xl font-serif text-gray-900 dark:text-white mb-5">Sacramentos</h2>
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-xl font-serif text-gray-900 dark:text-white">Sacramentos</h2>
+                <span class="text-xs text-gray-400 font-semibold">{{ $year }}</span>
+            </div>
             <div class="space-y-3">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
