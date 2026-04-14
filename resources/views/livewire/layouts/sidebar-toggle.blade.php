@@ -155,6 +155,28 @@
                         </a>
                     </li>
                     @endcan
+
+                    {{-- Inscripciones --}}
+                    @can('inscripcion-curso.view')
+                    <li>
+                        <a href="{{ route('inscripcion-curso.index') }}"
+                        class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
+                                rounded-xl text-gray-700 dark:text-gray-200 hover:bg-yellow-100 dark:hover:bg-yellow-900
+                                hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors duration-200 group"
+                        title="{{ $isCollapsed ? 'Inscripciones' : '' }}">
+
+                            <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors duration-200"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+
+                            @if(!$isCollapsed)
+                                <span class="ml-3">Inscripciones</span>
+                            @endif
+
+                        </a>
+                    </li>
+                    @endcan
                     
                     {{-- Iglesias --}}
                     @can('iglesias.view')

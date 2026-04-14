@@ -47,4 +47,29 @@ class Feligres extends BaseModel
         return $this->hasMany(InscripcionCurso::class, 'feligres_id');
     }
 
+    public function bautismos()
+    {
+        return $this->hasMany(Bautismo::class, 'bautizado_id');
+    }
+
+    public function confirmaciones()
+    {
+        return $this->hasMany(Confirmacion::class, 'feligres_id');
+    }
+
+    public function primerasComuniones()
+    {
+        return $this->hasMany(PrimeraComunion::class, 'id_feligres');
+    }
+
+    public function matrimoniosEsposo()
+    {
+        return $this->hasMany(Matrimonio::class, 'esposo_id');
+    }
+
+    public function matrimoniosEsposa()
+    {
+        return $this->hasMany(Matrimonio::class, 'esposa_id');
+    }
+
 }

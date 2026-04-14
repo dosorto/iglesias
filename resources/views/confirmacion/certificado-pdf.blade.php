@@ -75,12 +75,19 @@
         .sig-name { font-size: 11pt; font-weight: bold; margin-bottom: 2px; color: #1a1a1a; margin-top: 4px; }
         .sig-title { font-size: 10pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #7D5A1E; }
 
-        .logo-placeholder {
-            width: 75px;
-            height: 75px;
-            display: block;
-            background: transparent;
+        .qr-verify {
+            margin-top: 12px;
+            font-size: 8pt;
+            color: #555;
         }
+        .qr-verify img {
+            width: 70px;
+            height: 70px;
+            border: 1px solid #d1d5db;
+            padding: 2px;
+            background: #fff;
+        }
+        .qr-code { margin-top: 3px; letter-spacing: 0.4px; }
     </style>
 </head>
 @php
@@ -133,6 +140,9 @@
     if ($confirmacion->encargado?->path_firma_principal) {
         $firmaPath = $resolvePublicFilePath($confirmacion->encargado->path_firma_principal);
     }
+    $codigoVerificacion = $codigoVerificacion ?? '';
+    $urlVerificacion = $urlVerificacion ?? '';
+    $qrDataUri = $qrDataUri ?? null;
 @endphp
 <body>
 @if ($logoIglesiaPath)
@@ -226,6 +236,12 @@
         <p class="sig-name">{{ $encargadoNombre ?: '' }}</p>
         <p class="sig-title">P&aacute;rroco</p>
     </div>
+
+    @if ($qrDataUri)
+        <div class="qr-verify">
+            <img src="{{ $qrDataUri }}" alt="QR de verificacion">
+        </div>
+    @endif
 
 </div>
 </body>

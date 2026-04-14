@@ -265,6 +265,20 @@
             font-style: italic;
             color: #666;
         }
+
+        .qr-verify {
+            margin-top: 12px;
+            font-size: 8pt;
+            color: #555;
+        }
+        .qr-verify img {
+            width: 70px;
+            height: 70px;
+            border: 1px solid #d1d5db;
+            padding: 2px;
+            background: #fff;
+        }
+        .qr-code { margin-top: 3px; letter-spacing: 0.4px; }
     </style>
 </head>
 @php
@@ -314,6 +328,9 @@
     $sacerdote     = $encargado?->nombre_completo ?? '______________________________';
     $testigo1Nombre= $testigo1?->nombre_completo ?? '______________________________';
     $testigo2Nombre= $testigo2?->nombre_completo ?? '______________________________';
+    $codigoVerificacion = $codigoVerificacion ?? '';
+    $urlVerificacion = $urlVerificacion ?? '';
+    $qrDataUri = $qrDataUri ?? null;
 @endphp
 <body>
 @if ($logoIglesiaPath)
@@ -443,6 +460,12 @@
         <span style="font-weight:bold; font-style:normal; color:#555;">Nota marginal:</span>
         {{ $matrimonio->nota_marginal }}
     </div>
+    @endif
+
+    @if ($qrDataUri)
+        <div class="qr-verify">
+            <img src="{{ $qrDataUri }}" alt="QR de verificacion">
+        </div>
     @endif
 
 </div>

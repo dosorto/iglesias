@@ -8,18 +8,18 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Times New Roman', Times, serif;
+            font-family: Arial, Helvetica, sans-serif;
             font-size: 12pt;
-            color: #1a1a1a;
+            color: #1f1f1f;
             background: #fff;
         }
 
         .page-wrapper {
-            padding: 26px 36px;
-            border: 4px double #7D5A1E;
+            padding: 24px 30px;
+            border: 2px solid #444;
             margin: 10px;
             position: relative;
-            z-index: 1;
+            overflow: visible;
         }
 
         .watermark-logo {
@@ -27,12 +27,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            opacity: 0.08;
+            opacity: 0.05;
             z-index: 0;
         }
 
         .watermark-logo img {
-            width: 430px;
+            width: 360px;
             height: auto;
             object-fit: contain;
         }
@@ -40,21 +40,23 @@
         .header {
             display: table;
             width: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 1;
         }
 
         .header-logo-cell,
         .header-right-cell {
             display: table-cell;
-            width: 85px;
+            width: 90px;
             vertical-align: middle;
             text-align: center;
         }
 
         .header-logo-cell img,
         .header-right-cell img {
-            width: 75px;
-            height: 75px;
+            width: 70px;
+            height: 70px;
             object-fit: contain;
         }
 
@@ -62,94 +64,87 @@
             display: table-cell;
             vertical-align: middle;
             text-align: center;
+            padding: 0 10px;
         }
 
         .parish-name {
-            font-size: 19pt;
+            font-size: 18pt;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            line-height: 1.1;
+            line-height: 1.2;
         }
 
         .diocese-name {
-            font-size: 13pt;
+            font-size: 11pt;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 3px;
+            margin-top: 4px;
             color: #555;
         }
 
         .header-address {
-            font-size: 11pt;
+            font-size: 10.5pt;
             margin-top: 4px;
-            color: #222;
-            letter-spacing: 0.5px;
+            color: #444;
         }
 
         .header-divider {
-            border-top: 2px solid #8aa8bc;
-            margin: 6px 0 8px;
-        }
-
-        .hr-accent {
-            border: none;
-            border-top: 1px solid #7D5A1E;
-            margin: 3px 0;
-        }
-
-        .ornament {
-            text-align: center;
-            color: #7D5A1E;
-            font-size: 11pt;
-            letter-spacing: 8px;
-            margin: 3px 0;
+            border-top: 1px solid #444;
+            margin: 10px 0 14px;
+            position: relative;
+            z-index: 1;
         }
 
         .cert-title-wrap {
             text-align: center;
-            margin: 8px 0;
+            margin: 10px 0 18px;
+            position: relative;
+            z-index: 1;
         }
 
         .cert-title {
             display: inline-block;
-            background: #7D5A1E;
-            color: #fff;
-            font-size: 13.5pt;
+            font-size: 16pt;
             font-weight: bold;
-            letter-spacing: 4px;
             text-transform: uppercase;
-            padding: 5px 32px;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 4px;
         }
 
         .body-text {
-            line-height: 2;
+            line-height: 1.9;
             font-size: 11.5pt;
-            margin-top: 14px;
+            margin-top: 12px;
+            position: relative;
+            z-index: 1;
         }
 
         .body-text p {
-            margin-bottom: 2px;
+            margin-bottom: 6px;
         }
 
         .line-field {
             display: inline-block;
-            min-width: 200px;
-            border-bottom: 1px solid #333;
-            margin: 0 3px;
+            min-width: 110px;
+            margin: 0 2px;
             vertical-align: bottom;
+            padding: 0 6px 2px;
+            text-align: center;
+            white-space: nowrap;
         }
 
-        .line-field-sm { min-width: 70px; }
-        .line-field-lg { min-width: 260px; }
-        .line-field-xl { min-width: 320px; }
+        .line-field-sm { min-width: 45px; }
+        .line-field-lg { min-width: 180px; }
+        .line-field-xl { min-width: 240px; }
 
         .sig-right {
             width: 260px;
             margin-left: auto;
-            margin-right: 24px;
+            margin-right: 20px;
             text-align: center;
-            margin-top: 26px;
+            margin-top: 24px;
+            position: relative;
+            z-index: 1;
         }
 
         .sig-name {
@@ -163,27 +158,64 @@
             display: block;
             width: 220px;
             margin: 0 auto;
-            border-top: 2px solid #7D5A1E;
+            border-top: 1px solid #333;
             text-align: center;
             font-size: 9.5pt;
             font-weight: bold;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             padding-top: 4px;
-            color: #7D5A1E;
+            color: #333;
         }
 
         .issuance {
             margin-top: 22px;
             font-size: 11.5pt;
-            line-height: 2;
+            line-height: 1.9;
+            position: relative;
+            z-index: 1;
         }
 
         .sig-bottom {
-            margin-top: 34px;
             width: 260px;
-            margin-left: auto;
-            margin-right: 24px;
             text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-row {
+            display: table;
+            width: 100%;
+            margin-top: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-left {
+            display: table-cell;
+            width: 100px;
+            vertical-align: bottom;
+        }
+
+        .footer-right {
+            display: table-cell;
+            text-align: right;
+            vertical-align: bottom;
+            padding-right: 20px;
+        }
+
+        .qr-verify {
+            font-size: 8pt;
+            color: #555;
+            z-index: 1;
+            line-height: 1;
+        }
+
+        .qr-verify img {
+            width: 58px;
+            height: 58px;
+            border: 1px solid #d1d5db;
+            padding: 2px;
+            background: #fff;
         }
     </style>
 </head>
@@ -217,7 +249,6 @@
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
 
-    // FIRMA DEL INSTRUCTOR: el campo correcto es path_firma
     $firmaPath = $resolvePublicFilePath($curso?->instructor?->path_firma);
 
     $fechaInicio = $curso?->fecha_inicio;
@@ -241,6 +272,10 @@
     $diaFin = $fechaFin?->day ?? '';
     $mesFin = $fechaFin ? $mesesEs[$fechaFin->month] : '';
     $anoFin = $fechaFin?->year ?? '';
+
+    $codigoVerificacion = $codigoVerificacion ?? '';
+    $urlVerificacion = $urlVerificacion ?? '';
+    $qrDataUri = $qrDataUri ?? null;
 @endphp
 
 <body>
@@ -274,17 +309,9 @@
 
         <div class="header-divider"></div>
 
-        <hr class="hr-accent">
-        <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
-        <hr class="hr-accent">
-
         <div class="cert-title-wrap">
-            <span class="cert-title">CERTIFICADO DE APROBACIÓN</span>
+            <span class="cert-title">Certificado de Aprobación</span>
         </div>
-
-        <hr class="hr-accent">
-        <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
-        <hr class="hr-accent">
 
         <div class="body-text">
             <p>El presente documento certifica que:</p>
@@ -359,14 +386,26 @@
             </p>
         </div>
 
-        <div class="sig-bottom">
-            @if ($firmaPath && file_exists($firmaPath))
-                <p style="text-align:center; margin-bottom: 2px;">
-                    <img src="{{ $firmaPath }}" style="max-height:50px; max-width:180px;" alt="Firma del instructor">
-                </p>
-            @endif
+        <div class="footer-row">
+            <div class="footer-left">
+                @if ($qrDataUri)
+                    <div class="qr-verify">
+                        <img src="{{ $qrDataUri }}" alt="QR de verificacion">
+                    </div>
+                @endif
+            </div>
 
-            <div class="sig-line-accent">A U T O R I Z A C I Ó N</div>
+            <div class="footer-right">
+                <div class="sig-bottom">
+                    @if ($firmaPath && file_exists($firmaPath))
+                        <p style="text-align:center; margin-bottom: 2px;">
+                            <img src="{{ $firmaPath }}" style="max-height:50px; max-width:180px;" alt="Firma del instructor">
+                        </p>
+                    @endif
+
+                    <div class="sig-line-accent">F I R M A</div>
+                </div>
+            </div>
         </div>
     </div>
 

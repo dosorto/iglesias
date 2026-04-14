@@ -6,6 +6,7 @@
     use App\Models\Bautismo;
     use App\Models\Confirmacion;
     use App\Models\Feligres;
+    use App\Models\Instructor;
     use App\Models\InscripcionCurso;
     use App\Models\Matrimonio;
     use App\Models\PrimeraComunion;
@@ -35,15 +36,17 @@
         $bautismos      = $countByMonth(Bautismo::class, 'fecha_bautismo', $item['year'], $item['month']);
         $matrimonios    = $countByMonth(Matrimonio::class, 'fecha_matrimonio', $item['year'], $item['month']);
         $confirmaciones = $countByMonth(Confirmacion::class, 'fecha_confirmacion', $item['year'], $item['month']);
-        $comuniones     = $countByMonth(PrimeraComunion::class, 'fecha_primera_comunion', $item['year'], $item['month']);
+        $comuniones = $countByMonth(PrimeraComunion::class, 'fecha_primera_comunion', $item['year'], $item['month']);
+        $inscripciones = $countByMonth(InscripcionCurso::class, 'created_at', $item['year'], $item['month']);
 
         return [
-            'label'          => $item['label'],
-            'total'          => $bautismos + $matrimonios + $confirmaciones + $comuniones,
-            'bautismos'      => $bautismos,
-            'matrimonios'    => $matrimonios,
+            'label' => $item['label'],
+            'total' => $bautismos + $matrimonios + $confirmaciones + $comuniones + $inscripciones,
+            'bautismos' => $bautismos,
+            'matrimonios' => $matrimonios,
             'confirmaciones' => $confirmaciones,
-            'comuniones'     => $comuniones,
+            'comuniones' => $comuniones,
+            'inscripciones' => $inscripciones,
         ];
     });
 
@@ -67,26 +70,92 @@
         return $row;
     });
 
-    // ── Métricas del mes actual ──────────────────────────────────────────────
-    $monthLabel = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
-                   'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][$now->month - 1];
     $monthStart = $now->copy()->startOfMonth();
-    $monthEnd   = $now->copy()->endOfMonth();
+    $monthEnd = $now->copy()->endOfMonth();
+    $feligresCount = Feligres::count();
+    $bautismoMonthCount = Bautismo::query()->whereBetween('fecha_bautismo', [$monthStart, $monthEnd])->count();
+    $matrimonioMonthCount = Matrimonio::query()->whereBetween('fecha_matrimonio', [$monthStart, $monthEnd])->count();
+    $cursoMonthCount = InscripcionCurso::query()->whereBetween('created_at', [$monthStart, $monthEnd])->count();
+    $instructorMonthCount = Instructor::query()->whereBetween('created_at', [$monthStart, $monthEnd])->count();
+    $confirmacionMonthCount = Confirmacion::query()->whereBetween('fecha_confirmacion', [$monthStart, $monthEnd])->count();
+    $comunionMonthCount = PrimeraComunion::query()->whereBetween('fecha_primera_comunion', [$monthStart, $monthEnd])->count();
 
-    $feligresCount          = Feligres::count();
-    $bautismoMonthCount     = Bautismo::query()->whereBetween('fecha_bautismo',            [$monthStart, $monthEnd])->count();
-    $matrimonioMonthCount   = Matrimonio::query()->whereBetween('fecha_matrimonio',          [$monthStart, $monthEnd])->count();
-    $cursoMonthCount        = InscripcionCurso::query()->whereBetween('created_at',          [$monthStart, $monthEnd])->count();
-    $confirmacionMonthCount = Confirmacion::query()->whereBetween('fecha_confirmacion',       [$monthStart, $monthEnd])->count();
-    $comunionMonthCount     = PrimeraComunion::query()->whereBetween('fecha_primera_comunion',[$monthStart, $monthEnd])->count();
-
-    // Resumen anual → panel lateral "Sacramentos"
-    $year                  = (int) $now->year;
-    $bautismoYearCount     = Bautismo::query()->whereYear('fecha_bautismo',             $year)->count();
-    $matrimonioYearCount   = Matrimonio::query()->whereYear('fecha_matrimonio',           $year)->count();
-    $confirmacionYearCount = Confirmacion::query()->whereYear('fecha_confirmacion',        $year)->count();
-    $comunionYearCount     = PrimeraComunion::query()->whereYear('fecha_primera_comunion', $year)->count();
-    $cursoCount            = InscripcionCurso::count();
+    $recentMonthlyEntries = collect()
+        ->merge(
+            Bautismo::query()
+                ->whereBetween('fecha_bautismo', [$monthStart, $monthEnd])
+                ->latest('fecha_bautismo')
+                ->take(6)
+                ->get()
+                ->map(fn ($item) => [
+                    'title' => 'Bautismo registrado',
+                    'date' => $item->fecha_bautismo,
+                    'url' => route('bautismo.show', $item),
+                ])
+        )
+        ->merge(
+            Matrimonio::query()
+                ->whereBetween('fecha_matrimonio', [$monthStart, $monthEnd])
+                ->latest('fecha_matrimonio')
+                ->take(6)
+                ->get()
+                ->map(fn ($item) => [
+                    'title' => 'Nueva acta de matrimonio',
+                    'date' => $item->fecha_matrimonio,
+                    'url' => route('matrimonio.show', $item),
+                ])
+        )
+        ->merge(
+            Confirmacion::query()
+                ->whereBetween('fecha_confirmacion', [$monthStart, $monthEnd])
+                ->latest('fecha_confirmacion')
+                ->take(6)
+                ->get()
+                ->map(fn ($item) => [
+                    'title' => 'Confirmacion registrada',
+                    'date' => $item->fecha_confirmacion,
+                    'url' => route('confirmacion.show', $item),
+                ])
+        )
+        ->merge(
+            PrimeraComunion::query()
+                ->whereBetween('fecha_primera_comunion', [$monthStart, $monthEnd])
+                ->latest('fecha_primera_comunion')
+                ->take(6)
+                ->get()
+                ->map(fn ($item) => [
+                    'title' => 'Primera comunion registrada',
+                    'date' => $item->fecha_primera_comunion,
+                    'url' => route('primera-comunion.show', $item),
+                ])
+        )
+        ->merge(
+            InscripcionCurso::query()
+                ->whereBetween('created_at', [$monthStart, $monthEnd])
+                ->latest('created_at')
+                ->take(6)
+                ->get()
+                ->map(fn ($item) => [
+                    'title' => 'Nueva inscripcion de curso',
+                    'date' => $item->created_at,
+                    'url' => route('inscripcion-curso.show', $item),
+                ])
+        )
+        ->merge(
+            Instructor::query()
+                ->whereBetween('created_at', [$monthStart, $monthEnd])
+                ->latest('created_at')
+                ->take(6)
+                ->get()
+                ->map(fn ($item) => [
+                    'title' => 'Nuevo instructor registrado',
+                    'date' => $item->created_at,
+                    'url' => route('instructor.show', $item),
+                ])
+        )
+        ->sortByDesc('date')
+        ->take(6)
+        ->values();
 
     $recentFeligreses = Feligres::with('persona')->latest()->take(6)->get();
 @endphp
@@ -174,7 +243,7 @@
             </svg>
         </div>
         <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $bautismoMonthCount }}</p>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Bautismos · {{ $monthLabel }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Bautismos (mes)</p>
     </div>
 
     {{-- Matrimonios del mes --}}
@@ -185,7 +254,7 @@
             </svg>
         </div>
         <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $matrimonioMonthCount }}</p>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Matrimonios · {{ $monthLabel }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Matrimonios (mes)</p>
     </div>
 
     {{-- Inscripciones a cursos del mes --}}
@@ -196,7 +265,7 @@
             </svg>
         </div>
         <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $cursoMonthCount }}</p>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Inscritos cursos · {{ $monthLabel }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Inscritos en cursos (mes)</p>
     </div>
 
 </div>
@@ -210,7 +279,7 @@
         {{-- GRÁFICO --}}
         <section class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-serif text-gray-900 dark:text-white">Actividad sacramental</h2>
+                <h2 class="text-xl font-serif text-gray-900 dark:text-white">Actividad sacramental e inscripciones</h2>
                 <div class="flex items-center gap-2 text-xs">
                     <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 font-semibold">Últimos 6 meses</span>
                     <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 font-semibold">{{ $activityRows->sum('total') }} registros</span>
@@ -226,7 +295,7 @@
                     </div>
                 @empty
                     <div class="w-full h-full flex items-center justify-center text-sm text-gray-400">
-                        Sin actividad sacramental registrada.
+                        Sin actividad sacramental o inscripciones registradas.
                     </div>
                 @endforelse
             </div>
@@ -239,41 +308,25 @@
 
         {{-- INGRESOS RECIENTES --}}
         <section class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-            <h2 class="text-xl font-serif text-gray-900 dark:text-white mb-5">Ingresos recientes</h2>
+            <h2 class="text-xl font-serif text-gray-900 dark:text-white mb-5">Ingresos recientes del mes</h2>
             <div class="space-y-4">
-                <div class="flex items-center gap-3">
+                @forelse($recentMonthlyEntries as $entry)
+                <a href="{{ $entry['url'] }}" class="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
                     <div class="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white">Nueva acta de matrimonio</p>
-                        <p class="text-xs text-gray-400">Hace 2 horas · Folio #452</p>
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $entry['title'] }}</p>
+                        <p class="text-xs text-gray-400">
+                            {{ $entry['date']?->format('d/m/Y H:i') ?? 'Sin fecha' }}
+                        </p>
                     </div>
-                </div>
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white">Registro feligrés: Elena Solís</p>
-                        <p class="text-xs text-gray-400">Hace 4 horas · ID: 1209</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3M12 8a4 4 0 100 8 4 4 0 000-8z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white">Bautismo registrado</p>
-                        <p class="text-xs text-gray-400">Hace 1 día · Folio #891</p>
-                    </div>
-                </div>
+                </a>
+                @empty
+                <p class="text-sm text-gray-400">No hay ingresos registrados en el mes actual.</p>
+                @endforelse
             </div>
         </section>
     </div>
@@ -328,35 +381,42 @@
                         <div class="w-2.5 h-2.5 rounded-full bg-sky-500 flex-shrink-0"></div>
                         <span class="text-sm text-gray-700 dark:text-gray-300">Bautismo</span>
                     </div>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $bautismoYearCount }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $bautismoMonthCount }}</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <div class="w-2.5 h-2.5 rounded-full bg-rose-500 flex-shrink-0"></div>
                         <span class="text-sm text-gray-700 dark:text-gray-300">Matrimonio</span>
                     </div>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $matrimonioYearCount }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $matrimonioMonthCount }}</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0"></div>
                         <span class="text-sm text-gray-700 dark:text-gray-300">Confirmación</span>
                     </div>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $confirmacionYearCount }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $confirmacionMonthCount }}</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <div class="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0"></div>
                         <span class="text-sm text-gray-700 dark:text-gray-300">Comunión</span>
                     </div>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $comunionYearCount }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $comunionMonthCount }}</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <div class="w-2.5 h-2.5 rounded-full bg-blue-500 flex-shrink-0"></div>
                         <span class="text-sm text-gray-700 dark:text-gray-300">Cursos</span>
                     </div>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $cursoCount }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $cursoMonthCount }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 flex-shrink-0"></div>
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Instructores</span>
+                    </div>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $instructorMonthCount }}</span>
                 </div>
             </div>
         </section>

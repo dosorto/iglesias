@@ -5,7 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Confirmacion;
 use App\Models\Iglesias;
 use App\Models\TenantIglesia;
+use App\Services\DocumentosGeneradosService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\RoundBlockSizeMode;
+use Endroid\QrCode\Writer\PngWriter;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ConfirmacionController extends Controller
 {
@@ -31,6 +39,33 @@ class ConfirmacionController extends Controller
 
     public function certificadoPdf(Confirmacion $confirmacion)
     {
+        $tipoDocumento = 'confirmacion_certificado';
+        $nombreArchivo = 'certificado-confirmacion-' . $confirmacion->id . '.pdf';
+        $servicioDocumentos = app(DocumentosGeneradosService::class);
+
+        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, Confirmacion::class, (int) $confirmacion->id, (int) $confirmacion->iglesia_id);
+        $payloadExistente = is_array($documentoExistente?->payload) ? $documentoExistente->payload : [];
+        $urlQrExistente = (string) ($payloadExistente['url_qr'] ?? '');
+        $snapshotConQr = ! empty($payloadExistente['html'])
+            && ! empty($payloadExistente['codigo_verificacion'])
+            && ! empty($payloadExistente['qr_data_uri'])
+            && str_ends_with(strtolower($urlQrExistente), '/pdf');
+        if ($documentoExistente && $snapshotConQr) {
+            return Pdf::loadHTML($payloadExistente['html'])
+                ->setPaper($payloadExistente['paper_size'] ?? 'letter', $payloadExistente['orientation'] ?? 'portrait')
+                ->stream($documentoExistente->nombre_archivo);
+        }
+
+        if ($documentoExistente && ! empty($documentoExistente->path_pdf) && Storage::disk('local')->exists($documentoExistente->path_pdf)) {
+            return response()->file(
+                Storage::disk('local')->path($documentoExistente->path_pdf),
+                [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'inline; filename="' . $documentoExistente->nombre_archivo . '"',
+                ]
+            );
+        }
+
         $confirmacion->load([
             'iglesia',
             'feligres.persona',
@@ -49,11 +84,51 @@ class ConfirmacionController extends Controller
             $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
         }
 
-        $pdf = Pdf::loadView(
-            'confirmacion.certificado-pdf',
-            compact('confirmacion', 'iglesiaConfig')
-        )->setPaper('letter', 'portrait');
+        $codigoVerificacion = $servicioDocumentos->generarCodigoVerificacionUnico();
+        $urlVerificacion = $servicioDocumentos->construirUrlVerificacion($codigoVerificacion);
+        $urlQr = $servicioDocumentos->construirUrlVerificacionPdf($codigoVerificacion);
+        $qrDataUri = Builder::create()
+            ->writer(new PngWriter())
+            ->data($urlQr)
+            ->encoding(new Encoding('UTF-8'))
+            ->errorCorrectionLevel(ErrorCorrectionLevel::Medium)
+            ->size(130)
+            ->margin(1)
+            ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
+            ->build()
+            ->getDataUri();
 
-        return $pdf->stream('certificado-confirmacion-' . $confirmacion->id . '.pdf');
+        $html = view('confirmacion.certificado-pdf', compact('confirmacion', 'iglesiaConfig', 'codigoVerificacion', 'urlVerificacion', 'qrDataUri'))->render();
+
+        $pdf = Pdf::loadHTML($html)->setPaper('letter', 'portrait');
+
+        $pdfBinario = $pdf->output();
+
+        $servicioDocumentos->guardarDocumento(
+            $tipoDocumento,
+            $confirmacion,
+            $confirmacion->iglesia_id,
+            $nombreArchivo,
+            [
+                'emitido_en' => now()->toIso8601String(),
+                'view' => 'confirmacion.certificado-pdf',
+                'paper_size' => 'letter',
+                'orientation' => 'portrait',
+                'html' => $html,
+                'codigo_verificacion' => $codigoVerificacion,
+                'url_verificacion' => $urlVerificacion,
+                'url_qr' => $urlQr,
+                'qr_data_uri' => $qrDataUri,
+                'registro' => $confirmacion->toArray(),
+                'iglesia_config' => $iglesiaConfig?->toArray(),
+            ],
+            Auth::id(),
+            $codigoVerificacion
+        );
+
+        return response($pdfBinario, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $nombreArchivo . '"',
+        ]);
     }
 }

@@ -85,6 +85,68 @@
 
         {{-- Timeline Column --}}
         <div class="lg:col-span-2">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                        <h2 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest">Sacramentos Recibidos</h2>
+                    </div>
+                    <div class="p-4">
+                        <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+                            @forelse($sacramentos as $sacramento)
+                                <li class="py-3 flex items-center justify-between gap-3">
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $sacramento['tipo'] }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ $sacramento['fecha'] ? $sacramento['fecha']->format('d/m/Y') : 'Fecha no registrada' }}
+                                        </p>
+                                    </div>
+                                    @can($sacramento['permission'])
+                                        <a href="{{ route($sacramento['route'], $sacramento['model']) }}" class="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                                            Ver detalle
+                                        </a>
+                                    @endcan
+                                </li>
+                            @empty
+                                <li class="py-2 text-sm text-gray-500 dark:text-gray-400 italic">No hay sacramentos registrados.</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                        <h2 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest">Cursos Obtenidos</h2>
+                    </div>
+                    <div class="p-4">
+                        <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+                            @forelse($cursos as $inscripcion)
+                                <li class="py-3 flex items-center justify-between gap-3">
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $inscripcion->curso->nombre ?? 'Curso sin nombre' }}</p>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <span class="text-xs {{ $inscripcion->aprobado ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400' }}">
+                                                {{ $inscripcion->aprobado ? 'Completado' : 'En curso' }}
+                                            </span>
+                                            <span class="text-xs text-gray-400">•</span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">
+                                                {{ $inscripcion->fecha_certificado ? $inscripcion->fecha_certificado->format('d/m/Y') : ($inscripcion->fecha_inscripcion ? $inscripcion->fecha_inscripcion->format('d/m/Y') : 'Sin fecha') }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    @can('inscripcion-curso.view')
+                                        <a href="{{ route('inscripcion-curso.show', $inscripcion) }}" class="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                                            Ver detalle
+                                        </a>
+                                    @endcan
+                                </li>
+                            @empty
+                                <li class="py-2 text-sm text-gray-500 dark:text-gray-400 italic">No hay cursos registrados.</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
                     <h2 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest">Historial de Cambios</h2>

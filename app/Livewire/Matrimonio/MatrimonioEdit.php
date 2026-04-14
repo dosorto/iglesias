@@ -32,7 +32,7 @@ class MatrimonioEdit extends Component
 
     public ?array $encargado_info = null;
 
-    // Roles editables: esposo, esposa, testigos
+    // Roles editables: esposo, esposa,  testigos
     public string $esposo_dni         = '';
     public ?array $esposo_persona     = null;
     public ?int   $esposo_feligres_id = null;
@@ -466,12 +466,14 @@ class MatrimonioEdit extends Component
             $this->iglesia_id = TenantIglesia::currentId();
         }
 
+        $this->fecha_matrimonio = $this->fecha_matrimonio ?: now()->format('Y-m-d');
+
         $this->cargarEncargado();
         $this->encargado_id = $this->encargado_info['encargado_id'] ?? null;
 
         $this->validate();
 
-        $fechaExp = null;
+        $fechaExp = now()->format('Y-m-d');
         if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
             try {
                 $fechaExp = \Carbon\Carbon::createFromDate(
@@ -480,7 +482,7 @@ class MatrimonioEdit extends Component
                     (int) $this->exp_dia
                 )->format('Y-m-d');
             } catch (\Exception) {
-                $fechaExp = null;
+                $fechaExp = now()->format('Y-m-d');
             }
         }
 

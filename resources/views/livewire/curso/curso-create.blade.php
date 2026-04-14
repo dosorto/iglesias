@@ -819,13 +819,13 @@
                     type="button"
                     wire:loading.attr="disabled"
                     class="inline-flex items-center gap-2.5 px-7 py-2.5 rounded-lg text-sm font-bold
-                           shadow-md shadow-emerald-500/30 transition-all duration-150
-                           bg-gradient-to-r from-emerald-500 to-emerald-600
-                           hover:from-emerald-600 hover:to-emerald-700
-                           active:scale-[0.98]
-                           disabled:opacity-50 disabled:cursor-not-allowed
-                           text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
-                           dark:focus:ring-offset-gray-800">
+                            shadow-md shadow-emerald-500/30 transition-all duration-150
+                            bg-gradient-to-r from-emerald-500 to-emerald-600
+                            hover:from-emerald-600 hover:to-emerald-700
+                            active:scale-[0.98]
+                            disabled:opacity-50 disabled:cursor-not-allowed
+                            text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
+                            dark:focus:ring-offset-gray-800">
                 <svg wire:loading wire:target="guardar" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>

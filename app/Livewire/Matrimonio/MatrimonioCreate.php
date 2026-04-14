@@ -438,12 +438,7 @@ class MatrimonioCreate extends Component
             return;
         }
 
-        // ✅ Validar sexo también al guardar
-        if (!$this->validarEspososSexoDiferente()) {
-            return;
-        }
-
-        $fechaExp = null;
+        $fechaExp = now()->format('Y-m-d');
         if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
             try {
                 $fechaExp = \Carbon\Carbon::createFromDate(
@@ -452,7 +447,7 @@ class MatrimonioCreate extends Component
                     (int) $this->exp_dia
                 )->format('Y-m-d');
             } catch (\Exception) {
-                $fechaExp = null;
+                $fechaExp = now()->format('Y-m-d');
             }
         }
 

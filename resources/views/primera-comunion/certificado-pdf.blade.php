@@ -45,12 +45,19 @@
         .sig-name { font-size: 11pt; font-weight: bold; margin-top: 4px; margin-bottom: 2px; color: #1a1a1a; }
         .sig-title { font-size: 11pt; font-weight: bold; color: #7D5A1E; letter-spacing: 1px; text-transform: uppercase; }
 
-        .logo-placeholder {
-            width: 75px;
-            height: 75px;
-            display: block;
-            background: transparent;
+        .qr-verify {
+            margin-top: 12px;
+            font-size: 8pt;
+            color: #555;
         }
+        .qr-verify img {
+            width: 70px;
+            height: 70px;
+            border: 1px solid #d1d5db;
+            padding: 2px;
+            background: #fff;
+        }
+        .qr-code { margin-top: 3px; letter-spacing: 0.4px; }
     </style>
 </head>
 @php
@@ -94,6 +101,9 @@
     $lugarCelebracion = $primeraComunion->lugar_celebracion ?? '';
     $lugarExp         = $primeraComunion->lugar_expedicion  ?? '';
     $notaMarginal     = $primeraComunion->nota_marginal     ?? '';
+    $codigoVerificacion = $codigoVerificacion ?? '';
+    $urlVerificacion = $urlVerificacion ?? '';
+    $qrDataUri = $qrDataUri ?? null;
 @endphp
 <body>
 @if ($logoIglesiaPath)
@@ -195,6 +205,12 @@
         <p class="sig-name">{{ $encargadoNombre ?: '' }}</p>
         <p class="sig-title">P&aacute;rroco</p>
     </div>
+
+    @if ($qrDataUri)
+        <div class="qr-verify">
+            <img src="{{ $qrDataUri }}" alt="QR de verificacion">
+        </div>
+    @endif
 
 </div>
 </body>
