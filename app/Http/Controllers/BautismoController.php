@@ -125,6 +125,7 @@ class BautismoController extends Controller
             $codigoVerificacion
         );
 
+        
         return response($pdfBinario, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="' . $nombreArchivo . '"',
