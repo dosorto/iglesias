@@ -18,14 +18,14 @@
 
         return [
             'month' => (int) $month->month,
-            'year'  => (int) $month->year,
+            'year' => (int) $month->year,
             'label' => ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'][$month->month - 1],
         ];
     });
 
     $countByMonth = function (string $modelClass, string $dateColumn, int $year, int $month): int {
         $start = Carbon::create($year, $month, 1)->startOfMonth();
-        $end   = Carbon::create($year, $month, 1)->endOfMonth();
+        $end = Carbon::create($year, $month, 1)->endOfMonth();
 
         return $modelClass::query()
             ->whereBetween($dateColumn, [$start, $end])
@@ -33,8 +33,8 @@
     };
 
     $activityRows = $months->map(function (array $item) use ($countByMonth) {
-        $bautismos      = $countByMonth(Bautismo::class, 'fecha_bautismo', $item['year'], $item['month']);
-        $matrimonios    = $countByMonth(Matrimonio::class, 'fecha_matrimonio', $item['year'], $item['month']);
+        $bautismos = $countByMonth(Bautismo::class, 'fecha_bautismo', $item['year'], $item['month']);
+        $matrimonios = $countByMonth(Matrimonio::class, 'fecha_matrimonio', $item['year'], $item['month']);
         $confirmaciones = $countByMonth(Confirmacion::class, 'fecha_confirmacion', $item['year'], $item['month']);
         $comuniones = $countByMonth(PrimeraComunion::class, 'fecha_primera_comunion', $item['year'], $item['month']);
         $inscripciones = $countByMonth(InscripcionCurso::class, 'created_at', $item['year'], $item['month']);
@@ -50,7 +50,7 @@
         ];
     });
 
-    $maxActivity  = max(1, (int) $activityRows->max('total'));
+    $maxActivity = max(1, (int) $activityRows->max('total'));
     $activityRows = $activityRows->map(function (array $row) use ($maxActivity) {
         $height = max(12, (int) round(($row['total'] / $maxActivity) * 100));
         $row['height'] = $height;
@@ -64,7 +64,7 @@
             $height <= 65 => 'h-28',
             $height <= 75 => 'h-32',
             $height <= 85 => 'h-36',
-            default       => 'h-40',
+            default => 'h-40',
         };
 
         return $row;
@@ -221,21 +221,18 @@
     </a>
 </div>
 
-{{-- MÉTRICAS (mes actual) --}}
+{{-- MÉTRICAS --}}
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-
-    {{-- Feligreses activos (total histórico) --}}
     <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 border-b-4 border-b-emerald-400">
         <div class="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
             <svg class="w-5 h-5 text-emerald-700 dark:text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
         </div>
-        <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $feligresCount }}</p>
+        <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ \App\Models\Feligres::count() }}</p>
         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Feligreses activos</p>
     </div>
 
-    {{-- Bautismos del mes --}}
     <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 border-b-4 border-b-sky-400">
         <div class="w-9 h-9 rounded-lg bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center mb-4">
             <svg class="w-5 h-5 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -246,7 +243,6 @@
         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Bautismos (mes)</p>
     </div>
 
-    {{-- Matrimonios del mes --}}
     <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 border-b-4 border-b-rose-400">
         <div class="w-9 h-9 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center mb-4">
             <svg class="w-5 h-5 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -257,7 +253,6 @@
         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Matrimonios (mes)</p>
     </div>
 
-    {{-- Inscripciones a cursos del mes --}}
     <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 border-b-4 border-b-amber-400">
         <div class="w-9 h-9 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-4">
             <svg class="w-5 h-5 text-amber-700 dark:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -267,7 +262,6 @@
         <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $cursoMonthCount }}</p>
         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Inscritos en cursos (mes)</p>
     </div>
-
 </div>
 
 {{-- GRID PRINCIPAL --}}
@@ -369,12 +363,9 @@
             </a>
         </section>
 
-        {{-- SACRAMENTOS (resumen anual) --}}
+        {{-- SACRAMENTOS --}}
         <section class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-            <div class="flex justify-between items-center mb-5">
-                <h2 class="text-xl font-serif text-gray-900 dark:text-white">Sacramentos</h2>
-                <span class="text-xs text-gray-400 font-semibold">{{ $year }}</span>
-            </div>
+            <h2 class="text-xl font-serif text-gray-900 dark:text-white mb-5">Sacramentos</h2>
             <div class="space-y-3">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
