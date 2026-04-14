@@ -87,6 +87,8 @@
     {{-- TABLA --}}
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
 
+        <div class="overflow-x-auto">
+
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
 
             {{-- HEADER TABLA --}}
@@ -136,17 +138,17 @@
                     <tr>
 
                         {{-- PERSONA --}}
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        <td class="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-[16rem] break-words">
                             {{ $inscripcion->feligres->persona->nombre_completo ?? 'N/A' }}
                         </td>
 
                         {{-- CURSO --}}
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        <td class="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-[14rem] break-words">
                             {{ $inscripcion->curso->nombre ?? 'N/A' }}
                         </td>
 
                         {{-- INSTRUCTOR --}}
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        <td class="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-[16rem] break-words">
                             {{ $inscripcion->curso?->instructor?->feligres?->persona?->nombre_completo ?? '—' }}
                         </td>
 
@@ -226,6 +228,8 @@
             </tbody>
 
         </table>
+
+        </div>
 
     </div>
 
