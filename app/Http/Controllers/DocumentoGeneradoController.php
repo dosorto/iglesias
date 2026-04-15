@@ -20,6 +20,7 @@ class DocumentoGeneradoController extends Controller
         return $this->streamDocumento($documentoGenerado);
     }
     
+    
 
     public function verificar(string $codigo, Request $request)
     {
