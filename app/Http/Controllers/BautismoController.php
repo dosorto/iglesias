@@ -42,8 +42,9 @@ class BautismoController extends Controller
         $nombreArchivo = 'certificado-bautismo-' . $bautismo->id . '.pdf';
         $layoutVersion = 'header-config-v3';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
+        $iglesiaDocumentoId = (int) $bautismo->iglesia_id;
 
-        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, Bautismo::class, (int) $bautismo->id, (int) $bautismo->iglesia_id);
+        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, Bautismo::class, (int) $bautismo->id, $iglesiaDocumentoId);
         $payloadExistente = is_array($documentoExistente?->payload) ? $documentoExistente->payload : [];
         $urlQrExistente = (string) ($payloadExistente['url_qr'] ?? '');
         $layoutVersionActual = (string) ($payloadExistente['layout_version'] ?? '');
@@ -105,7 +106,7 @@ class BautismoController extends Controller
         $servicioDocumentos->guardarDocumento(
             $tipoDocumento,
             $bautismo,
-            $bautismo->iglesia_id,
+            $iglesiaDocumentoId,
             $nombreArchivo,
             [
                 'emitido_en' => now()->toIso8601String(),

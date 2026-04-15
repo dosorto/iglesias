@@ -42,8 +42,9 @@ class MatrimonioController extends Controller
         $nombreArchivo = 'constancia-matrimonio-' . $matrimonio->id . '.pdf';
         $layoutVersion = 'header-config-v3';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
+        $iglesiaDocumentoId = (int) $matrimonio->iglesia_id;
 
-        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, Matrimonio::class, (int) $matrimonio->id, (int) $matrimonio->iglesia_id);
+        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, Matrimonio::class, (int) $matrimonio->id, $iglesiaDocumentoId);
         $payloadExistente = is_array($documentoExistente?->payload) ? $documentoExistente->payload : [];
         $urlQrExistente = (string) ($payloadExistente['url_qr'] ?? '');
         $layoutVersionActual = (string) ($payloadExistente['layout_version'] ?? '');
@@ -103,7 +104,7 @@ class MatrimonioController extends Controller
         $servicioDocumentos->guardarDocumento(
             $tipoDocumento,
             $matrimonio,
-            $matrimonio->iglesia_id,
+            $iglesiaDocumentoId,
             $nombreArchivo,
             [
                 'emitido_en' => now()->toIso8601String(),

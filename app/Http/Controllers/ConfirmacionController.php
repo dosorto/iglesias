@@ -43,8 +43,9 @@ class ConfirmacionController extends Controller
         $nombreArchivo = 'certificado-confirmacion-' . $confirmacion->id . '.pdf';
         $layoutVersion = 'header-config-v3';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
+        $iglesiaDocumentoId = (int) $confirmacion->iglesia_id;
 
-        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, Confirmacion::class, (int) $confirmacion->id, (int) $confirmacion->iglesia_id);
+        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, Confirmacion::class, (int) $confirmacion->id, $iglesiaDocumentoId);
         $payloadExistente = is_array($documentoExistente?->payload) ? $documentoExistente->payload : [];
         $urlQrExistente = (string) ($payloadExistente['url_qr'] ?? '');
         $layoutVersionActual = (string) ($payloadExistente['layout_version'] ?? '');
@@ -111,7 +112,7 @@ class ConfirmacionController extends Controller
         $servicioDocumentos->guardarDocumento(
             $tipoDocumento,
             $confirmacion,
-            $confirmacion->iglesia_id,
+            $iglesiaDocumentoId,
             $nombreArchivo,
             [
                 'emitido_en' => now()->toIso8601String(),

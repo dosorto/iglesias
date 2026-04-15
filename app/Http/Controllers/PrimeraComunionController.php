@@ -51,8 +51,9 @@ class PrimeraComunionController extends Controller
         $nombreArchivo = 'certificado-primera-comunion-' . $primeraComunion->id . '.pdf';
         $layoutVersion = 'header-config-v3';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
+        $iglesiaDocumentoId = (int) $primeraComunion->id_iglesia;
 
-        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, PrimeraComunion::class, (int) $primeraComunion->id, (int) $primeraComunion->id_iglesia);
+        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, PrimeraComunion::class, (int) $primeraComunion->id, $iglesiaDocumentoId);
         $payloadExistente = is_array($documentoExistente?->payload) ? $documentoExistente->payload : [];
         $urlQrExistente = (string) ($payloadExistente['url_qr'] ?? '');
         $layoutVersionActual = (string) ($payloadExistente['layout_version'] ?? '');
@@ -121,7 +122,7 @@ class PrimeraComunionController extends Controller
         $servicioDocumentos->guardarDocumento(
             $tipoDocumento,
             $primeraComunion,
-            $primeraComunion->id_iglesia,
+            $iglesiaDocumentoId,
             $nombreArchivo,
             [
                 'emitido_en' => now()->toIso8601String(),

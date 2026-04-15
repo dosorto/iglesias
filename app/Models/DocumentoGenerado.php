@@ -11,15 +11,6 @@ class DocumentoGenerado extends Model
 
     protected $table = 'documentos_generados';
 
-    /**
-     * Documents history is stored in the central database to keep a single source
-     * of frozen copies regardless of the currently switched tenant connection.
-     */
-    public function getConnectionName(): string
-    {
-        return config('tenancy.central_connection', config('database.default'));
-    }
-
     protected $fillable = [
         'tipo_documento',
         'fuente_tipo',
