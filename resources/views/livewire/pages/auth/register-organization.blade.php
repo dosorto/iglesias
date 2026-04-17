@@ -145,11 +145,6 @@ new #[Layout('layouts.guest')] class extends Component
             'id_iglesia'        => $iglesia->id,
             'id_iglesia_tenant' => $iglesiaTenantId,
             'connection'        => $tenantConnection,
-            'host'              => $tenant['host'],
-            'port'              => $tenant['port'],
-            'database'          => $tenant['database'],
-            'username'          => $tenant['username'],
-            'password'          => $tenant['password'],
         ]);
 
         event(new Registered($user));

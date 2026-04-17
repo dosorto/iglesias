@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Formato de Certificado de Bautismo')
+@section('title', 'Configuración de Certificados')
 
 @section('content')
     <livewire:iglesia.certificado-config-index />

@@ -25,6 +25,7 @@
                 @php
                     $isInstructorOnly = auth()->user()?->hasRole('instructor')
                         && ! auth()->user()?->hasAnyRole(['root', 'admin']);
+                    $dashboardRoute = $isInstructorOnly ? route('instructor.dashboard') : route('dashboard');
                 @endphp
 
                 {{-- Sección Principal --}}
@@ -40,7 +41,7 @@
 
                     {{-- Dashboard --}}
                     <li>
-                        <a href="{{ route('dashboard') }}"
+                        <a href="{{ $dashboardRoute }}"
                            class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
                                   rounded-xl text-gray-700 dark:text-gray-200 hover:bg-[#4B3FBD]/20 dark:hover:bg-[#6C5DD3]/20
                                   hover:text-[#4B3FBD] dark:hover:text-[#B2A4F2] transition-colors duration-200 group"
@@ -56,7 +57,7 @@
                     </li>
 
                     {{-- Personas --}}
-                    @can('personas.view')
+                    @if(auth()->user()?->can('personas.view') && auth()->user()?->hasRole('root'))
                         <li>
                             <a href="{{ route('personas.index') }}"
                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
@@ -72,7 +73,7 @@
                                 @endif
                             </a>
                         </li>
-                    @endcan
+                    @endif
 
                     {{-- Feligreses --}}
                     @can('feligres.view')
@@ -180,6 +181,7 @@
                     
                     {{-- Iglesias --}}
                     @can('iglesias.view')
+                        @if(!session('tenant.id_iglesia'))
                         <li>
                             <a href="{{ route('iglesias.index') }}"
                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
@@ -195,10 +197,12 @@
                                 @endif
                             </a>
                         </li>
+                        @endif
                     @endcan
                     
                     {{-- Religion --}}
                     @can('religion.view')
+                        @if(auth()->user()?->hasAnyRole(['admin', 'root']) && !session('tenant.id_iglesia'))
                         <li>
                             <a href="{{ route('religion.index') }}"
                                 class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
@@ -214,6 +218,7 @@
                                 @endif
                             </a>
                         </li>
+                        @endif
                     @endcan
 
                     {{-- Usuarios --}}

@@ -68,6 +68,35 @@
         </div>
     @endif
 
+    @if (session()->has('instructor_credentials'))
+        @php($credentials = session('instructor_credentials'))
+        <div class="rounded-xl border border-amber-200 dark:border-amber-700/50
+                    bg-amber-50 dark:bg-amber-900/20 px-4 py-3">
+            <p class="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                Credenciales temporales del instructor
+            </p>
+            <p class="mt-1 text-sm text-amber-800 dark:text-amber-200">
+                Correo: {{ $credentials['email'] ?? '-' }}
+            </p>
+
+            @if (!empty($credentials['password']))
+                <p class="text-sm text-amber-800 dark:text-amber-200">
+                    Clave temporal: {{ $credentials['password'] }}
+                </p>
+                <p class="mt-1 text-xs text-amber-700 dark:text-amber-300">
+                    Comparte esta clave solo una vez; se ocultará automáticamente después del primer login del instructor.
+                </p>
+            @else
+                <p class="text-sm text-amber-800 dark:text-amber-200">
+                    No se genero nueva clave temporal.
+                </p>
+                <p class="mt-1 text-xs text-amber-700 dark:text-amber-300">
+                    {{ $credentials['note'] ?? 'Este instructor ya tenia una cuenta activa y debe usar su contrasena actual.' }}
+                </p>
+            @endif
+        </div>
+    @endif
+
     @if($paso === 1)
         <div class="bg-white dark:bg-gray-800/80 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700/60
                     ring-1 ring-black/5 dark:ring-white/5">

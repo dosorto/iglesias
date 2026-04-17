@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Tipocurso;
+namespace App\Livewire\TipoCurso;
 
 use App\Exports\TipoCursoExport;
 use App\Models\TipoCurso as TipoCursoModel;
@@ -10,7 +10,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Url;
 use Maatwebsite\Excel\Facades\Excel;
 
-class TipocursoIndex extends Component
+class TipoCursoIndex extends Component
 {
     use WithPagination;
 

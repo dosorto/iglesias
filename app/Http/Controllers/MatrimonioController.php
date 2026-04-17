@@ -38,29 +38,56 @@ class MatrimonioController extends Controller
 
     public function certificadoPdf(Matrimonio $matrimonio)
     {
+        $matrimonio->loadMissing('encargado');
+        if (! filled($matrimonio->encargado?->path_firma_principal)) {
+            abort(422, 'Debe configurar la firma principal del encargado para generar la constancia de matrimonio.');
+        }
+
+        $iglesiaConfig = TenantIglesia::current();
+
         $tipoDocumento = 'matrimonio_constancia';
         $nombreArchivo = 'constancia-matrimonio-' . $matrimonio->id . '.pdf';
         $layoutVersion = 'header-config-v3';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
         $iglesiaDocumentoId = (int) $matrimonio->iglesia_id;
+        $pathFormatoMatrimonio = (string) ($iglesiaConfig?->path_certificado_matrimonio ?: $iglesiaConfig?->path_certificado_bautismo ?? '');
+        $orientacionMatrimonio = (string) ($iglesiaConfig?->orientacion_certificado_matrimonio
+            ?? $iglesiaConfig?->orientacion_certificado
+            ?? 'portrait');
+
+        $dataVersion = hash('sha256', implode('|', [
+            (string) ($matrimonio->updated_at?->timestamp ?? 0),
+            (string) ($iglesiaConfig?->updated_at?->timestamp ?? 0),
+            (string) ($matrimonio->encargado?->path_firma_principal ?? ''),
+            (string) ($iglesiaConfig?->path_logo ?? ''),
+            (string) ($iglesiaConfig?->path_logo_derecha ?? ''),
+            $pathFormatoMatrimonio,
+            $orientacionMatrimonio,
+            (string) ($iglesiaConfig?->header_diocesis ?? ''),
+            (string) ($iglesiaConfig?->direccion ?? ''),
+            (string) ($iglesiaConfig?->nombre ?? ''),
+        ]));
 
         $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, Matrimonio::class, (int) $matrimonio->id, $iglesiaDocumentoId);
         $payloadExistente = is_array($documentoExistente?->payload) ? $documentoExistente->payload : [];
         $urlQrExistente = (string) ($payloadExistente['url_qr'] ?? '');
         $layoutVersionActual = (string) ($payloadExistente['layout_version'] ?? '');
+        $dataVersionActual = (string) ($payloadExistente['data_version'] ?? '');
         $layoutActualizado = $layoutVersionActual === $layoutVersion;
+        $dataActualizada = $dataVersionActual === $dataVersion;
         $snapshotConQr = ! empty($payloadExistente['html'])
             && ! empty($payloadExistente['codigo_verificacion'])
             && ! empty($payloadExistente['qr_data_uri'])
             && str_ends_with(strtolower($urlQrExistente), '/pdf')
-            && $layoutActualizado;
+            && $layoutActualizado
+            && $dataActualizada;
         if ($documentoExistente && $snapshotConQr) {
             return Pdf::loadHTML($payloadExistente['html'])
                 ->setPaper($payloadExistente['paper_size'] ?? 'letter', $payloadExistente['orientation'] ?? 'portrait')
                 ->stream($documentoExistente->nombre_archivo);
         }
 
-        if ($documentoExistente && $layoutActualizado && ! empty($documentoExistente->path_pdf) && Storage::disk('local')->exists($documentoExistente->path_pdf)) {
+        if ($documentoExistente && $layoutActualizado && $dataActualizada && ! empty($documentoExistente->path_pdf) && Storage::disk('local')->exists($documentoExistente->path_pdf)) {
             return response()->file(
                 Storage::disk('local')->path($documentoExistente->path_pdf),
                 [
@@ -79,7 +106,6 @@ class MatrimonioController extends Controller
             'encargado.feligres.persona',
         ]);
 
-        $iglesiaConfig = TenantIglesia::current();
         $codigoVerificacion = $servicioDocumentos->generarCodigoVerificacionUnico();
         $urlVerificacion = $servicioDocumentos->construirUrlVerificacion($codigoVerificacion);
         $urlQr = $servicioDocumentos->construirUrlVerificacionPdf($codigoVerificacion);
@@ -96,8 +122,10 @@ class MatrimonioController extends Controller
 
         $html = view('matrimonio.certificado-pdf', compact('matrimonio', 'iglesiaConfig', 'codigoVerificacion', 'urlVerificacion', 'qrDataUri'))->render();
 
+        $orientation = $orientacionMatrimonio === 'landscape' ? 'landscape' : 'portrait';
+
         $pdf = Pdf::loadHTML($html)
-            ->setPaper('letter', 'portrait');
+            ->setPaper('letter', $orientation);
 
         $pdfBinario = $pdf->output();
 
@@ -110,13 +138,14 @@ class MatrimonioController extends Controller
                 'emitido_en' => now()->toIso8601String(),
                 'view' => 'matrimonio.certificado-pdf',
                 'paper_size' => 'letter',
-                'orientation' => 'portrait',
+                'orientation' => $orientation,
                 'html' => $html,
                 'codigo_verificacion' => $codigoVerificacion,
                 'url_verificacion' => $urlVerificacion,
                 'url_qr' => $urlQr,
                 'qr_data_uri' => $qrDataUri,
                 'layout_version' => $layoutVersion,
+                'data_version' => $dataVersion,
                 'registro' => $matrimonio->toArray(),
                 'iglesia_config' => $iglesiaConfig?->toArray(),
             ],

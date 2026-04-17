@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Iglesias;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,8 +17,9 @@ class InitializeTenantFromSession
         }
 
         $tenant = $request->session()->get('tenant');
+        $tenantIglesiaId = isset($tenant['id_iglesia']) ? (int) $tenant['id_iglesia'] : null;
 
-        if (!$tenant || empty($tenant['database'])) {
+        if (!$tenant || !$tenantIglesiaId) {
             return $next($request);
         }
 
@@ -30,12 +32,29 @@ class InitializeTenantFromSession
             return $next($request);
         }
 
+        $iglesia = Iglesias::on($centralConnection)->find($tenantIglesiaId);
+
+        // Sesion tenant invalida o iglesia sin base tenant configurada.
+        if (!$iglesia || empty($iglesia->db_database)) {
+            $request->session()->forget('tenant');
+            $request->session()->forget('tenant_can_return_global');
+
+            return $next($request);
+        }
+
         $tenantConfig = array_merge($baseConfig, [
-            'host'     => $tenant['host']     ?? $baseConfig['host']     ?? null,
-            'port'     => $tenant['port']      ?? $baseConfig['port']     ?? null,
-            'database' => $tenant['database'],
-            'username' => $tenant['username'] ?? $baseConfig['username'] ?? null,
-            'password' => $tenant['password'] ?? $baseConfig['password'] ?? null,
+            'host'     => $iglesia->db_host     ?: $baseConfig['host'] ?? null,
+            'port'     => $iglesia->db_port     ?: $baseConfig['port'] ?? null,
+            'database' => $iglesia->db_database,
+            'username' => $iglesia->db_username ?: $baseConfig['username'] ?? null,
+            'password' => $iglesia->db_password ?: $baseConfig['password'] ?? null,
+        ]);
+
+        // Compatibilidad hacia adelante: normalizar payload de sesion tenant
+        // para que no contenga credenciales de BD.
+        $request->session()->put('tenant', [
+            'id_iglesia' => $iglesia->id,
+            'connection' => $tenantConnection,
         ]);
 
         config([

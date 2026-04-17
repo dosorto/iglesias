@@ -1,5 +1,6 @@
 <nav class="sticky top-0 z-30 w-full bg-gray-50 dark:bg-gray-900 border-b-2 border-gray-300 dark:border-gray-700 shadow-md transition-colors duration-300">
     @php
+        $isTenantMode = (bool) session('tenant.id_iglesia');
         $activeChurchName = \App\Models\TenantIglesia::current()?->nombre ?: config('app.name');
     @endphp
     <div class="px-4 py-3 flex justify-between items-center">
@@ -14,12 +15,24 @@
                 </svg>
             </button>
 
-            <span class="text-lg font-semibold text-gray-900 dark:text-white">
-                {{ $activeChurchName }}
-            </span>
+            <div>
+                <span class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {{ $isTenantMode ? $activeChurchName : 'Panel Global' }}
+                </span>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ $isTenantMode ? 'Gestionando iglesia activa' : 'Gestion de todas las iglesias' }}
+                </p>
+            </div>
         </div>
 
         <div class="flex items-center gap-4">
+            @if($isTenantMode && session('tenant_can_return_global'))
+                <a href="{{ route('iglesias.salir-gestion') }}"
+                   class="inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg border border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 dark:border-indigo-800 dark:text-indigo-200 dark:bg-indigo-900/40 dark:hover:bg-indigo-900/60 transition-colors">
+                    Volver al panel global
+                </a>
+            @endif
+
             <button id="theme-toggle"
                     type="button"
                     class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white rounded-lg text-sm p-2.5 transition-colors duration-200">

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Tipocurso;
+namespace App\Livewire\TipoCurso;
 
 use App\Models\TipoCurso as TipoCursoModel;
 use Illuminate\Validation\Rule;

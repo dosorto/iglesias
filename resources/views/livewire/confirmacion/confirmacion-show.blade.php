@@ -7,6 +7,7 @@
     $madrina       = $confirmacion->madrina?->persona;
     $ministro      = $confirmacion->ministro?->persona;
     $encargado     = $confirmacion->encargado?->feligres?->persona;
+    $firmaEncargadoDisponible = filled($confirmacion->encargado?->path_firma_principal);
     $iglesiaNombre = $iglesiaConfig?->nombre ?? $confirmacion->iglesia?->nombre ?? '';
 
     // Logos — igual que bautismo-show
@@ -39,7 +40,9 @@
         $confirmacion->updated_at?->timestamp ?? 0,
         $iglesiaConfig?->updated_at?->timestamp ?? 0,
     );
-    $pdfPreviewUrl = route('confirmacion.certificado.pdf', $confirmacion) . '?v=' . ($previewVersion ?: time());
+    $pdfPreviewUrl = $firmaEncargadoDisponible
+        ? route('confirmacion.certificado.pdf', $confirmacion) . '?v=' . ($previewVersion ?: time())
+        : null;
 @endphp
 
 <div class="flex flex-col lg:flex-row gap-5 items-start">
@@ -57,14 +60,20 @@
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
             <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Acciones</p>
             <div class="space-y-2">
-                <a href="{{ route('confirmacion.certificado.pdf', $confirmacion) }}" target="_blank"
-                   class="flex items-center w-full bg-violet-600 hover:bg-violet-700 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-colors">
-                    <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17h6M9 13h6M9 9h1"/>
-                    </svg>
-                    Generar PDF
-                </a>
+                @if ($firmaEncargadoDisponible)
+                    <a href="{{ route('confirmacion.certificado.pdf', $confirmacion) }}" target="_blank"
+                       class="flex items-center w-full bg-violet-600 hover:bg-violet-700 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-colors">
+                        <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17h6M9 13h6M9 9h1"/>
+                        </svg>
+                        Generar PDF
+                    </a>
+                @else
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-300 px-3 py-2 rounded-lg text-xs font-semibold">
+                        Configure la firma del encargado para generar PDF.
+                    </div>
+                @endif
                 @can('confirmacion.edit')
                     <a href="{{ route('confirmacion.edit', $confirmacion) }}"
                        class="flex items-center w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
@@ -250,18 +259,20 @@
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
             <div class="flex items-center justify-between gap-3 mb-4">
                 <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Vista Previa de Constancia</p>
-                <a href="{{ route('confirmacion.certificado.pdf', $confirmacion) }}" target="_blank"
-                   class="text-xs font-semibold text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300 transition-colors">
-                    Abrir PDF
-                </a>
             </div>
 
             <div class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-50 dark:bg-gray-900">
-                <iframe
-                    src="{{ $pdfPreviewUrl }}"
-                    class="w-full h-[980px]"
-                    title="Vista previa constancia de confirmacion">
-                </iframe>
+                @if ($firmaEncargadoDisponible)
+                    <iframe
+                        src="{{ $pdfPreviewUrl }}"
+                        class="w-full h-[980px]"
+                        title="Vista previa constancia de confirmacion">
+                    </iframe>
+                @else
+                    <div class="p-6 text-sm text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20">
+                        No se puede mostrar la vista previa ni generar PDF hasta configurar la firma del encargado.
+                    </div>
+                @endif
             </div>
         </div>
     </div>

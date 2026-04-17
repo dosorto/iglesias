@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\TenantIglesia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\WithFileUploads;
 use Spatie\Permission\Models\Role;
@@ -377,12 +378,7 @@ class InstructorCreate extends Component
             return null;
         }
 
-        $emailBase = trim((string) ($persona->email ?? ''));
-        if ($emailBase === '') {
-            $dni = trim((string) ($persona->dni ?? ''));
-            $suffix = $dni !== '' ? $dni : (string) $persona->id;
-            $emailBase = "instructor.{$suffix}@tenant.local";
-        }
+        $emailBase = $this->generarEmailBaseInstructor($persona);
 
         $email = $this->resolverEmailDisponible($emailBase);
 
@@ -457,6 +453,27 @@ class InstructorCreate extends Component
         } while (User::where('email', $candidate)->exists());
 
         return $candidate;
+    }
+
+    private function generarEmailBaseInstructor(Persona $persona): string
+    {
+        $primerNombre = Str::lower(Str::ascii(trim((string) ($persona->primer_nombre ?? ''))));
+        $primerApellido = Str::lower(Str::ascii(trim((string) ($persona->primer_apellido ?? ''))));
+        $fechaNacimiento = preg_replace('/[^0-9]/', '', (string) ($persona->fecha_nacimiento ?? ''));
+
+        if (strlen($fechaNacimiento) > 8) {
+            $fechaNacimiento = substr($fechaNacimiento, 0, 8);
+        }
+
+        $localPart = preg_replace('/[^a-z0-9]/', '', $primerNombre . $primerApellido . $fechaNacimiento);
+
+        if ($localPart === '') {
+            $dni = preg_replace('/[^0-9]/', '', (string) ($persona->dni ?? ''));
+            $suffix = $dni !== '' ? $dni : (string) $persona->id;
+            $localPart = 'instructor' . $suffix;
+        }
+
+        return $localPart . '@gmail.com';
     }
 
     private function generarContrasenaTemporal(?string $primerNombre): string

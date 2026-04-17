@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Certificación de Bautismo</title>
-    @php $isLandscape = ($iglesiaConfig?->orientacion_certificado === 'landscape'); @endphp
+    @php $isLandscape = (($iglesiaConfig?->orientacion_certificado_bautismo ?? $iglesiaConfig?->orientacion_certificado) === 'landscape'); @endphp
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 

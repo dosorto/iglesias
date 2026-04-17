@@ -39,29 +39,61 @@ class ConfirmacionController extends Controller
 
     public function certificadoPdf(Confirmacion $confirmacion)
     {
+        $confirmacion->loadMissing('encargado');
+        if (! filled($confirmacion->encargado?->path_firma_principal)) {
+            abort(422, 'Debe configurar la firma principal del encargado para generar el PDF de confirmacion.');
+        }
+
+        $iglesiaConfig = TenantIglesia::current();
+
+        if (! $iglesiaConfig) {
+            $iglesiaId     = session('tenant.id_iglesia');
+            $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
+        }
+
         $tipoDocumento = 'confirmacion_certificado';
         $nombreArchivo = 'certificado-confirmacion-' . $confirmacion->id . '.pdf';
         $layoutVersion = 'header-config-v3';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
         $iglesiaDocumentoId = (int) $confirmacion->iglesia_id;
+        $pathFormatoConfirmacion = (string) ($iglesiaConfig?->path_certificado_confirmacion ?: $iglesiaConfig?->path_certificado_bautismo ?? '');
+        $orientacionConfirmacion = (string) ($iglesiaConfig?->orientacion_certificado_confirmacion
+            ?? $iglesiaConfig?->orientacion_certificado
+            ?? 'portrait');
+
+        $dataVersion = hash('sha256', implode('|', [
+            (string) ($confirmacion->updated_at?->timestamp ?? 0),
+            (string) ($iglesiaConfig?->updated_at?->timestamp ?? 0),
+            (string) ($confirmacion->encargado?->path_firma_principal ?? ''),
+            (string) ($iglesiaConfig?->path_logo ?? ''),
+            (string) ($iglesiaConfig?->path_logo_derecha ?? ''),
+            $pathFormatoConfirmacion,
+            $orientacionConfirmacion,
+            (string) ($iglesiaConfig?->header_diocesis ?? ''),
+            (string) ($iglesiaConfig?->direccion ?? ''),
+            (string) ($iglesiaConfig?->nombre ?? ''),
+        ]));
 
         $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, Confirmacion::class, (int) $confirmacion->id, $iglesiaDocumentoId);
         $payloadExistente = is_array($documentoExistente?->payload) ? $documentoExistente->payload : [];
         $urlQrExistente = (string) ($payloadExistente['url_qr'] ?? '');
         $layoutVersionActual = (string) ($payloadExistente['layout_version'] ?? '');
+        $dataVersionActual = (string) ($payloadExistente['data_version'] ?? '');
         $layoutActualizado = $layoutVersionActual === $layoutVersion;
+        $dataActualizada = $dataVersionActual === $dataVersion;
         $snapshotConQr = ! empty($payloadExistente['html'])
             && ! empty($payloadExistente['codigo_verificacion'])
             && ! empty($payloadExistente['qr_data_uri'])
             && str_ends_with(strtolower($urlQrExistente), '/pdf')
-            && $layoutActualizado;
+            && $layoutActualizado
+            && $dataActualizada;
         if ($documentoExistente && $snapshotConQr) {
             return Pdf::loadHTML($payloadExistente['html'])
                 ->setPaper($payloadExistente['paper_size'] ?? 'letter', $payloadExistente['orientation'] ?? 'portrait')
                 ->stream($documentoExistente->nombre_archivo);
         }
 
-        if ($documentoExistente && $layoutActualizado && ! empty($documentoExistente->path_pdf) && Storage::disk('local')->exists($documentoExistente->path_pdf)) {
+        if ($documentoExistente && $layoutActualizado && $dataActualizada && ! empty($documentoExistente->path_pdf) && Storage::disk('local')->exists($documentoExistente->path_pdf)) {
             return response()->file(
                 Storage::disk('local')->path($documentoExistente->path_pdf),
                 [
@@ -82,13 +114,6 @@ class ConfirmacionController extends Controller
             'encargado.feligres.persona',
         ]);
 
-        $iglesiaConfig = TenantIglesia::current();
-
-        if (! $iglesiaConfig) {
-            $iglesiaId     = session('tenant.id_iglesia');
-            $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
-        }
-
         $codigoVerificacion = $servicioDocumentos->generarCodigoVerificacionUnico();
         $urlVerificacion = $servicioDocumentos->construirUrlVerificacion($codigoVerificacion);
         $urlQr = $servicioDocumentos->construirUrlVerificacionPdf($codigoVerificacion);
@@ -105,7 +130,9 @@ class ConfirmacionController extends Controller
 
         $html = view('confirmacion.certificado-pdf', compact('confirmacion', 'iglesiaConfig', 'codigoVerificacion', 'urlVerificacion', 'qrDataUri'))->render();
 
-        $pdf = Pdf::loadHTML($html)->setPaper('letter', 'portrait');
+        $orientation = $orientacionConfirmacion === 'landscape' ? 'landscape' : 'portrait';
+
+        $pdf = Pdf::loadHTML($html)->setPaper('letter', $orientation);
 
         $pdfBinario = $pdf->output();
 
@@ -118,13 +145,14 @@ class ConfirmacionController extends Controller
                 'emitido_en' => now()->toIso8601String(),
                 'view' => 'confirmacion.certificado-pdf',
                 'paper_size' => 'letter',
-                'orientation' => 'portrait',
+                'orientation' => $orientation,
                 'html' => $html,
                 'codigo_verificacion' => $codigoVerificacion,
                 'url_verificacion' => $urlVerificacion,
                 'url_qr' => $urlQr,
                 'qr_data_uri' => $qrDataUri,
                 'layout_version' => $layoutVersion,
+                'data_version' => $dataVersion,
                 'registro' => $confirmacion->toArray(),
                 'iglesia_config' => $iglesiaConfig?->toArray(),
             ],
