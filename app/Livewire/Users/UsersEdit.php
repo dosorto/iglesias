@@ -108,9 +108,21 @@ class UsersEdit extends Component
             ]);
         }
 
+        // Issue #16: Generar credenciales temporales cuando se asigna rol instructor por primera vez
+        $isAssigningInstructor = in_array('instructor', $this->selectedRoles, true)
+            && !in_array('instructor', $this->originalSelectedRoles, true);
+
+        $credentials = null;
+        if ($isAssigningInstructor) {
+            $credentials = $this->generateInstructorCredentials($this->user);
+        }
+
         $this->user->syncRoles($this->selectedRoles);
 
         session()->flash('success', 'Usuario actualizado correctamente');
+        if ($credentials) {
+            session()->flash('user_credentials', $credentials);
+        }
 
         return redirect()->route('users.index');
     }
@@ -143,5 +155,23 @@ class UsersEdit extends Component
             }
         }
         return $highest;
+    }
+
+    private function generateInstructorCredentials(User $user): array
+    {
+        $generatedPassword = $this->generarContrasenaTemporal($user->name);
+
+        return [
+            'email' => $user->email,
+            'password' => $generatedPassword,
+        ];
+    }
+
+    private function generarContrasenaTemporal(string $nombre): string
+    {
+        $base = strtolower(trim((string) $nombre));
+        $base = preg_replace('/[^a-z0-9]/', '', $base) ?: 'usuario';
+
+        return $base . random_int(1000, 9999);
     }
 }
