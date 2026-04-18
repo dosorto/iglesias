@@ -324,16 +324,17 @@ class BautismoCreate extends Component
 
     public function guardarMiniPersona(): void
     {
+        // Issue #13: Validar tipos de datos correctos en formularios de sacramentos
         $this->validate([
             'mini_p_dni'              => ['required', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
             'mini_p_primer_nombre'    => ['required', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_primer_apellido'  => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_nombre'   => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_apellido' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
-            'mini_p_fecha_nacimiento' => ['required', 'date', 'before:today'],
+            'mini_p_fecha_nacimiento' => ['required', 'date', 'before:today', 'after_or_equal:1920-01-01'],
             'mini_p_sexo'             => ['required', 'in:M,F'],
             'mini_p_telefono'         => ['required', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
-            'mini_p_email'            => ['nullable', 'email', 'max:255'],
+            'mini_p_email'            => ['nullable', 'email:rfc,dns', 'max:255'],
             'mini_f_fecha_ingreso'    => ['nullable', 'date'],
             'mini_f_estado'           => ['required', 'in:Activo,Inactivo'],
         ], [
@@ -346,9 +347,11 @@ class BautismoCreate extends Component
             'mini_p_primer_apellido.regex'    => 'El primer apellido solo puede contener letras, espacios, guiones y apóstrofes.',
             'mini_p_fecha_nacimiento.required' => 'La fecha de nacimiento es obligatoria.',
             'mini_p_fecha_nacimiento.before'   => 'La fecha de nacimiento debe ser anterior a hoy.',
+            'mini_p_fecha_nacimiento.after_or_equal' => 'La fecha de nacimiento debe ser después de 1920.',
             'mini_p_sexo.required'             => 'El sexo es obligatorio.',
             'mini_p_telefono.required'         => 'El teléfono es obligatorio.',
             'mini_p_telefono.regex'            => 'El teléfono solo puede contener números, + y -.',
+            'mini_p_email.email'               => 'El correo electrónico debe ser válido.',
         ]);
 
         $rol = $this->mini_rol;

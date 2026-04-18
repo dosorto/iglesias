@@ -59,6 +59,14 @@ class Persona extends BaseModel
     }
 
     /**
+     * Mutator: Normalize email to lowercase (Issue #9)
+     */
+    public function setEmailAttribute($value): void
+    {
+        $this->attributes['email'] = $value ? Str::lower($value) : null;
+    }
+
+    /**
      * Get the persona's full name.
      */
     public function getNombreCompletoAttribute(): string

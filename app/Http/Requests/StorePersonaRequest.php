@@ -24,22 +24,22 @@ class StorePersonaRequest extends FormRequest
     {
         return [
             'dni' => [
-                'required', 
-                'string', 
-                'max:20', 
+                'required',
+                'string',
+                'max:20',
                 Rule::unique('personas', 'dni')->whereNull('deleted_at')
             ],
             'primer_nombre'    => ['required', 'string', 'max:150'],
             'segundo_nombre'   => ['nullable', 'string', 'max:150'],
             'primer_apellido'  => ['required', 'string', 'max:100'],
             'segundo_apellido' => ['nullable', 'string', 'max:100'],
-            'fecha_nacimiento' => ['required', 'date', 'before:today'],
+            'fecha_nacimiento' => ['required', 'date', 'before:today', 'after_or_equal:1920-01-01'],
             'sexo' => ['required', 'in:M,F'],
             'telefono' => ['nullable', 'string', 'max:20'],
             'email' => [
-                'nullable', 
-                'email', 
-                'max:255', 
+                'nullable',
+                'email:rfc,dns',
+                'max:255',
                 Rule::unique('personas', 'email')->whereNull('deleted_at')
             ],
         ];

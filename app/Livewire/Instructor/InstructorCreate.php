@@ -539,9 +539,10 @@ class InstructorCreate extends Component
             $this->validate([
                 'emailManual' => [
                     'required',
-                    'email',
+                    'email:rfc,dns',
                     'max:255',
                     Rule::unique('users', 'email'),
+                    Rule::unique('personas', 'email')->whereNull('deleted_at'),
                 ],
             ], [
                 'emailManual.required' => 'Debes ingresar un correo para el instructor.',
