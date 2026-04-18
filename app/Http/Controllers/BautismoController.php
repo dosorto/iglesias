@@ -37,6 +37,7 @@ class BautismoController extends Controller
     }
 
     
+    
     public function certificadoPdf(Bautismo $bautismo)
     {
         $bautismo->loadMissing('encargado');
