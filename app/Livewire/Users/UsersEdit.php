@@ -61,6 +61,25 @@ class UsersEdit extends Component
     {
         $this->validate();
 
+        // Issue #1: Impedir edición de permisos del usuario root
+        if ($this->user->roles()->where('name', 'root')->exists() && !$this->currentUserIsRoot) {
+            session()->flash('error', 'No tienes permiso para editar usuarios root.');
+            return;
+        }
+
+        // Issue #2: Restringir edición de permisos según jerarquía de roles
+        $authUser = Auth::user();
+        $authRoles = $authUser->roles->pluck('name')->toArray();
+        $targetRoles = $this->user->roles->pluck('name')->toArray();
+
+        $currentUserHierarchy = $this->getHighestRoleHierarchy($authRoles);
+        $targetUserHierarchy = $this->getHighestRoleHierarchy($targetRoles);
+
+        if ($targetUserHierarchy >= $currentUserHierarchy) {
+            session()->flash('error', 'No puedes editar permisos de usuarios con tu mismo nivel o superior.');
+            return;
+        }
+
         $selectedHasRoot = in_array('root', $this->selectedRoles, true);
 
         if (
@@ -112,5 +131,17 @@ class UsersEdit extends Component
         sort($original);
 
         return $current !== $original;
+    }
+
+    private function getHighestRoleHierarchy(array $roles): int
+    {
+        $hierarchy = ['root' => 3, 'admin' => 2, 'instructor' => 1];
+        $highest = 0;
+        foreach ($roles as $role) {
+            if (isset($hierarchy[$role])) {
+                $highest = max($highest, $hierarchy[$role]);
+            }
+        }
+        return $highest;
     }
 }
