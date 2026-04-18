@@ -42,7 +42,13 @@ class BautismoIndex extends Component
 
     public function render()
     {
-        $bautismos = Bautismo::with(['iglesia', 'bautizado.persona', 'encargado.feligres.persona'])
+        // Issue #6: Cargar feligrés eliminados para preservar datos históricos en sacramentos
+        $bautismos = Bautismo::with([
+            'iglesia',
+            ['bautizado' => fn($q) => $q->withTrashed()],
+            'bautizado.persona',
+            'encargado.feligres.persona'
+        ])
             ->when($this->search, function ($q) {
                 $q->whereHas('bautizado.persona', fn ($p) =>
                     $p->where('primer_nombre',    'like', "%{$this->search}%")

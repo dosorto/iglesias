@@ -42,7 +42,12 @@ class PrimeraComunionIndex extends Component
 
     public function render()
     {
-        $primeraComuniones = PrimeraComunion::with(['iglesia', 'feligres.persona'])
+        // Issue #6: Cargar feligrés eliminados para preservar datos históricos en sacramentos
+        $primeraComuniones = PrimeraComunion::with([
+            'iglesia',
+            ['feligres' => fn($q) => $q->withTrashed()],
+            'feligres.persona'
+        ])
             ->when($this->search, function ($q) {
                 $q->whereHas('feligres.persona', fn ($p) =>
                     $p->where('primer_nombre',    'like', "%{$this->search}%")

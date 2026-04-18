@@ -133,7 +133,7 @@
 
                                 <td class="px-6 py-4">
                                     <span class="text-sm text-gray-900 dark:text-white">
-                                        {{ $curso->instructor?->feligres?->persona?->nombre_completo ?? 'N/A' }}
+                                        {{ $curso->instructor?->feligres?->persona?->nombre_completo ?? 'Sin instructor asignado' }}
                                     </span>
                                 </td>
 

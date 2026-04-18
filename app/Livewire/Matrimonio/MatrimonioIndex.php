@@ -42,9 +42,12 @@ class MatrimonioIndex extends Component
 
     public function render()
     {
+        // Issue #6: Cargar feligrés eliminados para preservar datos históricos en sacramentos
         $matrimonios = Matrimonio::with([
             'iglesia',
+            ['esposo' => fn($q) => $q->withTrashed()],
             'esposo.persona',
+            ['esposa' => fn($q) => $q->withTrashed()],
             'esposa.persona',
             'encargado.feligres.persona',
         ])
