@@ -52,10 +52,23 @@ class BautismoController extends Controller
         $layoutVersion = 'header-config-v3';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
         $iglesiaDocumentoId = (int) $bautismo->iglesia_id;
-        $pathFormatoBautismo = (string) ($iglesiaConfig?->path_certificado_bautismo ?? '');
         $orientacionBautismo = (string) ($iglesiaConfig?->orientacion_certificado_bautismo
             ?? $iglesiaConfig?->orientacion_certificado
             ?? 'portrait');
+        $orientation = $orientacionBautismo === 'landscape' ? 'landscape' : 'portrait';
+        $paperSizeBautismo = (string) ($iglesiaConfig?->paper_size_certificado_bautismo
+            ?? $iglesiaConfig?->paper_size_certificado
+            ?? 'letter');
+        $paperSizeBautismo = in_array($paperSizeBautismo, ['letter', 'legal', 'a4', 'folio'], true)
+            ? $paperSizeBautismo
+            : 'letter';
+        $pathFormatoBautismo = (string) (
+            ($orientation === 'landscape'
+                ? $iglesiaConfig?->path_certificado_bautismo_landscape
+                : $iglesiaConfig?->path_certificado_bautismo_portrait)
+            ?: $iglesiaConfig?->path_certificado_bautismo
+            ?: ''
+        );
 
         $dataVersion = hash('sha256', implode('|', [
             (string) ($bautismo->updated_at?->timestamp ?? 0),
@@ -65,6 +78,7 @@ class BautismoController extends Controller
             (string) ($iglesiaConfig?->path_logo_derecha ?? ''),
             $pathFormatoBautismo,
             $orientacionBautismo,
+            $paperSizeBautismo,
             (string) ($iglesiaConfig?->header_diocesis ?? ''),
             (string) ($iglesiaConfig?->direccion ?? ''),
             (string) ($iglesiaConfig?->nombre ?? ''),
@@ -109,7 +123,6 @@ class BautismoController extends Controller
             'encargado.feligres.persona',
         ]);
 
-        $orientation = $orientacionBautismo === 'landscape' ? 'landscape' : 'portrait';
         $codigoVerificacion = $servicioDocumentos->generarCodigoVerificacionUnico();
         $urlVerificacion = $servicioDocumentos->construirUrlVerificacion($codigoVerificacion);
         $urlQr = $servicioDocumentos->construirUrlVerificacionPdf($codigoVerificacion);
@@ -124,10 +137,11 @@ class BautismoController extends Controller
             ->build()
             ->getDataUri();
 
-        $html = view('bautismo.certificado-pdf', compact('bautismo', 'iglesiaConfig', 'codigoVerificacion', 'urlVerificacion', 'qrDataUri'))->render();
+        $plantillaCertificadoPath = $pathFormatoBautismo;
+        $html = view('bautismo.certificado-pdf', compact('bautismo', 'iglesiaConfig', 'codigoVerificacion', 'urlVerificacion', 'qrDataUri', 'plantillaCertificadoPath'))->render();
 
         $pdf = Pdf::loadHTML($html)
-            ->setPaper('letter', $orientation);
+            ->setPaper($paperSizeBautismo, $orientation);
 
         $pdfBinario = $pdf->output();
 
@@ -139,7 +153,7 @@ class BautismoController extends Controller
             [
                 'emitido_en' => now()->toIso8601String(),
                 'view' => 'bautismo.certificado-pdf',
-                'paper_size' => 'letter',
+                'paper_size' => $paperSizeBautismo,
                 'orientation' => $orientation,
                 'html' => $html,
                 'codigo_verificacion' => $codigoVerificacion,

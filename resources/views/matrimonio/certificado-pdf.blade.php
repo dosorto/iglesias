@@ -34,7 +34,7 @@
         }
 
         .page-wrapper {
-            padding: 18px 18px 108px 18px;
+            padding: 22px 38px 108px 38px;
             border: none;
             margin: 2px;
             position: relative;
@@ -134,6 +134,9 @@
             margin-top: 16px;
             line-height: 2.24;
             font-size: 10.6pt;
+            width: 94%;
+            margin-left: auto;
+            margin-right: auto;
         }
         .body-text p {
             margin-bottom: 3px;
@@ -154,6 +157,9 @@
         .sig-section {
             margin-top: 30px;
             page-break-inside: avoid;
+            width: 94%;
+            margin-left: auto;
+            margin-right: auto;
         }
         .sig-row {
             display: table;
@@ -194,6 +200,9 @@
             display: table;
             width: 100%;
             page-break-inside: avoid;
+            width: 94%;
+            margin-left: auto;
+            margin-right: auto;
         }
         .seal-cell {
             display: table-cell;
@@ -246,6 +255,9 @@
             font-size: 10.2pt;
             line-height: 1.95;
             page-break-inside: avoid;
+            width: 94%;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .signature-image-wrap {
@@ -268,8 +280,8 @@
 
         .qr-verify {
             position: fixed;
-            left: 40px;
-            bottom: 34px;
+            left: 16px;
+            bottom: 12px;
             margin-top: 0;
             font-size: 8pt;
             color: #555;
@@ -277,8 +289,8 @@
             z-index: 2;
         }
         .qr-verify img {
-            width: 70px;
-            height: 70px;
+            width: 54px;
+            height: 54px;
             border: 1px solid #d1d5db;
             padding: 2px;
             background: #fff;
@@ -299,7 +311,7 @@
 
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
-    $certBgPath = $resolvePublicFilePath($iglesiaConfig?->path_certificado_matrimonio ?: $iglesiaConfig?->path_certificado_bautismo);
+    $certBgPath = $resolvePublicFilePath($plantillaCertificadoPath ?? ($iglesiaConfig?->path_certificado_matrimonio ?: $iglesiaConfig?->path_certificado_bautismo));
 
     $esposo   = $matrimonio->esposo?->persona;
     $esposa   = $matrimonio->esposa?->persona;

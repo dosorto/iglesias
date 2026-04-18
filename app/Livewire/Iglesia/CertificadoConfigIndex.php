@@ -15,50 +15,74 @@ class CertificadoConfigIndex extends Component
         'bautismo' => [
             'titulo' => 'Bautismo',
             'descripcion' => 'Formato de certificado de bautismo.',
-            'path' => 'path_certificado_bautismo',
-            'url' => 'certificado_bautismo_url',
+            'path_legacy' => 'path_certificado_bautismo',
+            'path_portrait' => 'path_certificado_bautismo_portrait',
+            'path_landscape' => 'path_certificado_bautismo_landscape',
             'orientacion' => 'orientacion_certificado_bautismo',
             'orientacion_fallback' => 'orientacion_certificado',
+            'paper_size' => 'paper_size_certificado_bautismo',
+            'paper_size_fallback' => 'paper_size_certificado',
             'orientacion_default' => 'portrait',
+            'paper_size_default' => 'letter',
         ],
         'confirmacion' => [
             'titulo' => 'Confirmación',
             'descripcion' => 'Formato de certificación de confirmación.',
-            'path' => 'path_certificado_confirmacion',
-            'url' => 'certificado_confirmacion_url',
+            'path_legacy' => 'path_certificado_confirmacion',
+            'path_portrait' => 'path_certificado_confirmacion_portrait',
+            'path_landscape' => 'path_certificado_confirmacion_landscape',
             'orientacion' => 'orientacion_certificado_confirmacion',
             'orientacion_default' => 'portrait',
+            'paper_size' => 'paper_size_certificado_confirmacion',
+            'paper_size_default' => 'letter',
         ],
         'primera_comunion' => [
             'titulo' => 'Primera Comunión',
             'descripcion' => 'Formato de certificación de primera comunión.',
-            'path' => 'path_certificado_primera_comunion',
-            'url' => 'certificado_primera_comunion_url',
+            'path_legacy' => 'path_certificado_primera_comunion',
+            'path_portrait' => 'path_certificado_primera_comunion_portrait',
+            'path_landscape' => 'path_certificado_primera_comunion_landscape',
             'orientacion' => 'orientacion_certificado_primera_comunion',
             'orientacion_default' => 'portrait',
+            'paper_size' => 'paper_size_certificado_primera_comunion',
+            'paper_size_default' => 'letter',
         ],
         'matrimonio' => [
             'titulo' => 'Matrimonio',
             'descripcion' => 'Formato de constancia de matrimonio.',
-            'path' => 'path_certificado_matrimonio',
-            'url' => 'certificado_matrimonio_url',
+            'path_legacy' => 'path_certificado_matrimonio',
+            'path_portrait' => 'path_certificado_matrimonio_portrait',
+            'path_landscape' => 'path_certificado_matrimonio_landscape',
             'orientacion' => 'orientacion_certificado_matrimonio',
             'orientacion_default' => 'portrait',
+            'paper_size' => 'paper_size_certificado_matrimonio',
+            'paper_size_default' => 'letter',
         ],
         'curso' => [
             'titulo' => 'Certificado de Curso',
             'descripcion' => 'Formato de certificado para cursos aprobados.',
-            'path' => 'path_certificado_curso',
-            'url' => 'certificado_curso_url',
+            'path_legacy' => 'path_certificado_curso',
+            'path_portrait' => 'path_certificado_curso_portrait',
+            'path_landscape' => 'path_certificado_curso_landscape',
             'orientacion' => 'orientacion_certificado_curso',
             'orientacion_default' => 'landscape',
+            'paper_size' => 'paper_size_certificado_curso',
+            'paper_size_default' => 'letter',
         ],
+    ];
+
+    private const PAPER_SIZES = [
+        'letter' => 'Carta (Letter)',
+        'legal' => 'Oficio (Legal)',
+        'a4' => 'A4',
+        'folio' => 'Folio',
     ];
 
     public ?TenantIglesia $iglesia = null;
     public array $formatos_nuevos = [];
     public array $confirmandoEliminar = [];
     public array $orientaciones = [];
+    public array $paperSizes = [];
 
     public $logo_nuevo = null;
     public bool $confirmandoEliminarLogo = false;
@@ -78,8 +102,22 @@ class CertificadoConfigIndex extends Component
                 $orientacion = $this->iglesia?->{$config['orientacion_fallback']} ?? null;
             }
 
+            $paperSize = $this->iglesia?->{$config['paper_size']} ?? null;
+
+            if (! $paperSize && isset($config['paper_size_fallback'])) {
+                $paperSize = $this->iglesia?->{$config['paper_size_fallback']} ?? null;
+            }
+
+            if (! array_key_exists((string) $paperSize, self::PAPER_SIZES)) {
+                $paperSize = $config['paper_size_default'];
+            }
+
             $this->orientaciones[$tipo] = $orientacion ?: $config['orientacion_default'];
-            $this->confirmandoEliminar[$tipo] = false;
+            $this->paperSizes[$tipo] = $paperSize;
+            $this->confirmandoEliminar[$tipo] = [
+                'portrait' => false,
+                'landscape' => false,
+            ];
         }
     }
 
@@ -134,19 +172,14 @@ class CertificadoConfigIndex extends Component
         session()->flash('success', 'Orientación de ' . strtolower(self::FORMATOS[$tipo]['titulo']) . ' actualizada correctamente.');
     }
 
-    public function subirFormato(string $tipo): void
+    public function guardarTamanoTipo(string $tipo): void
     {
         if (! isset(self::FORMATOS[$tipo])) {
             return;
         }
 
         $this->validate([
-            "formatos_nuevos.$tipo" => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:5120'],
-        ], [
-            "formatos_nuevos.$tipo.required" => 'Seleccione una imagen para el formato.',
-            "formatos_nuevos.$tipo.image"    => 'El archivo debe ser una imagen.',
-            "formatos_nuevos.$tipo.mimes"    => 'Solo se aceptan imágenes JPG o PNG.',
-            "formatos_nuevos.$tipo.max"      => 'La imagen no debe superar 5 MB.',
+            "paperSizes.$tipo" => ['required', 'in:' . implode(',', array_keys(self::PAPER_SIZES))],
         ]);
 
         if (! $this->iglesia) {
@@ -154,14 +187,56 @@ class CertificadoConfigIndex extends Component
             return;
         }
 
-        $columnaPath = self::FORMATOS[$tipo]['path'];
+        $columnaPaperSize = self::FORMATOS[$tipo]['paper_size'];
+        $updates = [
+            $columnaPaperSize => $this->paperSizes[$tipo],
+        ];
+
+        if ($tipo === 'bautismo') {
+            // Compatibilidad con configuración anterior.
+            $updates['paper_size_certificado'] = $this->paperSizes[$tipo];
+        }
+
+        $this->iglesia->update($updates);
+        $this->iglesia->refresh();
+
+        session()->flash('success', 'Tamaño de hoja de ' . strtolower(self::FORMATOS[$tipo]['titulo']) . ' actualizado correctamente.');
+    }
+
+    public function subirFormato(string $tipo, string $orientacion): void
+    {
+        if (! isset(self::FORMATOS[$tipo])) {
+            return;
+        }
+
+        if (! in_array($orientacion, ['portrait', 'landscape'], true)) {
+            return;
+        }
+
+        $campoArchivo = "formatos_nuevos.$tipo.$orientacion";
+
+        $this->validate([
+            $campoArchivo => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:5120'],
+        ], [
+            "$campoArchivo.required" => 'Seleccione una imagen para el formato.',
+            "$campoArchivo.image"    => 'El archivo debe ser una imagen.',
+            "$campoArchivo.mimes"    => 'Solo se aceptan imágenes JPG o PNG.',
+            "$campoArchivo.max"      => 'La imagen no debe superar 5 MB.',
+        ]);
+
+        if (! $this->iglesia) {
+            session()->flash('error', 'No se encontró una iglesia configurada.');
+            return;
+        }
+
+        $columnaPath = $this->columnaPathPorOrientacion($tipo, $orientacion);
         $archivoActual = $this->iglesia->{$columnaPath};
 
         if ($archivoActual) {
             Storage::disk('public')->delete($archivoActual);
         }
 
-        $archivo = data_get($this->formatos_nuevos, $tipo);
+        $archivo = data_get($this->formatos_nuevos, "$tipo.$orientacion");
         $path = $archivo->store('certificados', 'public');
 
         $updates = [
@@ -175,32 +250,83 @@ class CertificadoConfigIndex extends Component
 
         $this->iglesia->update($updates);
 
-        $this->formatos_nuevos[$tipo] = null;
+        $this->formatos_nuevos[$tipo][$orientacion] = null;
         $this->iglesia->refresh();
 
-        session()->flash('success', 'Formato de ' . strtolower(self::FORMATOS[$tipo]['titulo']) . ' actualizado correctamente.');
+        session()->flash('success', 'Formato ' . $this->etiquetaOrientacion($orientacion) . ' de ' . strtolower(self::FORMATOS[$tipo]['titulo']) . ' actualizado correctamente.');
     }
 
-    public function eliminarFormato(string $tipo): void
+    public function eliminarFormato(string $tipo, string $orientacion): void
     {
         if (! isset(self::FORMATOS[$tipo])) {
             return;
         }
 
-        $columnaPath = self::FORMATOS[$tipo]['path'];
+        if (! in_array($orientacion, ['portrait', 'landscape'], true)) {
+            return;
+        }
+
+        $columnaPath = $this->columnaPathPorOrientacion($tipo, $orientacion);
+        $columnaLegacy = self::FORMATOS[$tipo]['path_legacy'] ?? null;
+
+        // If this orientation is using the legacy fallback preview, delete that file too.
+        $columnaObjetivo = $columnaPath;
         $archivoActual = $this->iglesia?->{$columnaPath};
 
+        if (! filled($archivoActual) && $columnaLegacy) {
+            $archivoLegacy = $this->iglesia?->{$columnaLegacy};
+
+            if (filled($archivoLegacy)) {
+                $columnaObjetivo = $columnaLegacy;
+                $archivoActual = $archivoLegacy;
+            }
+        }
+
         if (! $this->iglesia || ! $archivoActual) {
-            $this->confirmandoEliminar[$tipo] = false;
+            $this->confirmandoEliminar[$tipo][$orientacion] = false;
             return;
         }
 
         Storage::disk('public')->delete($archivoActual);
-        $this->iglesia->update([$columnaPath => null]);
+        $this->iglesia->update([$columnaObjetivo => null]);
         $this->iglesia->refresh();
 
-        $this->confirmandoEliminar[$tipo] = false;
-        session()->flash('success', 'Formato de ' . strtolower(self::FORMATOS[$tipo]['titulo']) . ' eliminado.');
+        $this->confirmandoEliminar[$tipo][$orientacion] = false;
+        session()->flash('success', 'Formato ' . $this->etiquetaOrientacion($orientacion) . ' de ' . strtolower(self::FORMATOS[$tipo]['titulo']) . ' eliminado.');
+    }
+
+    private function columnaPathPorOrientacion(string $tipo, string $orientacion): string
+    {
+        $sufijo = $orientacion === 'landscape' ? 'path_landscape' : 'path_portrait';
+
+        return self::FORMATOS[$tipo][$sufijo];
+    }
+
+    private function etiquetaOrientacion(string $orientacion): string
+    {
+        return $orientacion === 'landscape' ? 'horizontal' : 'vertical';
+    }
+
+    private function urlDesdePath(?string $path): ?string
+    {
+        if (! filled($path)) {
+            return null;
+        }
+
+        return asset('storage/' . ltrim((string) $path, '/'));
+    }
+
+    private function urlFormatoActual(array $config, string $orientacion): ?string
+    {
+        $columnaPath = $this->columnaPathPorOrientacion($config['tipo'], $orientacion);
+        $pathOrientado = $this->iglesia?->{$columnaPath};
+        if (filled($pathOrientado)) {
+            return $this->urlDesdePath($pathOrientado);
+        }
+
+        $pathLegacy = $this->iglesia?->{$config['path_legacy']};
+
+        return $this->urlDesdePath($pathLegacy);
     }
 
     public function subirLogo(): void
@@ -294,18 +420,23 @@ class CertificadoConfigIndex extends Component
     public function render()
     {
         $formatos = collect(self::FORMATOS)->map(function (array $config, string $tipo): array {
+            $config['tipo'] = $tipo;
+
             return [
                 'tipo' => $tipo,
                 'titulo' => $config['titulo'],
                 'descripcion' => $config['descripcion'],
-                'path' => $config['path'],
-                'url' => $config['url'],
                 'orientacion' => $config['orientacion'],
                 'orientacion_default' => $config['orientacion_default'],
-                'url_actual' => $this->iglesia?->{$config['url']} ?? null,
+                'paper_size' => $config['paper_size'],
+                'paper_size_default' => $config['paper_size_default'],
+                'url_portrait' => $this->urlFormatoActual($config, 'portrait'),
+                'url_landscape' => $this->urlFormatoActual($config, 'landscape'),
             ];
         })->all();
 
-        return view('livewire.iglesia.certificado-config-index', compact('formatos'));
+        $paperSizeOptions = self::PAPER_SIZES;
+
+        return view('livewire.iglesia.certificado-config-index', compact('formatos', 'paperSizeOptions'));
     }
 }

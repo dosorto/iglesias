@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\DocumentoGenerado;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str as SupportStr;
 use Illuminate\Support\Str;
 
 class DocumentosGeneradosService
@@ -21,13 +22,21 @@ class DocumentosGeneradosService
     private function construirUrlPublica(string $routeName, array $params = []): string
     {
         $path = route($routeName, $params, false);
-        $baseUrl = trim((string) env('QR_PUBLIC_BASE_URL', ''), " \t\n\r\0\x0B/");
+        $baseUrl = trim((string) config('app.qr_public_base_url', ''), " \t\n\r\0\x0B/");
 
         if ($baseUrl === '') {
             $baseUrl = trim((string) config('app.url', ''), " \t\n\r\0\x0B/");
         }
 
-        return $baseUrl !== '' ? 'https://' . preg_replace('#^https?://#', '', $baseUrl) . $path : url($path);
+        if ($baseUrl === '') {
+            return url($path);
+        }
+
+        if (! SupportStr::startsWith(strtolower($baseUrl), ['http://', 'https://'])) {
+            $baseUrl = 'https://' . $baseUrl;
+        }
+
+        return rtrim($baseUrl, '/') . $path;
     }
 
     public function obtenerUltimo(string $tipoDocumento, string $fuenteTipo, int $fuenteId, ?int $iglesiaId = null): ?DocumentoGenerado

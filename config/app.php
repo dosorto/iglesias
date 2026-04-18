@@ -54,6 +54,9 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    // Public base URL used in QR verification links.
+    'qr_public_base_url' => env('QR_PUBLIC_BASE_URL', ''),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

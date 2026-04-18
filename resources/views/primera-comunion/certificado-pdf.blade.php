@@ -11,7 +11,7 @@
         .watermark-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.08; z-index: 0; }
         .watermark-logo img { width: 430px; height: auto; object-fit: contain; }
 
-        .page-wrapper { padding: 26px 36px 106px; border: 4px double #7D5A1E; margin: 10px; position: relative; z-index: 1; }
+        .page-wrapper { padding: 26px 36px 106px; border: none; margin: 2px; position: relative; z-index: 1; }
 
         .header { display: table; width: 100%; margin-bottom: 10px; }
         .header-logo-cell { display: table-cell; width: 85px; vertical-align: middle; text-align: center; }
@@ -47,8 +47,8 @@
 
         .qr-verify {
             position: fixed;
-            left: 42px;
-            bottom: 38px;
+            left: 16px;
+            bottom: 12px;
             margin-top: 0;
             font-size: 8pt;
             color: #555;
@@ -56,8 +56,8 @@
             z-index: 2;
         }
         .qr-verify img {
-            width: 70px;
-            height: 70px;
+            width: 54px;
+            height: 54px;
             border: 1px solid #d1d5db;
             padding: 2px;
             background: #fff;
@@ -78,7 +78,7 @@
 
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
-    $certBgPath = $resolvePublicFilePath($iglesiaConfig?->path_certificado_primera_comunion ?: $iglesiaConfig?->path_certificado_bautismo);
+    $certBgPath = $resolvePublicFilePath($plantillaCertificadoPath ?? ($iglesiaConfig?->path_certificado_primera_comunion ?: $iglesiaConfig?->path_certificado_bautismo));
 
     $iglesia         = $primeraComunion->iglesia;
     $comulgante      = $primeraComunion->feligres?->persona;

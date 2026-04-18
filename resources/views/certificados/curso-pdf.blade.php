@@ -16,8 +16,8 @@
 
         .page-wrapper {
             padding: 24px 30px;
-            border: 2px solid #444;
-            margin: 10px;
+            border: none;
+            margin: 2px;
             position: relative;
             overflow: visible;
         }
@@ -204,6 +204,10 @@
         }
 
         .qr-verify {
+            position: fixed;
+            left: 16px;
+            bottom: 12px;
+            display: block;
             font-size: 8pt;
             color: #555;
             z-index: 1;
@@ -211,8 +215,8 @@
         }
 
         .qr-verify img {
-            width: 58px;
-            height: 58px;
+            width: 54px;
+            height: 54px;
             border: 1px solid #d1d5db;
             padding: 2px;
             background: #fff;
@@ -250,7 +254,7 @@
     $headerLugar = $iglesiaConfig?->direccion ?: '';
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
-    $certBgPath = $resolvePublicFilePath($iglesiaConfig?->path_certificado_curso ?: $iglesiaConfig?->path_certificado_bautismo);
+    $certBgPath = $resolvePublicFilePath($plantillaCertificadoPath ?? ($iglesiaConfig?->path_certificado_curso ?: $iglesiaConfig?->path_certificado_bautismo));
 
     $firmaPath = $resolvePublicFilePath($curso?->instructor?->path_firma);
 

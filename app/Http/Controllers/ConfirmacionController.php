@@ -56,10 +56,24 @@ class ConfirmacionController extends Controller
         $layoutVersion = 'header-config-v3';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
         $iglesiaDocumentoId = (int) $confirmacion->iglesia_id;
-        $pathFormatoConfirmacion = (string) ($iglesiaConfig?->path_certificado_confirmacion ?: $iglesiaConfig?->path_certificado_bautismo ?? '');
         $orientacionConfirmacion = (string) ($iglesiaConfig?->orientacion_certificado_confirmacion
             ?? $iglesiaConfig?->orientacion_certificado
             ?? 'portrait');
+        $orientation = $orientacionConfirmacion === 'landscape' ? 'landscape' : 'portrait';
+        $paperSizeConfirmacion = (string) ($iglesiaConfig?->paper_size_certificado_confirmacion
+            ?? $iglesiaConfig?->paper_size_certificado
+            ?? 'letter');
+        $paperSizeConfirmacion = in_array($paperSizeConfirmacion, ['letter', 'legal', 'a4', 'folio'], true)
+            ? $paperSizeConfirmacion
+            : 'letter';
+        $pathFormatoConfirmacion = (string) (
+            ($orientation === 'landscape'
+                ? $iglesiaConfig?->path_certificado_confirmacion_landscape
+                : $iglesiaConfig?->path_certificado_confirmacion_portrait)
+            ?: $iglesiaConfig?->path_certificado_confirmacion
+            ?: $iglesiaConfig?->path_certificado_bautismo
+            ?: ''
+        );
 
         $dataVersion = hash('sha256', implode('|', [
             (string) ($confirmacion->updated_at?->timestamp ?? 0),
@@ -69,6 +83,7 @@ class ConfirmacionController extends Controller
             (string) ($iglesiaConfig?->path_logo_derecha ?? ''),
             $pathFormatoConfirmacion,
             $orientacionConfirmacion,
+            $paperSizeConfirmacion,
             (string) ($iglesiaConfig?->header_diocesis ?? ''),
             (string) ($iglesiaConfig?->direccion ?? ''),
             (string) ($iglesiaConfig?->nombre ?? ''),
@@ -128,11 +143,10 @@ class ConfirmacionController extends Controller
             ->build()
             ->getDataUri();
 
-        $html = view('confirmacion.certificado-pdf', compact('confirmacion', 'iglesiaConfig', 'codigoVerificacion', 'urlVerificacion', 'qrDataUri'))->render();
+        $plantillaCertificadoPath = $pathFormatoConfirmacion;
+        $html = view('confirmacion.certificado-pdf', compact('confirmacion', 'iglesiaConfig', 'codigoVerificacion', 'urlVerificacion', 'qrDataUri', 'plantillaCertificadoPath'))->render();
 
-        $orientation = $orientacionConfirmacion === 'landscape' ? 'landscape' : 'portrait';
-
-        $pdf = Pdf::loadHTML($html)->setPaper('letter', $orientation);
+        $pdf = Pdf::loadHTML($html)->setPaper($paperSizeConfirmacion, $orientation);
 
         $pdfBinario = $pdf->output();
 
@@ -144,7 +158,7 @@ class ConfirmacionController extends Controller
             [
                 'emitido_en' => now()->toIso8601String(),
                 'view' => 'confirmacion.certificado-pdf',
-                'paper_size' => 'letter',
+                'paper_size' => $paperSizeConfirmacion,
                 'orientation' => $orientation,
                 'html' => $html,
                 'codigo_verificacion' => $codigoVerificacion,

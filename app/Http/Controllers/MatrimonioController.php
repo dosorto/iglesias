@@ -50,10 +50,24 @@ class MatrimonioController extends Controller
         $layoutVersion = 'header-config-v3';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
         $iglesiaDocumentoId = (int) $matrimonio->iglesia_id;
-        $pathFormatoMatrimonio = (string) ($iglesiaConfig?->path_certificado_matrimonio ?: $iglesiaConfig?->path_certificado_bautismo ?? '');
         $orientacionMatrimonio = (string) ($iglesiaConfig?->orientacion_certificado_matrimonio
             ?? $iglesiaConfig?->orientacion_certificado
             ?? 'portrait');
+        $orientation = $orientacionMatrimonio === 'landscape' ? 'landscape' : 'portrait';
+        $paperSizeMatrimonio = (string) ($iglesiaConfig?->paper_size_certificado_matrimonio
+            ?? $iglesiaConfig?->paper_size_certificado
+            ?? 'letter');
+        $paperSizeMatrimonio = in_array($paperSizeMatrimonio, ['letter', 'legal', 'a4', 'folio'], true)
+            ? $paperSizeMatrimonio
+            : 'letter';
+        $pathFormatoMatrimonio = (string) (
+            ($orientation === 'landscape'
+                ? $iglesiaConfig?->path_certificado_matrimonio_landscape
+                : $iglesiaConfig?->path_certificado_matrimonio_portrait)
+            ?: $iglesiaConfig?->path_certificado_matrimonio
+            ?: $iglesiaConfig?->path_certificado_bautismo
+            ?: ''
+        );
 
         $dataVersion = hash('sha256', implode('|', [
             (string) ($matrimonio->updated_at?->timestamp ?? 0),
@@ -63,6 +77,7 @@ class MatrimonioController extends Controller
             (string) ($iglesiaConfig?->path_logo_derecha ?? ''),
             $pathFormatoMatrimonio,
             $orientacionMatrimonio,
+            $paperSizeMatrimonio,
             (string) ($iglesiaConfig?->header_diocesis ?? ''),
             (string) ($iglesiaConfig?->direccion ?? ''),
             (string) ($iglesiaConfig?->nombre ?? ''),
@@ -120,12 +135,11 @@ class MatrimonioController extends Controller
             ->build()
             ->getDataUri();
 
-        $html = view('matrimonio.certificado-pdf', compact('matrimonio', 'iglesiaConfig', 'codigoVerificacion', 'urlVerificacion', 'qrDataUri'))->render();
-
-        $orientation = $orientacionMatrimonio === 'landscape' ? 'landscape' : 'portrait';
+        $plantillaCertificadoPath = $pathFormatoMatrimonio;
+        $html = view('matrimonio.certificado-pdf', compact('matrimonio', 'iglesiaConfig', 'codigoVerificacion', 'urlVerificacion', 'qrDataUri', 'plantillaCertificadoPath'))->render();
 
         $pdf = Pdf::loadHTML($html)
-            ->setPaper('letter', $orientation);
+            ->setPaper($paperSizeMatrimonio, $orientation);
 
         $pdfBinario = $pdf->output();
 
@@ -137,7 +151,7 @@ class MatrimonioController extends Controller
             [
                 'emitido_en' => now()->toIso8601String(),
                 'view' => 'matrimonio.certificado-pdf',
-                'paper_size' => 'letter',
+                'paper_size' => $paperSizeMatrimonio,
                 'orientation' => $orientation,
                 'html' => $html,
                 'codigo_verificacion' => $codigoVerificacion,

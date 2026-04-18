@@ -32,8 +32,8 @@
 
         .page-wrapper {
             padding: 26px 36px 28px;
-            border: 6px double #7D5A1E;
-            margin: 10px;
+            border: none;
+            margin: 2px;
             position: relative;
             z-index: 1;
         }
@@ -294,8 +294,10 @@
         }
 
         .qr-verify {
-            position: static;
-            display: inline-block;
+            position: fixed;
+            left: 16px;
+            bottom: 12px;
+            display: block;
             margin-top: 0;
             text-align: center;
             font-size: 8pt;
@@ -305,8 +307,8 @@
         }
 
         .qr-verify img {
-            width: 58px;
-            height: 58px;
+            width: 54px;
+            height: 54px;
             border: 1px solid #d1d5db;
             padding: 2px;
             background: #fff;
@@ -318,8 +320,8 @@
         }
 
         body.is-landscape .qr-verify img {
-            width: 60px;
-            height: 60px;
+            width: 54px;
+            height: 54px;
         }
     </style>
 </head>
@@ -343,7 +345,7 @@
         return is_file($candidate) ? $candidate : null;
     };
 
-    $certBgPath = $resolvePublicFilePath($iglesiaConfig?->path_certificado_bautismo);
+    $certBgPath = $resolvePublicFilePath($plantillaCertificadoPath ?? $iglesiaConfig?->path_certificado_bautismo);
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
     $headerDiocesis = $iglesiaConfig?->header_diocesis ?: '';

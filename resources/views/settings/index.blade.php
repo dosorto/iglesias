@@ -288,10 +288,20 @@
                 <span class="text-sm text-gray-500 dark:text-gray-400">
                     @php
                         $hayAlgunaPlantilla = filled($iglesiaSettings?->path_certificado_bautismo)
+                            || filled($iglesiaSettings?->path_certificado_bautismo_portrait)
+                            || filled($iglesiaSettings?->path_certificado_bautismo_landscape)
                             || filled($iglesiaSettings?->path_certificado_confirmacion)
+                            || filled($iglesiaSettings?->path_certificado_confirmacion_portrait)
+                            || filled($iglesiaSettings?->path_certificado_confirmacion_landscape)
                             || filled($iglesiaSettings?->path_certificado_primera_comunion)
+                            || filled($iglesiaSettings?->path_certificado_primera_comunion_portrait)
+                            || filled($iglesiaSettings?->path_certificado_primera_comunion_landscape)
                             || filled($iglesiaSettings?->path_certificado_matrimonio)
-                            || filled($iglesiaSettings?->path_certificado_curso);
+                            || filled($iglesiaSettings?->path_certificado_matrimonio_portrait)
+                            || filled($iglesiaSettings?->path_certificado_matrimonio_landscape)
+                            || filled($iglesiaSettings?->path_certificado_curso)
+                            || filled($iglesiaSettings?->path_certificado_curso_portrait)
+                            || filled($iglesiaSettings?->path_certificado_curso_landscape);
                     @endphp
                     @if ($iglesiaSettings?->path_logo && $hayAlgunaPlantilla)
                         Logo y formato configurados

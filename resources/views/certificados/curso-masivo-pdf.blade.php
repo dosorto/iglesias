@@ -16,8 +16,8 @@
 
         .page-wrapper {
             padding: 24px 30px;
-            border: 2px solid #444;
-            margin: 10px;
+            border: none;
+            margin: 2px;
             position: relative;
             overflow: visible;
         }

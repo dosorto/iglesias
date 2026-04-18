@@ -6,7 +6,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #1a1a1a; background: #fff; }
-        .page-wrapper { padding: 30px 46px 28px; border: 6px double #7D5A1E; margin: 10px; position: relative; z-index: 1; }
+        .page-wrapper { padding: 30px 46px 28px; border: none; margin: 2px; position: relative; z-index: 1; }
 
         .watermark-logo {
             position: fixed;
@@ -101,8 +101,10 @@
         }
 
         .qr-verify {
-            position: static;
-            display: inline-block;
+            position: fixed;
+            left: 16px;
+            bottom: 12px;
+            display: block;
             margin-top: 0;
             text-align: center;
             font-size: 8pt;
@@ -111,8 +113,8 @@
             z-index: 2;
         }
         .qr-verify img {
-            width: 58px;
-            height: 58px;
+            width: 54px;
+            height: 54px;
             border: 1px solid #d1d5db;
             padding: 2px;
             background: #fff;
@@ -133,7 +135,7 @@
 
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
-    $certBgPath = $resolvePublicFilePath($iglesiaConfig?->path_certificado_confirmacion ?: $iglesiaConfig?->path_certificado_bautismo);
+    $certBgPath = $resolvePublicFilePath($plantillaCertificadoPath ?? ($iglesiaConfig?->path_certificado_confirmacion ?: $iglesiaConfig?->path_certificado_bautismo));
 
     $confirmado      = $confirmacion->feligres?->persona;
     $padrino         = $confirmacion->padrino?->persona;

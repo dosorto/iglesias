@@ -63,6 +63,21 @@ class InscripcionCursoController extends Controller
         $orientacionCurso = (string) ($iglesiaConfig?->orientacion_certificado_curso
             ?? $iglesiaConfig?->orientacion_certificado
             ?? 'landscape');
+        $orientation = $orientacionCurso === 'portrait' ? 'portrait' : 'landscape';
+        $paperSizeCurso = (string) ($iglesiaConfig?->paper_size_certificado_curso
+            ?? $iglesiaConfig?->paper_size_certificado
+            ?? 'letter');
+        $paperSizeCurso = in_array($paperSizeCurso, ['letter', 'legal', 'a4', 'folio'], true)
+            ? $paperSizeCurso
+            : 'letter';
+        $pathFormatoCurso = (string) (
+            ($orientation === 'landscape'
+                ? $iglesiaConfig?->path_certificado_curso_landscape
+                : $iglesiaConfig?->path_certificado_curso_portrait)
+            ?: $iglesiaConfig?->path_certificado_curso
+            ?: $iglesiaConfig?->path_certificado_bautismo
+            ?: ''
+        );
 
         $codigoVerificacion = $servicioDocumentos->generarCodigoVerificacionUnico();
         $urlVerificacion = $servicioDocumentos->construirUrlVerificacion($codigoVerificacion);
@@ -78,10 +93,11 @@ class InscripcionCursoController extends Controller
             ->build()
             ->getDataUri();
 
-        $html = view('certificados.curso-pdf', compact('inscripcion', 'iglesiaConfig', 'codigoVerificacion', 'urlVerificacion', 'qrDataUri'))->render();
+        $plantillaCertificadoPath = $pathFormatoCurso;
+        $html = view('certificados.curso-pdf', compact('inscripcion', 'iglesiaConfig', 'codigoVerificacion', 'urlVerificacion', 'qrDataUri', 'plantillaCertificadoPath'))->render();
 
         $pdf = Pdf::loadHTML($html)
-            ->setPaper('letter', $orientacionCurso === 'portrait' ? 'portrait' : 'landscape');
+            ->setPaper($paperSizeCurso, $orientation);
 
         $pdfBinario = $pdf->output();
 
@@ -93,8 +109,8 @@ class InscripcionCursoController extends Controller
             [
                 'emitido_en' => now()->toIso8601String(),
                 'view' => 'certificados.curso-pdf',
-                'paper_size' => 'letter',
-                'orientation' => $orientacionCurso === 'portrait' ? 'portrait' : 'landscape',
+                'paper_size' => $paperSizeCurso,
+                'orientation' => $orientation,
                 'html' => $html,
                 'codigo_verificacion' => $codigoVerificacion,
                 'url_verificacion' => $urlVerificacion,
@@ -156,10 +172,16 @@ class InscripcionCursoController extends Controller
         ]);
 
         $iglesiaConfig = TenantIglesia::current();
+        $paperSizeCursoMasivo = (string) ($iglesiaConfig?->paper_size_certificado_curso
+            ?? $iglesiaConfig?->paper_size_certificado
+            ?? 'letter');
+        $paperSizeCursoMasivo = in_array($paperSizeCursoMasivo, ['letter', 'legal', 'a4', 'folio'], true)
+            ? $paperSizeCursoMasivo
+            : 'letter';
         $nombreArchivo = 'certificados-cursos-aprobados-' . now()->format('Ymd-His') . '.pdf';
 
         $pdf = Pdf::loadView('certificados.curso-masivo-pdf', compact('inscripciones', 'iglesiaConfig'))
-            ->setPaper('letter', 'landscape');
+            ->setPaper($paperSizeCursoMasivo, 'landscape');
 
         return response($pdf->output(), 200, [
             'Content-Type' => 'application/pdf',

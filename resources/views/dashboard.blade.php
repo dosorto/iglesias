@@ -242,6 +242,81 @@
         ->values();
 
     $recentFeligreses = \App\Models\Feligres::with('persona')->latest()->take(6)->get();
+
+    $canSeeAdminAlerts = auth()->user()?->hasAnyRole(['admin', 'root']) ?? false;
+    $dashboardAlerts = collect();
+
+    if ($canSeeAdminAlerts) {
+        $iglesiaConfig = \App\Models\TenantIglesia::current();
+
+        $faltanLogos = ! filled($iglesiaConfig?->path_logo) || ! filled($iglesiaConfig?->path_logo_derecha);
+        if ($faltanLogos) {
+            $dashboardAlerts->push([
+                'titulo' => 'Logos de la iglesia pendientes',
+                'descripcion' => 'Configura el logo izquierdo y derecho para que los certificados se generen con el encabezado completo.',
+                'cta' => 'Configurar logos',
+                'route' => route('configuracion.certificado-bautismo'),
+            ]);
+        }
+
+        $encargadoTieneFirma = \App\Models\Encargado::query()
+            ->whereNotNull('path_firma_principal')
+            ->where('path_firma_principal', '!=', '')
+            ->exists();
+
+        if (! $encargadoTieneFirma) {
+            $dashboardAlerts->push([
+                'titulo' => 'Firma principal pendiente',
+                'descripcion' => 'Aun no hay un encargado con firma principal. Sin este dato no se pueden emitir algunos certificados.',
+                'cta' => 'Configurar encargado',
+                'route' => route('encargado.index'),
+            ]);
+        }
+
+        $instructorSinFirmaCount = \App\Models\Instructor::query()
+            ->where(function ($query) {
+                $query->whereNull('path_firma')
+                    ->orWhere('path_firma', '');
+            })
+            ->count();
+
+        if ($instructorSinFirmaCount > 0) {
+            $instructoresSinFirma = \App\Models\Instructor::query()
+                ->with('feligres.persona')
+                ->where(function ($query) {
+                    $query->whereNull('path_firma')
+                        ->orWhere('path_firma', '');
+                })
+                ->latest('id')
+                ->take(3)
+                ->get()
+                ->map(function ($instructor) {
+                    $persona = $instructor->feligres?->persona;
+
+                    return trim(implode(' ', array_filter([
+                        $persona?->primer_nombre,
+                        $persona?->primer_apellido,
+                    ]))) ?: ('Instructor #' . $instructor->id);
+                })
+                ->all();
+
+            $detalleNombres = implode(', ', $instructoresSinFirma);
+            $descripcion = $instructorSinFirmaCount === 1
+                ? 'Hay 1 instructor sin firma registrada.'
+                : "Hay {$instructorSinFirmaCount} instructores sin firma registrada.";
+
+            if ($detalleNombres !== '') {
+                $descripcion .= ' Ejemplos: ' . $detalleNombres . '.';
+            }
+
+            $dashboardAlerts->push([
+                'titulo' => 'Instructores con firma pendiente',
+                'descripcion' => $descripcion,
+                'cta' => 'Revisar instructores',
+                'route' => route('instructor.index'),
+            ]);
+        }
+    }
 @endphp
 
 {{-- ENCABEZADO --}}
@@ -249,6 +324,37 @@
     <h1 class="text-4xl font-serif text-[var(--color-purpura-sagrado)] dark:text-white">Bienvenido al Archivo Sagrado</h1>
     <p class="text-slate-600 dark:text-gray-300 mt-2 max-w-2xl italic text-sm">Gestión administrativa y sacramental de tu parroquia con una visión clara y ordenada.</p>
 </div>
+
+@if ($canSeeAdminAlerts && $dashboardAlerts->isNotEmpty())
+<section class="mb-8 rounded-xl border border-amber-200 bg-amber-50/70 p-5 dark:border-amber-700/60 dark:bg-amber-900/20">
+    <div class="flex items-center justify-between gap-4 mb-4">
+        <div>
+            <h2 class="text-lg font-semibold text-amber-900 dark:text-amber-200">Alertas de configuración</h2>
+            <p class="text-sm text-amber-800 dark:text-amber-300">Completa estos pendientes para evitar bloqueos al generar documentos.</p>
+        </div>
+        <span class="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-800/40 dark:text-amber-200">
+            {{ $dashboardAlerts->count() }} pendientes
+        </span>
+    </div>
+
+    <div class="space-y-3">
+        @foreach ($dashboardAlerts as $alert)
+        <div class="rounded-lg border border-amber-200 bg-white/80 p-4 dark:border-amber-700/50 dark:bg-gray-900/40">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $alert['titulo'] }}</p>
+                    <p class="mt-1 text-xs text-gray-600 dark:text-gray-300">{{ $alert['descripcion'] }}</p>
+                </div>
+                <a href="{{ $alert['route'] }}"
+                   class="inline-flex items-center justify-center rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-amber-700">
+                    {{ $alert['cta'] }}
+                </a>
+            </div>
+        </div>
+        @endforeach
+    </div>
+</section>
+@endif
 
 {{-- ACCIONES RÁPIDAS --}}
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
