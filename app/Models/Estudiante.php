@@ -13,6 +13,6 @@ class Estudiante extends BaseModel
 
     public function persona(): BelongsTo
     {
-        return $this->belongsTo(Persona::class, 'persona_id');
+        return $this->belongsTo(Persona::class, 'persona_id')->withTrashed();
     }
 }

@@ -24,7 +24,7 @@ class Feligres extends BaseModel
 
     public function persona()
     {
-        return $this->belongsTo(Persona::class, 'id_persona');
+        return $this->belongsTo(Persona::class, 'id_persona')->withTrashed();
     }
 
     public function iglesia()

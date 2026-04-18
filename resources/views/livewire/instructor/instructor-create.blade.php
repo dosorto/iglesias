@@ -414,6 +414,66 @@
         </div>
 
         <div class="p-6">
+            @if($persona_id && empty($personaSeleccionada['email']))
+                <div class="mb-5 rounded-xl border border-amber-200 dark:border-amber-700/50 bg-amber-50 dark:bg-amber-900/20 p-4">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-300 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="w-full">
+                            <p class="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                                Esta persona no tiene correo electronico.
+                            </p>
+                            <p class="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                                Antes de guardar el instructor, elige si deseas configurarle un correo manual o generarlo con la nomenclatura del sistema.
+                            </p>
+
+                            <div class="mt-3 space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
+                                    <input type="radio" wire:model.live="emailProvisionMode" value="manual" class="text-amber-600 focus:ring-amber-500" />
+                                    Configurar correo manualmente
+                                </label>
+
+                                <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
+                                    <input type="radio" wire:model.live="emailProvisionMode" value="generate" class="text-amber-600 focus:ring-amber-500" />
+                                    Generar correo automaticamente
+                                </label>
+                            </div>
+
+                            @if($emailProvisionMode === 'manual')
+                                <div class="mt-3">
+                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                        Correo del Instructor
+                                    </label>
+                                    <input type="email"
+                                           wire:model.defer="emailManual"
+                                           placeholder="instructor@correo.com"
+                                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                                  border border-gray-300 dark:border-gray-600
+                                                  bg-white dark:bg-gray-700/60
+                                                  text-gray-900 dark:text-white
+                                                  focus:ring-2 focus:ring-amber-500 focus:border-transparent
+                                                  @error('emailManual') border-red-400 @enderror" />
+                                    @error('emailManual')
+                                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            @endif
+
+                            @if($emailProvisionMode === 'generate')
+                                <p class="mt-3 text-xs text-emerald-700 dark:text-emerald-300">
+                                    Se generara: <strong>{{ $this->emailSugerido }}</strong>
+                                </p>
+                            @endif
+
+                            @error('emailProvisionMode')
+                                <p class="mt-2 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
                 {{-- Firma Principal --}}

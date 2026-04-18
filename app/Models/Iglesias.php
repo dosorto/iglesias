@@ -51,6 +51,7 @@ class Iglesias extends Model
         'parroco_nombre',
         'telefono',
         'email',
+        'subdomain',
         'estado',
         'id_religion',
         'path_logo',
@@ -156,6 +157,6 @@ class Iglesias extends Model
     }
     public function religion()
 {
-    return $this->belongsTo(Religion::class, 'id_religion');
+        return $this->belongsTo(Religion::class, 'id_religion')->withTrashed();
 }
 }

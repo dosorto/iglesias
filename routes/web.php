@@ -43,39 +43,39 @@ Route::middleware(['auth'])->group(function () {
 
     Route::view('profile', 'profile')->name('profile');
 
-    Route::middleware('permission:users.view')
+    Route::middleware('role:admin|root')
         ->get('/users', fn () => view('users.index'))
         ->name('users.index');
 
-    Route::middleware('permission:users.create')
+    Route::middleware('role:admin|root')
         ->get('/users/create', fn () => view('users.create'))
         ->name('users.create');
 
-    Route::middleware('permission:users.edit')
+    Route::middleware('role:admin|root')
         ->get('/users/{user}/edit', fn (User $user) => view('users.edit', compact('user')))
         ->name('users.edit');
 
-    Route::middleware('permission:roles.view')
+    Route::middleware('role:admin|root')
         ->get('/roles', fn () => view('roles.index'))
         ->name('roles.index');
 
-    Route::middleware('permission:roles.create')
+    Route::middleware('role:admin|root')
         ->get('/roles/create', fn () => view('roles.create'))
         ->name('roles.create');
 
-    Route::middleware('permission:roles.edit')
+    Route::middleware('role:admin|root')
         ->get('/roles/{role}/edit', fn (Role $role) => view('roles.edit', compact('role')))
         ->name('roles.edit');
 
-    Route::middleware('permission:roles.view')
+    Route::middleware('role:admin|root')
         ->get('/settings', fn () => view('settings.index'))
         ->name('settings.index');
 
-    Route::middleware(['permission:roles.view', 'central.context'])
+    Route::middleware(['role:admin|root', 'central.context'])
         ->get('/configuracion/empresa', [\App\Http\Controllers\CompanySettingsController::class, 'edit'])
         ->name('configuracion.empresa.edit');
 
-    Route::middleware(['permission:roles.view', 'central.context'])
+    Route::middleware(['role:admin|root', 'central.context'])
         ->put('/configuracion/empresa', [\App\Http\Controllers\CompanySettingsController::class, 'update'])
         ->name('configuracion.empresa.update');
 
@@ -83,23 +83,23 @@ Route::middleware(['auth'])->group(function () {
         ->get('/sacramentos', fn () => view('sacramentos.index'))
         ->name('sacramentos.index');
 
-    Route::middleware('permission:roles.view')
+    Route::middleware('role:admin|root')
         ->get('/configuracion/certificado-bautismo', fn () => view('configuracion.certificado-bautismo'))
         ->name('configuracion.certificado-bautismo');
 
-    Route::middleware('permission:roles.view')
+    Route::middleware('role:admin|root')
         ->get('/configuracion/documentos-generados', fn () => view('configuracion.documentos-generados'))
         ->name('configuracion.documentos-generados');
 
-    Route::middleware('permission:roles.view')
+    Route::middleware('role:admin|root')
         ->get('/configuracion/documentos-generados/{documentoGenerado}/pdf', [\App\Http\Controllers\DocumentoGeneradoController::class, 'pdf'])
         ->name('configuracion.documentos-generados.pdf');
 
-    Route::middleware('permission:roles.view')
+    Route::middleware('role:admin|root')
         ->get('/configuracion/iglesia', [\App\Http\Controllers\IglesiaController::class, 'editConfiguracion'])
         ->name('configuracion.iglesia.edit');
 
-    Route::middleware('permission:roles.view')
+    Route::middleware('role:admin|root')
         ->put('/configuracion/iglesia', [\App\Http\Controllers\IglesiaController::class, 'updateConfiguracion'])
         ->name('configuracion.iglesia.update');
 

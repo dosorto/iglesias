@@ -28,7 +28,7 @@ class Instructor extends BaseModel
 
     public function feligres()
     {
-        return $this->belongsTo(Feligres::class, 'feligres_id');
+        return $this->belongsTo(Feligres::class, 'feligres_id')->withTrashed();
     }
 
     public function iglesia()

@@ -29,6 +29,7 @@ class TenantRolesSeeder extends Seeder
 
             ['name' => 'audit.view',    'display_name' => 'Ver Logs del Sistema'],
             ['name' => 'audit.export',  'display_name' => 'Exportar Logs del Sistema'],
+            ['name' => 'audit.restore', 'display_name' => 'Restaurar desde Logs del Sistema'],
 
             ['name' => 'personas.view',   'display_name' => 'Ver Personas'],
             ['name' => 'personas.create', 'display_name' => 'Crear Personas'],

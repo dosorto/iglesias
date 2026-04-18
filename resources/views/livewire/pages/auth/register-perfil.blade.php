@@ -93,7 +93,7 @@ new #[Layout('layouts.guest')] class extends Component
         'sexo'             => ['required', 'in:M,F'],
         'telefono'         => ['required', 'string', 'regex:/^[0-9\+\-\s]+$/', 'min:8', 'max:20'],
         'dni'              => ['required', 'string', 'regex:/^[0-9]+$/', 'min:8', 'max:20'],
-        'email'            => ['nullable', 'email', 'max:100'],
+        'email'            => ['required', 'email', 'max:100'],
     ], [
         'primer_nombre.required'    => 'El primer nombre es obligatorio.',
         'primer_apellido.required'  => 'El primer apellido es obligatorio.',
@@ -107,6 +107,8 @@ new #[Layout('layouts.guest')] class extends Component
         'dni.required'              => 'El número de identidad es obligatorio.',
         'dni.regex'                 => 'El DNI solo puede contener números, sin letras.',
         'dni.min'                   => 'El DNI debe tener al menos 8 dígitos.',
+        'email.required'            => 'El correo electrónico del encargado es obligatorio.',
+        'email.email'               => 'El correo electrónico no es válido.',
     ]);
 }
 
@@ -206,8 +208,8 @@ new #[Layout('layouts.guest')] class extends Component
             </div>
 
             <div>
-                <x-input-label for="email" value="Correo Electrónico" />
-                <x-text-input wire:model="email" id="email" class="mt-1 block w-full" type="email" />
+                <x-input-label for="email" value="Correo Electrónico *" />
+                <x-text-input wire:model="email" id="email" class="mt-1 block w-full" type="email" required />
                 <x-input-error :messages="$errors->get('email')" class="mt-1" />
             </div>
 

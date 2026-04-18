@@ -11,6 +11,7 @@ use App\Models\Religion;
 use App\Services\Tenancy\TenantProvisioner;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Str;
 
 class IglesiaController extends Controller
 {
@@ -35,6 +36,10 @@ class IglesiaController extends Controller
             'parroco_nombre'=> $request->parroco_nombre,
             'estado'        => $request->estado,
             'id_religion'   => $request->id_religion ?: null,
+        ]);
+
+        $iglesia->update([
+            'subdomain' => $this->resolveUniqueSubdomain($iglesia->nombre, $iglesia->id),
         ]);
 
         try {
@@ -156,5 +161,29 @@ class IglesiaController extends Controller
 
         return redirect()->route('dashboard')
             ->with('success', 'Regresaste al panel global de iglesias.');
+    }
+
+    private function resolveUniqueSubdomain(string $churchName, int $ignoreId = 0): string
+    {
+        $base = Str::slug(Str::ascii($churchName), '-');
+
+        if ($base === '') {
+            $base = 'iglesia';
+        }
+
+        $candidate = $base;
+        $counter = 1;
+
+        while (
+            Iglesias::query()
+                ->where('subdomain', $candidate)
+                ->where('id', '!=', $ignoreId)
+                ->exists()
+        ) {
+            $counter++;
+            $candidate = $base . '-' . $counter;
+        }
+
+        return $candidate;
     }
 }

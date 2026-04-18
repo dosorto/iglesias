@@ -41,26 +41,26 @@ class PrimeraComunion extends BaseModel
 
     public function encargado()
     {
-        return $this->belongsTo(Encargado::class, 'encargado_id');
+        return $this->belongsTo(Encargado::class, 'encargado_id')->withTrashed();
     }
 
     public function feligres()
     {
-        return $this->belongsTo(Feligres::class, 'id_feligres');
+        return $this->belongsTo(Feligres::class, 'id_feligres')->withTrashed();
     }
 
     public function catequista()
     {
-        return $this->belongsTo(Feligres::class, 'id_catequista');
+        return $this->belongsTo(Feligres::class, 'id_catequista')->withTrashed();
     }
 
     public function ministro()
     {
-        return $this->belongsTo(Feligres::class, 'id_ministro');
+        return $this->belongsTo(Feligres::class, 'id_ministro')->withTrashed();
     }
 
     public function parroco()
     {
-        return $this->belongsTo(Feligres::class, 'id_parroco');
+        return $this->belongsTo(Feligres::class, 'id_parroco')->withTrashed();
     }
 }

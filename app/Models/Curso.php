@@ -32,17 +32,17 @@ class Curso extends BaseModel
 
     public function encargado()
     {
-        return $this->belongsTo(Encargado::class, 'encargado_id');
+        return $this->belongsTo(Encargado::class, 'encargado_id')->withTrashed();
     }
 
     public function tipoCurso()
     {
-        return $this->belongsTo(TipoCurso::class, 'tipo_curso_id');
+        return $this->belongsTo(TipoCurso::class, 'tipo_curso_id')->withTrashed();
     }
 
     public function instructor()
     {
-        return $this->belongsTo(Instructor::class, 'instructor_id');
+        return $this->belongsTo(Instructor::class, 'instructor_id')->withTrashed();
     }
 
     public function inscripcionesCurso()

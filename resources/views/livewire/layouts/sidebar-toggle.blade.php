@@ -222,7 +222,7 @@
                     @endcan
 
                     {{-- Usuarios --}}
-                    @can('users.view')
+                    @if(auth()->user()?->hasAnyRole(['admin', 'root']))
                         <li>
                             <a href="{{ route('users.index') }}"
                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
@@ -238,7 +238,7 @@
                                 @endif
                             </a>
                         </li>
-                    @endcan
+                    @endif
                 </ul>
 
                 {{-- Sección Configuración --}}
@@ -251,7 +251,7 @@
                 @endif
 
                 <ul class="space-y-2 font-medium">
-                    @can('roles.view')
+                    @if(auth()->user()?->hasAnyRole(['admin', 'root']))
                         <li>
                             <a href="{{ route('settings.index') }}"
                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
@@ -267,7 +267,7 @@
                                 @endif
                             </a>
                         </li>
-                    @endcan
+                    @endif
                 </ul>
             </div>
 

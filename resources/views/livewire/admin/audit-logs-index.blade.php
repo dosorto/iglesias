@@ -1,4 +1,22 @@
 <div class="space-y-6">
+    @if (session()->has('success'))
+        <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800 dark:border-emerald-700/50 dark:bg-emerald-900/20 dark:text-emerald-300">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session()->has('warning'))
+        <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800 dark:border-amber-700/50 dark:bg-amber-900/20 dark:text-amber-300">
+            {{ session('warning') }}
+        </div>
+    @endif
+
+    @if (session()->has('error'))
+        <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800 dark:border-red-700/50 dark:bg-red-900/20 dark:text-red-300">
+            {{ session('error') }}
+        </div>
+    @endif
+
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -6,6 +24,17 @@
             <p class="text-gray-600 dark:text-gray-400 mt-1">Historial detallado de todas las operaciones realizadas en la plataforma</p>
         </div>
         <div class="flex gap-2">
+            @if($this->canRestoreFromAudit())
+                <button
+                    wire:click="undoLastDeletion"
+                    onclick="return confirm('Se restaurará el último registro eliminado lógicamente. ¿Deseas continuar?')"
+                    class="inline-flex items-center px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold text-xs uppercase tracking-tighter transition-all shadow-lg active:scale-95 border border-amber-700"
+                >
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h11a4 4 0 110 8H9m-6-8l4-4m-4 4l4 4"></path></svg>
+                    Deshacer Última Eliminación
+                </button>
+            @endif
+
             @can('audit.export')
                 <button wire:click="export" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs uppercase tracking-tighter transition-all shadow-lg active:scale-95 border border-blue-700">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -73,6 +102,7 @@
                             <th class="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider text-xs">Módulo</th>
                             <th class="px-6 py-3 text-left font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider text-xs w-1/3">Cambios Realizados</th>
                             <th class="px-6 py-3 text-right font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider text-xs w-32">Conexión</th>
+                            <th class="px-6 py-3 text-center font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider text-xs w-36">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -134,10 +164,23 @@
                                         <span class="text-[10px] text-gray-400 dark:text-gray-500 truncate max-w-[100px] mt-1 cursor-help" title="{{ $log->user_agent }}">{{ $log->user_agent }}</span>
                                     </div>
                                 </td>
+                                <td class="px-6 py-4 text-center">
+                                    @if($log->event === 'deleted' && $this->canRestoreFromAudit())
+                                        <button
+                                            wire:click="restoreFromLog({{ $log->id }})"
+                                            onclick="return confirm('Se intentará restaurar este registro eliminado. ¿Deseas continuar?')"
+                                            class="inline-flex items-center px-3 py-1.5 text-xs font-bold rounded-md bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-700"
+                                        >
+                                            Deshacer
+                                        </button>
+                                    @else
+                                        <span class="text-xs text-gray-400 dark:text-gray-500">—</span>
+                                    @endif
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-12 text-center">
+                                <td colspan="7" class="px-6 py-12 text-center">
                                     <div class="flex flex-col items-center">
                                         <svg class="w-12 h-12 text-gray-200 dark:text-gray-700 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                         <p class="text-lg font-medium text-gray-400 dark:text-gray-500">No se encontraron resultados</p>
