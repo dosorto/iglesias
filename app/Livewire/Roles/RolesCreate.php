@@ -18,7 +18,15 @@ class RolesCreate extends Component
     {
         return [
             'name' => 'required|min:3|unique:roles,name',
-            'selectedPermissions' => 'array',
+            'selectedPermissions' => 'required|array|min:1',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'selectedPermissions.required' => 'Debes seleccionar al menos un permiso para el rol.',
+            'selectedPermissions.min' => 'El rol debe tener al menos un permiso asignado.',
         ];
     }
 
