@@ -52,7 +52,7 @@ class CursoIndex extends Component
 
         $query = Curso::with([
             'tipoCurso',
-            ['instructor' => fn($q) => $q->withTrashed()],
+            'instructor' => fn($q) => $q->withTrashed(),
             'instructor.feligres.persona',
             'encargado.feligres.persona'
         ]);
