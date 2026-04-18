@@ -25,6 +25,8 @@ class InstructorDashboard extends Component
     public ?int $instructorId = null;
     // Problema #21: Recursos de capacitación para el onboarding
     public array $recursosCapacitacion = [];
+    // Alerta de firma no configurada
+    public bool $mostrarAlertaFirma = false;
 
     public function mount(): void
     {
@@ -48,6 +50,9 @@ class InstructorDashboard extends Component
         $instructor = Instructor::with('feligres.persona')->findOrFail($instructorId);
         $persona = $instructor->feligres?->persona;
         $this->firmaConfigurada = ! empty($instructor->path_firma);
+
+        // Alerta si la firma no está configurada
+        $this->mostrarAlertaFirma = ! $this->firmaConfigurada;
 
         if ($persona) {
             $this->nombreInstructor = trim(($persona->primer_nombre ?? '') . ' ' . ($persona->primer_apellido ?? ''));

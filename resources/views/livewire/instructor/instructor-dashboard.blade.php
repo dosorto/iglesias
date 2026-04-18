@@ -45,7 +45,28 @@
         </div>
     </section>
 
-    <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    {{-- Alerta de Firma No Configurada --}}
+    @if($mostrarAlertaFirma)
+        <section class="rounded-2xl border-l-4 border-l-red-600 border border-red-200 bg-red-50 p-5 md:p-6 dark:border-red-700/40 dark:border-l-red-500 dark:bg-red-900/20">
+            <div class="flex items-start gap-4">
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-red-600 flex-shrink-0">
+                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0 4v2m0-16a9 9 0 110 18 9 9 0 010-18z" />
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-red-800 dark:text-red-300">Firma no configurada</h3>
+                    <p class="mt-1 text-sm text-red-700 dark:text-red-400">Tu firma aún no está configurada. Configúrala para poder emitir certificados y documentos.</p>
+                    <a href="{{ route('instructor.edit', $instructorId) }}" class="mt-3 inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition-colors">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Configurar firma
+                    </a>
+                </div>
+            </div>
+        </section>
+    @endif
         <article class="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Total alumnos</p>
             <p class="mt-3 text-4xl font-black text-emerald-700 dark:text-emerald-400">{{ number_format($stats['total_alumnos']) }}</p>
