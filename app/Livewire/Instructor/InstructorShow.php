@@ -17,6 +17,7 @@ class InstructorShow extends Component
             abort(403, 'No tienes permiso para ver este instructor.');
         }
 
+        // Problema #21: Cargar cursos que enseña el instructor
         $this->instructor = $instructor->load([
             'feligres.persona',
             'feligres.iglesia',

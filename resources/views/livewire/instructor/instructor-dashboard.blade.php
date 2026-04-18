@@ -23,20 +23,24 @@
             </div>
 
             <div class="rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-sm">
-                <p class="text-xs uppercase tracking-[0.2em] text-emerald-100">Estado de firma</p>
-                @if($firmaConfigurada)
-                    <p class="mt-2 text-xl font-extrabold text-emerald-100">Firma configurada</p>
-                    <p class="mt-1 text-sm text-emerald-100">Fecha de hoy: {{ now()->format('d/m/Y') }}</p>
-                @else
-                    <p class="mt-2 text-xl font-extrabold text-amber-200">Firma no configurada</p>
-                @endif
+                <p class="text-xs uppercase tracking-[0.2em] text-emerald-100">Capacitación</p>
+                <p class="mt-3 text-sm text-emerald-100">
+                    Accede a recursos y tutoriales para dominar el sistema
+                </p>
 
-                @if($instructorId)
-                    <a href="{{ route('instructor.edit', $instructorId) }}"
-                       class="mt-4 inline-flex rounded-lg border border-white/30 px-3 py-2 text-xs font-bold text-white hover:bg-white/20 transition-colors">
-                        {{ $firmaConfigurada ? 'Actualizar firma' : 'Configurar firma' }}
-                    </a>
-                @endif
+                <div class="mt-4 space-y-2">
+                    @foreach($recursosCapacitacion as $recurso)
+                        <a href="#" class="flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold text-emerald-50 hover:bg-white/20 transition-colors">
+                            <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-300 flex-shrink-0"></span>
+                            {{ $recurso['titulo'] }}
+                        </a>
+                    @endforeach
+                </div>
+
+                <a href="#"
+                   class="mt-4 inline-flex rounded-lg border border-white/30 px-3 py-2 text-xs font-bold text-white hover:bg-white/20 transition-colors">
+                    Ver todos los recursos
+                </a>
             </div>
         </div>
     </section>

@@ -23,6 +23,8 @@ class InstructorDashboard extends Component
     public string $nombreInstructor = 'Instructor';
     public string $saludoInstructor = 'Bienvenido';
     public ?int $instructorId = null;
+    // Problema #21: Recursos de capacitación para el onboarding
+    public array $recursosCapacitacion = [];
 
     public function mount(): void
     {
@@ -130,6 +132,34 @@ class InstructorDashboard extends Component
             })
             ->values()
             ->all();
+
+        // Problema #21: Inicializar recursos de capacitación
+        $this->recursosCapacitacion = [
+            [
+                'titulo' => 'Gestión de Cursos',
+                'descripcion' => 'Aprende a crear, editar y administrar tus cursos',
+                'icono' => 'BookOpen',
+                'tipo' => 'video',
+            ],
+            [
+                'titulo' => 'Registro de Alumnos',
+                'descripcion' => 'Cómo inscribir y gestionar estudiantes',
+                'icono' => 'Users',
+                'tipo' => 'guia',
+            ],
+            [
+                'titulo' => 'Generación de Certificados',
+                'descripcion' => 'Emite y gestiona certificados de asistencia',
+                'icono' => 'Award',
+                'tipo' => 'tutorial',
+            ],
+            [
+                'titulo' => 'Preguntas Frecuentes',
+                'descripcion' => 'Resuelve dudas comunes sobre el sistema',
+                'icono' => 'HelpCircle',
+                'tipo' => 'faq',
+            ],
+        ];
     }
 
     public function render()
