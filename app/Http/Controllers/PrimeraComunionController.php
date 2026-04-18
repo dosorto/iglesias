@@ -47,28 +47,56 @@ class PrimeraComunionController extends Controller
 
     public function certificadoPdf(PrimeraComunion $primeraComunion)
     {
+        $primeraComunion->loadMissing('encargado');
+        if (! filled($primeraComunion->encargado?->path_firma_principal)) {
+            abort(422, 'Debe configurar la firma principal del encargado para generar el PDF de primera comunion.');
+        }
+
+        $iglesiaConfig = TenantIglesia::current();
+
         $tipoDocumento = 'primera_comunion_certificado';
         $nombreArchivo = 'certificado-primera-comunion-' . $primeraComunion->id . '.pdf';
         $layoutVersion = 'header-config-v3';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
+        $iglesiaDocumentoId = (int) $primeraComunion->id_iglesia;
+        $pathFormatoPrimeraComunion = (string) ($iglesiaConfig?->path_certificado_primera_comunion ?: $iglesiaConfig?->path_certificado_bautismo ?? '');
+        $orientacionPrimeraComunion = (string) ($iglesiaConfig?->orientacion_certificado_primera_comunion
+            ?? $iglesiaConfig?->orientacion_certificado
+            ?? 'portrait');
 
-        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, PrimeraComunion::class, (int) $primeraComunion->id, (int) $primeraComunion->id_iglesia);
+        $dataVersion = hash('sha256', implode('|', [
+            (string) ($primeraComunion->updated_at?->timestamp ?? 0),
+            (string) ($iglesiaConfig?->updated_at?->timestamp ?? 0),
+            (string) ($primeraComunion->encargado?->path_firma_principal ?? ''),
+            (string) ($iglesiaConfig?->path_logo ?? ''),
+            (string) ($iglesiaConfig?->path_logo_derecha ?? ''),
+            $pathFormatoPrimeraComunion,
+            $orientacionPrimeraComunion,
+            (string) ($iglesiaConfig?->header_diocesis ?? ''),
+            (string) ($iglesiaConfig?->direccion ?? ''),
+            (string) ($iglesiaConfig?->nombre ?? ''),
+        ]));
+
+        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, PrimeraComunion::class, (int) $primeraComunion->id, $iglesiaDocumentoId);
         $payloadExistente = is_array($documentoExistente?->payload) ? $documentoExistente->payload : [];
         $urlQrExistente = (string) ($payloadExistente['url_qr'] ?? '');
         $layoutVersionActual = (string) ($payloadExistente['layout_version'] ?? '');
+        $dataVersionActual = (string) ($payloadExistente['data_version'] ?? '');
         $layoutActualizado = $layoutVersionActual === $layoutVersion;
+        $dataActualizada = $dataVersionActual === $dataVersion;
         $snapshotConQr = ! empty($payloadExistente['html'])
             && ! empty($payloadExistente['codigo_verificacion'])
             && ! empty($payloadExistente['qr_data_uri'])
             && str_ends_with(strtolower($urlQrExistente), '/pdf')
-            && $layoutActualizado;
+            && $layoutActualizado
+            && $dataActualizada;
         if ($documentoExistente && $snapshotConQr) {
             return Pdf::loadHTML($payloadExistente['html'])
                 ->setPaper($payloadExistente['paper_size'] ?? 'letter', $payloadExistente['orientation'] ?? 'portrait')
                 ->stream($documentoExistente->nombre_archivo);
         }
 
-        if ($documentoExistente && $layoutActualizado && ! empty($documentoExistente->path_pdf) && Storage::disk('local')->exists($documentoExistente->path_pdf)) {
+        if ($documentoExistente && $layoutActualizado && $dataActualizada && ! empty($documentoExistente->path_pdf) && Storage::disk('local')->exists($documentoExistente->path_pdf)) {
             return response()->file(
                 Storage::disk('local')->path($documentoExistente->path_pdf),
                 [
@@ -95,8 +123,7 @@ class PrimeraComunionController extends Controller
             ->latest()
             ->first();
 
-        $iglesiaConfig = TenantIglesia::current();
-        $orientation = $iglesiaConfig?->orientacion_certificado === 'landscape' ? 'landscape' : 'portrait';
+        $orientation = $orientacionPrimeraComunion === 'landscape' ? 'landscape' : 'portrait';
         $codigoVerificacion = $servicioDocumentos->generarCodigoVerificacionUnico();
         $urlVerificacion = $servicioDocumentos->construirUrlVerificacion($codigoVerificacion);
         $urlQr = $servicioDocumentos->construirUrlVerificacionPdf($codigoVerificacion);
@@ -121,7 +148,7 @@ class PrimeraComunionController extends Controller
         $servicioDocumentos->guardarDocumento(
             $tipoDocumento,
             $primeraComunion,
-            $primeraComunion->id_iglesia,
+            $iglesiaDocumentoId,
             $nombreArchivo,
             [
                 'emitido_en' => now()->toIso8601String(),
@@ -134,6 +161,7 @@ class PrimeraComunionController extends Controller
                 'url_qr' => $urlQr,
                 'qr_data_uri' => $qrDataUri,
                 'layout_version' => $layoutVersion,
+                'data_version' => $dataVersion,
                 'registro' => $primeraComunion->toArray(),
                 'encargado' => $encargado?->toArray(),
                 'iglesia_config' => $iglesiaConfig?->toArray(),

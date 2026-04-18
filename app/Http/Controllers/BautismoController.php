@@ -36,30 +36,59 @@ class BautismoController extends Controller
         return view('bautismo.edit', compact('bautismo'));
     }
 
+    
     public function certificadoPdf(Bautismo $bautismo)
     {
+        $bautismo->loadMissing('encargado');
+        if (! filled($bautismo->encargado?->path_firma_principal)) {
+            abort(422, 'Debe configurar la firma principal del encargado para generar el PDF de bautismo.');
+        }
+
+        $iglesiaConfig = TenantIglesia::current();
+
         $tipoDocumento = 'bautismo_certificado';
         $nombreArchivo = 'certificado-bautismo-' . $bautismo->id . '.pdf';
         $layoutVersion = 'header-config-v3';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
+        $iglesiaDocumentoId = (int) $bautismo->iglesia_id;
+        $pathFormatoBautismo = (string) ($iglesiaConfig?->path_certificado_bautismo ?? '');
+        $orientacionBautismo = (string) ($iglesiaConfig?->orientacion_certificado_bautismo
+            ?? $iglesiaConfig?->orientacion_certificado
+            ?? 'portrait');
 
-        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, Bautismo::class, (int) $bautismo->id, (int) $bautismo->iglesia_id);
+        $dataVersion = hash('sha256', implode('|', [
+            (string) ($bautismo->updated_at?->timestamp ?? 0),
+            (string) ($iglesiaConfig?->updated_at?->timestamp ?? 0),
+            (string) ($bautismo->encargado?->path_firma_principal ?? ''),
+            (string) ($iglesiaConfig?->path_logo ?? ''),
+            (string) ($iglesiaConfig?->path_logo_derecha ?? ''),
+            $pathFormatoBautismo,
+            $orientacionBautismo,
+            (string) ($iglesiaConfig?->header_diocesis ?? ''),
+            (string) ($iglesiaConfig?->direccion ?? ''),
+            (string) ($iglesiaConfig?->nombre ?? ''),
+        ]));
+
+        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, Bautismo::class, (int) $bautismo->id, $iglesiaDocumentoId);
         $payloadExistente = is_array($documentoExistente?->payload) ? $documentoExistente->payload : [];
         $urlQrExistente = (string) ($payloadExistente['url_qr'] ?? '');
         $layoutVersionActual = (string) ($payloadExistente['layout_version'] ?? '');
+        $dataVersionActual = (string) ($payloadExistente['data_version'] ?? '');
         $layoutActualizado = $layoutVersionActual === $layoutVersion;
+        $dataActualizada = $dataVersionActual === $dataVersion;
         $snapshotConQr = ! empty($payloadExistente['html'])
             && ! empty($payloadExistente['codigo_verificacion'])
             && ! empty($payloadExistente['qr_data_uri'])
             && str_ends_with(strtolower($urlQrExistente), '/pdf')
-            && $layoutActualizado;
+            && $layoutActualizado
+            && $dataActualizada;
         if ($documentoExistente && $snapshotConQr) {
             return Pdf::loadHTML($payloadExistente['html'])
                 ->setPaper($payloadExistente['paper_size'] ?? 'letter', $payloadExistente['orientation'] ?? 'portrait')
                 ->stream($documentoExistente->nombre_archivo);
         }
 
-        if ($documentoExistente && $layoutActualizado && ! empty($documentoExistente->path_pdf) && Storage::disk('local')->exists($documentoExistente->path_pdf)) {
+        if ($documentoExistente && $layoutActualizado && $dataActualizada && ! empty($documentoExistente->path_pdf) && Storage::disk('local')->exists($documentoExistente->path_pdf)) {
             return response()->file(
                 Storage::disk('local')->path($documentoExistente->path_pdf),
                 [
@@ -79,8 +108,7 @@ class BautismoController extends Controller
             'encargado.feligres.persona',
         ]);
 
-        $iglesiaConfig = TenantIglesia::current();
-        $orientation = $iglesiaConfig?->orientacion_certificado === 'landscape' ? 'landscape' : 'portrait';
+        $orientation = $orientacionBautismo === 'landscape' ? 'landscape' : 'portrait';
         $codigoVerificacion = $servicioDocumentos->generarCodigoVerificacionUnico();
         $urlVerificacion = $servicioDocumentos->construirUrlVerificacion($codigoVerificacion);
         $urlQr = $servicioDocumentos->construirUrlVerificacionPdf($codigoVerificacion);
@@ -105,7 +133,7 @@ class BautismoController extends Controller
         $servicioDocumentos->guardarDocumento(
             $tipoDocumento,
             $bautismo,
-            $bautismo->iglesia_id,
+            $iglesiaDocumentoId,
             $nombreArchivo,
             [
                 'emitido_en' => now()->toIso8601String(),
@@ -118,12 +146,14 @@ class BautismoController extends Controller
                 'url_qr' => $urlQr,
                 'qr_data_uri' => $qrDataUri,
                 'layout_version' => $layoutVersion,
+                'data_version' => $dataVersion,
                 'registro' => $bautismo->toArray(),
                 'iglesia_config' => $iglesiaConfig?->toArray(),
             ],
             Auth::id(),
             $codigoVerificacion
         );
+
 
         return response($pdfBinario, 200, [
             'Content-Type' => 'application/pdf',

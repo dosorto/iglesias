@@ -79,11 +79,13 @@ class BautismoShow extends Component
 
         $this->firma_nueva = null;
         $this->bautismo->load('encargado.feligres.persona');
+        $iglesiaDocumentoId = TenantIglesia::currentId();
 
         DocumentoGenerado::query()
             ->where('tipo_documento', 'bautismo_certificado')
             ->where('fuente_tipo', Bautismo::class)
             ->where('fuente_id', (int) $this->bautismo->id)
+            ->when($iglesiaDocumentoId !== null, fn ($query) => $query->where('iglesia_id', $iglesiaDocumentoId))
             ->delete();
 
         session()->flash('success', 'Firma guardada correctamente.');
@@ -126,10 +128,13 @@ class BautismoShow extends Component
             'fecha_expedicion' => $fechaExp,
         ]);
 
+        $iglesiaDocumentoId = TenantIglesia::currentId();
+
         DocumentoGenerado::query()
             ->where('tipo_documento', 'bautismo_certificado')
             ->where('fuente_tipo', Bautismo::class)
             ->where('fuente_id', (int) $this->bautismo->id)
+            ->when($iglesiaDocumentoId !== null, fn ($query) => $query->where('iglesia_id', $iglesiaDocumentoId))
             ->delete();
 
         $this->bautismo->refresh();

@@ -25,17 +25,17 @@ class BaseModel extends Model
 
     public function creator()
     {
-        return $this->belongsTo(User::class, 'created_by')->withDefault(['name' => 'Sistema']);
+        return $this->belongsTo(User::class, 'created_by')->withTrashed()->withDefault(['name' => 'Sistema']);
     }
 
     public function updater()
     {
-        return $this->belongsTo(User::class, 'updated_by')->withDefault(['name' => '-']);
+        return $this->belongsTo(User::class, 'updated_by')->withTrashed()->withDefault(['name' => '-']);
     }
 
     public function deleter()
     {
-        return $this->belongsTo(User::class, 'deleted_by')->withDefault(['name' => '-']);
+        return $this->belongsTo(User::class, 'deleted_by')->withTrashed()->withDefault(['name' => '-']);
     }
 
 }

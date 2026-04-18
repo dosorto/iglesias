@@ -20,6 +20,12 @@ new #[Layout('layouts.guest')] class extends Component
 
         Session::regenerate();
 
+        $tenantSubdomainUrl = Session::pull('tenant_login_subdomain_url');
+        if ($tenantSubdomainUrl) {
+            $this->redirect(rtrim($tenantSubdomainUrl, '/') . '/dashboard', navigate: false);
+            return;
+        }
+
         $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
     }
 }; ?>

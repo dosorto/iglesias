@@ -13,10 +13,38 @@
 
     @php
         $iglesiaSettings = \App\Models\TenantIglesia::current();
+        $isGlobalMode = !session('tenant.id_iglesia');
+        $companySettings = $isGlobalMode ? \App\Models\AppSetting::current() : null;
     @endphp
 
     {{-- Grid de opciones de configuración --}}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        @if($isGlobalMode)
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
+            <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-fuchsia-100 dark:bg-fuchsia-900/30 rounded-lg flex items-center justify-center mr-4 overflow-hidden">
+                    <img src="{{ $companySettings->company_logo_url ?: asset('image/Logo_guest.png') }}" alt="Logo Empresa" class="w-10 h-10 object-contain" />
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Empresa (Global)</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Nombre y logo para panel de test</p>
+                </div>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ $companySettings->company_name ?: 'NekoTech' }}
+                </span>
+                <a href="{{ route('configuracion.empresa.edit') }}"
+                   class="inline-flex items-center px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Gestionar
+                </a>
+            </div>
+        </div>
+        @endif
 
         {{-- Gestión de Roles --}}
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
@@ -258,11 +286,18 @@
             </div>
             <div class="flex justify-between items-center">
                 <span class="text-sm text-gray-500 dark:text-gray-400">
-                    @if ($iglesiaSettings?->path_logo && $iglesiaSettings?->path_certificado_bautismo)
+                    @php
+                        $hayAlgunaPlantilla = filled($iglesiaSettings?->path_certificado_bautismo)
+                            || filled($iglesiaSettings?->path_certificado_confirmacion)
+                            || filled($iglesiaSettings?->path_certificado_primera_comunion)
+                            || filled($iglesiaSettings?->path_certificado_matrimonio)
+                            || filled($iglesiaSettings?->path_certificado_curso);
+                    @endphp
+                    @if ($iglesiaSettings?->path_logo && $hayAlgunaPlantilla)
                         Logo y formato configurados
                     @elseif ($iglesiaSettings?->path_logo)
                         Logo configurado
-                    @elseif ($iglesiaSettings?->path_certificado_bautismo)
+                    @elseif ($hayAlgunaPlantilla)
                         Formato configurado
                     @else
                         Sin configurar

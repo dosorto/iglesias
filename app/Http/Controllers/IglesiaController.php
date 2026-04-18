@@ -10,6 +10,8 @@ use App\Models\TenantIglesia;
 use App\Models\Religion;
 use App\Services\Tenancy\TenantProvisioner;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Str;
 
 class IglesiaController extends Controller
 {
@@ -34,6 +36,10 @@ class IglesiaController extends Controller
             'parroco_nombre'=> $request->parroco_nombre,
             'estado'        => $request->estado,
             'id_religion'   => $request->id_religion ?: null,
+        ]);
+
+        $iglesia->update([
+            'subdomain' => $this->resolveUniqueSubdomain($iglesia->nombre, $iglesia->id),
         ]);
 
         try {
@@ -124,5 +130,60 @@ class IglesiaController extends Controller
         $iglesia->delete();
         return redirect()->route('iglesias.index')
             ->with('success', 'Iglesia eliminada exitosamente.');
+    }
+
+    public function gestionar(Iglesias $iglesia): RedirectResponse
+    {
+        if (empty($iglesia->db_database)) {
+            return redirect()->route('iglesias.index')
+                ->with('error', 'La iglesia seleccionada no tiene una base tenant configurada.');
+        }
+
+        session()->put('tenant', [
+            'id_iglesia' => $iglesia->id,
+            'connection' => config('tenancy.tenant_connection', 'tenant'),
+        ]);
+        session()->put('tenant_can_return_global', true);
+
+        return redirect()->route('dashboard')
+            ->with('success', "Ahora estás gestionando: {$iglesia->nombre}.");
+    }
+
+    public function salirGestion(): RedirectResponse
+    {
+        if (!session('tenant_can_return_global')) {
+            return redirect()->route('dashboard')
+                ->with('error', 'No hay una gestion global activa para finalizar.');
+        }
+
+        session()->forget('tenant');
+        session()->forget('tenant_can_return_global');
+
+        return redirect()->route('dashboard')
+            ->with('success', 'Regresaste al panel global de iglesias.');
+    }
+
+    private function resolveUniqueSubdomain(string $churchName, int $ignoreId = 0): string
+    {
+        $base = Str::slug(Str::ascii($churchName), '-');
+
+        if ($base === '') {
+            $base = 'iglesia';
+        }
+
+        $candidate = $base;
+        $counter = 1;
+
+        while (
+            Iglesias::query()
+                ->where('subdomain', $candidate)
+                ->where('id', '!=', $ignoreId)
+                ->exists()
+        ) {
+            $counter++;
+            $candidate = $base . '-' . $counter;
+        }
+
+        return $candidate;
     }
 }

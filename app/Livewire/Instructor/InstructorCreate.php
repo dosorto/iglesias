@@ -10,7 +10,9 @@ use App\Models\User;
 use App\Models\TenantIglesia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\WithFileUploads;
 use Spatie\Permission\Models\Role;
 
@@ -43,6 +45,8 @@ class InstructorCreate extends Component
     public ?int $feligres_id = null;
     public string $fecha_ingreso = '';
     public string $estado = 'Activo';
+    public string $emailProvisionMode = '';
+    public string $emailManual = '';
 
     public function mount(): void
     {
@@ -124,6 +128,13 @@ class InstructorCreate extends Component
         $this->persona_estado = 'found';
         $this->showCrearPersona = false;
         $this->resultadosBusqueda = [];
+        $this->emailProvisionMode = '';
+        $this->emailManual = '';
+
+        if (!empty($persona->email)) {
+            $this->emailProvisionMode = 'existing';
+            $this->emailManual = (string) $persona->email;
+        }
     }
 
     public function limpiarPersona(): void
@@ -136,6 +147,8 @@ class InstructorCreate extends Component
         $this->persona_estado = 'idle';
         $this->showCrearPersona = false;
         $this->resultadosBusqueda = [];
+        $this->emailProvisionMode = '';
+        $this->emailManual = '';
 
         $this->reset([
             'p_dni',
@@ -302,6 +315,15 @@ class InstructorCreate extends Component
             return;
         }
 
+        $persona = Persona::find($this->persona_id);
+
+        if (! $persona) {
+            $this->addError('persona_id', 'La persona seleccionada no existe.');
+            return;
+        }
+
+        $this->resolverCorreoPersonaParaInstructor($persona);
+
         $feligres = Feligres::where('id_persona', $this->persona_id)
             ->where('id_iglesia', $iglesiaId)
             ->first();
@@ -377,14 +399,10 @@ class InstructorCreate extends Component
             return null;
         }
 
-        $emailBase = trim((string) ($persona->email ?? ''));
-        if ($emailBase === '') {
-            $dni = trim((string) ($persona->dni ?? ''));
-            $suffix = $dni !== '' ? $dni : (string) $persona->id;
-            $emailBase = "instructor.{$suffix}@tenant.local";
-        }
-
-        $email = $this->resolverEmailDisponible($emailBase);
+        $personaEmail = strtolower(trim((string) ($persona->email ?? '')));
+        $email = filter_var($personaEmail, FILTER_VALIDATE_EMAIL)
+            ? $personaEmail
+            : $this->resolverEmailDisponible($this->generarEmailBaseInstructor($persona));
 
         $nombre = trim($persona->nombre_completo ?: (($persona->primer_nombre ?? '') . ' ' . ($persona->primer_apellido ?? '')));
         if ($nombre === '') {
@@ -459,12 +477,96 @@ class InstructorCreate extends Component
         return $candidate;
     }
 
+    private function generarEmailBaseInstructor(Persona $persona): string
+    {
+        $primerNombre = Str::lower(Str::ascii(trim((string) ($persona->primer_nombre ?? ''))));
+        $primerApellido = Str::lower(Str::ascii(trim((string) ($persona->primer_apellido ?? ''))));
+        $fechaNacimiento = preg_replace('/[^0-9]/', '', (string) ($persona->fecha_nacimiento ?? ''));
+
+        if (strlen($fechaNacimiento) > 8) {
+            $fechaNacimiento = substr($fechaNacimiento, 0, 8);
+        }
+
+        $localPart = preg_replace('/[^a-z0-9]/', '', $primerNombre . $primerApellido . $fechaNacimiento);
+
+        if ($localPart === '') {
+            $dni = preg_replace('/[^0-9]/', '', (string) ($persona->dni ?? ''));
+            $suffix = $dni !== '' ? $dni : (string) $persona->id;
+            $localPart = 'instructor' . $suffix;
+        }
+
+        return $localPart . '@gmail.com';
+    }
+
     private function generarContrasenaTemporal(?string $primerNombre): string
     {
         $base = strtolower(trim((string) $primerNombre));
         $base = preg_replace('/[^a-z0-9]/', '', $base) ?: 'usuario';
 
         return $base . random_int(1000, 9999);
+    }
+
+    public function getEmailSugeridoProperty(): string
+    {
+        if (! $this->persona_id) {
+            return '';
+        }
+
+        $persona = Persona::find($this->persona_id);
+
+        if (! $persona) {
+            return '';
+        }
+
+        return $this->resolverEmailDisponible($this->generarEmailBaseInstructor($persona));
+    }
+
+    private function resolverCorreoPersonaParaInstructor(Persona $persona): void
+    {
+        $emailActual = strtolower(trim((string) ($persona->email ?? '')));
+
+        if ($emailActual !== '' && filter_var($emailActual, FILTER_VALIDATE_EMAIL)) {
+            return;
+        }
+
+        if ($this->emailProvisionMode === '') {
+            throw ValidationException::withMessages([
+                'emailProvisionMode' => 'Esta persona no tiene correo. Elige si deseas configurarlo manualmente o generarlo automaticamente.',
+            ]);
+        }
+
+        if ($this->emailProvisionMode === 'manual') {
+            $this->validate([
+                'emailManual' => [
+                    'required',
+                    'email',
+                    'max:255',
+                    Rule::unique('users', 'email'),
+                ],
+            ], [
+                'emailManual.required' => 'Debes ingresar un correo para el instructor.',
+                'emailManual.email' => 'El correo ingresado no es valido.',
+                'emailManual.unique' => 'Ese correo ya esta en uso por otro usuario.',
+            ]);
+
+            $persona->update([
+                'email' => strtolower(trim($this->emailManual)),
+            ]);
+
+            return;
+        }
+
+        if ($this->emailProvisionMode === 'generate') {
+            $persona->update([
+                'email' => $this->resolverEmailDisponible($this->generarEmailBaseInstructor($persona)),
+            ]);
+
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'emailProvisionMode' => 'Selecciona una opcion valida para configurar el correo del instructor.',
+        ]);
     }
 
     public function render()

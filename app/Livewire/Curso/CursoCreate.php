@@ -9,8 +9,12 @@ use App\Models\TipoCurso;
 use App\Models\Instructor;
 use App\Models\Persona;
 use App\Models\Feligres;
+use App\Models\User;
 use App\Models\TenantIglesia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class CursoCreate extends Component
 {
@@ -439,10 +443,15 @@ class CursoCreate extends Component
             'created_by' => Auth::id(),
         ]);
 
+        $credentials = $this->asegurarUsuarioInstructor($feligres, (int) $this->iglesia_id);
+
         $this->instructor_id = $instructor->id;
         $this->cancelarCrearInstructor();
 
         session()->flash('success', 'Instructor creado correctamente.');
+        if ($credentials) {
+            session()->flash('instructor_credentials', $credentials);
+        }
     }
 
     public function guardarInstructorDesdePersonaExistente(): void
@@ -471,10 +480,15 @@ class CursoCreate extends Component
         $instructorExistente = Instructor::where('feligres_id', $feligres->id)->first();
 
         if ($instructorExistente) {
+            $credentials = $this->asegurarUsuarioInstructor($feligres, (int) $this->iglesia_id);
+
             $this->instructor_id = $instructorExistente->id;
             $this->cancelarCrearInstructor();
 
             session()->flash('success', 'Ese instructor ya existía y fue seleccionado.');
+            if ($credentials) {
+                session()->flash('instructor_credentials', $credentials);
+            }
             return;
         }
 
@@ -485,10 +499,129 @@ class CursoCreate extends Component
             'created_by' => Auth::id(),
         ]);
 
+        $credentials = $this->asegurarUsuarioInstructor($feligres, (int) $this->iglesia_id);
+
         $this->instructor_id = $instructor->id;
         $this->cancelarCrearInstructor();
 
         session()->flash('success', 'Instructor registrado correctamente.');
+        if ($credentials) {
+            session()->flash('instructor_credentials', $credentials);
+        }
+    }
+
+    private function asegurarUsuarioInstructor(Feligres $feligres, int $iglesiaId): ?array
+    {
+        $persona = $feligres->persona;
+
+        if (! $persona) {
+            return null;
+        }
+
+        $emailBase = $this->generarEmailBaseInstructor($persona);
+
+        $email = $this->resolverEmailDisponible($emailBase);
+
+        $nombre = trim($persona->nombre_completo ?: (($persona->primer_nombre ?? '') . ' ' . ($persona->primer_apellido ?? '')));
+        if ($nombre === '') {
+            $nombre = 'Instructor';
+        }
+
+        $user = User::withTrashed()->where('email', $email)->first();
+        $generatedPassword = $this->generarContrasenaTemporal($persona->primer_nombre ?? null);
+        $credentials = null;
+
+        if (! $user) {
+            $user = User::create([
+                'name' => $nombre,
+                'email' => $email,
+                'password' => Hash::make($generatedPassword),
+                'password_visible' => $generatedPassword,
+                'id_iglesia' => $iglesiaId,
+            ]);
+
+            $credentials = [
+                'email' => $email,
+                'password' => $generatedPassword,
+            ];
+        } elseif ($user->trashed()) {
+            $user->restore();
+            $user->update([
+                'name' => $nombre,
+                'password' => Hash::make($generatedPassword),
+                'password_visible' => $generatedPassword,
+                'id_iglesia' => $iglesiaId,
+            ]);
+
+            $credentials = [
+                'email' => $email,
+                'password' => $generatedPassword,
+            ];
+        } else {
+            $user->update([
+                'name' => $nombre,
+                'id_iglesia' => $iglesiaId,
+            ]);
+
+            $credentials = [
+                'email' => $email,
+                'password' => null,
+                'note' => 'El correo ya existia en este tenant. Se asigno rol instructor y debe usar su contrasena actual.',
+            ];
+        }
+
+        $role = Role::firstOrCreate(['name' => 'instructor']);
+        $user->syncRoles([$role->name]);
+
+        return $credentials;
+    }
+
+    private function resolverEmailDisponible(string $emailBase): string
+    {
+        $email = strtolower($emailBase);
+
+        if (! User::where('email', $email)->exists()) {
+            return $email;
+        }
+
+        [$localPart, $domain] = array_pad(explode('@', $email, 2), 2, 'tenant.local');
+
+        $i = 1;
+        do {
+            $candidate = "{$localPart}+{$i}@{$domain}";
+            $i++;
+        } while (User::where('email', $candidate)->exists());
+
+        return $candidate;
+    }
+
+    private function generarEmailBaseInstructor(Persona $persona): string
+    {
+        $primerNombre = Str::lower(Str::ascii(trim((string) ($persona->primer_nombre ?? ''))));
+        $primerApellido = Str::lower(Str::ascii(trim((string) ($persona->primer_apellido ?? ''))));
+        $fechaNacimiento = preg_replace('/[^0-9]/', '', (string) ($persona->fecha_nacimiento ?? ''));
+
+        if (strlen($fechaNacimiento) > 8) {
+            $fechaNacimiento = substr($fechaNacimiento, 0, 8);
+        }
+
+        $localPart = preg_replace('/[^a-z0-9]/', '', $primerNombre . $primerApellido . $fechaNacimiento);
+
+        if ($localPart === '') {
+            $dni = preg_replace('/[^0-9]/', '', (string) ($persona->dni ?? ''));
+            $suffix = $dni !== '' ? $dni : (string) $persona->id;
+            $localPart = 'instructor' . $suffix;
+        }
+
+        return $localPart . '@gmail.com';
+    }
+
+    private function generarContrasenaTemporal(?string $primerNombre): string
+    {
+        $base = strtolower(trim((string) $primerNombre));
+        $base = preg_replace('/[^a-z0-9]/', '', $base) ?: 'usuario';
+
+        return $base . random_int(1000, 9999);
     }
 
     public function guardar()

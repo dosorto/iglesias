@@ -60,6 +60,9 @@ class InscripcionCursoController extends Controller
 
         $iglesiaConfig = TenantIglesia::current();
         $iglesiaId = (int) ($inscripcion->curso?->iglesia_id ?: TenantIglesia::currentId());
+        $orientacionCurso = (string) ($iglesiaConfig?->orientacion_certificado_curso
+            ?? $iglesiaConfig?->orientacion_certificado
+            ?? 'landscape');
 
         $codigoVerificacion = $servicioDocumentos->generarCodigoVerificacionUnico();
         $urlVerificacion = $servicioDocumentos->construirUrlVerificacion($codigoVerificacion);
@@ -78,7 +81,7 @@ class InscripcionCursoController extends Controller
         $html = view('certificados.curso-pdf', compact('inscripcion', 'iglesiaConfig', 'codigoVerificacion', 'urlVerificacion', 'qrDataUri'))->render();
 
         $pdf = Pdf::loadHTML($html)
-            ->setPaper('letter', 'landscape');
+            ->setPaper('letter', $orientacionCurso === 'portrait' ? 'portrait' : 'landscape');
 
         $pdfBinario = $pdf->output();
 
@@ -91,7 +94,7 @@ class InscripcionCursoController extends Controller
                 'emitido_en' => now()->toIso8601String(),
                 'view' => 'certificados.curso-pdf',
                 'paper_size' => 'letter',
-                'orientation' => 'landscape',
+                'orientation' => $orientacionCurso === 'portrait' ? 'portrait' : 'landscape',
                 'html' => $html,
                 'codigo_verificacion' => $codigoVerificacion,
                 'url_verificacion' => $urlVerificacion,
@@ -173,7 +176,7 @@ class InscripcionCursoController extends Controller
 
     public function createFromInstructor(\App\Models\Instructor $instructor)
     {
-        return view('instructor.inscripcion-create', [
+        return view('Instructor.inscripcion-create', [
             'instructor' => $instructor
         ]);
     }

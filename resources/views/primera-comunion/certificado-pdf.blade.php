@@ -78,6 +78,7 @@
 
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
+    $certBgPath = $resolvePublicFilePath($iglesiaConfig?->path_certificado_primera_comunion ?: $iglesiaConfig?->path_certificado_bautismo);
 
     $iglesia         = $primeraComunion->iglesia;
     $comulgante      = $primeraComunion->feligres?->persona;
@@ -112,7 +113,7 @@
     $urlVerificacion = $urlVerificacion ?? '';
     $qrDataUri = $qrDataUri ?? null;
 @endphp
-<body>
+<body @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
 @if ($logoIglesiaPath)
     <div class="watermark-logo">
         <img src="{{ $logoIglesiaPath }}" alt="Marca de agua">

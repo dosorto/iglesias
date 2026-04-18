@@ -3,5 +3,5 @@
 @section('title', 'Tipos de Cursos')
 
 @section('content')
-    <livewire:tipocurso.tipocurso-index />
+    <livewire:tipo-curso.tipo-curso-index />
 @endsection

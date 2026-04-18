@@ -2,17 +2,101 @@
 
 @section('content')
 
-@php
-    use App\Models\Bautismo;
-    use App\Models\Confirmacion;
-    use App\Models\Feligres;
-    use App\Models\Instructor;
-    use App\Models\InscripcionCurso;
-    use App\Models\Matrimonio;
-    use App\Models\PrimeraComunion;
-    use Illuminate\Support\Carbon;
+@if (!session('tenant.id_iglesia'))
+    @php
+        $iglesias = \App\Models\Iglesias::query()->latest()->get();
+        $iglesiasActivas = $iglesias->filter(fn ($iglesia) => in_array(strtolower((string) $iglesia->estado), ['activo', 'activa', 'habilitado', 'habilitada'], true))->count();
+        $iglesiasConTenant = $iglesias->filter(fn ($iglesia) => !empty($iglesia->db_database))->count();
+    @endphp
 
-    $now = Carbon::now();
+    <div class="space-y-6">
+        <div class="mb-2">
+            <h1 class="text-4xl font-serif text-[var(--color-purpura-sagrado)] dark:text-white">Dashboard Global</h1>
+            <p class="text-slate-600 dark:text-gray-300 mt-2 max-w-3xl italic text-sm">
+                Este panel te permite administrar todas las iglesias. Desde aqui puedes seleccionar una iglesia para gestionarla en modo tenant.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 border-b-4 border-b-blue-400">
+                <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $iglesias->count() }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Iglesias registradas</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 border-b-4 border-b-emerald-400">
+                <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $iglesiasActivas }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Iglesias activas</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 border-b-4 border-b-amber-400">
+                <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $iglesiasConTenant }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Iglesias con tenant listo</p>
+            </div>
+        </div>
+
+        <section class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-serif text-gray-900 dark:text-white">Seleccionar Iglesia a Gestionar</h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Al seleccionar una iglesia, el sistema cambia al contexto de esa iglesia.</p>
+                </div>
+                @can('iglesias.view')
+                    <a href="{{ route('iglesias.index') }}" class="text-sm font-medium text-indigo-600 dark:text-indigo-300 hover:underline">Ir a modulo Iglesias</a>
+                @else
+                    <span class="text-sm text-gray-400 dark:text-gray-500">Sin permiso para modulo Iglesias</span>
+                @endcan
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-900/60">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Iglesia</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Estado</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Tenant</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Accion</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        @forelse ($iglesias as $iglesia)
+                            @php
+                                $tenantReady = !empty($iglesia->db_database);
+                            @endphp
+                            <tr>
+                                <td class="px-6 py-4">
+                                    <p class="font-semibold text-gray-900 dark:text-white">{{ $iglesia->nombre }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $iglesia->email ?: 'Sin correo' }}</p>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ $iglesia->estado ?: 'N/A' }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{{ $tenantReady ? 'Configurado' : 'Pendiente' }}</td>
+                                <td class="px-6 py-4">
+                                    @if ($tenantReady && auth()->user()?->can('iglesias.view'))
+                                        <a href="{{ route('iglesias.gestionar', $iglesia) }}" class="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
+                                            Gestionar esta iglesia
+                                        </a>
+                                    @elseif ($tenantReady)
+                                        <span class="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300">
+                                            Sin permiso para gestionar
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300">
+                                            Tenant no disponible
+                                        </span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No hay iglesias registradas.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+@else
+
+@php
+    $now = \Illuminate\Support\Carbon::now();
     $months = collect(range(5, 0))->map(function (int $offset) use ($now) {
         $month = $now->copy()->subMonths($offset);
 
@@ -24,8 +108,8 @@
     });
 
     $countByMonth = function (string $modelClass, string $dateColumn, int $year, int $month): int {
-        $start = Carbon::create($year, $month, 1)->startOfMonth();
-        $end = Carbon::create($year, $month, 1)->endOfMonth();
+        $start = \Illuminate\Support\Carbon::create($year, $month, 1)->startOfMonth();
+        $end = \Illuminate\Support\Carbon::create($year, $month, 1)->endOfMonth();
 
         return $modelClass::query()
             ->whereBetween($dateColumn, [$start, $end])
@@ -33,11 +117,11 @@
     };
 
     $activityRows = $months->map(function (array $item) use ($countByMonth) {
-        $bautismos = $countByMonth(Bautismo::class, 'fecha_bautismo', $item['year'], $item['month']);
-        $matrimonios = $countByMonth(Matrimonio::class, 'fecha_matrimonio', $item['year'], $item['month']);
-        $confirmaciones = $countByMonth(Confirmacion::class, 'fecha_confirmacion', $item['year'], $item['month']);
-        $comuniones = $countByMonth(PrimeraComunion::class, 'fecha_primera_comunion', $item['year'], $item['month']);
-        $inscripciones = $countByMonth(InscripcionCurso::class, 'created_at', $item['year'], $item['month']);
+        $bautismos = $countByMonth(\App\Models\Bautismo::class, 'fecha_bautismo', $item['year'], $item['month']);
+        $matrimonios = $countByMonth(\App\Models\Matrimonio::class, 'fecha_matrimonio', $item['year'], $item['month']);
+        $confirmaciones = $countByMonth(\App\Models\Confirmacion::class, 'fecha_confirmacion', $item['year'], $item['month']);
+        $comuniones = $countByMonth(\App\Models\PrimeraComunion::class, 'fecha_primera_comunion', $item['year'], $item['month']);
+        $inscripciones = $countByMonth(\App\Models\InscripcionCurso::class, 'created_at', $item['year'], $item['month']);
 
         return [
             'label' => $item['label'],
@@ -72,17 +156,17 @@
 
     $monthStart = $now->copy()->startOfMonth();
     $monthEnd = $now->copy()->endOfMonth();
-    $feligresCount = Feligres::count();
-    $bautismoMonthCount = Bautismo::query()->whereBetween('fecha_bautismo', [$monthStart, $monthEnd])->count();
-    $matrimonioMonthCount = Matrimonio::query()->whereBetween('fecha_matrimonio', [$monthStart, $monthEnd])->count();
-    $cursoMonthCount = InscripcionCurso::query()->whereBetween('created_at', [$monthStart, $monthEnd])->count();
-    $instructorMonthCount = Instructor::query()->whereBetween('created_at', [$monthStart, $monthEnd])->count();
-    $confirmacionMonthCount = Confirmacion::query()->whereBetween('fecha_confirmacion', [$monthStart, $monthEnd])->count();
-    $comunionMonthCount = PrimeraComunion::query()->whereBetween('fecha_primera_comunion', [$monthStart, $monthEnd])->count();
+    $feligresCount = \App\Models\Feligres::count();
+    $bautismoMonthCount = \App\Models\Bautismo::query()->whereBetween('fecha_bautismo', [$monthStart, $monthEnd])->count();
+    $matrimonioMonthCount = \App\Models\Matrimonio::query()->whereBetween('fecha_matrimonio', [$monthStart, $monthEnd])->count();
+    $cursoMonthCount = \App\Models\InscripcionCurso::query()->whereBetween('created_at', [$monthStart, $monthEnd])->count();
+    $instructorMonthCount = \App\Models\Instructor::query()->whereBetween('created_at', [$monthStart, $monthEnd])->count();
+    $confirmacionMonthCount = \App\Models\Confirmacion::query()->whereBetween('fecha_confirmacion', [$monthStart, $monthEnd])->count();
+    $comunionMonthCount = \App\Models\PrimeraComunion::query()->whereBetween('fecha_primera_comunion', [$monthStart, $monthEnd])->count();
 
     $recentMonthlyEntries = collect()
         ->merge(
-            Bautismo::query()
+            \App\Models\Bautismo::query()
                 ->whereBetween('fecha_bautismo', [$monthStart, $monthEnd])
                 ->latest('fecha_bautismo')
                 ->take(6)
@@ -94,7 +178,7 @@
                 ])
         )
         ->merge(
-            Matrimonio::query()
+            \App\Models\Matrimonio::query()
                 ->whereBetween('fecha_matrimonio', [$monthStart, $monthEnd])
                 ->latest('fecha_matrimonio')
                 ->take(6)
@@ -106,7 +190,7 @@
                 ])
         )
         ->merge(
-            Confirmacion::query()
+            \App\Models\Confirmacion::query()
                 ->whereBetween('fecha_confirmacion', [$monthStart, $monthEnd])
                 ->latest('fecha_confirmacion')
                 ->take(6)
@@ -118,7 +202,7 @@
                 ])
         )
         ->merge(
-            PrimeraComunion::query()
+            \App\Models\PrimeraComunion::query()
                 ->whereBetween('fecha_primera_comunion', [$monthStart, $monthEnd])
                 ->latest('fecha_primera_comunion')
                 ->take(6)
@@ -130,7 +214,7 @@
                 ])
         )
         ->merge(
-            InscripcionCurso::query()
+            \App\Models\InscripcionCurso::query()
                 ->whereBetween('created_at', [$monthStart, $monthEnd])
                 ->latest('created_at')
                 ->take(6)
@@ -142,7 +226,7 @@
                 ])
         )
         ->merge(
-            Instructor::query()
+            \App\Models\Instructor::query()
                 ->whereBetween('created_at', [$monthStart, $monthEnd])
                 ->latest('created_at')
                 ->take(6)
@@ -157,7 +241,7 @@
         ->take(6)
         ->values();
 
-    $recentFeligreses = Feligres::with('persona')->latest()->take(6)->get();
+    $recentFeligreses = \App\Models\Feligres::with('persona')->latest()->take(6)->get();
 @endphp
 
 {{-- ENCABEZADO --}}
@@ -414,5 +498,7 @@
 
     </div>
 </div>
+
+@endif
 
 @endsection

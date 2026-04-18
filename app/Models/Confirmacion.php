@@ -46,36 +46,36 @@ class Confirmacion extends BaseModel
 
     public function encargado()
     {
-        return $this->belongsTo(Encargado::class, 'encargado_id');
+        return $this->belongsTo(Encargado::class, 'encargado_id')->withTrashed();
     }
 
     public function feligres()
     {
-        return $this->belongsTo(Feligres::class, 'feligres_id');
+        return $this->belongsTo(Feligres::class, 'feligres_id')->withTrashed();
     }
 
     public function padre()
     {
-        return $this->belongsTo(Feligres::class, 'padre_id');
+        return $this->belongsTo(Feligres::class, 'padre_id')->withTrashed();
     }
 
     public function madre()
     {
-        return $this->belongsTo(Feligres::class, 'madre_id');
+        return $this->belongsTo(Feligres::class, 'madre_id')->withTrashed();
     }
 
     public function padrino()
     {
-        return $this->belongsTo(Feligres::class, 'padrino_id');
+        return $this->belongsTo(Feligres::class, 'padrino_id')->withTrashed();
     }
 
     public function madrina()
     {
-        return $this->belongsTo(Feligres::class, 'madrina_id');
+        return $this->belongsTo(Feligres::class, 'madrina_id')->withTrashed();
     }
 
     public function ministro()
     {
-        return $this->belongsTo(Feligres::class, 'ministro_id');
+        return $this->belongsTo(Feligres::class, 'ministro_id')->withTrashed();
     }
 }

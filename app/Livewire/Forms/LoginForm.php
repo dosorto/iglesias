@@ -34,6 +34,8 @@ class LoginForm extends Form
     {
         $this->ensureIsNotRateLimited();
 
+        session()->forget('tenant_login_subdomain_url');
+
         // 1. Try central DB first (root / superadmin users)
         if (Auth::attempt($this->only(['email', 'password']), $this->remember)) {
             $this->hideTemporaryPasswordAfterInstructorLogin();
@@ -76,7 +78,7 @@ class LoginForm extends Form
             }
         }
 
-        // If credentials match multiple tenants (e.g. root@tenant.local), avoid logging into a random DB.
+        // If credentials match multiple tenants, avoid logging into a random DB.
         if (count($tenantMatches) > 1) {
             $sessionTenantId = session('tenant.id_iglesia');
 
@@ -91,7 +93,7 @@ class LoginForm extends Form
                 RateLimiter::hit($this->throttleKey());
 
                 throw ValidationException::withMessages([
-                    'form.email' => 'Estas credenciales existen en varios tenants. Usa una contraseña distinta para este tenant o restablécela desde su propia base.',
+                    'form.email' => 'Estas credenciales existen en varias iglesias. Selecciona primero la iglesia y vuelve a iniciar sesión, o usa credenciales únicas por tenant.',
                 ]);
             }
         }
@@ -100,6 +102,10 @@ class LoginForm extends Form
             $matchedIglesia = $tenantMatches[0]['iglesia'];
             $matchedConfig = $tenantMatches[0]['tenantConfig'];
             $tenantConnection = config('tenancy.tenant_connection', 'tenant');
+            $subdomain = $this->ensureIglesiaSubdomain($matchedIglesia);
+
+            // Login tenant directo: no habilitar regreso a panel global.
+            session()->forget('tenant_can_return_global');
 
             config([
                 "database.connections.{$tenantConnection}" => $matchedConfig,
@@ -111,12 +117,13 @@ class LoginForm extends Form
             session()->put('tenant', [
                 'id_iglesia' => $matchedIglesia->id,
                 'connection' => $tenantConnection,
-                'host'       => $matchedIglesia->db_host,
-                'port'       => $matchedIglesia->db_port,
-                'database'   => $matchedIglesia->db_database,
-                'username'   => $matchedIglesia->db_username,
-                'password'   => $matchedIglesia->db_password,
+                'subdomain' => $subdomain,
             ]);
+
+            $tenantSubdomainUrl = $this->buildTenantSubdomainUrl($subdomain);
+            if ($tenantSubdomainUrl) {
+                session()->put('tenant_login_subdomain_url', $tenantSubdomainUrl);
+            }
 
             if (Auth::attempt($this->only(['email', 'password']), $this->remember)) {
                 $this->hideTemporaryPasswordAfterInstructorLogin();
@@ -180,5 +187,49 @@ class LoginForm extends Form
         if ($isInstructor) {
             $user->update(['password_visible' => null]);
         }
+    }
+
+    private function ensureIglesiaSubdomain(Iglesias $iglesia): string
+    {
+        $current = strtolower(trim((string) ($iglesia->subdomain ?? '')));
+
+        if ($current !== '') {
+            return $current;
+        }
+
+        $base = Str::slug(Str::ascii((string) $iglesia->nombre), '-');
+        if ($base === '') {
+            $base = 'iglesia';
+        }
+
+        $candidate = $base;
+        $counter = 1;
+
+        while (
+            Iglesias::query()
+                ->where('subdomain', $candidate)
+                ->where('id', '!=', $iglesia->id)
+                ->exists()
+        ) {
+            $counter++;
+            $candidate = $base . '-' . $counter;
+        }
+
+        $iglesia->update(['subdomain' => $candidate]);
+
+        return $candidate;
+    }
+
+    private function buildTenantSubdomainUrl(string $subdomain): ?string
+    {
+        $baseDomain = trim((string) config('tenancy.base_domain', ''));
+
+        if ($baseDomain === '') {
+            return null;
+        }
+
+        $scheme = request()->getScheme() ?: 'http';
+
+        return $scheme . '://' . $subdomain . '.' . $baseDomain;
     }
 }

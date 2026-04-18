@@ -25,10 +25,27 @@ class TenantIglesia extends Model
         'path_logo',
         'path_logo_derecha',
         'path_certificado_bautismo',
+        'path_certificado_confirmacion',
+        'path_certificado_primera_comunion',
+        'path_certificado_matrimonio',
+        'path_certificado_curso',
         'orientacion_certificado',
+        'orientacion_certificado_bautismo',
+        'orientacion_certificado_confirmacion',
+        'orientacion_certificado_primera_comunion',
+        'orientacion_certificado_matrimonio',
+        'orientacion_certificado_curso',
     ];
 
-    protected $appends = ['logo_url', 'logo_derecha_url', 'certificado_bautismo_url'];
+    protected $appends = [
+        'logo_url',
+        'logo_derecha_url',
+        'certificado_bautismo_url',
+        'certificado_confirmacion_url',
+        'certificado_primera_comunion_url',
+        'certificado_matrimonio_url',
+        'certificado_curso_url',
+    ];
 
     protected function logoUrl(): Attribute
     {
@@ -44,6 +61,42 @@ class TenantIglesia extends Model
         return Attribute::make(
             get: fn () => $this->path_certificado_bautismo
                 ? asset('storage/' . ltrim($this->path_certificado_bautismo, '/'))
+                : null,
+        );
+    }
+
+    protected function certificadoConfirmacionUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->path_certificado_confirmacion
+                ? asset('storage/' . ltrim($this->path_certificado_confirmacion, '/'))
+                : null,
+        );
+    }
+
+    protected function certificadoPrimeraComunionUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->path_certificado_primera_comunion
+                ? asset('storage/' . ltrim($this->path_certificado_primera_comunion, '/'))
+                : null,
+        );
+    }
+
+    protected function certificadoMatrimonioUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->path_certificado_matrimonio
+                ? asset('storage/' . ltrim($this->path_certificado_matrimonio, '/'))
+                : null,
+        );
+    }
+
+    protected function certificadoCursoUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->path_certificado_curso
+                ? asset('storage/' . ltrim($this->path_certificado_curso, '/'))
                 : null,
         );
     }

@@ -4,6 +4,8 @@ namespace App\Livewire\Roles;
 
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 use Spatie\Permission\Models\Role;
 
 class RolesIndex extends Component
@@ -68,7 +70,14 @@ class RolesIndex extends Component
 
     public function confirmDelete($roleId)
     {
-        $this->roleToDelete = Role::findOrFail($roleId);
+        $role = Role::findOrFail($roleId);
+
+        if (in_array($role->name, ['root', 'admin'], true) && ! $this->currentUserIsRoot()) {
+            session()->flash('error', 'Solo un usuario root puede eliminar roles reservados.');
+            return;
+        }
+
+        $this->roleToDelete = $role;
         $this->showDeleteModal = true;
     }
 
@@ -102,5 +111,13 @@ class RolesIndex extends Component
         return view('livewire.roles.roles-index', [
             'roles' => $roles,
         ]);
+    }
+
+    private function currentUserIsRoot(): bool
+    {
+        $authUser = Auth::user();
+        $currentUser = $authUser ? User::with('roles')->find($authUser->id) : null;
+
+        return (bool) ($currentUser?->roles?->contains('name', 'root'));
     }
 }

@@ -5,6 +5,9 @@ namespace App\Livewire\InscripcionCurso;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\InscripcionCurso;
+use App\Models\Instructor;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class InscripcionCursoIndex extends Component
 {
@@ -15,6 +18,8 @@ class InscripcionCursoIndex extends Component
 
     public bool $showDeleteModal = false;
     public ?int $inscripcionIdBeingDeleted = null;
+    public bool $isInstructorView = false;
+    public ?int $currentInstructorId = null;
 
     // 🔹 NUEVO: para filtrar desde Instructor Show
     public ?int $feligresId = null;
@@ -33,8 +38,16 @@ class InscripcionCursoIndex extends Component
     public function delete()
     {
         if ($this->inscripcionIdBeingDeleted) {
+            $inscripcion = InscripcionCurso::with('curso')->findOrFail($this->inscripcionIdBeingDeleted);
 
-            InscripcionCurso::findOrFail($this->inscripcionIdBeingDeleted)->delete();
+            if (! $this->canManageInscripcion($inscripcion)) {
+                $this->showDeleteModal = false;
+                $this->inscripcionIdBeingDeleted = null;
+                session()->flash('error', 'No tienes permiso para eliminar esta inscripción.');
+                return;
+            }
+
+            $inscripcion->delete();
 
             session()->flash('success', 'Inscripción eliminada correctamente');
         }
@@ -45,10 +58,22 @@ class InscripcionCursoIndex extends Component
 
     public function render()
     {
+        $this->resolveInstructorContext();
+
         $query = InscripcionCurso::with([
             'curso.instructor.feligres.persona',
             'feligres.persona'
         ]);
+
+        if ($this->isInstructorView) {
+            if ($this->currentInstructorId) {
+                $query->whereHas('curso', function ($q) {
+                    $q->where('instructor_id', $this->currentInstructorId);
+                });
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+        }
 
         if ($this->feligresId) {
             $query->where('feligres_id', $this->feligresId);
@@ -80,7 +105,14 @@ class InscripcionCursoIndex extends Component
 
     public function toggleAprobado(int $id): void
     {
-        $inscripcion = \App\Models\InscripcionCurso::findOrFail($id);
+        $this->resolveInstructorContext();
+
+        $inscripcion = \App\Models\InscripcionCurso::with('curso')->findOrFail($id);
+
+        if (! $this->canManageInscripcion($inscripcion)) {
+            session()->flash('error', 'No tienes permiso para actualizar esta inscripción.');
+            return;
+        }
 
         if ($inscripcion->aprobado) {
             $inscripcion->update([
@@ -99,11 +131,24 @@ class InscripcionCursoIndex extends Component
 
     public function aprobarTodos(): void
     {
-        \App\Models\InscripcionCurso::query()
-            ->where('aprobado', 0)
-            ->update([
-                'aprobado' => 1,
-            ]);
+        $this->resolveInstructorContext();
+
+        $query = \App\Models\InscripcionCurso::query()->where('aprobado', 0);
+
+        if ($this->isInstructorView) {
+            if (! $this->currentInstructorId) {
+                session()->flash('error', 'No se pudo identificar tu perfil de instructor.');
+                return;
+            }
+
+            $query->whereHas('curso', function ($q) {
+                $q->where('instructor_id', $this->currentInstructorId);
+            });
+        }
+
+        $query->update([
+            'aprobado' => 1,
+        ]);
 
         session()->flash('success', 'Se aprobaron todas las inscripciones pendientes.');
     }
@@ -111,5 +156,36 @@ class InscripcionCursoIndex extends Component
     public function mount($feligresId = null)
     {
         $this->feligresId = $feligresId;
+        $this->resolveInstructorContext();
+    }
+
+    private function resolveInstructorContext(): void
+    {
+        $authUser = Auth::user();
+        $currentUser = $authUser ? User::with('roles')->find($authUser->id) : null;
+
+        $this->isInstructorView = (bool) ($currentUser?->roles?->contains('name', 'instructor'));
+
+        if (! $this->isInstructorView) {
+            $this->currentInstructorId = null;
+            return;
+        }
+
+        $this->currentInstructorId = $authUser
+            ? Instructor::resolveIdFromAuthEmail($authUser->email)
+            : null;
+    }
+
+    private function canManageInscripcion(InscripcionCurso $inscripcion): bool
+    {
+        if (! $this->isInstructorView) {
+            return true;
+        }
+
+        if (! $this->currentInstructorId) {
+            return false;
+        }
+
+        return (int) ($inscripcion->curso?->instructor_id ?? 0) === (int) $this->currentInstructorId;
     }
 }

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -69,6 +70,7 @@ new #[Layout('layouts.guest')] class extends Component
             'parroco_nombre' => $validated['name'],
             'telefono'       => $this->telefono_iglesia ?: null,
             'email'          => $this->email_iglesia    ?: null,
+            'subdomain'      => $this->resolveUniqueSubdomain($this->nombre),
             'estado'         => 'Activa',
             'id_religion'    => $this->id_religion      ?: null,
             'path_logo'      => $logoPath,
@@ -145,11 +147,6 @@ new #[Layout('layouts.guest')] class extends Component
             'id_iglesia'        => $iglesia->id,
             'id_iglesia_tenant' => $iglesiaTenantId,
             'connection'        => $tenantConnection,
-            'host'              => $tenant['host'],
-            'port'              => $tenant['port'],
-            'database'          => $tenant['database'],
-            'username'          => $tenant['username'],
-            'password'          => $tenant['password'],
         ]);
 
         event(new Registered($user));
@@ -177,6 +174,25 @@ new #[Layout('layouts.guest')] class extends Component
             'path_logo.image'      => 'El logo debe ser una imagen.',
             'path_logo.max'        => 'El logo no debe superar los 2MB.',
         ]);
+    }
+
+    private function resolveUniqueSubdomain(string $churchName): string
+    {
+        $base = Str::slug(Str::ascii($churchName), '-');
+
+        if ($base === '') {
+            $base = 'iglesia';
+        }
+
+        $candidate = $base;
+        $counter = 1;
+
+        while (Iglesias::query()->where('subdomain', $candidate)->exists()) {
+            $counter++;
+            $candidate = $base . '-' . $counter;
+        }
+
+        return $candidate;
     }
 }; ?>
 

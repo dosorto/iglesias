@@ -36,12 +36,12 @@ class InscripcionCurso extends BaseModel
 
     public function curso(): BelongsTo
     {
-        return $this->belongsTo(Curso::class, 'curso_id');
+        return $this->belongsTo(Curso::class, 'curso_id')->withTrashed();
     }
 
     public function feligres(): BelongsTo
     {
-        return $this->belongsTo(Feligres::class, 'feligres_id');
+        return $this->belongsTo(Feligres::class, 'feligres_id')->withTrashed();
     }
 
     /*
@@ -60,16 +60,16 @@ class InscripcionCurso extends BaseModel
 
     public function createdBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by')->withTrashed();
     }
 
     public function updatedBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'updated_by');
+        return $this->belongsTo(User::class, 'updated_by')->withTrashed();
     }
 
     public function deletedBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'deleted_by');
+        return $this->belongsTo(User::class, 'deleted_by')->withTrashed();
     }
 }

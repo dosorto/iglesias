@@ -188,6 +188,16 @@
                                             </a>
                                         @endcan
 
+                                        @can('iglesias.view')
+                                            <a href="{{ route('iglesias.gestionar', $iglesia) }}"
+                                               class="p-1 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded transition-colors"
+                                               title="Gestionar esta iglesia">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                                </svg>
+                                            </a>
+                                        @endcan
+
                                         @can('iglesias.edit')
                                             <a href="{{ route('iglesias.edit', $iglesia) }}"
                                                class="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"

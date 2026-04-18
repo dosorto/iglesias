@@ -134,33 +134,11 @@ class CursoShow extends Component
     {
         $authUser = Auth::user();
 
-        if (! $authUser || ! $authUser->email) {
+        if (! $authUser) {
             return null;
         }
 
-        $email = strtolower(trim($authUser->email));
-
-        $instructorByEmail = Instructor::whereHas('feligres.persona', function ($q) use ($email) {
-            $q->whereRaw('LOWER(email) = ?', [$email]);
-        })->first();
-
-        if ($instructorByEmail) {
-            return $instructorByEmail->id;
-        }
-
-        if (preg_match('/^instructor\.([0-9]+)(?:\+[0-9]+)?@tenant\.local$/', $email, $matches)) {
-            $dni = $matches[1] ?? null;
-
-            if ($dni) {
-                $instructorByDni = Instructor::whereHas('feligres.persona', function ($q) use ($dni) {
-                    $q->where('dni', $dni);
-                })->first();
-
-                return $instructorByDni?->id;
-            }
-        }
-
-        return null;
+        return Instructor::resolveIdFromAuthEmail($authUser->email);
     }
 
     private function ensureCanEditInscripciones(): void

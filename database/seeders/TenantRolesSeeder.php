@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -28,6 +29,7 @@ class TenantRolesSeeder extends Seeder
 
             ['name' => 'audit.view',    'display_name' => 'Ver Logs del Sistema'],
             ['name' => 'audit.export',  'display_name' => 'Exportar Logs del Sistema'],
+            ['name' => 'audit.restore', 'display_name' => 'Restaurar desde Logs del Sistema'],
 
             ['name' => 'personas.view',   'display_name' => 'Ver Personas'],
             ['name' => 'personas.create', 'display_name' => 'Crear Personas'],
@@ -154,14 +156,38 @@ class TenantRolesSeeder extends Seeder
 
         $idIglesiaRoot = $adminUser?->id_iglesia;
 
-        $rootUser = User::withTrashed()->firstOrCreate(
-            ['email' => 'root@tenant.local'],
-            [
-                'name' => 'Root Tenant',
-                'password' => Hash::make('password'),
-                'id_iglesia' => $idIglesiaRoot,
-            ]
-        );
+        $tenantConnection = config('database.default');
+        $tenantDatabase = (string) config("database.connections.{$tenantConnection}.database", 'tenant');
+        $tenantSlug = (string) Str::of($tenantDatabase)
+            ->lower()
+            ->replaceMatches('/[^a-z0-9]+/', '-')
+            ->trim('-');
+
+        if ($tenantSlug === '') {
+            $tenantSlug = 'tenant';
+        }
+
+        $tenantRootEmail = "root+{$tenantSlug}@tenant.local";
+
+        // Compatibilidad: si existe el root heredado, migrarlo al correo unico del tenant.
+        $legacyRootUser = User::withTrashed()->where('email', 'root@tenant.local')->first();
+        $rootUser = User::withTrashed()->where('email', $tenantRootEmail)->first();
+
+        if (! $rootUser && $legacyRootUser) {
+            $legacyRootUser->update(['email' => $tenantRootEmail]);
+            $rootUser = $legacyRootUser;
+        }
+
+        if (! $rootUser) {
+            $rootUser = User::withTrashed()->firstOrCreate(
+                ['email' => $tenantRootEmail],
+                [
+                    'name' => 'Root Tenant',
+                    'password' => Hash::make('password'),
+                    'id_iglesia' => $idIglesiaRoot,
+                ]
+            );
+        }
 
         if ($rootUser->trashed()) {
             $rootUser->restore();
