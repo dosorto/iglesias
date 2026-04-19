@@ -44,9 +44,18 @@ new class extends Component
         $currentEmail = Str::lower(trim((string) $user->email));
 
         if ($normalizedEmail !== $currentEmail) {
+            $encargadoActual = Encargado::query()
+                ->whereHas('feligres.persona', function ($query) use ($currentEmail) {
+                    $query->whereRaw('LOWER(email) = ?', [$currentEmail]);
+                })
+                ->first();
+
             $emailUsadoPorOtroEncargado = Encargado::query()
                 ->whereHas('feligres.persona', function ($query) use ($normalizedEmail) {
                     $query->whereRaw('LOWER(email) = ?', [$normalizedEmail]);
+                })
+                ->when($encargadoActual, function ($query) use ($encargadoActual) {
+                    $query->where('encargado.id', '!=', $encargadoActual->id);
                 })
                 ->exists();
 
