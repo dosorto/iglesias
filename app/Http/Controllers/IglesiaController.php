@@ -11,6 +11,7 @@ use App\Models\Religion;
 use App\Services\Tenancy\TenantProvisioner;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 
 class IglesiaController extends Controller
 {
@@ -138,9 +139,9 @@ class IglesiaController extends Controller
                 ->with('error', 'La iglesia seleccionada no tiene una base tenant configurada.');
         }
 
-        $tenantDashboardUrl = $this->buildTenantDashboardUrl($iglesia);
+        $tenantEnterUrl = $this->buildTenantUrl($iglesia, '/tenant/enter');
 
-        if ($tenantDashboardUrl === null) {
+        if ($tenantEnterUrl === null) {
             return redirect()->route('iglesias.index')
                 ->with('error', 'La iglesia seleccionada no tiene un subdominio válido configurado.');
         }
@@ -150,11 +151,21 @@ class IglesiaController extends Controller
             'connection' => config('tenancy.tenant_connection', 'tenant'),
             'subdomain' => $iglesia->subdomain,
         ]);
+
+        $managerEmail = (string) (Auth::user()?->email ?? '');
+        if ($managerEmail !== '') {
+            session()->put('tenant_auto_login', [
+                'tenant_id' => $iglesia->id,
+                'email' => strtolower($managerEmail),
+                'initiated_at' => now()->timestamp,
+            ]);
+        }
+
         session()->put('tenant_can_return_global', true);
 
         session()->flash('success', "Ahora estás gestionando: {$iglesia->nombre}.");
 
-        return redirect()->to($tenantDashboardUrl);
+        return redirect()->to($tenantEnterUrl);
     }
 
     public function salirGestion(): RedirectResponse
@@ -180,7 +191,7 @@ class IglesiaController extends Controller
             ->with('success', 'Regresaste al panel global de iglesias.');
     }
 
-    private function buildTenantDashboardUrl(Iglesias $iglesia): ?string
+    private function buildTenantUrl(Iglesias $iglesia, string $path = '/dashboard'): ?string
     {
         $subdomain = strtolower(trim((string) $iglesia->subdomain));
 
@@ -191,7 +202,7 @@ class IglesiaController extends Controller
         $scheme = request()->getScheme() ?: 'https';
 
         if (str_contains($subdomain, '.')) {
-            return $scheme . '://' . $subdomain . '/dashboard';
+            return $scheme . '://' . $subdomain . $path;
         }
 
         $baseDomain = trim((string) config('tenancy.base_domain', ''));
@@ -200,7 +211,7 @@ class IglesiaController extends Controller
             return null;
         }
 
-        return $scheme . '://' . $subdomain . '.' . $baseDomain . '/dashboard';
+        return $scheme . '://' . $subdomain . '.' . $baseDomain . $path;
     }
 
 }

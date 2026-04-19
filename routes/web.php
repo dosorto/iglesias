@@ -33,6 +33,46 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/tenant/enter', function () {
+    $tenantId = (int) session('tenant.id_iglesia');
+    $autoLogin = session('tenant_auto_login');
+
+    if (! $tenantId || ! is_array($autoLogin)) {
+        return redirect()->route('login');
+    }
+
+    $autoTenantId = (int) ($autoLogin['tenant_id'] ?? 0);
+    $autoEmail = strtolower(trim((string) ($autoLogin['email'] ?? '')));
+
+    if ($autoTenantId !== $tenantId || $autoEmail === '') {
+        session()->forget('tenant_auto_login');
+        return redirect()->route('login');
+    }
+
+    // Expira en 2 minutos para evitar reutilización accidental.
+    $initiatedAt = (int) ($autoLogin['initiated_at'] ?? 0);
+    if ($initiatedAt <= 0 || (now()->timestamp - $initiatedAt) > 120) {
+        session()->forget('tenant_auto_login');
+        return redirect()->route('login');
+    }
+
+    $tenantUser = \App\Models\User::query()
+        ->whereRaw('LOWER(email) = ?', [$autoEmail])
+        ->whereNull('deleted_at')
+        ->first();
+
+    session()->forget('tenant_auto_login');
+
+    if (! $tenantUser) {
+        return redirect()->route('login')
+            ->withErrors(['form.email' => 'No existe un usuario tenant con ese correo en la iglesia seleccionada.']);
+    }
+
+    \Illuminate\Support\Facades\Auth::login($tenantUser);
+
+    return redirect()->route('dashboard');
+})->name('tenant.enter');
+
 Route::middleware(['auth', 'encargado.pending'])->group(function () {
     Route::get('dashboard', function () {
         $user = \Illuminate\Support\Facades\Auth::user();
