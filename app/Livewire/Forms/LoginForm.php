@@ -38,8 +38,12 @@ class LoginForm extends Form
 
         session()->forget('tenant_login_subdomain_url');
 
-        // 1. Try central DB first (root / superadmin users)
-        if (Auth::attempt($this->only(['email', 'password']), $this->remember)) {
+        $baseDomain = strtolower(trim((string) config('tenancy.base_domain', '')));
+        $host = strtolower((string) request()->getHost());
+        $isCentralHost = $baseDomain === '' || $host === $baseDomain || $host === 'www.' . $baseDomain;
+
+        // 1. Try central DB first only when user logs in from the central domain.
+        if ($isCentralHost && Auth::attempt($this->only(['email', 'password']), $this->remember)) {
             $this->hideTemporaryPasswordAfterInstructorLogin();
             RateLimiter::clear($this->throttleKey());
             return;

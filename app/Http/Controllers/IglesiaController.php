@@ -138,14 +138,23 @@ class IglesiaController extends Controller
                 ->with('error', 'La iglesia seleccionada no tiene una base tenant configurada.');
         }
 
+        $tenantDashboardUrl = $this->buildTenantDashboardUrl($iglesia);
+
+        if ($tenantDashboardUrl === null) {
+            return redirect()->route('iglesias.index')
+                ->with('error', 'La iglesia seleccionada no tiene un subdominio válido configurado.');
+        }
+
         session()->put('tenant', [
             'id_iglesia' => $iglesia->id,
             'connection' => config('tenancy.tenant_connection', 'tenant'),
+            'subdomain' => $iglesia->subdomain,
         ]);
         session()->put('tenant_can_return_global', true);
 
-        return redirect()->route('dashboard')
-            ->with('success', "Ahora estás gestionando: {$iglesia->nombre}.");
+        session()->flash('success', "Ahora estás gestionando: {$iglesia->nombre}.");
+
+        return redirect()->to($tenantDashboardUrl);
     }
 
     public function salirGestion(): RedirectResponse
@@ -158,8 +167,40 @@ class IglesiaController extends Controller
         session()->forget('tenant');
         session()->forget('tenant_can_return_global');
 
+        $baseDomain = trim((string) config('tenancy.base_domain', ''));
+
+        if ($baseDomain !== '') {
+            $scheme = request()->getScheme() ?: 'https';
+
+            return redirect()->to($scheme . '://' . $baseDomain . '/dashboard')
+                ->with('success', 'Regresaste al panel global de iglesias.');
+        }
+
         return redirect()->route('dashboard')
             ->with('success', 'Regresaste al panel global de iglesias.');
+    }
+
+    private function buildTenantDashboardUrl(Iglesias $iglesia): ?string
+    {
+        $subdomain = strtolower(trim((string) $iglesia->subdomain));
+
+        if ($subdomain === '') {
+            return null;
+        }
+
+        $scheme = request()->getScheme() ?: 'https';
+
+        if (str_contains($subdomain, '.')) {
+            return $scheme . '://' . $subdomain . '/dashboard';
+        }
+
+        $baseDomain = trim((string) config('tenancy.base_domain', ''));
+
+        if ($baseDomain === '') {
+            return null;
+        }
+
+        return $scheme . '://' . $subdomain . '.' . $baseDomain . '/dashboard';
     }
 
 }
