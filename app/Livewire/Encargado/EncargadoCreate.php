@@ -8,6 +8,7 @@ use Livewire\WithFileUploads;
 use App\Models\Persona;
 use App\Models\Encargado;
 use App\Models\Feligres;
+use App\Models\User;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 
@@ -161,6 +162,11 @@ class EncargadoCreate extends Component
             return;
         }
 
+        if ($this->correoExisteEnOtroUsuario($this->p_email)) {
+            $this->addError('p_email', 'Este correo ya existe en otra cuenta de usuario. Usa uno distinto para evitar problemas al iniciar sesión.');
+            return;
+        }
+
         $persona = Persona::create([
             'dni'              => $this->p_dni,
             'primer_nombre'    => $this->p_primer_nombre,
@@ -200,6 +206,11 @@ class EncargadoCreate extends Component
 
         if ($this->correoPerteneceAOtroEncargado($persona->email, $persona->id)) {
             $this->addError('persona_id', 'El correo de esta persona ya está asignado a otro encargado. Actualiza el correo antes de continuar.');
+            return;
+        }
+
+        if ($this->correoExisteEnOtroUsuario($persona->email)) {
+            $this->addError('persona_id', 'El correo de esta persona ya existe en otra cuenta de usuario. Actualiza el correo antes de continuar.');
             return;
         }
 
@@ -249,6 +260,19 @@ class EncargadoCreate extends Component
                     $query->where('personas.id', '!=', $exceptPersonaId);
                 }
             })
+            ->exists();
+    }
+
+    private function correoExisteEnOtroUsuario(?string $email): bool
+    {
+        $normalizedEmail = Str::lower(trim((string) $email));
+
+        if ($normalizedEmail === '') {
+            return false;
+        }
+
+        return User::withTrashed()
+            ->whereRaw('LOWER(email) = ?', [$normalizedEmail])
             ->exists();
     }
 

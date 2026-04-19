@@ -28,6 +28,7 @@ new class extends Component
     public function updateProfileInformation(): void
     {
         // Issue #8: Bloquear edición de perfil para rol instructor
+        /** @var User $user */
         $user = Auth::user();
 
         if ($user->roles->contains('name', 'instructor')) {
@@ -44,6 +45,11 @@ new class extends Component
         $currentEmail = Str::lower(trim((string) $user->email));
 
         if ($normalizedEmail !== $currentEmail) {
+            if ($this->correoExisteEnOtroUsuario($normalizedEmail, $user->id)) {
+                $this->addError('email', 'Este correo ya existe en otra cuenta de usuario. Usa uno distinto para evitar problemas al iniciar sesión.');
+                return;
+            }
+
             $encargadoActual = Encargado::query()
                 ->whereHas('feligres.persona', function ($query) use ($currentEmail) {
                     $query->whereRaw('LOWER(email) = ?', [$currentEmail]);
@@ -81,6 +87,7 @@ new class extends Component
      */
     public function sendVerification(): void
     {
+        /** @var User $user */
         $user = Auth::user();
 
         if ($user->hasVerifiedEmail()) {
@@ -92,6 +99,14 @@ new class extends Component
         $user->sendEmailVerificationNotification();
 
         Session::flash('status', 'verification-link-sent');
+    }
+
+    private function correoExisteEnOtroUsuario(string $normalizedEmail, int $ignoreUserId): bool
+    {
+        return User::withTrashed()
+            ->whereRaw('LOWER(email) = ?', [$normalizedEmail])
+            ->where('id', '!=', $ignoreUserId)
+            ->exists();
     }
 }; ?>
 

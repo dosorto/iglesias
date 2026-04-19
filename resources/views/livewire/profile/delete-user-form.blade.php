@@ -16,14 +16,6 @@ new class extends Component
         // Issue #3: Bloquear auto-eliminación de usuario autenticado
         session()->flash('error', 'No puedes eliminar tu propia cuenta desde aquí. Contacta al administrador.');
         return;
-
-        $this->validate([
-            'password' => ['required', 'string', 'current_password'],
-        ]);
-
-        tap(Auth::user(), $logout(...))->delete();
-
-        $this->redirect('/', navigate: true);
     }
 }; ?>
 

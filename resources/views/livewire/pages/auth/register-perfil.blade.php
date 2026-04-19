@@ -3,6 +3,7 @@
 use App\Models\Persona;
 use App\Models\Feligres;
 use App\Models\Encargado;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
@@ -102,6 +103,11 @@ new #[Layout('layouts.guest')] class extends Component
             function (string $attribute, mixed $value, \Closure $fail): void {
                 if ($this->correoPerteneceAOtroEncargado((string) $value)) {
                     $fail('Este correo ya está asignado a otro encargado. Usa uno distinto para evitar problemas al iniciar sesión.');
+                    return;
+                }
+
+                if ($this->correoExisteEnOtroUsuario((string) $value)) {
+                    $fail('Este correo ya existe en otra cuenta de usuario. Usa uno distinto para evitar problemas al iniciar sesión.');
                 }
             },
         ],
@@ -135,6 +141,19 @@ new #[Layout('layouts.guest')] class extends Component
             ->whereHas('feligres.persona', function ($query) use ($normalizedEmail) {
                 $query->whereRaw('LOWER(email) = ?', [$normalizedEmail]);
             })
+            ->exists();
+    }
+
+    private function correoExisteEnOtroUsuario(?string $email): bool
+    {
+        $normalizedEmail = Str::lower(trim((string) $email));
+
+        if ($normalizedEmail === '') {
+            return false;
+        }
+
+        return User::withTrashed()
+            ->whereRaw('LOWER(email) = ?', [$normalizedEmail])
             ->exists();
     }
 
