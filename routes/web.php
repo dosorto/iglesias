@@ -44,7 +44,7 @@ Route::get('/tenant/enter', function () {
     $autoTenantId = (int) ($autoLogin['tenant_id'] ?? 0);
     $autoEmail = strtolower(trim((string) ($autoLogin['email'] ?? '')));
 
-    if ($autoTenantId !== $tenantId || $autoEmail === '') {
+    if ($autoTenantId !== $tenantId) {
         session()->forget('tenant_auto_login');
         return redirect()->route('login');
     }
@@ -56,16 +56,35 @@ Route::get('/tenant/enter', function () {
         return redirect()->route('login');
     }
 
-    $tenantUser = \App\Models\User::query()
-        ->whereRaw('LOWER(email) = ?', [$autoEmail])
-        ->whereNull('deleted_at')
-        ->first();
+    $tenantUser = null;
+
+    if ($autoEmail !== '') {
+        $tenantUser = \App\Models\User::query()
+            ->whereRaw('LOWER(email) = ?', [$autoEmail])
+            ->whereNull('deleted_at')
+            ->first();
+    }
+
+    if (! $tenantUser) {
+        $tenantUser = \App\Models\User::query()
+            ->whereNull('deleted_at')
+            ->whereHas('roles', fn ($q) => $q->where('name', 'root'))
+            ->first()
+            ?: \App\Models\User::query()
+                ->whereNull('deleted_at')
+                ->whereHas('roles', fn ($q) => $q->where('name', 'admin'))
+                ->first()
+            ?: \App\Models\User::query()
+                ->whereNull('deleted_at')
+                ->orderBy('id')
+                ->first();
+    }
 
     session()->forget('tenant_auto_login');
 
     if (! $tenantUser) {
         return redirect()->route('login')
-            ->withErrors(['form.email' => 'No existe un usuario tenant con ese correo en la iglesia seleccionada.']);
+            ->withErrors(['form.email' => 'La iglesia seleccionada no tiene usuarios tenant disponibles para ingresar.']);
     }
 
     \Illuminate\Support\Facades\Auth::login($tenantUser);
