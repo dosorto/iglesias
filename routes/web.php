@@ -33,7 +33,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'encargado.pending'])->group(function () {
     Route::get('dashboard', function () {
         $user = \Illuminate\Support\Facades\Auth::user();
         $isInstructorOnly = $user
