@@ -5,7 +5,11 @@
     $testigo1  = $matrimonio->testigo1?->persona;
     $testigo2  = $matrimonio->testigo2?->persona;
     $encargado = $matrimonio->encargado?->feligres?->persona;
+    $encargadoModel = $matrimonio->encargado;
     $firmaEncargadoDisponible = filled($matrimonio->encargado?->path_firma_principal);
+    $configurarFirmaUrl = $encargadoModel
+        ? route('encargado.edit', $encargadoModel)
+        : route('encargado.create');
     $iglesiaNombre = $matrimonio->iglesia?->nombre ?? $iglesiaConfig?->nombre ?? '';
 
     $mesesEs = [
@@ -61,6 +65,15 @@
                     <div class="w-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-300 px-3 py-2 rounded-lg text-xs font-semibold">
                         Configure la firma del encargado para generar PDF.
                     </div>
+                    @can($encargadoModel ? 'encargado.edit' : 'encargado.create')
+                        <a href="{{ $configurarFirmaUrl }}"
+                           class="flex items-center w-full bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-colors">
+                            <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            Configurar firma
+                        </a>
+                    @endcan
                 @endif
 
                 @can('matrimonio.edit')
@@ -245,7 +258,13 @@
                     </iframe>
                 @else
                     <div class="p-6 text-sm text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20">
-                        No se puede mostrar la vista previa ni generar PDF hasta configurar la firma del encargado.
+                        <p>No se puede mostrar la vista previa ni generar PDF hasta configurar la firma del encargado.</p>
+                        @can($encargadoModel ? 'encargado.edit' : 'encargado.create')
+                            <a href="{{ $configurarFirmaUrl }}"
+                               class="mt-3 inline-flex items-center bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-lg text-xs font-semibold transition-colors">
+                                Configurar firma del encargado
+                            </a>
+                        @endcan
                     </div>
                 @endif
             </div>
