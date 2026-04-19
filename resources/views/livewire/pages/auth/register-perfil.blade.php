@@ -3,7 +3,7 @@
 use App\Models\Persona;
 use App\Models\Feligres;
 use App\Models\Encargado;
-use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
@@ -29,6 +29,11 @@ new #[Layout('layouts.guest')] class extends Component
 
     // --- Paso 2: Encargado / Firma ---
     public $path_firma_principal = null;
+
+    public function mount(): void
+    {
+        $this->email = (string) (Auth::user()?->email ?? '');
+    }
 
     public function nextStep(): void
     {
@@ -101,13 +106,16 @@ new #[Layout('layouts.guest')] class extends Component
             'email',
             'max:100',
             function (string $attribute, mixed $value, \Closure $fail): void {
-                if ($this->correoPerteneceAOtroEncargado((string) $value)) {
-                    $fail('Este correo ya está asignado a otro encargado. Usa uno distinto para evitar problemas al iniciar sesión.');
+                $authEmail = Str::lower(trim((string) (Auth::user()?->email ?? '')));
+                $inputEmail = Str::lower(trim((string) $value));
+
+                if ($authEmail === '') {
+                    $fail('No se encontró el correo del usuario autenticado. Inicia sesión nuevamente.');
                     return;
                 }
 
-                if ($this->correoExisteEnOtroUsuario((string) $value)) {
-                    $fail('Este correo ya existe en otra cuenta de usuario. Usa uno distinto para evitar problemas al iniciar sesión.');
+                if ($inputEmail !== $authEmail) {
+                    $fail('Debes usar el mismo correo del usuario administrador registrado en el paso anterior.');
                 }
             },
         ],
@@ -128,34 +136,6 @@ new #[Layout('layouts.guest')] class extends Component
         'email.email'               => 'El correo electrónico no es válido.',
     ]);
 }
-
-    private function correoPerteneceAOtroEncargado(?string $email): bool
-    {
-        $normalizedEmail = Str::lower(trim((string) $email));
-
-        if ($normalizedEmail === '') {
-            return false;
-        }
-
-        return Encargado::query()
-            ->whereHas('feligres.persona', function ($query) use ($normalizedEmail) {
-                $query->whereRaw('LOWER(email) = ?', [$normalizedEmail]);
-            })
-            ->exists();
-    }
-
-    private function correoExisteEnOtroUsuario(?string $email): bool
-    {
-        $normalizedEmail = Str::lower(trim((string) $email));
-
-        if ($normalizedEmail === '') {
-            return false;
-        }
-
-        return User::withTrashed()
-            ->whereRaw('LOWER(email) = ?', [$normalizedEmail])
-            ->exists();
-    }
 
     private function validateStepTwo(): void
     {
