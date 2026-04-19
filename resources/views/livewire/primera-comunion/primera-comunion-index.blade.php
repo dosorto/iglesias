@@ -116,7 +116,7 @@
                                 {{-- Catequista --}}
                                 <td class="px-6 py-4">
                                     <span class="text-sm text-gray-600 dark:text-gray-300">
-                                        {{ $pc->catequista?->feligres?->persona?->nombre_completo ?? '—' }}
+                                        {{ $pc->catequista?->persona?->nombre_completo ?? '—' }}
                                     </span>
                                 </td>
 

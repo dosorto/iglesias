@@ -1,11 +1,11 @@
 @php
     use Illuminate\Support\Facades\Storage;
-    $bautizado   = $bautismo->bautizado?->feligres;
-    $padre       = $bautismo->padre?->feligres;
-    $madre       = $bautismo->madre?->feligres;
-    $padrino     = $bautismo->padrino?->feligres;
-    $madrina     = $bautismo->madrina?->feligres;
-    $encargado   = $bautismo->encargado?->feligres;
+    $bautizado   = $bautismo->bautizado?->persona;
+    $padre       = $bautismo->padre?->persona;
+    $madre       = $bautismo->madre?->persona;
+    $padrino     = $bautismo->padrino?->persona;
+    $madrina     = $bautismo->madrina?->persona;
+    $encargado   = $bautismo->encargado?->feligres?->persona;
     $encargadoModel = $bautismo->encargado;
     $firmaEncargadoDisponible = filled($bautismo->encargado?->path_firma_principal);
     $configurarFirmaUrl = $encargadoModel

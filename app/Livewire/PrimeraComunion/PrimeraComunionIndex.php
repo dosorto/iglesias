@@ -47,7 +47,7 @@ class PrimeraComunionIndex extends Component
             'iglesia',
             'feligres' => fn($q) => $q->withTrashed(),
             'feligres.persona',
-            'catequista.feligres.persona',
+            'catequista.persona',
         ])
             ->when($this->search, function ($q) {
                 $q->whereHas('feligres.persona', fn ($p) =>
