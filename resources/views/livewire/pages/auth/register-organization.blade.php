@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -51,8 +52,12 @@ new #[Layout('layouts.guest')] class extends Component
         $this->validateStepOne();
         $validated = $this->validate([
             'name'     => ['required', 'string', 'min:3', 'max:255'],
-            'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class, 'email')],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'email.required' => 'El correo del usuario es obligatorio.',
+            'email.email'    => 'El correo del usuario no es válido.',
+            'email.unique'   => 'Este correo ya existe en otra cuenta de usuario. Usa uno distinto para evitar problemas al iniciar sesión.',
         ]);
 
         // Guardar logo si fue subido
