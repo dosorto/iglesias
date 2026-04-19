@@ -13,6 +13,7 @@ class CertificadoConfigIndex extends Component
     use WithFileUploads;
 
     private const FORMATOS = [
+        
         'bautismo' => [
             'titulo' => 'Bautismo',
             'descripcion' => 'Formato de certificado de bautismo.',
