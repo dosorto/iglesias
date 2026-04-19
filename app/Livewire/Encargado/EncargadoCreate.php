@@ -142,7 +142,7 @@ class EncargadoCreate extends Component
             'p_segundo_nombre'   => ['nullable', 'string', 'max:150'],
             'p_segundo_apellido' => ['nullable', 'string', 'max:100'],
             'p_telefono'         => ['required', 'string', 'max:20'],
-            'p_email'            => ['nullable', 'email', 'max:255'],
+            'p_email'            => ['nullable', 'email', 'max:255', Rule::unique('personas', 'email')->whereNull('deleted_at')],
             'p_fecha_nacimiento' => ['required', 'date'],
             'p_sexo'             => ['required', 'in:M,F'],
         ], [
@@ -152,6 +152,7 @@ class EncargadoCreate extends Component
             'p_primer_nombre.required'    => 'El primer nombre es obligatorio.',
             'p_primer_apellido.required'  => 'El primer apellido es obligatorio.',
             'p_telefono.required'         => 'El teléfono es obligatorio.',
+            'p_email.unique'              => 'Este correo ya está registrado en otra persona.',
             'p_fecha_nacimiento.required' => 'La fecha de nacimiento es obligatoria.',
             'p_sexo.required'             => 'El sexo es obligatorio.',
             'p_sexo.in'                   => 'Selecciona Masculino o Femenino.',
