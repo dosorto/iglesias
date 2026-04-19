@@ -52,7 +52,23 @@ new #[Layout('layouts.guest')] class extends Component
         $this->validateStepOne();
         $validated = $this->validate([
             'name'     => ['required', 'string', 'min:3', 'max:255'],
-            'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class, 'email')],
+            'email'    => [
+                'required',
+                'string',
+                'lowercase',
+                'email',
+                'max:255',
+                Rule::unique(User::class, 'email'),
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (! is_string($value)) {
+                        return;
+                    }
+
+                    if ($this->correoSimilarExisteEnUsuarios($value)) {
+                        $fail('Este correo ya existe (o es un alias equivalente) en otra cuenta de usuario. Usa uno distinto para evitar problemas al iniciar sesión.');
+                    }
+                },
+            ],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ], [
             'email.required' => 'El correo del usuario es obligatorio.',
@@ -134,7 +150,7 @@ new #[Layout('layouts.guest')] class extends Component
             $user = User::create([
                 'id_iglesia'        => $iglesiaTenantId,
                 'name'              => $validated['name'],
-                'email'             => strtolower($validated['email']),
+                'email'             => Str::lower(trim($validated['email'])),
                 'email_verified_at' => now(),
                 'password'          => Hash::make($validated['password']),
             ]);
@@ -199,6 +215,55 @@ new #[Layout('layouts.guest')] class extends Component
         }
 
         return $candidate;
+    }
+
+    private function correoSimilarExisteEnUsuarios(string $email): bool
+    {
+        $target = $this->normalizarEmailParaComparacion($email);
+
+        if (!str_contains($target, '@')) {
+            return false;
+        }
+
+        [$targetLocal, $targetDomain] = explode('@', $target, 2);
+
+        $query = User::withTrashed()->select('email');
+
+        if ($targetDomain === 'gmail.com') {
+            $query->where(function ($q) {
+                $q->whereRaw('LOWER(email) LIKE ?', ['%@gmail.com'])
+                    ->orWhereRaw('LOWER(email) LIKE ?', ['%@googlemail.com']);
+            });
+        } else {
+            $query->whereRaw('LOWER(email) = ?', [$targetLocal . '@' . $targetDomain]);
+        }
+
+        return $query->get()->contains(function (User $user) use ($target) {
+            if (!is_string($user->email) || $user->email === '') {
+                return false;
+            }
+
+            return $this->normalizarEmailParaComparacion($user->email) === $target;
+        });
+    }
+
+    private function normalizarEmailParaComparacion(string $email): string
+    {
+        $normalized = Str::lower(trim($email));
+
+        if (!str_contains($normalized, '@')) {
+            return $normalized;
+        }
+
+        [$localPart, $domain] = explode('@', $normalized, 2);
+
+        if (in_array($domain, ['gmail.com', 'googlemail.com'], true)) {
+            $domain = 'gmail.com';
+            $localPart = preg_replace('/\+.*/', '', $localPart) ?? $localPart;
+            $localPart = str_replace('.', '', $localPart);
+        }
+
+        return $localPart . '@' . $domain;
     }
 }; ?>
 
