@@ -463,9 +463,6 @@ Route::middleware(['auth'])->group(function () {
             ->get('/inscripcion-curso/{inscripcionCurso}/edit', [\App\Http\Controllers\InscripcionCursoController::class, 'edit'])
             ->name('inscripcion-curso.edit');
 
-    Route::get('/inscripcion-curso/{inscripcion}/edit', [\App\Http\Controllers\InscripcionCursoController::class, 'edit'])
-        ->name('inscripcion-curso.edit');
-
     Route::middleware('permission:inscripcion-curso.delete')
             ->delete('/inscripcion-curso/{inscripcionCurso}', [\App\Http\Controllers\InscripcionCursoController::class, 'destroy'])
             ->name('inscripcion-curso.destroy');
