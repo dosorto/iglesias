@@ -4,6 +4,7 @@ namespace App\Livewire\Encargado;
 
 use App\Models\Encargado;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -43,7 +44,7 @@ class EncargadoEdit extends Component
             'telefono' => ['required', 'string', 'regex:/^[0-9\+\-\s]+$/', 'min:8', 'max:20'],
             'email' => ['nullable', 'email', 'max:255'],
             'fecha_nacimiento' => ['nullable', 'date', 'before:today'],
-            'sexo' => ['nullable', 'in:M,F'],
+            'sexo' => ['nullable', Rule::in(['', 'M', 'F'])],
             'firma' => ['nullable', 'image', 'max:2048'],
         ], [
             'telefono.required' => 'El teléfono es obligatorio.',
@@ -52,6 +53,15 @@ class EncargadoEdit extends Component
             'sexo.in' => 'Selecciona Masculino o Femenino.',
             'fecha_nacimiento.before' => 'La fecha de nacimiento debe ser anterior a hoy.',
         ]);
+
+        $telefonoSoloDigitos = preg_replace('/\D+/', '', $this->telefono);
+        $cantidadDigitos = strlen($telefonoSoloDigitos);
+
+        if ($cantidadDigitos < 8 || $cantidadDigitos > 20) {
+            $this->addError('telefono', 'El teléfono debe contener entre 8 y 20 dígitos.');
+
+            return;
+        }
 
         $persona = $this->encargado->feligres?->persona;
 
