@@ -227,24 +227,73 @@ new #[Layout('layouts.guest')] class extends Component
 
         [$targetLocal, $targetDomain] = explode('@', $target, 2);
 
-        $query = User::withTrashed()->select('email');
+        $centralConnection = config('tenancy.central_connection', config('database.default'));
 
-        if ($targetDomain === 'gmail.com') {
-            $query->where(function ($q) {
-                $q->whereRaw('LOWER(email) LIKE ?', ['%@gmail.com'])
-                    ->orWhereRaw('LOWER(email) LIKE ?', ['%@googlemail.com']);
-            });
-        } else {
-            $query->whereRaw('LOWER(email) = ?', [$targetLocal . '@' . $targetDomain]);
+        $centralCandidates = User::on($centralConnection)
+            ->withTrashed()
+            ->select('email')
+            ->where(function ($query) use ($targetDomain, $targetLocal) {
+                if ($targetDomain === 'gmail.com') {
+                    $query->whereRaw('LOWER(email) LIKE ?', ['%@gmail.com'])
+                        ->orWhereRaw('LOWER(email) LIKE ?', ['%@googlemail.com']);
+                } else {
+                    $query->whereRaw('LOWER(email) = ?', [$targetLocal . '@' . $targetDomain]);
+                }
+            })
+            ->pluck('email')
+            ->filter(fn ($item) => is_string($item) && $item !== '');
+
+        if ($centralCandidates->contains(fn (string $existingEmail) => $this->normalizarEmailParaComparacion($existingEmail) === $target)) {
+            return true;
         }
 
-        return $query->get()->contains(function (User $user) use ($target) {
-            if (!is_string($user->email) || $user->email === '') {
-                return false;
+        $baseConfig = config("database.connections.{$centralConnection}");
+
+        if (!is_array($baseConfig) || empty($baseConfig)) {
+            return false;
+        }
+
+        $iglesias = Iglesias::query()
+            ->whereNotNull('db_database')
+            ->get(['id', 'db_host', 'db_port', 'db_database', 'db_username', 'db_password']);
+
+        foreach ($iglesias as $iglesia) {
+            $tempConn = 'tenant_email_check_' . $iglesia->id;
+
+            $tenantConfig = array_merge($baseConfig, [
+                'host' => $iglesia->db_host ?: ($baseConfig['host'] ?? null),
+                'port' => $iglesia->db_port ?: ($baseConfig['port'] ?? null),
+                'database' => $iglesia->db_database,
+                'username' => $iglesia->db_username ?: ($baseConfig['username'] ?? null),
+                'password' => $iglesia->db_password ?: ($baseConfig['password'] ?? null),
+            ]);
+
+            config(["database.connections.{$tempConn}" => $tenantConfig]);
+            DB::purge($tempConn);
+
+            $tenantQuery = DB::connection($tempConn)
+                ->table('users')
+                ->whereNull('deleted_at');
+
+            if ($targetDomain === 'gmail.com') {
+                $tenantQuery->where(function ($query) {
+                    $query->whereRaw('LOWER(email) LIKE ?', ['%@gmail.com'])
+                        ->orWhereRaw('LOWER(email) LIKE ?', ['%@googlemail.com']);
+                });
+            } else {
+                $tenantQuery->whereRaw('LOWER(email) = ?', [$targetLocal . '@' . $targetDomain]);
             }
 
-            return $this->normalizarEmailParaComparacion($user->email) === $target;
-        });
+            $tenantCandidates = $tenantQuery
+                ->pluck('email')
+                ->filter(fn ($item) => is_string($item) && $item !== '');
+
+            if ($tenantCandidates->contains(fn (string $existingEmail) => $this->normalizarEmailParaComparacion($existingEmail) === $target)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function normalizarEmailParaComparacion(string $email): string
