@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Certificación de Primera Comunión</title>
+    @php $isLandscape = (($iglesiaConfig?->orientacion_certificado_primera_comunion ?? $iglesiaConfig?->orientacion_certificado) === 'landscape'); @endphp
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #1a1a1a; background: #fff; }
@@ -63,6 +64,29 @@
             background: #fff;
         }
         .qr-code { margin-top: 3px; letter-spacing: 0.4px; }
+
+        body.is-landscape .page-wrapper { padding: 14px 22px 24px; }
+        body.is-landscape .header { margin-bottom: 6px; }
+        body.is-landscape .header-logo-cell,
+        body.is-landscape .header-right-cell { width: 72px; }
+        body.is-landscape .header-logo-cell img,
+        body.is-landscape .header-right-cell img { width: 58px; height: 58px; }
+        body.is-landscape .parish-name { font-size: 15pt; letter-spacing: 1px; }
+        body.is-landscape .diocese-name { font-size: 10pt; margin-top: 1px; }
+        body.is-landscape .header-address { font-size: 9pt; margin-top: 2px; }
+        body.is-landscape .header-divider { margin: 4px 0 6px; }
+        body.is-landscape .ornament { margin: 1px 0; }
+        body.is-landscape .cert-title-wrap { margin: 5px 0; }
+        body.is-landscape .cert-title { font-size: 11.5pt; padding: 3px 24px; letter-spacing: 3px; }
+        body.is-landscape .body-text { margin-top: 10px !important; font-size: 9.6pt; line-height: 1.45; }
+        body.is-landscape .body-text p { margin-bottom: 2px; }
+        body.is-landscape .name-line { margin: 4px 0 8px; min-height: 18px; font-size: 10.5pt; }
+        body.is-landscape .nota-marginal { margin-top: 8px; font-size: 9pt; line-height: 1.45; }
+        body.is-landscape .signature-block { margin-top: 20px; }
+        body.is-landscape .sig-img { max-height: 46px; }
+        body.is-landscape .sig-line { width: 220px; }
+        body.is-landscape .sig-name { font-size: 9.5pt; }
+        body.is-landscape .sig-title { font-size: 9pt; }
     </style>
 </head>
 @php
@@ -113,7 +137,7 @@
     $urlVerificacion = $urlVerificacion ?? '';
     $qrDataUri = $qrDataUri ?? null;
 @endphp
-<body @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
+<body class="{{ $isLandscape ? 'is-landscape' : '' }}" @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
 @if ($logoIglesiaPath)
     <div class="watermark-logo">
         <img src="{{ $logoIglesiaPath }}" alt="Marca de agua">

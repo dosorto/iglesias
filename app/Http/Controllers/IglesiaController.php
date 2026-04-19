@@ -11,19 +11,18 @@ use App\Models\Religion;
 use App\Services\Tenancy\TenantProvisioner;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Str;
 
 class IglesiaController extends Controller
 {
     public function index()
     {
-        return view('iglesias.index');
+        return view('Iglesias.index');
     }
 
     public function create()
     {
         $religiones = Religion::orderBy('religion')->get();
-        return view('iglesias.create', compact('religiones'));
+        return view('Iglesias.create', compact('religiones'));
     }
 
     public function store(StoreIglesiaRequest $request)
@@ -39,7 +38,7 @@ class IglesiaController extends Controller
         ]);
 
         $iglesia->update([
-            'subdomain' => $this->resolveUniqueSubdomain($iglesia->nombre, $iglesia->id),
+            'subdomain' => Iglesias::resolveUniqueSubdomainForName($iglesia->nombre, $iglesia->id),
         ]);
 
         try {
@@ -64,13 +63,13 @@ class IglesiaController extends Controller
     public function show(Iglesias $iglesia)
     {
         $iglesia->load('religion');
-        return view('iglesias.show', compact('iglesia'));
+        return view('Iglesias.show', compact('iglesia'));
     }
 
     public function edit(Iglesias $iglesia)
     {
         $religiones = Religion::orderBy('religion')->get();
-        return view('iglesias.edit', compact('iglesia', 'religiones'));
+        return view('Iglesias.edit', compact('iglesia', 'religiones'));
     }
 
     public function editConfiguracion()
@@ -163,27 +162,4 @@ class IglesiaController extends Controller
             ->with('success', 'Regresaste al panel global de iglesias.');
     }
 
-    private function resolveUniqueSubdomain(string $churchName, int $ignoreId = 0): string
-    {
-        $base = Str::slug(Str::ascii($churchName), '-');
-
-        if ($base === '') {
-            $base = 'iglesia';
-        }
-
-        $candidate = $base;
-        $counter = 1;
-
-        while (
-            Iglesias::query()
-                ->where('subdomain', $candidate)
-                ->where('id', '!=', $ignoreId)
-                ->exists()
-        ) {
-            $counter++;
-            $candidate = $base . '-' . $counter;
-        }
-
-        return $candidate;
-    }
 }

@@ -197,23 +197,7 @@ class LoginForm extends Form
             return $current;
         }
 
-        $base = Str::slug(Str::ascii((string) $iglesia->nombre), '-');
-        if ($base === '') {
-            $base = 'iglesia';
-        }
-
-        $candidate = $base;
-        $counter = 1;
-
-        while (
-            Iglesias::query()
-                ->where('subdomain', $candidate)
-                ->where('id', '!=', $iglesia->id)
-                ->exists()
-        ) {
-            $counter++;
-            $candidate = $base . '-' . $counter;
-        }
+        $candidate = Iglesias::resolveUniqueSubdomainForName((string) $iglesia->nombre, (int) $iglesia->id);
 
         $iglesia->update(['subdomain' => $candidate]);
 
@@ -222,6 +206,12 @@ class LoginForm extends Form
 
     private function buildTenantSubdomainUrl(string $subdomain): ?string
     {
+        if (str_contains($subdomain, '.')) {
+            $scheme = request()->getScheme() ?: 'http';
+
+            return $scheme . '://' . $subdomain;
+        }
+
         $baseDomain = trim((string) config('tenancy.base_domain', ''));
 
         if ($baseDomain === '') {

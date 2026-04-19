@@ -4,23 +4,34 @@ use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\PersonaController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 use Livewire\Volt\Volt;
 use App\Livewire\Curso\MatriculadoCursoShow;
 
+Route::middleware(['tenant.document'])->group(function () {
+    Route::get('/verificar-documento/{codigo}', [\App\Http\Controllers\DocumentoGeneradoController::class, 'verificar'])
+        ->name('documentos.verificar');
+
+    Route::get('/verificar-documento/{codigo}/pdf', [\App\Http\Controllers\DocumentoGeneradoController::class, 'pdfPorCodigo'])
+        ->name('documentos.verificar.pdf');
+});
+
 Route::get('/', function () {
-    if (auth()->check() && session('pending_encargado_registration')) {
+    if (session()->has('tenant.id_iglesia')) {
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+
+        return redirect()->route('login');
+    }
+
+    if (Auth::check() && session('pending_encargado_registration')) {
         return redirect()->route('register-perfil');
     }
 
     return view('welcome');
 });
-
-Route::get('/verificar-documento/{codigo}', [\App\Http\Controllers\DocumentoGeneradoController::class, 'verificar'])
-    ->name('documentos.verificar');
-
-Route::get('/verificar-documento/{codigo}/pdf', [\App\Http\Controllers\DocumentoGeneradoController::class, 'pdfPorCodigo'])
-    ->name('documentos.verificar.pdf');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {

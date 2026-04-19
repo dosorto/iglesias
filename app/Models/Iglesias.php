@@ -9,10 +9,13 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Iglesias extends Model
 {
     use HasFactory, SoftDeletes;
+
+    private const TENANT_DOMAIN_SUFFIX = '-holy-manager.com';
 
     protected $table = 'iglesias';
 
@@ -161,6 +164,36 @@ class Iglesias extends Model
     {
         return $this->hasMany(User::class, 'id_iglesia');
     }
+
+    public static function resolveUniqueSubdomainForName(string $churchName, int $ignoreId = 0): string
+    {
+        $base = Str::slug(Str::ascii($churchName), '-');
+
+        if ($base === '') {
+            $base = 'iglesia';
+        }
+
+        $candidateBase = $base;
+        $counter = 1;
+
+        while (
+            static::query()
+                ->where('subdomain', static::buildSubdomainFromBase($candidateBase))
+                ->when($ignoreId > 0, fn ($query) => $query->where('id', '!=', $ignoreId))
+                ->exists()
+        ) {
+            $counter++;
+            $candidateBase = $base . '-' . $counter;
+        }
+
+        return static::buildSubdomainFromBase($candidateBase);
+    }
+
+    private static function buildSubdomainFromBase(string $base): string
+    {
+        return strtolower($base . static::TENANT_DOMAIN_SUFFIX);
+    }
+
     public function religion()
 {
         return $this->belongsTo(Religion::class, 'id_religion')->withTrashed();

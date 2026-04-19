@@ -56,7 +56,7 @@ class PrimeraComunionController extends Controller
 
         $tipoDocumento = 'primera_comunion_certificado';
         $nombreArchivo = 'certificado-primera-comunion-' . $primeraComunion->id . '.pdf';
-        $layoutVersion = 'header-config-v3';
+        $layoutVersion = 'header-config-v4';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
         $iglesiaDocumentoId = (int) $primeraComunion->id_iglesia;
         $orientacionPrimeraComunion = (string) ($iglesiaConfig?->orientacion_certificado_primera_comunion

@@ -91,7 +91,7 @@ new #[Layout('layouts.guest')] class extends Component
             'parroco_nombre' => $validated['name'],
             'telefono'       => $this->telefono_iglesia ?: null,
             'email'          => $this->email_iglesia    ?: null,
-            'subdomain'      => $this->resolveUniqueSubdomain($this->nombre),
+            'subdomain'      => Iglesias::resolveUniqueSubdomainForName($this->nombre),
             'estado'         => 'Activa',
             'id_religion'    => $this->id_religion      ?: null,
             'path_logo'      => $logoPath,
@@ -196,25 +196,6 @@ new #[Layout('layouts.guest')] class extends Component
             'path_logo.image'      => 'El logo debe ser una imagen.',
             'path_logo.max'        => 'El logo no debe superar los 2MB.',
         ]);
-    }
-
-    private function resolveUniqueSubdomain(string $churchName): string
-    {
-        $base = Str::slug(Str::ascii($churchName), '-');
-
-        if ($base === '') {
-            $base = 'iglesia';
-        }
-
-        $candidate = $base;
-        $counter = 1;
-
-        while (Iglesias::query()->where('subdomain', $candidate)->exists()) {
-            $counter++;
-            $candidate = $base . '-' . $counter;
-        }
-
-        return $candidate;
     }
 
     private function correoSimilarExisteEnUsuarios(string $email): bool

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Constancia de Celebración de Matrimonio</title>
+    @php $isLandscape = (($iglesiaConfig?->orientacion_certificado_matrimonio ?? $iglesiaConfig?->orientacion_certificado) === 'landscape'); @endphp
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -296,6 +297,44 @@
             background: #fff;
         }
         .qr-code { margin-top: 3px; letter-spacing: 0.4px; }
+
+        body.is-landscape .page-wrapper { padding: 14px 24px 18px; }
+        body.is-landscape .header { margin-bottom: 5px; }
+        body.is-landscape .header-divider { margin: 4px 0 6px; }
+        body.is-landscape .cert-title-wrap { margin: 5px 0; }
+        body.is-landscape .cert-title { font-size: 10.8pt; padding: 3px 18px; letter-spacing: 2px; }
+        body.is-landscape .body-text {
+            margin-top: 10px;
+            line-height: 1.5;
+            font-size: 9.3pt;
+            width: 96%;
+        }
+        body.is-landscape .body-text p { margin-bottom: 1px; }
+        body.is-landscape .line-field { min-width: 170px; }
+        body.is-landscape .line-field-sm { min-width: 52px; }
+        body.is-landscape .line-field-lg { min-width: 220px; }
+        body.is-landscape .line-field-xl { min-width: 280px; }
+        body.is-landscape .priest-section {
+            margin-top: 28px;
+            width: 96%;
+        }
+        body.is-landscape .seal-box {
+            width: 64px;
+            height: 64px;
+        }
+        body.is-landscape .priest-label,
+        body.is-landscape .sig-label { font-size: 8pt; }
+        body.is-landscape .priest-name,
+        body.is-landscape .sig-name { font-size: 8.7pt; }
+        body.is-landscape .issuance {
+            margin-top: 10px;
+            font-size: 9pt;
+            line-height: 1.45;
+            width: 96%;
+        }
+        body.is-landscape .note-marginal { margin-top: 7px; font-size: 8.2pt; }
+        body.is-landscape .signature-image-wrap { height: 34px; margin-bottom: 3px; }
+        body.is-landscape .signature-image { max-height: 34px; }
     </style>
 </head>
 @php
@@ -352,7 +391,7 @@
     $urlVerificacion = $urlVerificacion ?? '';
     $qrDataUri = $qrDataUri ?? null;
 @endphp
-<body @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
+<body class="{{ $isLandscape ? 'is-landscape' : '' }}" @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
 @if ($logoIglesiaPath)
     <div class="watermark-logo">
         <img src="{{ $logoIglesiaPath }}" alt="Marca de agua">

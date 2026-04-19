@@ -21,12 +21,42 @@
         <div class="bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-600 text-green-800 dark:text-green-200 px-4 py-3 rounded-lg text-sm">
             {{ session('success') }}
         </div>
+        <div id="toast-success-config"
+             class="fixed right-4 top-4 z-50 max-w-sm w-[calc(100%-2rem)] sm:w-auto bg-green-600 text-white shadow-lg rounded-lg px-4 py-3 text-sm">
+            {{ session('success') }}
+        </div>
+        <script>
+            setTimeout(function () {
+                const toast = document.getElementById('toast-success-config');
+                if (toast) {
+                    toast.remove();
+                }
+            }, 3500);
+        </script>
     @endif
     @if (session('error'))
         <div class="bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-600 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg text-sm">
             {{ session('error') }}
         </div>
+        <div id="toast-error-config"
+             class="fixed right-4 top-4 z-50 max-w-sm w-[calc(100%-2rem)] sm:w-auto bg-red-600 text-white shadow-lg rounded-lg px-4 py-3 text-sm">
+            {{ session('error') }}
+        </div>
+        <script>
+            setTimeout(function () {
+                const toast = document.getElementById('toast-error-config');
+                if (toast) {
+                    toast.remove();
+                }
+            }, 4500);
+        </script>
     @endif
+
+    <div wire:loading.delay
+         wire:target="guardarOrientacion,guardarOrientacionTipo,guardarTamanoTipo,subirFormato,eliminarFormato,subirLogo,eliminarLogo,subirLogoDerecha,eliminarLogoDerecha"
+         class="fixed right-4 bottom-4 z-50 bg-gray-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg">
+        Guardando cambios...
+    </div>
 
     {{-- ===== LOGO SECTION ===== --}}
     <div>
