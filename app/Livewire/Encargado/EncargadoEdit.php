@@ -41,7 +41,7 @@ class EncargadoEdit extends Component
     public function update(): void
     {
         $this->validate([
-            'telefono' => ['required', 'string', 'regex:/^[0-9\+\-\s]+$/', 'min:8', 'max:20'],
+            'telefono' => ['required', 'string', 'regex:/^[0-9\+\-\s]+$/'],
             'email' => ['nullable', 'email', 'max:255'],
             'fecha_nacimiento' => ['nullable', 'date', 'before:today'],
             'sexo' => ['nullable', Rule::in(['', 'M', 'F'])],
@@ -49,7 +49,6 @@ class EncargadoEdit extends Component
         ], [
             'telefono.required' => 'El teléfono es obligatorio.',
             'telefono.regex' => 'El teléfono solo puede contener números, espacios y los símbolos + y -.',
-            'telefono.min' => 'El teléfono debe tener al menos 8 dígitos.',
             'sexo.in' => 'Selecciona Masculino o Femenino.',
             'fecha_nacimiento.before' => 'La fecha de nacimiento debe ser anterior a hoy.',
         ]);
