@@ -27,7 +27,12 @@ class InitializeTenantFromSubdomain
         if ($baseDomain !== '') {
             $suffix = '.' . $baseDomain;
 
-            if ($host === $baseDomain) {
+            if ($host === $baseDomain || $host === 'www.' . $baseDomain) {
+                // En dominio central solo se conserva tenant cuando hay gestion global activa.
+                if ($request->session()->has('tenant') && ! $request->session()->has('tenant_can_return_global')) {
+                    $request->session()->forget('tenant');
+                }
+
                 return $next($request);
             }
 

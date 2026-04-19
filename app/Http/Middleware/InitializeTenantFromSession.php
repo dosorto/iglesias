@@ -55,6 +55,7 @@ class InitializeTenantFromSession
         $request->session()->put('tenant', [
             'id_iglesia' => $iglesia->id,
             'connection' => $tenantConnection,
+            'subdomain' => $tenant['subdomain'] ?? $iglesia->subdomain,
         ]);
 
         config([

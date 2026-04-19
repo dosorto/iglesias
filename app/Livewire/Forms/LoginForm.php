@@ -34,6 +34,8 @@ class LoginForm extends Form
     {
         $this->ensureIsNotRateLimited();
 
+        $this->resetTenantSessionWhenLoggingFromCentralDomain();
+
         session()->forget('tenant_login_subdomain_url');
 
         // 1. Try central DB first (root / superadmin users)
@@ -80,12 +82,29 @@ class LoginForm extends Form
 
         // If credentials match multiple tenants, avoid logging into a random DB.
         if (count($tenantMatches) > 1) {
-            $sessionTenantId = session('tenant.id_iglesia');
+            $preferredTenantId = null;
+            $currentHost = strtolower((string) request()->getHost());
+            $baseDomain = strtolower(trim((string) config('tenancy.base_domain', '')));
 
-            if ($sessionTenantId) {
+            if ($baseDomain !== '' && $currentHost !== $baseDomain) {
+                $suffix = '.' . $baseDomain;
+
+                if (str_ends_with($currentHost, $suffix)) {
+                    $hostLabel = substr($currentHost, 0, -strlen($suffix));
+
+                    $preferredTenantId = Iglesias::query()
+                        ->where(function ($query) use ($currentHost, $hostLabel) {
+                            $query->whereRaw('LOWER(subdomain) = ?', [$currentHost])
+                                ->orWhereRaw('LOWER(subdomain) = ?', [$hostLabel]);
+                        })
+                        ->value('id');
+                }
+            }
+
+            if ($preferredTenantId) {
                 $tenantMatches = array_values(array_filter(
                     $tenantMatches,
-                    fn (array $match) => (int) $match['iglesia']->id === (int) $sessionTenantId
+                    fn (array $match) => (int) $match['iglesia']->id === (int) $preferredTenantId
                 ));
             }
 
@@ -221,5 +240,21 @@ class LoginForm extends Form
         $scheme = request()->getScheme() ?: 'http';
 
         return $scheme . '://' . $subdomain . '.' . $baseDomain;
+    }
+
+    private function resetTenantSessionWhenLoggingFromCentralDomain(): void
+    {
+        $baseDomain = strtolower(trim((string) config('tenancy.base_domain', '')));
+
+        if ($baseDomain === '') {
+            return;
+        }
+
+        $host = strtolower((string) request()->getHost());
+
+        if ($host === $baseDomain || $host === 'www.' . $baseDomain) {
+            session()->forget('tenant');
+            session()->forget('tenant_can_return_global');
+        }
     }
 }

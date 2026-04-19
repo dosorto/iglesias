@@ -20,13 +20,20 @@ new #[Layout('layouts.guest')] class extends Component
 
         Session::regenerate();
 
+        $pendingEncargado = (bool) Session::get('pending_encargado_registration');
+        $postLoginPath = $pendingEncargado ? '/register-perfil' : '/dashboard';
+
         $tenantSubdomainUrl = Session::pull('tenant_login_subdomain_url');
         if ($tenantSubdomainUrl) {
-            $this->redirect(rtrim($tenantSubdomainUrl, '/') . '/dashboard', navigate: false);
+            $this->redirect(rtrim($tenantSubdomainUrl, '/') . $postLoginPath, navigate: false);
             return;
         }
 
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        $defaultRoute = $pendingEncargado
+            ? route('register-perfil', absolute: false)
+            : route('dashboard', absolute: false);
+
+        $this->redirectIntended(default: $defaultRoute, navigate: true);
     }
 }; ?>
 

@@ -18,16 +18,16 @@ Route::middleware(['tenant.document'])->group(function () {
 });
 
 Route::get('/', function () {
+    if (Auth::check() && session('pending_encargado_registration')) {
+        return redirect()->route('register-perfil');
+    }
+
     if (session()->has('tenant.id_iglesia')) {
         if (Auth::check()) {
             return redirect()->route('dashboard');
         }
 
         return redirect()->route('login');
-    }
-
-    if (Auth::check() && session('pending_encargado_registration')) {
-        return redirect()->route('register-perfil');
     }
 
     return view('welcome');
