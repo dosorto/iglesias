@@ -268,7 +268,7 @@
         <div class="footer-qr">
             @if ($qrDataUri)
                 <div class="qr-verify">
-                    <img src="{{ $qrDataUri }}" alt="QR de verificacion">
+                    <img src="{{ $qrDataUri }}" alt="QR de verificación">
                 </div>
             @endif
         </div>

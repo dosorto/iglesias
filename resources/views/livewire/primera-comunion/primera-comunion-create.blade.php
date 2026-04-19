@@ -48,7 +48,7 @@
     <div class="bg-white dark:bg-gray-800/80 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700/60
                 ring-1 ring-black/5 dark:ring-white/5 px-6 py-4">
         <div class="flex items-center gap-0">
-            @php $pasos = [['n'=>1,'label'=>'Personas'], ['n'=>2,'label'=>'Registro']]; @endphp
+            @php $pasos = [['n'=>1,'label'=>'Feligreses'], ['n'=>2,'label'=>'Registro']]; @endphp
             @foreach ($pasos as $i => $p)
                 <div class="flex flex-col items-center flex-shrink-0">
                     <div @class([
@@ -83,7 +83,7 @@
         </div>
     </div>
 
-    {{-- PASO 1: PERSONAS --}}
+    {{-- PASO 1: FELIGRESES --}}
     @if ($paso === 1)
     <div class="space-y-4">
 
@@ -203,7 +203,7 @@
                     {{-- Estado: MULTIPLES RESULTADOS --}}
                     @if ($rolEstado === 'multiples' && $busqueda_rol === $key)
                         <p class="text-xs text-gray-500 dark:text-gray-400">
-                            Se encontraron {{ count($busqueda_resultados) }} personas. Selecciona una:
+                            Se encontraron {{ count($busqueda_resultados) }} feligreses. Selecciona uno:
                         </p>
                         <div class="space-y-1.5 max-h-64 overflow-y-auto pr-1">
                             @foreach ($busqueda_resultados as $res)

@@ -165,7 +165,7 @@
 
             </div>
 
-            {{-- ══ ACORDEÓN: Personas Asignadas ══ --}}
+            {{-- ══ ACORDEÓN: Feligreses Asignados ══ --}}
             @php
                 $rolesConfig = [
                     ['key' => 'bautizado', 'label' => 'Bautizado',  'short' => 'Bau', 'required' => true],

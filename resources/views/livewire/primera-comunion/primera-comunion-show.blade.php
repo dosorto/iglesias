@@ -1,10 +1,10 @@
 @php
     use Illuminate\Support\Facades\Storage;
-    $comulgante      = $primeraComunion->feligres?->persona;
-    $catequista      = $primeraComunion->catequista?->persona;
-    $ministro        = $primeraComunion->ministro?->persona;
-    $parroco         = $primeraComunion->parroco?->persona;
-    $encargado       = $primeraComunion->encargado?->feligres?->persona;
+    $comulgante      = $primeraComunion->feligres?->feligres;
+    $catequista      = $primeraComunion->catequista?->feligres;
+    $ministro        = $primeraComunion->ministro?->feligres;
+    $parroco         = $primeraComunion->parroco?->feligres;
+    $encargado       = $primeraComunion->encargado?->feligres;
     $encargadoModel  = $primeraComunion->encargado;
     $firmaEncargadoDisponible = filled($primeraComunion->encargado?->path_firma_principal);
     $configurarFirmaUrl = $encargadoModel

@@ -335,8 +335,10 @@
             <p>ha aprobado satisfactoriamente el curso denominado:</p>
 
             <p>
-                <span class="line-field line-field-xl">{{ $curso?->nombre ?? 'N/A' }}</span>
+                <span class="line-field line-field-xl" style="font-weight:bold; font-size:14pt; border-bottom:1.5px solid #444;">{{ $curso?->nombre ?? 'N/A' }}</span>
             </p>
+
+            <p style="margin-bottom:18px;"></p>
 
             <p>
                 @if($fechaInicio && $fechaFin)
@@ -364,10 +366,19 @@
                 @endif
             </p>
 
+            <p style="margin-bottom:18px;"></p>
+
             <p>
                 Instructor responsable:
                 <span class="line-field line-field-xl">{{ $instructor?->nombre_completo ?? 'N/A' }}</span>
             </p>
+
+            <p style="margin-bottom:18px;"></p>
+
+            {{-- Observaciones opcional --}}
+            @if(!empty($observaciones))
+                <p><strong>Observaciones:</strong> {{ $observaciones }}</p>
+            @endif
         </div>
 
         <div class="sig-right">
@@ -397,7 +408,7 @@
             <div class="footer-left">
                 @if ($qrDataUri)
                     <div class="qr-verify">
-                        <img src="{{ $qrDataUri }}" alt="QR de verificacion">
+                        <img src="{{ $qrDataUri }}" alt="QR de verificación">
                     </div>
                 @endif
             </div>
