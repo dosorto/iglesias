@@ -176,6 +176,16 @@ new #[Layout('layouts.guest')] class extends Component
 
         session()->flash('success', 'La iglesia se ha creado correctamente. Ahora completa tu perfil de encargado.');
 
+        $baseDomain = trim((string) config('tenancy.base_domain', ''));
+
+        if ($baseDomain !== '' && ! empty($iglesia->subdomain)) {
+            $scheme = request()->getScheme() ?: 'https';
+            $tenantOnboardingUrl = $scheme . '://' . $iglesia->subdomain . '.' . $baseDomain . '/register-perfil';
+
+            $this->redirect($tenantOnboardingUrl, navigate: false);
+            return;
+        }
+
         $this->redirect(route('register-perfil', absolute: false), navigate: true);
     }
 
