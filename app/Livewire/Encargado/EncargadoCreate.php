@@ -8,9 +8,7 @@ use Livewire\WithFileUploads;
 use App\Models\Persona;
 use App\Models\Encargado;
 use App\Models\Feligres;
-use App\Models\User;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Str;
 
 class EncargadoCreate extends Component
 {
@@ -142,7 +140,7 @@ class EncargadoCreate extends Component
             'p_segundo_nombre'   => ['nullable', 'string', 'max:150'],
             'p_segundo_apellido' => ['nullable', 'string', 'max:100'],
             'p_telefono'         => ['required', 'string', 'max:20'],
-            'p_email'            => ['nullable', 'email', 'max:255', Rule::unique('personas', 'email')->whereNull('deleted_at')],
+            'p_email'            => ['nullable', 'email', 'max:255'],
             'p_fecha_nacimiento' => ['required', 'date'],
             'p_sexo'             => ['required', 'in:M,F'],
         ], [
@@ -152,21 +150,10 @@ class EncargadoCreate extends Component
             'p_primer_nombre.required'    => 'El primer nombre es obligatorio.',
             'p_primer_apellido.required'  => 'El primer apellido es obligatorio.',
             'p_telefono.required'         => 'El teléfono es obligatorio.',
-            'p_email.unique'              => 'Este correo ya está registrado en otra persona.',
             'p_fecha_nacimiento.required' => 'La fecha de nacimiento es obligatoria.',
             'p_sexo.required'             => 'El sexo es obligatorio.',
             'p_sexo.in'                   => 'Selecciona Masculino o Femenino.',
         ]);
-
-        if ($this->correoPerteneceAOtroEncargado($this->p_email)) {
-            $this->addError('p_email', 'Este correo ya está asignado a otro encargado. Usa uno distinto para evitar problemas al iniciar sesión.');
-            return;
-        }
-
-        if ($this->correoExisteEnOtroUsuario($this->p_email)) {
-            $this->addError('p_email', 'Este correo ya existe en otra cuenta de usuario. Usa uno distinto para evitar problemas al iniciar sesión.');
-            return;
-        }
 
         $persona = Persona::create([
             'dni'              => $this->p_dni,
@@ -205,16 +192,6 @@ class EncargadoCreate extends Component
             return;
         }
 
-        if ($this->correoPerteneceAOtroEncargado($persona->email, $persona->id)) {
-            $this->addError('persona_id', 'El correo de esta persona ya está asignado a otro encargado. Actualiza el correo antes de continuar.');
-            return;
-        }
-
-        if ($this->correoExisteEnOtroUsuario($persona->email)) {
-            $this->addError('persona_id', 'El correo de esta persona ya existe en otra cuenta de usuario. Actualiza el correo antes de continuar.');
-            return;
-        }
-
         // Auto-crear feligrés si no existe
         $feligres = Feligres::firstOrCreate(
             ['id_persona' => $this->persona_id],
@@ -243,38 +220,6 @@ class EncargadoCreate extends Component
 
         session()->flash('success', 'Encargado registrado correctamente.');
         $this->redirect(route('encargado.index'), navigate: false);
-    }
-
-    private function correoPerteneceAOtroEncargado(?string $email, ?int $exceptPersonaId = null): bool
-    {
-        $normalizedEmail = Str::lower(trim((string) $email));
-
-        if ($normalizedEmail === '') {
-            return false;
-        }
-
-        return Encargado::query()
-            ->whereHas('feligres.persona', function ($query) use ($normalizedEmail, $exceptPersonaId) {
-                $query->whereRaw('LOWER(email) = ?', [$normalizedEmail]);
-
-                if ($exceptPersonaId) {
-                    $query->where('personas.id', '!=', $exceptPersonaId);
-                }
-            })
-            ->exists();
-    }
-
-    private function correoExisteEnOtroUsuario(?string $email): bool
-    {
-        $normalizedEmail = Str::lower(trim((string) $email));
-
-        if ($normalizedEmail === '') {
-            return false;
-        }
-
-        return User::withTrashed()
-            ->whereRaw('LOWER(email) = ?', [$normalizedEmail])
-            ->exists();
     }
 
     public function render()
