@@ -164,6 +164,7 @@
                                        placeholder="DNI o nombre del {{ strtolower($rc['label']) }}..."
                                        autocomplete="off"
                                        wire:keydown.enter="buscarPersona('{{ $key }}')"
+                                       oninput="if(this.value && /^[0-9]+$/.test(this.value) === false) { const letters = this.value.match(/[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g); if(letters) this.value = letters.join(''); }"
                                        class="block w-full pl-10 pr-4 py-2.5 text-sm rounded-lg transition-colors
                                               border border-gray-300 dark:border-gray-600
                                               bg-gray-50 dark:bg-gray-700/60
@@ -395,6 +396,7 @@
                                                 Número de Identidad <span class="text-red-500">*</span>
                                             </label>
                                             <input type="text" wire:model="mini_p_dni" placeholder="Ej: 0801199912345"
+                                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                                    class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                                           border border-gray-300 dark:border-gray-600
                                                           bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
