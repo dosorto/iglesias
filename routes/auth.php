@@ -42,5 +42,13 @@ Route::post('logout', function (Request $request) {
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    return redirect('/login');
+    $baseDomain = trim((string) config('tenancy.base_domain', ''));
+
+    if ($baseDomain !== '') {
+        $scheme = $request->getScheme() ?: 'https';
+
+        return redirect()->to($scheme . '://' . $baseDomain);
+    }
+
+    return redirect('/');
 })->name('logout');

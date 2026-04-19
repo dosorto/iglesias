@@ -23,6 +23,7 @@ class InitializeTenantFromSubdomain
 
         $baseDomain = strtolower(trim((string) config('tenancy.base_domain', '')));
         $hostAsLabel = null;
+        $legacySubdomain = null;
 
         if ($baseDomain !== '') {
             $suffix = '.' . $baseDomain;
@@ -38,16 +39,24 @@ class InitializeTenantFromSubdomain
 
             if (str_ends_with($host, $suffix)) {
                 $hostAsLabel = substr($host, 0, -strlen($suffix));
+
+                if ($hostAsLabel !== '') {
+                    $legacySubdomain = $hostAsLabel . '-' . $baseDomain;
+                }
             }
         }
 
         $iglesia = Iglesias::query()
             ->whereNotNull('subdomain')
-            ->where(function ($query) use ($host, $hostAsLabel) {
+            ->where(function ($query) use ($host, $hostAsLabel, $legacySubdomain) {
                 $query->whereRaw('LOWER(subdomain) = ?', [$host]);
 
                 if ($hostAsLabel !== null && $hostAsLabel !== '') {
                     $query->orWhereRaw('LOWER(subdomain) = ?', [$hostAsLabel]);
+                }
+
+                if ($legacySubdomain !== null) {
+                    $query->orWhereRaw('LOWER(subdomain) = ?', [$legacySubdomain]);
                 }
             })
             ->first();
