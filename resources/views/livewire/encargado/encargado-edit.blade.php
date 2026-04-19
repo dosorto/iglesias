@@ -59,6 +59,11 @@
         </div>
 
         <div class="p-6 space-y-5">
+            @error('general')
+                <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200">
+                    {{ $message }}
+                </div>
+            @enderror
 
             {{-- Persona (solo lectura) --}}
             <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-700/40 border border-gray-200 dark:border-gray-600">

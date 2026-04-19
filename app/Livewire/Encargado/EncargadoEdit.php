@@ -65,7 +65,7 @@ class EncargadoEdit extends Component
         $persona = $this->encargado->feligres?->persona;
 
         if (! $persona) {
-            $this->addError('telefono', 'No se encontró la persona asociada al encargado.');
+            $this->addError('general', 'No se encontró la persona asociada al encargado.');
 
             return;
         }
