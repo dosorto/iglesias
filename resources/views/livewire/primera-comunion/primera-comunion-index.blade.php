@@ -87,15 +87,15 @@
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 w-8 h-8 bg-sky-600 rounded-full flex items-center justify-center mr-3 shadow-sm group-hover:scale-110 transition-transform">
                                             <span class="text-white text-xs font-bold">
-                                                {{ strtoupper(substr($pc->feligres?->feligres?->primer_nombre ?? '?', 0, 1) . substr($pc->feligres?->feligres?->primer_apellido ?? '', 0, 1)) }}
+                                                {{ strtoupper(substr($pc->feligres?->persona?->primer_nombre ?? '?', 0, 1) . substr($pc->feligres?->persona?->primer_apellido ?? '', 0, 1)) }}
                                             </span>
                                         </div>
                                         <div>
                                             <div class="font-medium text-gray-900 dark:text-white">
-                                                {{ $pc->feligres?->feligres?->nombre_completo ?? '—' }}
+                                                {{ $pc->feligres?->persona?->nombre_completo ?? '—' }}
                                             </div>
                                             <div class="text-xs text-gray-500 dark:text-gray-400 font-mono">
-                                                {{ $pc->feligres?->feligres?->dni ?? '' }}
+                                                {{ $pc->feligres?->persona?->dni ?? '' }}
                                             </div>
                                         </div>
                                     </div>
@@ -116,7 +116,7 @@
                                 {{-- Catequista --}}
                                 <td class="px-6 py-4">
                                     <span class="text-sm text-gray-600 dark:text-gray-300">
-                                        {{ $pc->catequista?->feligres?->nombre_completo ?? '—' }}
+                                        {{ $pc->catequista?->feligres?->persona?->nombre_completo ?? '—' }}
                                     </span>
                                 </td>
 
@@ -157,7 +157,7 @@
                                         @endcan
                                         @can('primera-comunion.delete')
                                             <button
-                                                wire:click="confirmPrimeraComunionDeletion({{ $pc->id }}, '{{ addslashes($pc->feligres?->feligres?->nombre_completo ?? 'este registro') }}')"
+                                                wire:click="confirmPrimeraComunionDeletion({{ $pc->id }}, '{{ addslashes($pc->feligres?->persona?->nombre_completo ?? 'este registro') }}')"
                                                 class="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
                                                 title="Eliminar">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
