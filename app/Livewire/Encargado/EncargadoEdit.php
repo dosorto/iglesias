@@ -47,7 +47,7 @@ class EncargadoEdit extends Component
             'firma' => ['nullable', 'image', 'max:2048'],
         ], [
             'telefono.required' => 'El teléfono es obligatorio.',
-            'telefono.regex' => 'El teléfono solo puede contener números.',
+            'telefono.regex' => 'El teléfono solo puede contener números, espacios y los símbolos + y -.',
             'telefono.min' => 'El teléfono debe tener al menos 8 dígitos.',
             'sexo.in' => 'Selecciona Masculino o Femenino.',
             'fecha_nacimiento.before' => 'La fecha de nacimiento debe ser anterior a hoy.',
