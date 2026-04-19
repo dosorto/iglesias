@@ -16,7 +16,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold text-white leading-tight">Registrar Nuevo Instructor</h1>
-                    <p class="text-amber-100 text-sm mt-0.5">Busca una persona por nombre o DNI, o créala si no existe</p>
+                    <p class="text-amber-100 text-sm mt-0.5">Busca un feligrés por nombre o DNI, o créalo si no existe</p>
                 </div>
             </div>
             <a href="{{ route('instructor.index') }}"
@@ -62,7 +62,7 @@
             <span class="inline-flex items-center justify-center w-7 h-7 rounded-full
                          bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300
                          text-xs font-bold ring-2 ring-amber-200 dark:ring-amber-700/50">1</span>
-            <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-100 tracking-wide uppercase">Persona</h2>
+            <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-100 tracking-wide">Feligrés</h2>
         </div>
 
         <div class="p-6">
@@ -89,7 +89,7 @@
                             </p>
                             <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold
                                          bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">
-                                &#x2713; Seleccionada
+                                &#x2713; Seleccionado
                             </span>
                         </div>
                     </div>
@@ -117,7 +117,7 @@
                         <input type="text"
                                wire:model="persona_dni"
                                wire:keydown.enter="buscarPersona"
-                               placeholder="Ingresa el DNI o nombre de la persona..."
+                               placeholder="Ingresa el DNI o nombre del feligrés..."
                                autocomplete="off"
                                class="block w-full pl-10 pr-4 py-2.5 text-sm rounded-lg transition-colors
                                       border border-gray-300 dark:border-gray-600
@@ -150,6 +150,54 @@
                     <p class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
                 @enderror
 
+            {{-- Estado: MÚLTIPLES COINCIDENCIAS --}}
+            @elseif ($persona_estado === 'multiples')
+                <div class="space-y-4">
+                    <div class="flex items-start gap-3 p-4 rounded-xl
+                                bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50">
+                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4v-4z"/>
+                        </svg>
+                        <p class="text-sm text-amber-800 dark:text-amber-300">
+                            Se encontraron varios feligreses para <strong>{{ $persona_dni }}</strong>. Selecciona uno de la lista.
+                        </p>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <input type="text"
+                               wire:model="persona_dni"
+                               wire:keydown.enter="buscarPersona"
+                               autocomplete="off"
+                               placeholder="Refina la búsqueda por nombre o DNI..."
+                               class="flex-1 px-3 py-2 text-sm rounded-lg transition-colors
+                                      border border-gray-300 dark:border-gray-600
+                                      bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                      focus:ring-2 focus:ring-amber-500 focus:border-transparent" />
+                        <button type="button"
+                                wire:click="buscarPersona"
+                                class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                            Buscar
+                        </button>
+                    </div>
+
+                    <div class="max-h-64 overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700">
+                        @foreach ($resultadosBusqueda as $persona)
+                            <button type="button"
+                                    wire:click="seleccionarPersona({{ $persona['id'] }})"
+                                    class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
+                                <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                                    {{ $persona['nombre_completo'] }}
+                                </p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                    DNI: {{ $persona['dni'] }}
+                                    @if (!empty($persona['telefono'])) &nbsp;·&nbsp; {{ $persona['telefono'] }} @endif
+                                    @if (!empty($persona['email'])) &nbsp;·&nbsp; {{ $persona['email'] }} @endif
+                                </p>
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+
             {{-- Estado: NO ENCONTRADO --}}
             @elseif ($persona_estado === 'sin_persona')
                 <div class="space-y-3">
@@ -159,7 +207,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         <p class="text-sm text-red-800 dark:text-red-300">
-                            No se encontró ninguna persona con el criterio <strong>{{ $persona_dni }}</strong>.
+                            No se encontró ningún feligrés con el criterio <strong>{{ $persona_dni }}</strong>.
                         </p>
                     </div>
 
@@ -168,7 +216,7 @@
                                wire:model="persona_dni"
                                wire:keydown.enter="buscarPersona"
                                autocomplete="off"
-                               placeholder="Ingresa el DNI o nombre de la persona..."
+                               placeholder="Ingresa el DNI o nombre del feligrés..."
                                class="flex-1 px-3 py-2 text-sm rounded-lg transition-colors
                                       border border-gray-300 dark:border-gray-600
                                       bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
@@ -187,7 +235,7 @@
                                        text-emerald-700 dark:text-emerald-300
                                        border border-emerald-300 dark:border-emerald-600 rounded-xl
                                        hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all">
-                            + Crear Nueva Persona
+                            + Crear nuevo feligrés
                         </button>
                     @endif
                 </div>
@@ -204,7 +252,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                             </svg>
-                            Nueva Persona
+                            Nuevo feligrés
                         </h3>
                         <button type="button"
                                 wire:click="cancelarCrearPersona"
@@ -219,8 +267,8 @@
 
                             {{-- DNI --}}
                             <div class="sm:col-span-2">
-                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                                    Número de Identidad <span class="text-red-500">*</span>
+                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                    Número de identidad <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text"
                                        wire:model.defer="p_dni"
@@ -238,8 +286,8 @@
 
                             {{-- Primer Nombre --}}
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                                    Primer Nombre <span class="text-red-500">*</span>
+                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                    Primer nombre <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text"
                                        wire:model.defer="p_primer_nombre"
@@ -256,8 +304,8 @@
 
                             {{-- Segundo Nombre --}}
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                                    Segundo Nombre
+                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                    Segundo nombre
                                 </label>
                                 <input type="text"
                                        wire:model.defer="p_segundo_nombre"
@@ -270,8 +318,8 @@
 
                             {{-- Primer Apellido --}}
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                                    Primer Apellido <span class="text-red-500">*</span>
+                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                    Primer apellido <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text"
                                        wire:model.defer="p_primer_apellido"
@@ -288,8 +336,8 @@
 
                             {{-- Segundo Apellido --}}
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                                    Segundo Apellido
+                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                    Segundo apellido
                                 </label>
                                 <input type="text"
                                        wire:model.defer="p_segundo_apellido"
@@ -302,7 +350,7 @@
 
                             {{-- Teléfono --}}
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
                                     Teléfono
                                 </label>
                                 <input type="text"
@@ -319,7 +367,7 @@
 
                             {{-- Email --}}
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
                                     Email
                                 </label>
                                 <input type="email"
@@ -336,8 +384,8 @@
 
                             {{-- Fecha de Nacimiento --}}
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                                    Fecha de Nacimiento
+                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                    Fecha de nacimiento
                                 </label>
                                 <input type="date"
                                        wire:model.defer="p_fecha_nacimiento"
@@ -353,7 +401,7 @@
 
                             {{-- Sexo --}}
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
                                     Sexo
                                 </label>
                                 <select wire:model.defer="p_sexo"
@@ -388,7 +436,7 @@
                                 <svg wire:loading.remove wire:target="crearPersona" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                 </svg>
-                                <span wire:loading.remove wire:target="crearPersona">Guardar Persona</span>
+                                <span wire:loading.remove wire:target="crearPersona">Guardar feligrés</span>
                                 <span wire:loading wire:target="crearPersona">Guardando…</span>
                             </button>
                         </div>
@@ -405,11 +453,11 @@
             <span class="inline-flex items-center justify-center w-7 h-7 rounded-full
                          {{ $persona_id ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 ring-2 ring-amber-200 dark:ring-amber-700/50' : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500' }}
                          text-xs font-bold">2</span>
-            <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-100 tracking-wide uppercase">
-                Datos del Instructor
+            <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-100 tracking-wide">
+                Datos del instructor
             </h2>
             @if (!$persona_id)
-                <span class="text-xs font-normal text-gray-400 dark:text-gray-500">— selecciona una persona primero</span>
+                <span class="text-xs font-normal text-gray-400 dark:text-gray-500">— selecciona un feligrés primero</span>
             @endif
         </div>
 
@@ -422,7 +470,7 @@
                         </svg>
                         <div class="w-full">
                             <p class="text-sm font-semibold text-amber-800 dark:text-amber-200">
-                                Esta persona no tiene correo electronico.
+                                Este feligrés no tiene correo electrónico.
                             </p>
                             <p class="text-xs text-amber-700 dark:text-amber-300 mt-1">
                                 Antes de guardar el instructor, elige si deseas configurarle un correo manual o generarlo con la nomenclatura del sistema.
@@ -436,14 +484,14 @@
 
                                 <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
                                     <input type="radio" wire:model.live="emailProvisionMode" value="generate" class="text-amber-600 focus:ring-amber-500" />
-                                    Generar correo automaticamente
+                                    Generar correo automáticamente
                                 </label>
                             </div>
 
                             @if($emailProvisionMode === 'manual')
                                 <div class="mt-3">
-                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                                        Correo del Instructor
+                                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
+                                        Correo del instructor
                                     </label>
                                     <input type="email"
                                            wire:model.defer="emailManual"
@@ -462,7 +510,7 @@
 
                             @if($emailProvisionMode === 'generate')
                                 <p class="mt-3 text-xs text-emerald-700 dark:text-emerald-300">
-                                    Se generara: <strong>{{ $this->emailSugerido }}</strong>
+                                    Se generará: <strong>{{ $this->emailSugerido }}</strong>
                                 </p>
                             @endif
 
@@ -478,8 +526,8 @@
 
                 {{-- Firma Principal --}}
                     <div class="md:col-span-2">
-                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">
-                            Firma Principal
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 tracking-wide">
+                            Firma principal
                         </label>
 
                         <div class="mt-2 flex justify-center rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 px-6 py-10">
@@ -550,7 +598,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
                     </svg>
-                    <span wire:loading.remove wire:target="guardar">Guardar Instructor</span>
+                    <span wire:loading.remove wire:target="guardar">Guardar instructor</span>
                     <span wire:loading wire:target="guardar">Guardando…</span>
                 </button>
             </div>
