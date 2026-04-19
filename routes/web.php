@@ -246,10 +246,6 @@ Route::middleware(['auth'])->group(function () {
         ->get('/matriculado-curso/{inscripcionCurso}', [\App\Http\Controllers\InscripcionCursoController::class, 'matricula'])
         ->name('matriculado-curso.show');
 
-    Route::middleware('permission:inscripcion-curso.view')
-    ->get('/matriculado-curso/{inscripcionId}', function ($inscripcionId) {return view('curso.matricula', compact('inscripcionId'));})
-    ->name('matriculado-curso.show');
-
     // Estudiantes
     Route::middleware('permission:estudiantes.view')
         ->get('/estudiantes', [EstudianteController::class, 'index'])
