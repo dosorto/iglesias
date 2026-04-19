@@ -45,7 +45,7 @@ class PrimeraComunionIndex extends Component
         // Issue #6: Cargar feligrés eliminados para preservar datos históricos en sacramentos
         $primeraComuniones = PrimeraComunion::with([
             'iglesia',
-            ['feligres' => fn($q) => $q->withTrashed()],
+            'feligres' => fn($q) => $q->withTrashed(),
             'feligres.persona'
         ])
             ->when($this->search, function ($q) {

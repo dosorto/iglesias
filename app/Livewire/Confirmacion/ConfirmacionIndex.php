@@ -46,9 +46,9 @@ class ConfirmacionIndex extends Component
         // Issue #6: Cargar feligrés eliminados para preservar datos históricos en sacramentos
         $confirmaciones = Confirmacion::with([
             'iglesia',
-            ['feligres' => fn($q) => $q->withTrashed()],
+            'feligres' => fn($q) => $q->withTrashed(),
             'feligres.persona',
-            ['ministro' => fn($q) => $q->withTrashed()],
+            'ministro' => fn($q) => $q->withTrashed(),
             'ministro.persona',
         ])
             ->when($this->search, function ($q) {

@@ -45,7 +45,7 @@ class BautismoIndex extends Component
         // Issue #6: Cargar feligrés eliminados para preservar datos históricos en sacramentos
         $bautismos = Bautismo::with([
             'iglesia',
-            ['bautizado' => fn($q) => $q->withTrashed()],
+            'bautizado' => fn($q) => $q->withTrashed(),
             'bautizado.persona',
             'encargado.feligres.persona'
         ])

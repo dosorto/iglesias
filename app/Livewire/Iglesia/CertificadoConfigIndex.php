@@ -6,6 +6,7 @@ use App\Models\TenantIglesia;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
 
 class CertificadoConfigIndex extends Component
 {
@@ -156,6 +157,14 @@ class CertificadoConfigIndex extends Component
         }
 
         $columnaOrientacion = self::FORMATOS[$tipo]['orientacion'];
+        if (! Schema::hasColumn('iglesias', $columnaOrientacion)) {
+            session()->flash(
+                'error',
+                "La base de datos no tiene la columna {$columnaOrientacion}. Ejecute las migraciones de tenant."
+            );
+            return;
+        }
+
         $updates = [
             $columnaOrientacion => $this->orientaciones[$tipo],
         ];
@@ -188,6 +197,14 @@ class CertificadoConfigIndex extends Component
         }
 
         $columnaPaperSize = self::FORMATOS[$tipo]['paper_size'];
+        if (! Schema::hasColumn('iglesias', $columnaPaperSize)) {
+            session()->flash(
+                'error',
+                "La base de datos no tiene la columna {$columnaPaperSize}. Ejecute las migraciones de tenant."
+            );
+            return;
+        }
+
         $updates = [
             $columnaPaperSize => $this->paperSizes[$tipo],
         ];
