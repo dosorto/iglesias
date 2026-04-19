@@ -9,6 +9,7 @@ use App\Models\Persona;
 use App\Models\Encargado;
 use App\Models\Feligres;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class EncargadoCreate extends Component
 {
@@ -155,6 +156,11 @@ class EncargadoCreate extends Component
             'p_sexo.in'                   => 'Selecciona Masculino o Femenino.',
         ]);
 
+        if ($this->correoPerteneceAOtroEncargado($this->p_email)) {
+            $this->addError('p_email', 'Este correo ya está asignado a otro encargado. Usa uno distinto para evitar problemas al iniciar sesión.');
+            return;
+        }
+
         $persona = Persona::create([
             'dni'              => $this->p_dni,
             'primer_nombre'    => $this->p_primer_nombre,
@@ -186,6 +192,17 @@ class EncargadoCreate extends Component
             return;
         }
 
+        $persona = Persona::find($this->persona_id);
+        if (! $persona) {
+            $this->addError('persona_id', 'No se pudo cargar la persona seleccionada.');
+            return;
+        }
+
+        if ($this->correoPerteneceAOtroEncargado($persona->email, $persona->id)) {
+            $this->addError('persona_id', 'El correo de esta persona ya está asignado a otro encargado. Actualiza el correo antes de continuar.');
+            return;
+        }
+
         // Auto-crear feligrés si no existe
         $feligres = Feligres::firstOrCreate(
             ['id_persona' => $this->persona_id],
@@ -214,6 +231,25 @@ class EncargadoCreate extends Component
 
         session()->flash('success', 'Encargado registrado correctamente.');
         $this->redirect(route('encargado.index'), navigate: false);
+    }
+
+    private function correoPerteneceAOtroEncargado(?string $email, ?int $exceptPersonaId = null): bool
+    {
+        $normalizedEmail = Str::lower(trim((string) $email));
+
+        if ($normalizedEmail === '') {
+            return false;
+        }
+
+        return Encargado::query()
+            ->whereHas('feligres.persona', function ($query) use ($normalizedEmail, $exceptPersonaId) {
+                $query->whereRaw('LOWER(email) = ?', [$normalizedEmail]);
+
+                if ($exceptPersonaId) {
+                    $query->where('personas.id', '!=', $exceptPersonaId);
+                }
+            })
+            ->exists();
     }
 
     public function render()

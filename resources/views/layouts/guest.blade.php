@@ -18,9 +18,15 @@
     <div class="min-h-screen flex flex-col items-center justify-between px-4 py-8">
         <div class="w-full max-w-[420px]">
             <div class="text-center mb-5">
-                <a href="/" wire:navigate class="inline-block font-serif text-5xl font-bold text-[#171b3d] leading-none">
-                    Holy Manager
-                </a>
+                @if (request()->routeIs('register-perfil') && session('pending_encargado_registration'))
+                    <span class="inline-block font-serif text-5xl font-bold text-[#171b3d] leading-none cursor-default">
+                        Holy Manager
+                    </span>
+                @else
+                    <a href="/" wire:navigate class="inline-block font-serif text-5xl font-bold text-[#171b3d] leading-none">
+                        Holy Manager
+                    </a>
+                @endif
             </div>
 
             <div class="w-full rounded-2xl border border-[#d8d7e9] bg-[#f8f8fc] p-6 shadow-[0_14px_32px_rgba(28,32,72,0.12)]">

@@ -8,7 +8,13 @@ use Spatie\Permission\Models\Role;
 use Livewire\Volt\Volt;
 use App\Livewire\Curso\MatriculadoCursoShow;
 
-Route::view('/', 'welcome');
+Route::get('/', function () {
+    if (auth()->check() && session('pending_encargado_registration')) {
+        return redirect()->route('register-perfil');
+    }
+
+    return view('welcome');
+});
 
 Route::get('/verificar-documento/{codigo}', [\App\Http\Controllers\DocumentoGeneradoController::class, 'verificar'])
     ->name('documentos.verificar');

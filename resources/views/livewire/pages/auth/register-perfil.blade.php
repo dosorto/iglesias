@@ -4,6 +4,7 @@ use App\Models\Persona;
 use App\Models\Feligres;
 use App\Models\Encargado;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 use Livewire\WithFileUploads;
@@ -78,6 +79,7 @@ new #[Layout('layouts.guest')] class extends Component
             ]);
         });
 
+        session()->forget('pending_encargado_registration');
         session()->flash('success', 'Encargado registrado exitosamente.');
         $this->redirect(route('dashboard'), navigate: true);
     }
@@ -93,7 +95,16 @@ new #[Layout('layouts.guest')] class extends Component
         'sexo'             => ['required', 'in:M,F'],
         'telefono'         => ['required', 'string', 'regex:/^[0-9\+\-\s]+$/', 'min:8', 'max:20'],
         'dni'              => ['required', 'string', 'regex:/^[0-9]+$/', 'min:8', 'max:20'],
-        'email'            => ['required', 'email', 'max:100'],
+        'email'            => [
+            'required',
+            'email',
+            'max:100',
+            function (string $attribute, mixed $value, \Closure $fail): void {
+                if ($this->correoPerteneceAOtroEncargado((string) $value)) {
+                    $fail('Este correo ya está asignado a otro encargado. Usa uno distinto para evitar problemas al iniciar sesión.');
+                }
+            },
+        ],
     ], [
         'primer_nombre.required'    => 'El primer nombre es obligatorio.',
         'primer_apellido.required'  => 'El primer apellido es obligatorio.',
@@ -112,6 +123,21 @@ new #[Layout('layouts.guest')] class extends Component
     ]);
 }
 
+    private function correoPerteneceAOtroEncargado(?string $email): bool
+    {
+        $normalizedEmail = Str::lower(trim((string) $email));
+
+        if ($normalizedEmail === '') {
+            return false;
+        }
+
+        return Encargado::query()
+            ->whereHas('feligres.persona', function ($query) use ($normalizedEmail) {
+                $query->whereRaw('LOWER(email) = ?', [$normalizedEmail]);
+            })
+            ->exists();
+    }
+
     private function validateStepTwo(): void
     {
         $this->validate([
@@ -128,6 +154,12 @@ new #[Layout('layouts.guest')] class extends Component
         <h1 class="text-2xl font-bold text-gray-900">Registrar Encargado</h1>
         <p class="mt-2 text-sm text-gray-600">Completa los 2 pasos para registrar un nuevo encargado.</p>
     </div>
+
+    @if (session()->has('success'))
+        <div class="rounded-md bg-green-50 p-3 text-sm text-green-700 border border-green-200">
+            {{ session('success') }}
+        </div>
+    @endif
 
     {{-- Stepper --}}
     <div class="flex items-center gap-2">
@@ -221,7 +253,7 @@ new #[Layout('layouts.guest')] class extends Component
 
     {{-- PASO 2: Firma --}}
     {{-- PASO 2: Firma --}}
-@if ($step === 2)
+    @if ($step === 2)
     <form wire:submit="register" class="space-y-5">
         <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Firma del Encargado</p>
 
@@ -328,10 +360,4 @@ new #[Layout('layouts.guest')] class extends Component
         </div>
     </form>
 @endif
-
-    @if (session()->has('success'))
-        <div class="rounded-md bg-green-50 p-3 text-sm text-green-700 border border-green-200">
-            {{ session('success') }}
-        </div>
-    @endif
 </div>

@@ -148,6 +148,7 @@ new #[Layout('layouts.guest')] class extends Component
             'id_iglesia_tenant' => $iglesiaTenantId,
             'connection'        => $tenantConnection,
         ]);
+        session()->put('pending_encargado_registration', true);
 
         event(new Registered($user));
         Auth::login($user);
