@@ -178,7 +178,7 @@
         }
         .trust-list {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 14px;
             text-align: center;
             color: #42465f;
@@ -452,7 +452,7 @@
             </nav>
 
             <div class="nav-actions">
-                <a href="{{ route('login') }}" class="btn-link">Iniciar sesion</a>
+                <a href="{{ route('login') }}" class="btn-link">Iniciar sesión</a>
                 <a href="{{ route('register.organization') }}" class="btn-sign">Crear cuenta</a>
             </div>
         </div>
@@ -466,7 +466,7 @@
                     Holy Manager en desarrollo
                 </div>
                 <h1 class="hero-title">Holy Manager<br>para tu iglesia</h1>
-                <p class="hero-copy">Una solucion integral de gestion disenada para comunidades catolicas, evangelicas y adventistas. Digitaliza tu fe y organiza tu congregacion con excelencia.</p>
+                <p class="hero-copy">Una solución integral de gestión diseñada para iglesias católicas. Evangélicas y adventistas en desarrollo. Digitaliza tu fe y organiza tu congregación con excelencia.</p>
                 <div class="hero-actions">
                     <a href="{{ route('register.organization') }}" class="btn-primary">Comenzar ahora</a>
                     <a href="{{ route('login') }}" class="btn-secondary">Ya tengo cuenta</a>
@@ -480,37 +480,10 @@
         <div class="container">
             <p class="trust-label">CON LA CONFIANZA DE DIVERSAS CONFESIONES</p>
             <div class="trust-list">
-                <div class="trust-item">⛪<span>Catolica</span></div>
-                <div class="trust-item">📖<span>Evangelica</span></div>
-                <div class="trust-item">✝<span>Adventista</span></div>
-                <div class="trust-item">🤝<span>Comunitaria</span></div>
+                <div class="trust-item">⛪<span>Católica</span></div>
+                <div class="trust-item">📖<span>Evangélica (en desarrollo)</span></div>
+                <div class="trust-item">✝<span>Adventista (en desarrollo)</span></div>
             </div>
-        </div>
-    </section>
-
-    <section class="stats-wrap">
-        <div class="container stats-grid">
-            <article class="stats-main">
-                <h2 class="stats-title">Impacto real en la administracion espiritual</h2>
-                <div class="stats-duo">
-                    <div>
-                        <p class="stat-number">+2,500</p>
-                        <p class="stat-text">Miembros registrados gestionados diariamente</p>
-                    </div>
-                    <div>
-                        <p class="stat-number alt">150+</p>
-                        <p class="stat-text">Iglesias activas transformando su gestion</p>
-                    </div>
-                </div>
-            </article>
-
-            <aside class="stats-side">
-                <div>
-                    <div class="shield">🛡</div>
-                    <p class="uptime">99.9%</p>
-                    <p class="uptime-copy">Disponibilidad del sistema garantizada para tu parroquia</p>
-                </div>
-            </aside>
         </div>
     </section>
 
@@ -533,7 +506,7 @@
                 </article>
 
                 <article class="feature-card">
-                    <div class="feature-media two" aria-hidden="true"></div>
+                    <div class="feature-media two" aria-hidden="true" style="background-image: url('https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&w=1000&q=80');"></div>
                     <h3 class="feature-title">Gestion de Cursos Comunitarios</h3>
                     <p class="feature-copy">Organice los cursos que ofrece la iglesia, asigne instructores, gestione inscripciones y de seguimiento al progreso de cada grupo formativo.</p>
                     <a href="#" class="feature-tag">Modulo de cursos</a>
@@ -546,7 +519,7 @@
         <div class="container">
             <div class="cta">
                 <h2 class="cta-title">Lleve su administracion al<br>siguiente nivel</h2>
-                <p class="cta-copy">Holy Manager esta en desarrollo para iglesias catolicas, evangelicas y adventistas. Unase a las comunidades que ya estan preparando su transformacion digital.</p>
+                <p class="cta-copy">Holy Manager está en desarrollo para iglesias católicas. Módulos para iglesias evangélicas y adventistas en desarrollo. Únase a las iglesias que ya están preparando su transformación digital.</p>
                 <div class="cta-actions">
                     <a href="{{ route('register.organization') }}" class="btn-light">Prueba gratuita de 14 dias</a>
                     <a href="{{ route('register.organization') }}" class="btn-ghost">Agendar demo</a>
@@ -559,7 +532,7 @@
         <div class="container footer-grid">
             <div>
                 <p class="footer-logo">Holy Manager</p>
-                <p class="footer-copy">© 2026 Holy Manager. Plataforma en desarrollo para iglesias catolicas, evangelicas y adventistas.</p>
+                <p class="footer-copy">© 2026 Holy Manager. Plataforma en desarrollo para iglesias católicas. Módulos evangélicos y adventistas en desarrollo.</p>
             </div>
 
             <div class="footer-links">
