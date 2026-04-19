@@ -15,8 +15,6 @@ class Iglesias extends Model
 {
     use HasFactory, SoftDeletes;
 
-    private const TENANT_DOMAIN_SUFFIX = '-holy-manager.com';
-
     protected $table = 'iglesias';
 
     /**
@@ -173,25 +171,20 @@ class Iglesias extends Model
             $base = 'iglesia';
         }
 
-        $candidateBase = $base;
+        $candidate = $base;
         $counter = 1;
 
         while (
             static::query()
-                ->where('subdomain', static::buildSubdomainFromBase($candidateBase))
+                ->where('subdomain', $candidate)
                 ->when($ignoreId > 0, fn ($query) => $query->where('id', '!=', $ignoreId))
                 ->exists()
         ) {
             $counter++;
-            $candidateBase = $base . '-' . $counter;
+            $candidate = $base . '-' . $counter;
         }
 
-        return static::buildSubdomainFromBase($candidateBase);
-    }
-
-    private static function buildSubdomainFromBase(string $base): string
-    {
-        return strtolower($base . static::TENANT_DOMAIN_SUFFIX);
+        return strtolower($candidate);
     }
 
     public function religion()

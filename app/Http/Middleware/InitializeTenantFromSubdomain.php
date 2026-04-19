@@ -21,9 +21,30 @@ class InitializeTenantFromSubdomain
             return $next($request);
         }
 
+        $baseDomain = strtolower(trim((string) config('tenancy.base_domain', '')));
+        $hostAsLabel = null;
+
+        if ($baseDomain !== '') {
+            $suffix = '.' . $baseDomain;
+
+            if ($host === $baseDomain) {
+                return $next($request);
+            }
+
+            if (str_ends_with($host, $suffix)) {
+                $hostAsLabel = substr($host, 0, -strlen($suffix));
+            }
+        }
+
         $iglesia = Iglesias::query()
             ->whereNotNull('subdomain')
-            ->whereRaw('LOWER(subdomain) = ?', [$host])
+            ->where(function ($query) use ($host, $hostAsLabel) {
+                $query->whereRaw('LOWER(subdomain) = ?', [$host]);
+
+                if ($hostAsLabel !== null && $hostAsLabel !== '') {
+                    $query->orWhereRaw('LOWER(subdomain) = ?', [$hostAsLabel]);
+                }
+            })
             ->first();
 
         if (! $iglesia || empty($iglesia->db_database)) {
