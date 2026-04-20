@@ -372,6 +372,168 @@
             border: 1px solid rgba(255,255,255,.36);
         }
 
+        /* ── Precios ── */
+        .pricing-section {
+            padding: 80px 0 60px;
+            background: var(--lavender-100);
+        }
+        .pricing-eyebrow {
+            text-align: center;
+            font-size: 11px;
+            letter-spacing: .18em;
+            color: var(--brand);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .pricing-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.9rem, 4vw, 2.8rem);
+            text-align: center;
+            line-height: 1.15;
+            margin-bottom: 48px;
+        }
+        .pricing-title em { font-style: italic; color: var(--brand); }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            align-items: start;
+            margin-bottom: 36px;
+        }
+        .pricing-card {
+            background: var(--white);
+            border: 1px solid #e0dff0;
+            border-radius: 18px;
+            padding: 30px 26px;
+            position: relative;
+        }
+        .pricing-card.featured {
+            border-color: var(--brand);
+            box-shadow: 0 8px 32px rgba(79,92,240,.13);
+        }
+        .pricing-badge-popular {
+            position: absolute;
+            top: -13px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--brand);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            border-radius: 999px;
+            padding: 4px 14px;
+            white-space: nowrap;
+        }
+        .pricing-plan-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .pricing-plan-desc {
+            color: var(--text-muted);
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 22px;
+            min-height: 40px;
+        }
+        .pricing-price {
+            font-size: 2.4rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .pricing-price span { font-size: 1rem; font-weight: 400; color: var(--text-muted); }
+        .pricing-billing {
+            font-size: 12px;
+            color: #e2963a;
+            font-weight: 600;
+            margin-bottom: 22px;
+        }
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .pricing-features li {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 13.5px;
+            color: #3a3d55;
+        }
+        .pricing-features li::before {
+            content: '';
+            display: inline-block;
+            width: 17px;
+            height: 17px;
+            min-width: 17px;
+            border-radius: 50%;
+            background: #e8ebff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='%234f5cf0' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/10px no-repeat;
+        }
+        .pricing-features li.feat-inherited {
+            color: var(--text-muted);
+        }
+        .pricing-btn {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 10px;
+            padding: 12px 18px;
+            font-weight: 600;
+            font-size: 13.5px;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            transition: .2s ease;
+        }
+        .pricing-btn-outline {
+            border: 1.5px solid var(--brand);
+            color: var(--brand);
+            background: transparent;
+        }
+        .pricing-btn-outline:hover { background: #f0f1ff; }
+        .pricing-btn-solid {
+            background: var(--brand);
+            color: #fff;
+            border: 1.5px solid var(--brand);
+        }
+        .pricing-btn-solid:hover { background: var(--brand-strong); }
+
+        .pricing-guarantee {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #fff;
+            border: 1px solid #e0dff0;
+            border-radius: 14px;
+            padding: 16px 24px;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+        .pricing-guarantee-icon {
+            font-size: 1.6rem;
+            flex-shrink: 0;
+        }
+        .pricing-guarantee-text {
+            font-size: 13.5px;
+            color: #3a3d55;
+            line-height: 1.5;
+        }
+        .pricing-guarantee-text strong {
+            color: var(--ink-950);
+            font-weight: 700;
+        }
+
+        @media (max-width: 860px) {
+            .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; }
+        }
+
         .footer {
             background: #ecebf7;
             border-top: 1px solid #dad7ea;
@@ -515,7 +677,74 @@
         </div>
     </section>
 
-    <section class="cta-wrap" id="precios">
+    <section class="pricing-section" id="precios">
+        <div class="container">
+            <p class="pricing-eyebrow">Planes</p>
+            <h2 class="pricing-title">Planes que crecen con tu<br><em>comunidad</em></h2>
+
+            <div class="pricing-grid">
+
+                {{-- Mensual --}}
+                <div class="pricing-card">
+                    <p class="pricing-plan-name">Mensual</p>
+                    <p class="pricing-plan-desc">Ideal para parroquias pequeñas que inician su digitalización.</p>
+                    <p class="pricing-price">$37<span> /mes</span></p>
+                    <p class="pricing-billing">Facturado mensualmente</p>
+                    <ul class="pricing-features">
+                        <li>Gestión de feligreses</li>
+                        <li>Registro de sacramentos</li>
+                        <li>Certificados digitales</li>
+                        <li>Soporte por email</li>
+                    </ul>
+                    <a href="{{ route('register.organization') }}" class="pricing-btn pricing-btn-outline">Comenzar ahora</a>
+                </div>
+
+                {{-- Anual --}}
+                <div class="pricing-card featured">
+                    <span class="pricing-badge-popular">Más popular</span>
+                    <p class="pricing-plan-name">Anual</p>
+                    <p class="pricing-plan-desc">Para comunidades activas con múltiples grupos y eventos.</p>
+                    <p class="pricing-price">$400<span> /año</span></p>
+                    <p class="pricing-billing">Facturado anualmente · Ahorra un mes</p>
+                    <ul class="pricing-features">
+                        <li class="feat-inherited">Todo en Mensual</li>
+                        <li>Gestión de cursos</li>
+                        <li>Inscripción y seguimiento de estudiantes</li>
+                        <li>Gestión de instructores y encargados</li>
+                        <li>Gestión de documentos</li>
+                    </ul>
+                    <a href="{{ route('register.organization') }}" class="pricing-btn pricing-btn-solid">Comenzar ahora</a>
+                </div>
+
+                {{-- Personalizado --}}
+                <div class="pricing-card">
+                    <p class="pricing-plan-name">Personalizado</p>
+                    <p class="pricing-plan-desc">Para diócesis o comunidades con múltiples sedes. Incluye todas las funciones anteriores.</p>
+                    <p class="pricing-price" style="font-size:1.8rem; padding-top:4px;">A medida</p>
+                    <p class="pricing-billing">Consulta nuestras tarifas para redes</p>
+                    <ul class="pricing-features">
+                        <li class="feat-inherited">Todo en Anual</li>
+                        <li>Roles y permisos avanzados</li>
+                        <li>Auditoría y registro de actividad</li>
+                        <li>Soporte prioritario 24/7</li>
+                    </ul>
+                    <a href="{{ route('register.organization') }}" class="pricing-btn pricing-btn-outline">Contactar ventas</a>
+                </div>
+
+            </div>
+
+            {{-- Garantía --}}
+            <div class="pricing-guarantee">
+                <span class="pricing-guarantee-icon">🛡️</span>
+                <p class="pricing-guarantee-text">
+                    <strong>14 días de prueba gratuita, sin tarjeta de crédito.</strong>
+                    Prueba Holy Manager sin compromiso. Si no es para ti, cancela en cualquier momento.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-wrap" id="cta">
         <div class="container">
             <div class="cta">
                 <h2 class="cta-title">Lleve su administracion al<br>siguiente nivel</h2>
