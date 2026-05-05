@@ -45,6 +45,12 @@ class Curso extends BaseModel
         return $this->belongsTo(Instructor::class, 'instructor_id')->withTrashed();
     }
 
+    public function instructors()
+    {
+        return $this->belongsToMany(Instructor::class, 'curso_instructor', 'curso_id', 'instructor_id')
+            ->withTimestamps();
+    }
+
     public function inscripcionesCurso()
     {
         return $this->hasMany(InscripcionCurso::class, 'curso_id');

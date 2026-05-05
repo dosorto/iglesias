@@ -85,8 +85,8 @@
             letter-spacing: 0.4px;
         }
         .header-divider {
-            border-top: 2px solid #8aa8bc;
-            margin: 5px 0 7px;
+            border-top: 1px solid #6f99ad;
+            margin: 7px 0 14px;
         }
         .header-right-cell {
             display: table-cell;
@@ -100,34 +100,14 @@
             object-fit: contain;
         }
 
-        /* ── DECORATIVE ── */
-        .hr-accent {
-            border: none;
-            border-top: 1px solid #7D5A1E;
-            margin: 2px 0;
-        }
-        .ornament {
+        .doc-title {
             text-align: center;
-            color: #7D5A1E;
-            font-size: 10pt;
-            letter-spacing: 8px;
-            margin: 1px 0;
-        }
-
-        /* ── CERT TITLE BANNER ── */
-        .cert-title-wrap {
-            text-align: center;
-            margin: 8px 0;
-        }
-        .cert-title {
-            display: inline-block;
-            background: #7D5A1E;
-            color: #fff;
-            font-size: 11.5pt;
-            font-weight: bold;
-            letter-spacing: 3px;
+            font-size: 15.5pt;
+            font-weight: 700;
             text-transform: uppercase;
-            padding: 4px 22px;
+            text-decoration: underline;
+            letter-spacing: 0.4px;
+            margin-bottom: 12px;
         }
 
         /* ── BODY TEXT ── */
@@ -359,6 +339,7 @@
     $encargado= $matrimonio->encargado?->feligres?->persona;
     $encargadoModel = $matrimonio->encargado;
     $firmaPath = $resolvePublicFilePath($encargadoModel?->path_firma_principal);
+    $firmaEncargadoNombre = trim((string) ($encargado?->nombre_completo ?? ''));
 
     $iglesiaNombreHeader = $matrimonio->iglesia?->nombre ?? $iglesiaConfig?->nombre ?? '';
     $headerDiocesis = $iglesiaConfig?->header_diocesis ?: '';
@@ -380,7 +361,16 @@
     $mesE = $fe ? $mesesEs[$fe->month] : '__________';
     $anoE = $fe ? substr((string)$fe->year, 2) : '____';
 
-    $lugarExp = $matrimonio->lugar_expedicion ?? '';
+    $lugarExp = trim((string) ($iglesiaConfig?->direccion ?? ''));
+    if ($lugarExp === '') {
+        $lugarExp = trim((string) ($matrimonio->iglesia?->direccion ?? ''));
+    }
+    if ($lugarExp === '') {
+        $lugarExp = trim((string) ($matrimonio->lugar_expedicion ?? ''));
+    }
+    if ($lugarExp === '') {
+        $lugarExp = 'Monjaras, Marcovia, Choluteca, Honduras C. A.';
+    }
 
     $esposoNombre  = $esposo?->nombre_completo  ?? '______________________________';
     $esposaNombre  = $esposa?->nombre_completo  ?? '______________________________';
@@ -419,18 +409,7 @@
     </div>
 
     <div class="header-divider"></div>
-
-    <hr class="hr-accent">
-    <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
-    <hr class="hr-accent">
-
-    <div class="cert-title-wrap">
-        <span class="cert-title">CONSTANCIA DE CELEBRACI&Oacute;N DE MATRIMONIO</span>
-    </div>
-
-    <hr class="hr-accent">
-    <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
-    <hr class="hr-accent">
+    <div class="doc-title">CONSTANCIA DE CELEBRACI&Oacute;N DE MATRIMONIO</div>
 
     {{-- ===== BODY ===== --}}
     <div class="body-text">
@@ -490,10 +469,8 @@
                     <img src="{{ $firmaPath }}" alt="Firma del sacerdote" class="signature-image">
                 </div>
             @endif
-            <p style="font-size:9.4pt; margin-bottom: 14px;">Firma del Sacerdote celebrante:</p>
             <span class="priest-sig-line"></span>
-            <p class="priest-label">Sacerdote Celebrante</p>
-            <p class="priest-name">{{ $sacerdote }}</p>
+            <div class="priest-name">{{ $firmaEncargadoNombre }}</div>
         </div>
     </div>
 

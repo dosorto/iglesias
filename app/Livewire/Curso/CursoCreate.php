@@ -28,6 +28,7 @@ class CursoCreate extends Component
 
     public $tipo_curso_id = null;
     public $instructor_id = null;
+    public array $instructor_ids = [];
 
     // =========================
     // SOPORTE IGLESIA
@@ -303,6 +304,7 @@ class CursoCreate extends Component
 
         if ($instructor) {
             $this->instructor_id = $instructor->id;
+            $this->instructor_ids = [$instructor->id];
             $this->cancelarCrearInstructor();
 
             session()->flash('success', 'Ese instructor ya existe y fue seleccionado automáticamente.');
@@ -446,6 +448,7 @@ class CursoCreate extends Component
         $credentials = $this->asegurarUsuarioInstructor($feligres, (int) $this->iglesia_id);
 
         $this->instructor_id = $instructor->id;
+        $this->instructor_ids = [$instructor->id];
         $this->cancelarCrearInstructor();
 
         session()->flash('success', 'Instructor creado correctamente.');
@@ -483,6 +486,7 @@ class CursoCreate extends Component
             $credentials = $this->asegurarUsuarioInstructor($feligres, (int) $this->iglesia_id);
 
             $this->instructor_id = $instructorExistente->id;
+            $this->instructor_ids = [$instructorExistente->id];
             $this->cancelarCrearInstructor();
 
             session()->flash('success', 'Ese instructor ya existía y fue seleccionado.');
@@ -502,6 +506,7 @@ class CursoCreate extends Component
         $credentials = $this->asegurarUsuarioInstructor($feligres, (int) $this->iglesia_id);
 
         $this->instructor_id = $instructor->id;
+        $this->instructor_ids = [$instructor->id];
         $this->cancelarCrearInstructor();
 
         session()->flash('success', 'Instructor registrado correctamente.');
@@ -634,7 +639,8 @@ class CursoCreate extends Component
             'iglesia_id' => ['required', 'exists:iglesias,id'],
             'encargado_id' => ['required', 'exists:encargado,id'],
             'tipo_curso_id' => ['required', 'exists:tipos_curso,id'],
-            'instructor_id' => ['required', 'exists:instructores,id'],
+            'instructor_ids' => ['required', 'array', 'min:1'],
+            'instructor_ids.*' => ['integer', 'exists:instructores,id'],
         ], [
             'nombre.required' => 'El nombre del curso es obligatorio.',
             'nombre.max' => 'El nombre del curso no puede exceder 200 caracteres.',
@@ -658,11 +664,19 @@ class CursoCreate extends Component
             'tipo_curso_id.required' => 'Debe seleccionar un tipo de curso.',
             'tipo_curso_id.exists' => 'El tipo de curso seleccionado no existe.',
 
-            'instructor_id.required' => 'Debe seleccionar un instructor.',
-            'instructor_id.exists' => 'El instructor seleccionado no existe.',
+            'instructor_ids.required' => 'Debe seleccionar al menos un instructor.',
+            'instructor_ids.min' => 'Debe seleccionar al menos un instructor.',
+            'instructor_ids.*.exists' => 'Uno de los instructores seleccionados no existe.',
         ]);
 
-        Curso::create([
+        $primaryInstructorId = (int) ($this->instructor_ids[0] ?? 0);
+
+        if ($primaryInstructorId <= 0) {
+            $this->addError('instructor_ids', 'Debe seleccionar al menos un instructor.');
+            return;
+        }
+
+        $curso = Curso::create([
             'nombre' => $this->nombre,
             'fecha_inicio' => $this->fecha_inicio,
             'fecha_fin' => $this->fecha_fin,
@@ -670,9 +684,11 @@ class CursoCreate extends Component
             'iglesia_id' => $this->iglesia_id,
             'encargado_id' => $this->encargado_id,
             'tipo_curso_id' => $this->tipo_curso_id,
-            'instructor_id' => $this->instructor_id,
+            'instructor_id' => $primaryInstructorId,
             'created_by' => Auth::id(),
         ]);
+
+        $curso->instructors()->sync(array_values(array_unique(array_map('intval', $this->instructor_ids))));
 
         session()->flash('success', 'Curso creado correctamente.');
 

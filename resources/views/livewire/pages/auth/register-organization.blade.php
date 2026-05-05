@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -36,6 +34,11 @@ new #[Layout('layouts.guest')] class extends Component
     public string $password              = '';
     public string $password_confirmation = '';
 
+    public function mount(): void
+    {
+        $this->ensureCatolicaReligion();
+    }
+
     public function nextStep(): void
     {
         $this->validateStepOne();
@@ -49,31 +52,12 @@ new #[Layout('layouts.guest')] class extends Component
 
     public function registerOrganization(): void
     {
+        $this->ensureCatolicaReligion();
         $this->validateStepOne();
         $validated = $this->validate([
             'name'     => ['required', 'string', 'min:3', 'max:255'],
-            'email'    => [
-                'required',
-                'string',
-                'lowercase',
-                'email',
-                'max:255',
-                Rule::unique(User::class, 'email'),
-                function (string $attribute, mixed $value, \Closure $fail): void {
-                    if (! is_string($value)) {
-                        return;
-                    }
-
-                    if ($this->correoSimilarExisteEnUsuarios($value)) {
-                        $fail('Este correo ya existe (o es un alias equivalente) en otra cuenta de usuario. Usa uno distinto para evitar problemas al iniciar sesión.');
-                    }
-                },
-            ],
+            'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
-        ], [
-            'email.required' => 'El correo del usuario es obligatorio.',
-            'email.email'    => 'El correo del usuario no es válido.',
-            'email.unique'   => 'Este correo ya existe en otra cuenta de usuario. Usa uno distinto para evitar problemas al iniciar sesión.',
         ]);
 
         // Guardar logo si fue subido
@@ -91,7 +75,6 @@ new #[Layout('layouts.guest')] class extends Component
             'parroco_nombre' => $validated['name'],
             'telefono'       => $this->telefono_iglesia ?: null,
             'email'          => $this->email_iglesia    ?: null,
-            'subdomain'      => Iglesias::resolveUniqueSubdomainForName($this->nombre),
             'estado'         => 'Activa',
             'id_religion'    => $this->id_religion      ?: null,
             'path_logo'      => $logoPath,
@@ -150,7 +133,7 @@ new #[Layout('layouts.guest')] class extends Component
             $user = User::create([
                 'id_iglesia'        => $iglesiaTenantId,
                 'name'              => $validated['name'],
-                'email'             => Str::lower(trim($validated['email'])),
+                'email'             => strtolower($validated['email']),
                 'email_verified_at' => now(),
                 'password'          => Hash::make($validated['password']),
             ]);
@@ -168,29 +151,25 @@ new #[Layout('layouts.guest')] class extends Component
             'id_iglesia'        => $iglesia->id,
             'id_iglesia_tenant' => $iglesiaTenantId,
             'connection'        => $tenantConnection,
+            'host'              => $tenant['host'],
+            'port'              => $tenant['port'],
+            'database'          => $tenant['database'],
+            'username'          => $tenant['username'],
+            'password'          => $tenant['password'],
         ]);
-        session()->put('pending_encargado_registration', true);
 
         event(new Registered($user));
         Auth::login($user);
 
-        session()->flash('success', 'La iglesia se ha creado correctamente. Ahora completa tu perfil de encargado.');
-
-        $baseDomain = trim((string) config('tenancy.base_domain', ''));
-
-        if ($baseDomain !== '' && ! empty($iglesia->subdomain)) {
-            $scheme = request()->getScheme() ?: 'https';
-            $tenantOnboardingUrl = $scheme . '://' . $iglesia->subdomain . '.' . $baseDomain . '/register-perfil';
-
-            $this->redirect($tenantOnboardingUrl, navigate: false);
-            return;
-        }
+        session()->flash('success', 'La parroquia se ha creado correctamente. Ahora completa tu perfil de encargado.');
 
         $this->redirect(route('register-perfil', absolute: false), navigate: true);
     }
 
     private function validateStepOne(): void
     {
+        $this->ensureCatolicaReligion();
+
         $this->validate([
             'nombre'           => ['required', 'string', 'min:3', 'max:200'],
             'direccion'        => ['required', 'string', 'min:5'],
@@ -199,7 +178,7 @@ new #[Layout('layouts.guest')] class extends Component
             'id_religion'      => ['required', 'exists:religion,id'],
             'path_logo'        => ['nullable', 'image', 'max:2048'],
         ], [
-            'nombre.required'      => 'El nombre de la iglesia es obligatorio.',
+            'nombre.required'      => 'El nombre de la parroquia es obligatorio.',
             'direccion.required'   => 'La ubicación física es necesaria.',
             'id_religion.required' => 'Debes seleccionar una religión.',
             'id_religion.exists'   => 'La religión seleccionada no es válida.',
@@ -208,108 +187,26 @@ new #[Layout('layouts.guest')] class extends Component
         ]);
     }
 
-    private function correoSimilarExisteEnUsuarios(string $email): bool
+    private function ensureCatolicaReligion(): void
     {
-        $target = $this->normalizarEmailParaComparacion($email);
+        $religion = Religion::query()
+            ->where('religion', 'Católica')
+            ->orWhere('religion', 'Catolica')
+            ->first();
 
-        if (!str_contains($target, '@')) {
-            return false;
-        }
-
-        [$targetLocal, $targetDomain] = explode('@', $target, 2);
-
-        $centralConnection = config('tenancy.central_connection', config('database.default'));
-
-        $centralCandidates = User::on($centralConnection)
-            ->withTrashed()
-            ->select('email')
-            ->where(function ($query) use ($targetDomain, $targetLocal) {
-                if ($targetDomain === 'gmail.com') {
-                    $query->whereRaw('LOWER(email) LIKE ?', ['%@gmail.com'])
-                        ->orWhereRaw('LOWER(email) LIKE ?', ['%@googlemail.com']);
-                } else {
-                    $query->whereRaw('LOWER(email) = ?', [$targetLocal . '@' . $targetDomain]);
-                }
-            })
-            ->pluck('email')
-            ->filter(fn ($item) => is_string($item) && $item !== '');
-
-        if ($centralCandidates->contains(fn (string $existingEmail) => $this->normalizarEmailParaComparacion($existingEmail) === $target)) {
-            return true;
-        }
-
-        $baseConfig = config("database.connections.{$centralConnection}");
-
-        if (!is_array($baseConfig) || empty($baseConfig)) {
-            return false;
-        }
-
-        $iglesias = Iglesias::query()
-            ->whereNotNull('db_database')
-            ->get(['id', 'db_host', 'db_port', 'db_database', 'db_username', 'db_password']);
-
-        foreach ($iglesias as $iglesia) {
-            $tempConn = 'tenant_email_check_' . $iglesia->id;
-
-            $tenantConfig = array_merge($baseConfig, [
-                'host' => $iglesia->db_host ?: ($baseConfig['host'] ?? null),
-                'port' => $iglesia->db_port ?: ($baseConfig['port'] ?? null),
-                'database' => $iglesia->db_database,
-                'username' => $iglesia->db_username ?: ($baseConfig['username'] ?? null),
-                'password' => $iglesia->db_password ?: ($baseConfig['password'] ?? null),
+        if (! $religion) {
+            $religion = Religion::query()->firstOrCreate([
+                'religion' => 'Católica',
             ]);
-
-            config(["database.connections.{$tempConn}" => $tenantConfig]);
-            DB::purge($tempConn);
-
-            $tenantQuery = DB::connection($tempConn)
-                ->table('users')
-                ->whereNull('deleted_at');
-
-            if ($targetDomain === 'gmail.com') {
-                $tenantQuery->where(function ($query) {
-                    $query->whereRaw('LOWER(email) LIKE ?', ['%@gmail.com'])
-                        ->orWhereRaw('LOWER(email) LIKE ?', ['%@googlemail.com']);
-                });
-            } else {
-                $tenantQuery->whereRaw('LOWER(email) = ?', [$targetLocal . '@' . $targetDomain]);
-            }
-
-            $tenantCandidates = $tenantQuery
-                ->pluck('email')
-                ->filter(fn ($item) => is_string($item) && $item !== '');
-
-            if ($tenantCandidates->contains(fn (string $existingEmail) => $this->normalizarEmailParaComparacion($existingEmail) === $target)) {
-                return true;
-            }
         }
 
-        return false;
-    }
-
-    private function normalizarEmailParaComparacion(string $email): string
-    {
-        $normalized = Str::lower(trim($email));
-
-        if (!str_contains($normalized, '@')) {
-            return $normalized;
-        }
-
-        [$localPart, $domain] = explode('@', $normalized, 2);
-
-        if (in_array($domain, ['gmail.com', 'googlemail.com'], true)) {
-            $domain = 'gmail.com';
-            $localPart = preg_replace('/\+.*/', '', $localPart) ?? $localPart;
-            $localPart = str_replace('.', '', $localPart);
-        }
-
-        return $localPart . '@' . $domain;
+        $this->id_religion = (int) $religion->id;
     }
 }; ?>
 
 <div class="space-y-6">
     <div class="text-center">
-        <h1 class="text-2xl font-bold text-gray-900">Crear Cuenta de Iglesia</h1>
+        <h1 class="text-2xl font-bold text-gray-900">Crear Cuenta de Parroquia</h1>
         <p class="mt-2 text-sm text-gray-600">Completa 2 pasos para iniciar con tu cuenta administradora.</p>
     </div>
 
@@ -320,7 +217,7 @@ new #[Layout('layouts.guest')] class extends Component
                 {{ $step > 1 ? 'bg-green-500 text-white' : ($step === 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500') }}">
                 {{ $step > 1 ? '✓' : '1' }}
             </span>
-            <span class="text-sm {{ $step >= 1 ? 'text-gray-900 font-medium' : 'text-gray-500' }}">Iglesia</span>
+            <span class="text-sm {{ $step >= 1 ? 'text-gray-900 font-medium' : 'text-gray-500' }}">Parroquia</span>
         </div>
         <div class="h-px flex-1 bg-gray-200"></div>
         <div class="flex items-center gap-2">
@@ -333,10 +230,10 @@ new #[Layout('layouts.guest')] class extends Component
     {{-- PASO 1 --}}
     @if ($step === 1)
         <form wire:submit="nextStep" class="space-y-4">
-            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Datos de la Iglesia</p>
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Datos de la Parroquia</p>
 
             <div>
-                <x-input-label for="nombre" value="Nombre de la Iglesia *" />
+                <x-input-label for="nombre" value="Nombre de la Parroquia *" />
                 <x-text-input wire:model="nombre" id="nombre" class="mt-1 block w-full" type="text" required autofocus />
                 <x-input-error :messages="$errors->get('nombre')" class="mt-1" />
             </div>
@@ -347,21 +244,11 @@ new #[Layout('layouts.guest')] class extends Component
                 <x-input-error :messages="$errors->get('direccion')" class="mt-1" />
             </div>
 
-            {{-- Religión --}}
+            {{-- Religión fija por rama iglesia test --}}
             <div>
-                <x-input-label for="id_religion" value="Religión *" />
-                <select wire:model="id_religion" id="id_religion" required
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm
-                               focus:border-indigo-500 focus:ring-indigo-500 text-sm
-                               dark:bg-gray-700 dark:border-gray-600 dark:text-white
-                               @error('id_religion') border-red-500 @enderror">
-                    <option value="">— Selecciona una religión —</option>
-                    @foreach (\App\Models\Religion::orderBy('religion')->get() as $rel)
-                        <option value="{{ $rel->id }}" {{ $id_religion == $rel->id ? 'selected' : '' }}>
-                            {{ $rel->religion }}
-                        </option>
-                    @endforeach
-                </select>
+                <x-input-label for="religion_display" value="Religión *" />
+                <x-text-input id="religion_display" class="mt-1 block w-full bg-gray-100" type="text" value="Católica" disabled readonly />
+                <input type="hidden" wire:model="id_religion">
                 <x-input-error :messages="$errors->get('id_religion')" class="mt-1" />
             </div>
 
@@ -372,15 +259,15 @@ new #[Layout('layouts.guest')] class extends Component
                     <x-input-error :messages="$errors->get('telefono_iglesia')" class="mt-1" />
                 </div>
                 <div>
-                    <x-input-label for="email_iglesia" value="Correo de la Iglesia" />
+                    <x-input-label for="email_iglesia" value="Correo de la Parroquia" />
                     <x-text-input wire:model="email_iglesia" id="email_iglesia" class="mt-1 block w-full" type="email" />
                     <x-input-error :messages="$errors->get('email_iglesia')" class="mt-1" />
                 </div>
             </div>
 
-            {{-- Logo de la Iglesia --}}
+            {{-- Logo de la Parroquia --}}
             <div>
-                <x-input-label value="Logo de la Iglesia (opcional)" class="mb-2" />
+                <x-input-label value="Logo de la Parroquia (opcional)" class="mb-2" />
 
                 <label for="path_logo"
                        class="group relative flex flex-col items-center justify-center w-full
@@ -471,12 +358,12 @@ new #[Layout('layouts.guest')] class extends Component
                 @if ($path_logo)
                     <div class="flex items-center gap-3 pb-2 border-b border-gray-200">
                         <img src="{{ $path_logo->temporaryUrl() }}"
-                             alt="Logo iglesia"
+                             alt="Logo parroquia"
                              class="w-12 h-12 rounded-lg object-contain border border-gray-200 bg-white" />
                         <span class="font-semibold text-base">{{ $nombre }}</span>
                     </div>
                 @else
-                    <div>Iglesia: <span class="font-semibold">{{ $nombre }}</span></div>
+                    <div>Parroquia: <span class="font-semibold">{{ $nombre }}</span></div>
                 @endif
                 @if($telefono_iglesia)
                     <div>Teléfono: <span class="font-semibold">{{ $telefono_iglesia }}</span></div>
@@ -517,7 +404,7 @@ new #[Layout('layouts.guest')] class extends Component
             <div class="flex items-center justify-between">
                 <x-secondary-button type="button" wire:click="previousStep">← Volver</x-secondary-button>
                 <x-primary-button>
-                    <span wire:loading.remove wire:target="registerOrganization">Crear Iglesia →</span>
+                    <span wire:loading.remove wire:target="registerOrganization">Crear Parroquia →</span>
                     <span wire:loading wire:target="registerOrganization">Creando...</span>
                 </x-primary-button>
             </div>

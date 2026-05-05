@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Detalle de Iglesia')
+@section('title', 'Detalle de Parroquia')
 
 @section('content')
 <div class="container-fluid max-w-7xl mx-auto">
     {{-- Header --}}
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-wider">Detalle de Iglesia</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white uppercase tracking-wider">Detalle de Parroquia</h1>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Información institucional y registro histórico de la congregación.</p>
         </div>
         <div class="flex gap-2">
@@ -31,7 +31,7 @@
                 </div>
                 <div class="p-6 space-y-4">
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Nombre de la Iglesia</label>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Nombre de la Parroquia</label>
                         <p class="text-lg font-bold text-gray-900 dark:text-white">{{ $iglesia->nombre }}</p>
                     </div>
                     <div>
@@ -133,7 +133,7 @@
                                     </div>
                                 </li>
                             @empty
-                                <li class="text-sm text-gray-500 dark:text-gray-400 italic py-4 text-center">No hay registros de actividad para esta iglesia.</li>
+                                <li class="text-sm text-gray-500 dark:text-gray-400 italic py-4 text-center">No hay registros de actividad para esta parroquia.</li>
                             @endforelse
                         </ul>
                     </div>

@@ -3,16 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Certificación de Bautismo</title>
-    @php $isLandscape = (($iglesiaConfig?->orientacion_certificado_bautismo ?? $iglesiaConfig?->orientacion_certificado) === 'landscape'); @endphp
+    <title>Certificacion de Bautismo</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Times New Roman', Times, serif;
+            color: #1c1c1c;
             font-size: 12pt;
-            color: #1a1a1a;
+            line-height: 1.45;
             background: #fff;
+        }
+
+        .page {
+            padding: 26px 30px 30px;
+            position: relative;
+            margin: 8px;
+            border: 3px double #7D5A1E;
+            z-index: 2;
+            background: transparent;
         }
 
         .watermark-logo {
@@ -20,308 +29,199 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            opacity: 0.08;
+            opacity: 0.075;
             z-index: 0;
         }
 
         .watermark-logo img {
-            width: 430px;
+            width: 390px;
             height: auto;
             object-fit: contain;
         }
 
-        .page-wrapper {
-            padding: 26px 36px 28px;
-            border: none;
-            margin: 2px;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* ── HEADER ── */
         .header {
-            display: table;
             width: 100%;
-            margin-bottom: 10px;
-        }
-        .header-logo-cell {
-            display: table-cell;
-            width: 85px;
-            vertical-align: middle;
-            text-align: center;
-        }
-        .header-logo-cell img {
-            width: 75px;
-            height: 75px;
-            object-fit: contain;
-        }
-        .header-title-cell {
-            display: table-cell;
-            vertical-align: middle;
-            text-align: center;
-        }
-        .parish-name {
-            font-size: 19pt;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            line-height: 1.1;
-        }
-        .diocese-name {
-            font-size: 13pt;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 3px;
-            color: #555;
-        }
-        .header-address {
-            font-size: 11pt;
-            margin-top: 4px;
-            color: #222;
-            letter-spacing: 0.5px;
-        }
-        .header-divider {
-            border-top: 2px solid #8aa8bc;
-            margin: 6px 0 8px;
-        }
-        .header-right-cell {
-            display: table-cell;
-            width: 85px;
-            vertical-align: middle;
-            text-align: center;
-        }
-        .header-right-cell img {
-            width: 75px;
-            height: 75px;
-            object-fit: contain;
+            margin-bottom: 8px;
         }
 
-        /* ── DECORATIVE ── */
-        .hr-accent {
-            border: none;
-            border-top: 1px solid #7D5A1E;
-            margin: 3px 0;
-        }
-        .ornament {
-            text-align: center;
-            color: #7D5A1E;
-            font-size: 11pt;
-            letter-spacing: 8px;
-            margin: 3px 0;
-        }
-
-        /* ── CERT TITLE BANNER ── */
-        .cert-title-wrap {
-            text-align: center;
-            margin: 8px 0;
-        }
-        .cert-title {
-            display: inline-block;
-            background: #7D5A1E;
-            color: #fff;
-            font-size: 13.5pt;
-            font-weight: bold;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            padding: 5px 32px;
-        }
-
-        /* ── BODY TEXT ── */
-        .body-text {
-            line-height: 2;
-            font-size: 11.5pt;
-        }
-        .body-text p {
-            margin-bottom: 2px;
-        }
-        .line-field {
-            display: inline-block;
-            min-width: 200px;
-            border-bottom: 1px solid #333;
-            margin: 0 3px;
-            vertical-align: bottom;
-        }
-        .line-field-sm { min-width: 70px; }
-        .line-field-lg { min-width: 260px; }
-        .line-field-xl { min-width: 320px; }
-        .section-label { font-weight: bold; }
-
-        /* ── SIGNATURES ── */
-        .sig-right {
-            width: 260px;
-            margin-left: auto;
-            margin-right: 24px;
-            text-align: center;
-            margin-top: 26px;
-        }
-        .sig-name {
-            text-align: center;
-            font-size: 11pt;
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-        .sig-line-accent {
-            display: block;
-            width: 220px;
-            margin: 0 auto;
-            border-top: 2px solid #7D5A1E;
-            text-align: center;
-            font-size: 9.5pt;
-            font-weight: bold;
-            letter-spacing: 2px;
-            padding-top: 4px;
-            color: #7D5A1E;
-        }
-
-        /* ── ISSUANCE ── */
-        .issuance {
-            margin-top: 22px;
-            font-size: 11.5pt;
-            line-height: 2;
-        }
-        .sello {
-            font-size: 10pt;
-            font-style: italic;
-            margin-top: 4px;
-            color: #666;
-        }
-        .footer-row {
-            display: table;
+        .header-table {
             width: 100%;
-            margin-top: 10px;
-            page-break-inside: avoid;
+            border-collapse: collapse;
         }
-        .footer-seal,
-        .footer-qr,
-        .footer-signature {
-            display: table-cell;
-            vertical-align: bottom;
-        }
-        .footer-seal {
-            width: 33%;
+
+        .logo-cell {
+            width: 84px;
+            vertical-align: top;
             text-align: left;
+            padding-top: 2px;
         }
-        .footer-qr {
-            width: 34%;
-            text-align: center;
+
+        .logo-cell img {
+            width: 62px;
+            height: auto;
+            object-fit: contain;
         }
-        .footer-signature {
-            width: 33%;
+
+        .logo-right-cell {
+            width: 84px;
+            vertical-align: top;
             text-align: right;
+            padding-top: 2px;
         }
-        .sig-bottom {
-            width: 260px;
-            margin: 0 0 0 auto;
+
+        .logo-right-cell img {
+            width: 62px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .title-cell {
             text-align: center;
+            vertical-align: top;
         }
 
-        body.is-landscape .page-wrapper {
-            padding: 14px 22px 20px;
-            margin: 4px;
-        }
-        body.is-landscape .header {
-            margin-bottom: 6px;
-        }
-        body.is-landscape .header-logo-cell,
-        body.is-landscape .header-right-cell {
-            width: 72px;
-        }
-        body.is-landscape .header-logo-cell img,
-        body.is-landscape .header-right-cell img {
-            width: 58px;
-            height: 58px;
-        }
-        body.is-landscape .parish-name {
-            font-size: 15pt;
-            letter-spacing: 1px;
-        }
-        body.is-landscape .diocese-name {
-            font-size: 10.5pt;
-            margin-top: 1px;
-        }
-        body.is-landscape .header-address {
-            font-size: 9pt;
-            margin-top: 2px;
-        }
-        body.is-landscape .header-divider {
-            margin: 4px 0 6px;
-        }
-        body.is-landscape .ornament {
-            margin: 1px 0;
-        }
-        body.is-landscape .cert-title-wrap {
-            margin: 5px 0;
-        }
-        body.is-landscape .cert-title {
-            font-size: 11.5pt;
-            padding: 3px 24px;
-            letter-spacing: 3px;
-        }
-        body.is-landscape .body-text {
-            margin-top: 8px;
-            line-height: 1.35;
-            font-size: 9.5pt;
-        }
-        body.is-landscape .body-text p {
-            margin-bottom: 1px;
-        }
-        body.is-landscape .line-field {
-            min-width: 150px;
-        }
-        body.is-landscape .line-field-sm {
-            min-width: 52px;
-        }
-        body.is-landscape .line-field-lg {
-            min-width: 200px;
-        }
-        body.is-landscape .line-field-xl {
-            min-width: 250px;
-        }
-        body.is-landscape .sig-right {
-            margin-top: 10px;
-            margin-right: 10px;
-        }
-        body.is-landscape .issuance {
-            margin-top: 8px;
-            font-size: 9.5pt;
-            line-height: 1.45;
-        }
-        body.is-landscape .footer-row {
-            margin-top: 10px;
-        }
-        body.is-landscape .sig-bottom {
-            width: 220px;
+        .parroquia {
+            font-size: 19pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
         }
 
-        .qr-verify {
-            position: fixed;
-            left: 16px;
-            bottom: 12px;
-            display: block;
-            margin-top: 0;
-            text-align: center;
-            font-size: 8pt;
-            color: #555;
-            line-height: 1;
-            z-index: 2;
-        }
-
-        .qr-verify img {
-            width: 54px;
-            height: 54px;
-            border: 1px solid #d1d5db;
-            padding: 2px;
-            background: #fff;
-        }
-
-        .qr-code {
+        .diocesis {
+            font-size: 14pt;
+            font-weight: 700;
+            text-transform: uppercase;
             margin-top: 3px;
+        }
+
+        .direccion {
+            font-size: 12pt;
+            font-weight: 700;
+            margin-top: 3px;
+        }
+
+        .top-rule {
+            border: none;
+            border-top: 1px solid #6f99ad;
+            margin: 7px 0 14px;
+        }
+
+        .doc-title {
+            text-align: center;
+            font-size: 15.5pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-decoration: underline;
+            margin-bottom: 12px;
             letter-spacing: 0.4px;
         }
 
-        body.is-landscape .qr-verify img {
-            width: 54px;
-            height: 54px;
+        .text-block p {
+            margin-bottom: 8px;
+        }
+
+        .line {
+            display: inline-block;
+            border-bottom: 1px solid #222;
+            min-height: 16px;
+            vertical-align: bottom;
+            padding: 0 2px;
+        }
+
+        .line-xxs { min-width: 34px; }
+        .line-xs  { min-width: 60px; }
+        .line-sm  { min-width: 95px; }
+        .line-md  { min-width: 175px; }
+        .line-lg  { min-width: 260px; }
+        .line-xl  { min-width: 330px; }
+
+        .spacer-1 { height: 10px; }
+        .spacer-2 { height: 18px; }
+        .spacer-3 { height: 26px; }
+
+        .signature-center {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
+
+        .signature-line {
+            width: 250px;
+            margin: 0 auto 6px;
+            border-top: 1px solid #222;
+        }
+
+        .signature-label {
+            font-size: 12pt;
+            font-weight: 700;
+        }
+
+        .signature-sub {
+            font-size: 11pt;
+            margin-top: 2px;
+        }
+
+        .notes p {
+            margin-bottom: 8px;
+        }
+
+        .bottom-section {
+            margin-top: 42px;
+        }
+
+        .bottom-signatures {
+            display: table;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .seal-cell {
+            display: table-cell;
+            width: 50%;
+            vertical-align: bottom;
+            text-align: center;
+        }
+
+        .signature-cell {
+            display: table-cell;
+            width: 50%;
+            vertical-align: bottom;
+            text-align: center;
+        }
+
+        .sello {
+            width: 78px;
+            height: 78px;
+            margin: 0 auto;
+            border: 2px dashed #999;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 7.5pt;
+            color: #999;
+            line-height: 1.2;
+        }
+
+        .signature-bottom {
+            text-align: center;
+            margin-top: 0;
+        }
+
+        .signature-bottom .signature-line {
+            width: 285px;
+        }
+
+        .firma-img {
+            max-height: 58px;
+            max-width: 210px;
+            margin-bottom: 2px;
+        }
+
+        .firma-nombre {
+            font-size: 13pt;
+            font-weight: 700;
         }
     </style>
 </head>
@@ -345,243 +245,178 @@
         return is_file($candidate) ? $candidate : null;
     };
 
-    $certBgPath = $resolvePublicFilePath($plantillaCertificadoPath ?? $iglesiaConfig?->path_certificado_bautismo);
+    $certBgPath = $resolvePublicFilePath($iglesiaConfig?->path_certificado_bautismo);
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
-    $headerDiocesis = $iglesiaConfig?->header_diocesis ?: '';
-    $headerLugar = $iglesiaConfig?->direccion ?: '';
-    $codigoVerificacion = $codigoVerificacion ?? '';
-    $urlVerificacion = $urlVerificacion ?? '';
-    $qrDataUri = $qrDataUri ?? null;
-@endphp
-<body class="{{ $isLandscape ? 'is-landscape' : '' }}" @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
 
-@if ($logoIglesiaPath)
+    $bautizado = $bautismo->bautizado?->persona;
+    $padre = $bautismo->padre?->persona;
+    $madre = $bautismo->madre?->persona;
+    $padrino = $bautismo->padrino?->persona;
+    $madrina = $bautismo->madrina?->persona;
+    $encargado = $bautismo->encargado?->feligres?->persona;
+
+    $parroquiaNombre = $iglesiaConfig?->nombre ?? $bautismo->iglesia?->nombre ?? '';
+    $parroquiaUpper = mb_strtoupper($parroquiaNombre ?: 'PARROQUIA', 'UTF-8');
+
+    $mesesEs = [
+        1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril', 5 => 'mayo', 6 => 'junio',
+        7 => 'julio', 8 => 'agosto', 9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre',
+    ];
+
+    $fechaBautismo = $bautismo->fecha_bautismo;
+    $diaBautismo = $fechaBautismo?->day ?? '';
+    $mesBautismo = $fechaBautismo ? ($mesesEs[$fechaBautismo->month] ?? '') : '';
+
+    $fechaNac = $bautizado?->fecha_nacimiento;
+    $diaNac = $fechaNac?->day ?? '';
+    $mesNac = $fechaNac ? ($mesesEs[$fechaNac->month] ?? '') : '';
+    $anoNac = $fechaNac?->year ?? '';
+
+    $lugarNac = $bautismo->lugar_nacimiento ?? '';
+
+    $fechaExp = $bautismo->fecha_expedicion ?: now();
+    $diaExp = $fechaExp?->day ?? '';
+    $mesExp = $fechaExp ? ($mesesEs[$fechaExp->month] ?? '') : '';
+    $anoExp = $fechaExp?->year ?? '';
+
+    $lugarExp = trim((string) ($iglesiaConfig?->direccion ?? ''));
+    if ($lugarExp === '') {
+        $lugarExp = trim((string) ($bautismo->iglesia?->direccion ?? ''));
+    }
+    if ($lugarExp === '') {
+        $lugarExp = trim((string) ($bautismo->lugar_expedicion ?? ''));
+    }
+    if ($lugarExp === '') {
+        $lugarExp = 'Monjaras, Marcovia, Choluteca, Honduras C. A.';
+    }
+
+    $parrocoCelebrante = trim((string) ($bautismo->parroco_celebrante ?: ($encargado?->nombre_completo ?? '')));
+    $firmaEncargadoNombre = trim((string) ($encargado?->nombre_completo ?? ''));
+
+    $firmaPath = $resolvePublicFilePath($bautismo->encargado?->path_firma_principal);
+
+    $notaMarginal = (string) ($bautismo->nota_marginal ?? '');
+    $notaAclaratoria = (string) ($bautismo->observaciones ?? '');
+
+    $nombreBautizado = trim((string) ($bautizado?->nombre_completo ?? ''));
+    $nombrePadre = trim((string) ($padre?->nombre_completo ?? ''));
+    $nombreMadre = trim((string) ($madre?->nombre_completo ?? ''));
+    $nombrePadrino = trim((string) ($padrino?->nombre_completo ?? ''));
+    $nombreMadrina = trim((string) ($madrina?->nombre_completo ?? ''));
+@endphp
+<body @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
+@if($logoIglesiaPath)
     <div class="watermark-logo">
         <img src="{{ $logoIglesiaPath }}" alt="Marca de agua">
     </div>
 @endif
 
-<div class="page-wrapper">
+<div class="page">
 
-    {{-- ===== HEADER ===== --}}
     <div class="header">
-        <div class="header-logo-cell">
-            @if ($logoIglesiaPath && file_exists($logoIglesiaPath))
-                <img src="{{ $logoIglesiaPath }}" alt="Logo">
-            @endif
-        </div>
-        <div class="header-title-cell">
-            <div class="parish-name">{{ $iglesiaConfig?->nombre ?? $bautismo->iglesia?->nombre ?? '' }}</div>
-            <div class="diocese-name">{{ $headerDiocesis }}</div>
-            <div class="header-address">{{ $headerLugar }}</div>
-        </div>
-        <div class="header-right-cell">
-            @if ($logoIglesiaDerechaPath && file_exists($logoIglesiaDerechaPath))
-                <img src="{{ $logoIglesiaDerechaPath }}" alt="Logo">
-            @endif
-        </div>
+        <table class="header-table">
+            <tr>
+                <td class="logo-cell">
+                    @if($logoIglesiaPath)
+                        <img src="{{ $logoIglesiaPath }}" alt="Logo parroquia">
+                    @endif
+                </td>
+                <td class="title-cell">
+                    <div class="parroquia">{{ $parroquiaUpper }}</div>
+                    <div class="diocesis">DIOCESIS DE CHOLUTECA</div>
+                    <div class="direccion">Monjaras, Marcovia, Choluteca, Honduras, C.A.</div>
+                </td>
+                <td class="logo-right-cell">
+                    @if($logoIglesiaDerechaPath)
+                        <img src="{{ $logoIglesiaDerechaPath }}" alt="Logo parroquia">
+                    @endif
+                </td>
+            </tr>
+        </table>
+        <hr class="top-rule">
     </div>
 
-    <div class="header-divider"></div>
+    <div class="doc-title">CERTIFICACION DE BAUTISMO</div>
 
-    <hr class="hr-accent">
-    <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
-    <hr class="hr-accent">
-
-    <div class="cert-title-wrap">
-        <span class="cert-title">CERTIFICACI&Oacute;N DE BAUTISMO</span>
-    </div>
-
-    <hr class="hr-accent">
-    <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
-    <hr class="hr-accent">
-
-    {{-- ===== BODY ===== --}}
-    @php
-        $bautizado   = $bautismo->bautizado?->persona;
-        $padre       = $bautismo->padre?->persona;
-        $madre       = $bautismo->madre?->persona;
-        $padrino     = $bautismo->padrino?->persona;
-        $madrina     = $bautismo->madrina?->persona;
-        $encargado   = $bautismo->encargado?->feligres?->persona;
-        $encargadoModel = $bautismo->encargado;
-        $firmaPath = $resolvePublicFilePath($encargadoModel?->path_firma_principal);
-        $iglesiaNombre = $iglesiaConfig?->nombre ?? $bautismo->iglesia?->nombre ?? '';
-
-        // Bautismo date parts
-        $fechaBautismo = $bautismo->fecha_bautismo;
-        $diasEs = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
-        $mesesEs = [
-            1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',
-            5=>'mayo',6=>'junio',7=>'julio',8=>'agosto',
-            9=>'septiembre',10=>'octubre',11=>'noviembre',12=>'diciembre'
-        ];
-
-        $diaBautismo   = $fechaBautismo ? $fechaBautismo->day : '';
-        $mesBautismo   = $fechaBautismo ? $mesesEs[$fechaBautismo->month] : '';
-
-        // Year: split into "novecientos ..."  or "dos mil ..."
-        $anoBautismo   = $fechaBautismo ? $fechaBautismo->year : '';
-        // Birth date
-        $fechaNac      = $bautizado?->fecha_nacimiento;
-        $diaNac        = $fechaNac ? $fechaNac->day : '';
-        $mesNac        = $fechaNac ? $mesesEs[$fechaNac->month] : '';
-        $anoNac        = $fechaNac ? $fechaNac->year : '';
-
-        // Padrinos string
-        $padrinosStr   = collect([$padrino?->nombre_completo, $madrina?->nombre_completo])
-                            ->filter()->implode(' y ');
-
-        // Expedición
-        $fechaExp  = $bautismo->fecha_expedicion;
-        $diaExp    = $fechaExp ? $fechaExp->day : '';
-        $mesExp    = $fechaExp ? $mesesEs[$fechaExp->month] : '';
-        $anoExpMil = $fechaExp ? ($fechaExp->year - 2000) : '';
-        $lugarNac  = $bautismo->lugar_nacimiento ?? '';
-        $lugarExp  = $bautismo->lugar_expedicion ?? '';
-        $notaMarginal = $bautismo->nota_marginal ?? '';
-    @endphp
-
-    <div class="body-text" style="margin-top: 14px;">
-
+    <div class="text-block">
         <p>
-            El infrascrito, encargado del Archivo de la Parroquia de
-            <span class="line-field line-field-lg">{{ $iglesiaNombre }}</span>
+            El Infrascrito encargado del archivo de la Parroquia "{{ $parroquiaUpper }}", Monjaras, Marcovia,
+            Choluteca.
         </p>
-
         <p>
-            <span class="section-label">CERTIFICA:</span>
-            Que en el libro de Bautismo No.
-            <span class="line-field line-field-sm">{{ $bautismo->libro_bautismo }}</span>
-            , en la Página
-            <span class="line-field line-field-sm">{{ $bautismo->folio }}</span>
-            , bajo el No.
-            <span class="line-field line-field-sm">{{ $bautismo->partida_numero }}</span>
+            Certifica: Que en el libro de bautismos N° <span class="line line-xs">{{ $bautismo->libro_bautismo ?? '' }}</span>
+            en la pagina <span class="line line-xs">{{ $bautismo->folio ?? '' }}</span>
+            bajo el N° <span class="line line-xs">{{ $bautismo->partida_numero ?? '' }}</span>
         </p>
+        <p>la partida que dice:</p>
 
-        <p>Se encuentra la partida que dice:</p>
+        <div class="spacer-1"></div>
 
         <p>
-            En
-            <span class="line-field">{{ $iglesiaNombre }}</span>
-            a
-            <span class="line-field line-field-sm">{{ $diaBautismo }}</span>
+            En <span class="line line-lg">{{ $parroquiaNombre }}</span>
+            a los <span class="line line-xxs">{{ $diaBautismo }}</span>
+            dias del mes de <span class="line line-md">{{ $mesBautismo }}</span>
         </p>
-
         <p>
-            de
-            <span class="line-field">{{ $mesBautismo }}</span>
-            del año
-            @if($anoBautismo >= 2000)
-                dos mil
-                <span class="line-field line-field-sm">{{ $anoBautismo - 2000 ?: '' }}</span>
-            @else
-                mil novecientos
-                <span class="line-field line-field-sm">{{ $anoBautismo ? ($anoBautismo - 1900) : '' }}</span>
-            @endif
+            (P. <span class="line line-xl">{{ $firmaEncargadoNombre }}</span>)
         </p>
-
         <p>
-            Bauticé (el P.
-            <span class="line-field line-field-lg">{{ $encargado?->nombre_completo }}</span>
-            Bautizó) solemnemente a:
+            a: <span class="line line-xl">{{ $nombreBautizado }}</span>
+            que nacio en <span class="line line-md">{{ $lugarNac }}</span>
         </p>
-
         <p>
-            <span class="line-field line-field-xl">{{ $bautizado?->nombre_completo }}</span>
+            <span class="line line-xxs">{{ $diaNac }}</span>
+            dias del mes de <span class="line line-md">{{ $mesNac }}</span>
+            de: <span class="line line-md">{{ $anoNac }}</span>
         </p>
-
         <p>
-            Que nació en
-            <span class="line-field">{{ $lugarNac }}</span>
-            , el
-            <span class="line-field line-field-sm">{{ $diaNac }}</span>
+            Hijo(a) de <span class="line line-lg">{{ $nombrePadre }}</span>
+            y <span class="line line-lg">{{ $nombreMadre }}</span>
         </p>
-
         <p>
-            de
-            <span class="line-field">{{ $mesNac }}</span>
-            del
-            @if($anoNac >= 2000)
-                año dos mil <span class="line-field line-field-sm">{{ $anoNac - 2000 ?: '' }}</span>
-            @elseif($anoNac)
-                año mil novecientos <span class="line-field line-field-sm">{{ $anoNac - 1900 }}</span>
-            @else
-                <span class="line-field line-field-sm"></span>
-            @endif
-        </p>
-
-        <p>
-            Hijo de
-            <span class="line-field line-field-xl">{{ $padre?->nombre_completo }}</span>
-        </p>
-
-        <p>
-            y de
-            <span class="line-field line-field-xl">{{ $madre?->nombre_completo }}</span>
-        </p>
-
-        <p>
-            Padrinos:
-            <span class="line-field line-field-xl">{{ $padrinosStr }}</span>
-        </p>
-
-    </div>
-
-    {{-- ===== FIRMA CURA PÁRROCO ===== --}}
-    <div class="sig-right">
-        @if ($encargado?->nombre_completo)
-            <p class="sig-name">{{ $encargado->nombre_completo }}</p>
-        @endif
-        <div class="sig-line-accent">C U R A &nbsp; P&Aacute;RROCO</div>
-    </div>
-
-    {{-- ===== NOTA MARGINAL ===== --}}
-    <div class="body-text" style="margin-top: 16px;">
-        <p>
-            <span class="section-label">NOTA MARGINAL:</span>
-            <span class="line-field line-field-xl">{{ $notaMarginal }}</span>
+            Padrinos: <span class="line line-lg">{{ $nombrePadrino }}</span>
+            y <span class="line line-lg">{{ $nombreMadrina }}</span>
         </p>
     </div>
 
-    {{-- ===== ISSUANCE ===== --}}
-    <div class="issuance">
-        <p>
-            Dado en
-            <span class="line-field line-field-lg">{{ $lugarExp }}</span>
-            el
-            <span class="line-field line-field-sm">{{ $diaExp }}</span>
-        </p>
-        <p>
-            de
-            <span class="line-field">{{ $mesExp }}</span>
-            de dos mil
-            <span class="line-field line-field-sm">{{ $anoExpMil ?: '' }}</span>
-        </p>
+    <div class="signature-center">
+        <div class="signature-label">{{ $parrocoCelebrante }}</div>
+        <div class="signature-line"></div>
+        <div class="signature-sub">Cura Parroco</div>
     </div>
 
-    <div class="footer-row">
-        <div class="footer-seal">
-            <p class="sello">(Sello)</p>
-        </div>
+    <div class="notes">
+        <p>
+            Nota Marginal: <span class="line line-xl">{{ $notaMarginal }}</span>
+        </p>
+        <p><span class="line" style="width: 100%;"></span></p>
+        <p>
+            Nota Aclaratoria: <span class="line line-xl">{{ $notaAclaratoria }}</span>
+        </p>
+        <p><span class="line" style="width: 100%;"></span></p>
+        <p><span class="line" style="width: 100%;"></span></p>
+    </div>
 
-        <div class="footer-qr">
-            @if ($qrDataUri)
-                <div class="qr-verify">
-                    <img src="{{ $qrDataUri }}" alt="QR de verificación">
+    <div class="bottom-section">
+        <p>
+            Dado en {{ $lugarExp }} a los <span class="line line-xs">{{ $diaExp }}</span>
+            dias del mes de <span class="line line-md">{{ $mesExp }}</span>
+            del año <span class="line line-sm">{{ $anoExp }}</span>
+        </p>
+
+        <div class="bottom-signatures">
+            <div class="seal-cell">
+                <div class="sello">Sello de la<br>Parroquia</div>
+            </div>
+            <div class="signature-cell">
+                <div class="signature-bottom">
+                    @if($firmaPath)
+                        <img src="{{ $firmaPath }}" class="firma-img" alt="Firma encargado">
+                    @endif
+                    <div class="signature-line"></div>
+                    <div class="firma-nombre">{{ $firmaEncargadoNombre }}</div>
                 </div>
-            @endif
-        </div>
-
-        <div class="footer-signature">
-            <div class="sig-bottom">
-                @if ($firmaPath && file_exists($firmaPath))
-                    <p style="text-align:center; margin-bottom: 2px;">
-                        <img src="{{ $firmaPath }}" style="max-height:50px; max-width:180px;">
-                    </p>
-                @endif
-                <div class="sig-line-accent">F I R M A</div>
             </div>
         </div>
     </div>

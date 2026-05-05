@@ -24,6 +24,7 @@ class CursoShow extends Component
         $this->curso = $curso->load([
             'tipoCurso',
             'instructor.feligres.persona',
+            'instructors.feligres.persona',
             'encargado.feligres.persona',
             'auditLogs',
             'inscripcionesCurso.feligres.persona',
@@ -37,6 +38,7 @@ class CursoShow extends Component
         $this->curso->load([
             'tipoCurso',
             'instructor.feligres.persona',
+            'instructors.feligres.persona',
             'encargado.feligres.persona',
             'auditLogs',
             'inscripcionesCurso.feligres.persona',
@@ -125,7 +127,14 @@ class CursoShow extends Component
 
         $instructorId = $this->resolveCurrentInstructorId();
 
-        if (! $instructorId || (int) $curso->instructor_id !== (int) $instructorId) {
+        if (! $instructorId) {
+            abort(403, 'No tienes permiso para ver este curso.');
+        }
+
+        $isAssigned = ((int) $curso->instructor_id === (int) $instructorId)
+            || $curso->instructors()->where('instructores.id', $instructorId)->exists();
+
+        if (! $isAssigned) {
             abort(403, 'No tienes permiso para ver este curso.');
         }
     }

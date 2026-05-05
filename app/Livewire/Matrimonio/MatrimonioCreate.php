@@ -84,9 +84,40 @@ class MatrimonioCreate extends Component
         $this->exp_mes              = now()->format('n');
         $this->exp_ano              = now()->format('y');
         $this->iglesia_id           = TenantIglesia::currentId();
+        $this->aplicarLugarExpedicionPorDefecto();
 
         $encargadoDefault   = Encargado::with('feligres.persona')->where('estado', 'Activo')->first();
         $this->encargado_id = $encargadoDefault?->id;
+    }
+
+    private function aplicarLugarExpedicionPorDefecto(): void
+    {
+        if (trim($this->lugar_expedicion) !== '') {
+            return;
+        }
+
+        $direccion = '';
+
+        if (session('tenant')) {
+            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        } elseif ($this->iglesia_id) {
+            $direccion = trim((string) (Iglesias::query()->find($this->iglesia_id)?->direccion ?? ''));
+        }
+
+        if ($direccion !== '') {
+            $this->lugar_expedicion = $direccion;
+        }
+    }
+
+    private function resolverLugarExpedicionConfiguracion(): ?string
+    {
+        if (session('tenant')) {
+            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        } else {
+            $direccion = trim((string) (Iglesias::query()->find($this->iglesia_id)?->direccion ?? ''));
+        }
+
+        return $direccion !== '' ? $direccion : null;
     }
 
     // Navegación
@@ -102,9 +133,8 @@ class MatrimonioCreate extends Component
                 $this->addError('esposa_dni', 'La esposa es obligatoria y debe estar registrada como feligrés.');
                 return;
             }
-            
-            // ✅ Validar que los esposos sean de sexo diferente
-            if (!$this->validarEspososSexoDiferente()) {
+
+            if (! $this->validarEspososSexoDiferente()) {
                 return;
             }
         }
@@ -166,7 +196,6 @@ class MatrimonioCreate extends Component
             'dni'             => $p->dni,
             'nombre_completo' => $p->nombre_completo,
             'telefono'        => $p->telefono ?? null,
-            'sexo'            => $p->sexo,
         ])->toArray();
         $this->busqueda_rol          = $rol;
         $this->{"{$rol}_estado"}     = 'multiples';
@@ -212,7 +241,6 @@ class MatrimonioCreate extends Component
             'nombre_completo' => $persona->nombre_completo,
             'telefono'        => $persona->telefono ?? null,
             'email'           => $persona->email    ?? null,
-            'sexo'            => $persona->sexo,
         ];
         $this->{"{$rol}_dni"} = $persona->dni;
 
@@ -230,9 +258,6 @@ class MatrimonioCreate extends Component
         if ($this->mini_rol === $rol) {
             $this->cancelarMini();
         }
-
-        // Después de asignar, verificar si ya hay error de sexo
-        $this->validarEspososSexoDiferente();
     }
 
     // Limpiar un rol
@@ -248,9 +273,6 @@ class MatrimonioCreate extends Component
             $this->busqueda_resultados = [];
             $this->busqueda_rol        = null;
         }
-        
-        // Limpiar errores de sexo también
-        $this->resetErrorBag();
     }
 
     // Mini-form: abrir
@@ -294,14 +316,14 @@ class MatrimonioCreate extends Component
     public function guardarMiniPersona(): void
     {
         $this->validate([
-            'mini_p_dni'              => ['required', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
+            'mini_p_dni'              => ['nullable', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
             'mini_p_primer_nombre'    => ['required', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_primer_apellido'  => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_nombre'   => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_apellido' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_fecha_nacimiento' => ['required', 'date', 'before:today'],
             'mini_p_sexo'             => ['required', 'in:M,F'],
-            'mini_p_telefono'         => ['required', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
+            'mini_p_telefono'         => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
             'mini_p_email'            => ['nullable', 'email', 'max:255'],
             'mini_f_fecha_ingreso'    => ['nullable', 'date'],
             'mini_f_estado'           => ['required', 'in:Activo,Inactivo'],
@@ -328,7 +350,7 @@ class MatrimonioCreate extends Component
             }
 
             $persona = Persona::create([
-                'dni'              => $this->mini_p_dni,
+                'dni'              => $this->mini_p_dni ?: null,
                 'primer_nombre'    => Str::title($this->mini_p_primer_nombre),
                 'segundo_nombre'   => $this->mini_p_segundo_nombre ? Str::title($this->mini_p_segundo_nombre) : null,
                 'primer_apellido'  => Str::title($this->mini_p_primer_apellido),
@@ -352,7 +374,6 @@ class MatrimonioCreate extends Component
                 'nombre_completo' => $persona->nombre_completo,
                 'telefono'        => $persona->telefono ?? null,
                 'email'           => $persona->email    ?? null,
-                'sexo'            => $persona->sexo,
             ];
 
             $this->{"{$rol}_feligres_id"} = $feligres->id;
@@ -361,9 +382,6 @@ class MatrimonioCreate extends Component
         });
 
         $this->cancelarMini();
-        
-        // Verificar validación de sexo después de guardar
-        $this->validarEspososSexoDiferente();
     }
 
     // Mini-form: registrar persona existente como feligrés
@@ -396,9 +414,6 @@ class MatrimonioCreate extends Component
         $this->{"{$rol}_estado"}      = 'found';
 
         $this->cancelarMini();
-        
-        // Verificar validación de sexo después de guardar
-        $this->validarEspososSexoDiferente();
     }
 
     // Guardar matrimonio final
@@ -416,7 +431,6 @@ class MatrimonioCreate extends Component
         $this->validate([
             'fecha_matrimonio' => ['required', 'date'],
             'nota_marginal'    => ['nullable', 'string', 'max:500'],
-            'lugar_expedicion' => ['nullable', 'string', 'max:150'],
             'exp_dia'          => ['nullable', 'integer', 'min:1', 'max:31'],
             'exp_mes'          => ['nullable', 'integer', 'min:1', 'max:12'],
             'exp_ano'          => ['nullable', 'integer', 'min:0', 'max:99'],
@@ -424,7 +438,6 @@ class MatrimonioCreate extends Component
             'fecha_matrimonio.required' => 'La fecha de matrimonio es obligatoria.',
             'fecha_matrimonio.date'     => 'La fecha de matrimonio no es válida.',
             'nota_marginal.max'         => 'La nota marginal no puede superar los 500 caracteres.',
-            'lugar_expedicion.max'      => 'El lugar no puede superar los 150 caracteres.',
             'exp_dia.min'               => 'El día debe ser entre 1 y 31.',
             'exp_mes.min'               => 'El mes debe ser entre 1 y 12.',
         ]);
@@ -438,7 +451,11 @@ class MatrimonioCreate extends Component
             return;
         }
 
-        $fechaExp = now()->format('Y-m-d');
+        if (! $this->validarEspososSexoDiferente()) {
+            return;
+        }
+
+        $fechaExp = null;
         if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
             try {
                 $fechaExp = \Carbon\Carbon::createFromDate(
@@ -447,9 +464,12 @@ class MatrimonioCreate extends Component
                     (int) $this->exp_dia
                 )->format('Y-m-d');
             } catch (\Exception) {
-                $fechaExp = now()->format('Y-m-d');
+                $fechaExp = null;
             }
         }
+
+        $lugarExpedicion = $this->resolverLugarExpedicionConfiguracion();
+        $this->lugar_expedicion = $lugarExpedicion ?? '';
 
         Matrimonio::create([
             'iglesia_id'       => $this->iglesia_id,
@@ -464,7 +484,7 @@ class MatrimonioCreate extends Component
             'partida_numero'   => $this->partida_numero   ?: null,
             'observaciones'    => $this->observaciones    ?: null,
             'nota_marginal'    => $this->nota_marginal    ?: null,
-            'lugar_expedicion' => $this->lugar_expedicion ?: null,
+            'lugar_expedicion' => $lugarExpedicion,
             'fecha_expedicion' => $fechaExp,
         ]);
 
@@ -486,65 +506,38 @@ class MatrimonioCreate extends Component
             'iglesias'   => $iglesias,
         ]);
     }
-    
-    /**
-     * Valida que el esposo y la esposa sean de sexo diferente
-     * y que correspondan a hombre (M) y mujer (F) respectivamente
-     */
+
     private function validarEspososSexoDiferente(): bool
     {
-        // Si falta alguno de los dos, no validar aún
         if (! $this->esposo_feligres_id || ! $this->esposa_feligres_id) {
             return true;
         }
 
-        // Obtener el sexo directamente desde la base de datos para asegurar datos correctos
-        $esposoPersona = Persona::find($this->esposo_persona['id'] ?? null);
-        $esposaPersona = Persona::find($this->esposa_persona['id'] ?? null);
-        
-        if (!$esposoPersona || !$esposaPersona) {
-            return true;
-        }
-        
-        $esposoSexo = $esposoPersona->sexo;
-        $esposaSexo = $esposaPersona->sexo;
+        $esposoSexo = Feligres::with('persona:id,sexo')->find($this->esposo_feligres_id)?->persona?->sexo;
+        $esposaSexo = Feligres::with('persona:id,sexo')->find($this->esposa_feligres_id)?->persona?->sexo;
 
-        // Normalizar los valores
         $esposoSexoCanon = $this->normalizarSexoCanonico($esposoSexo);
         $esposaSexoCanon = $this->normalizarSexoCanonico($esposaSexo);
 
-        // Si no se puede determinar el sexo de alguno, permitir pasar (por si acaso)
         if (! $esposoSexoCanon || ! $esposaSexoCanon) {
             return true;
         }
 
-        // Validar que sean de sexo diferente
         if ($esposoSexoCanon === $esposaSexoCanon) {
             $this->paso = 1;
-            $this->addError('esposa_dni', 'No se pueden casar personas del mismo sexo. El matrimonio debe ser entre un hombre y una mujer.');
-            $this->addError('esposo_dni', 'No se pueden casar personas del mismo sexo. El matrimonio debe ser entre un hombre y una mujer.');
+            $this->addError('esposa_dni', 'No se pueden casar los del mismo sexo.');
             return false;
         }
 
-        // Validar que esposo sea hombre y esposa mujer
-        if ($esposoSexoCanon !== 'M') {
+        if ($esposoSexoCanon !== 'M' || $esposaSexoCanon !== 'F') {
             $this->paso = 1;
-            $this->addError('esposo_dni', 'El esposo debe ser de sexo masculino.');
-            return false;
-        }
-        
-        if ($esposaSexoCanon !== 'F') {
-            $this->paso = 1;
-            $this->addError('esposa_dni', 'La esposa debe ser de sexo femenino.');
+            $this->addError('esposo_dni', 'El matrimonio debe registrarse con hombre como esposo y mujer como esposa.');
             return false;
         }
 
         return true;
     }
 
-    /**
-     * Normaliza el valor del sexo a 'M' o 'F'
-     */
     private function normalizarSexoCanonico(?string $sexo): ?string
     {
         if (! $sexo) {

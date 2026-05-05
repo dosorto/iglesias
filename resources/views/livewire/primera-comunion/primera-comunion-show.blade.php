@@ -137,14 +137,6 @@
             <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Expedición Certificado</p>
 
             <div>
-                <label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Lugar</label>
-                <input wire:model="lugar_expedicion" type="text"
-                       class="w-full px-2 py-1.5 text-xs rounded-md border border-gray-300 dark:border-gray-600
-                              bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                              focus:ring-1 focus:ring-blue-500 focus:border-transparent">
-            </div>
-
-            <div>
                 <label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Día / Mes / Año</label>
                 <div class="grid grid-cols-3 gap-1">
                     <input wire:model="exp_dia" type="number" min="1" max="31" placeholder="DD"

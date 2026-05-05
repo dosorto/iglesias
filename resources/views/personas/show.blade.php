@@ -74,7 +74,7 @@
                 </div>
                 <div class="p-6 space-y-3">
                     <div>
-                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Iglesia</label>
+                        <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter block">Parroquia</label>
                         <p class="text-md font-medium text-gray-900 dark:text-white">{{ $persona->feligres->iglesia->nombre }}</p>
                     </div>
                     <div>

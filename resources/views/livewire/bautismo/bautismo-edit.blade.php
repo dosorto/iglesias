@@ -61,9 +61,9 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
 
-                {{-- ── Iglesia bloqueada ───────────────────────────────── --}}
+                {{-- ── Parroquia bloqueada ───────────────────────────────── --}}
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Iglesia</label>
+                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Parroquia</label>
                     <div class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-gray-700
                                 bg-gray-50 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300
                                 flex items-center gap-2 select-none">
@@ -477,7 +477,7 @@
                                             </button>
                                         </div>
                                         <div class="p-4">
-                                            <p class="text-xs text-blue-600 dark:text-blue-400 mb-3">Se registrará en la iglesia activa del sistema.</p>
+                                            <p class="text-xs text-blue-600 dark:text-blue-400 mb-3">Se registrará en la parroquia activa del sistema.</p>
                                             <div class="flex justify-end gap-2">
                                                 <button type="button" wire:click="cancelarMini"
                                                         class="px-4 py-2 text-xs font-medium rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 transition-all">Cancelar</button>
@@ -608,6 +608,23 @@
                     @enderror
                 </div>
 
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                        Párroco Celebrante / Anterior
+                    </label>
+                    <input type="text"
+                           wire:model.live.debounce.400ms="parroco_celebrante"
+                           placeholder="Ej: Pbro. Juan Pérez"
+                           class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                  border border-gray-300 dark:border-gray-600
+                                  bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white placeholder-gray-400
+                                  focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+                                  @error('parroco_celebrante') border-red-400 bg-red-50 dark:bg-red-900/10 @enderror" />
+                    @error('parroco_celebrante')
+                        <p class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
                         Lugar de Expedición
@@ -654,9 +671,9 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Año</label>
-                        <input type="number" min="0" max="99"
+                           <input type="number" min="1900" max="2100"
                                wire:model.live.debounce.400ms="exp_ano"
-                               placeholder="26"
+                               placeholder="2026"
                                class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
                                       border border-gray-300 dark:border-gray-600
                                       bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white placeholder-gray-400

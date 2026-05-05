@@ -26,6 +26,11 @@ class Persona extends BaseModel
         'fecha_nacimiento' => 'date',
     ];
 
+    public function getDniAttribute($value): string
+    {
+        return $value ?? '';
+    }
+
     /**
      * Mutator: Capitalize primer_nombre
      */

@@ -76,6 +76,7 @@ class BautismoCreate extends Component
     public string $partida_numero = '';
     public string $observaciones  = '';
     public string $nota_marginal    = '';
+    public string $parroco_celebrante = '';
     public string $lugar_nacimiento = '';
     public string $lugar_expedicion = '';
     public string $exp_dia          = '';
@@ -88,10 +89,30 @@ class BautismoCreate extends Component
         $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
 
         $this->iglesia_id = TenantIglesia::currentId();
+        $this->aplicarLugarExpedicionPorDefecto();
 
         // Encargado por defecto: primer encargado disponible
         $encargadoDefault   = Encargado::with('feligres.persona')->where('estado', 'Activo')->first();
         $this->encargado_id = $encargadoDefault?->id;
+    }
+
+    private function aplicarLugarExpedicionPorDefecto(): void
+    {
+        if (trim($this->lugar_expedicion) !== '') {
+            return;
+        }
+
+        $direccion = '';
+
+        if (session('tenant')) {
+            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        } elseif ($this->iglesia_id) {
+            $direccion = trim((string) (Iglesias::query()->find($this->iglesia_id)?->direccion ?? ''));
+        }
+
+        if ($direccion !== '') {
+            $this->lugar_expedicion = $direccion;
+        }
     }
 
     // Navegacion
@@ -324,17 +345,16 @@ class BautismoCreate extends Component
 
     public function guardarMiniPersona(): void
     {
-        // Issue #13: Validar tipos de datos correctos en formularios de sacramentos
         $this->validate([
-            'mini_p_dni'              => ['required', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
+            'mini_p_dni'              => ['nullable', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
             'mini_p_primer_nombre'    => ['required', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_primer_apellido'  => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_nombre'   => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_apellido' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
-            'mini_p_fecha_nacimiento' => ['required', 'date', 'before:today', 'after_or_equal:1920-01-01'],
+            'mini_p_fecha_nacimiento' => ['required', 'date', 'before:today'],
             'mini_p_sexo'             => ['required', 'in:M,F'],
-            'mini_p_telefono'         => ['required', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
-            'mini_p_email'            => ['nullable', 'email:rfc,dns', 'max:255'],
+            'mini_p_telefono'         => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
+            'mini_p_email'            => ['nullable', 'email', 'max:255'],
             'mini_f_fecha_ingreso'    => ['nullable', 'date'],
             'mini_f_estado'           => ['required', 'in:Activo,Inactivo'],
         ], [
@@ -347,11 +367,9 @@ class BautismoCreate extends Component
             'mini_p_primer_apellido.regex'    => 'El primer apellido solo puede contener letras, espacios, guiones y apóstrofes.',
             'mini_p_fecha_nacimiento.required' => 'La fecha de nacimiento es obligatoria.',
             'mini_p_fecha_nacimiento.before'   => 'La fecha de nacimiento debe ser anterior a hoy.',
-            'mini_p_fecha_nacimiento.after_or_equal' => 'La fecha de nacimiento debe ser después de 1920.',
             'mini_p_sexo.required'             => 'El sexo es obligatorio.',
             'mini_p_telefono.required'         => 'El teléfono es obligatorio.',
             'mini_p_telefono.regex'            => 'El teléfono solo puede contener números, + y -.',
-            'mini_p_email.email'               => 'El correo electrónico debe ser válido.',
         ]);
 
         $rol = $this->mini_rol;
@@ -362,7 +380,7 @@ class BautismoCreate extends Component
             }
 
             $persona = Persona::create([
-                'dni'              => $this->mini_p_dni,
+                'dni'              => $this->mini_p_dni ?: null,
                 'primer_nombre'    => Str::title($this->mini_p_primer_nombre),
                 'segundo_nombre'   => $this->mini_p_segundo_nombre ? Str::title($this->mini_p_segundo_nombre) : null,
                 'primer_apellido'  => Str::title($this->mini_p_primer_apellido),
@@ -436,20 +454,20 @@ class BautismoCreate extends Component
             $this->iglesia_id = TenantIglesia::currentId();
         }
 
-        $this->fecha_bautismo = $this->fecha_bautismo ?: now()->format('Y-m-d');
-
         $this->validate([
             'fecha_bautismo' => ['required', 'date'],
             'nota_marginal'    => ['nullable', 'string', 'max:500'],
+            'parroco_celebrante' => ['nullable', 'string', 'max:150'],
             'lugar_nacimiento' => ['nullable', 'string', 'max:150'],
             'lugar_expedicion' => ['nullable', 'string', 'max:150'],
             'exp_dia'          => ['nullable', 'integer', 'min:1', 'max:31'],
             'exp_mes'          => ['nullable', 'integer', 'min:1', 'max:12'],
-            'exp_ano'          => ['nullable', 'integer', 'min:0', 'max:99'],
+            'exp_ano'          => ['nullable', 'integer', 'digits:4', 'min:1900', 'max:2100'],
         ], [
             'fecha_bautismo.required' => 'La fecha de bautismo es obligatoria.',
             'fecha_bautismo.date'     => 'La fecha de bautismo no es válida.',
             'nota_marginal.max'       => 'La nota marginal no puede superar los 500 caracteres.',
+            'parroco_celebrante.max'  => 'El nombre del párroco celebrante no puede superar los 150 caracteres.',
             'lugar_nacimiento.max'    => 'El lugar de nacimiento no puede superar los 150 caracteres.',
             'lugar_expedicion.max'    => 'El lugar no puede superar los 150 caracteres.',
             'exp_dia.min'             => 'El día debe ser entre 1 y 31.',
@@ -461,17 +479,9 @@ class BautismoCreate extends Component
             return;
         }
 
-        $fechaExp = now()->format('Y-m-d');
-        if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
-            try {
-                $fechaExp = \Carbon\Carbon::createFromDate(
-                    2000 + (int) $this->exp_ano,
-                    (int) $this->exp_mes,
-                    (int) $this->exp_dia
-                )->format('Y-m-d');
-            } catch (\Exception) {
-                $fechaExp = now()->format('Y-m-d');
-            }
+        $fechaExp = $this->resolverFechaExpedicion();
+        if ($fechaExp === false) {
+            return;
         }
 
         Bautismo::create([
@@ -488,6 +498,7 @@ class BautismoCreate extends Component
             'partida_numero' => $this->partida_numero ?: null,
             'observaciones'  => $this->observaciones  ?: null,
             'nota_marginal'    => $this->nota_marginal    ?: null,
+            'parroco_celebrante' => $this->parroco_celebrante ?: null,
             'lugar_nacimiento' => $this->lugar_nacimiento ?: null,
             'lugar_expedicion' => $this->lugar_expedicion ?: null,
             'fecha_expedicion' => $fechaExp,
@@ -511,5 +522,30 @@ class BautismoCreate extends Component
             'iglesias'   => $iglesias,
             'encargados' => Encargado::with('feligres.persona')->get(),
         ]);
+    }
+
+    private function resolverFechaExpedicion(): string|false|null
+    {
+        $dia = trim((string) $this->exp_dia);
+        $mes = trim((string) $this->exp_mes);
+        $ano = trim((string) $this->exp_ano);
+
+        if ($dia === '' && $mes === '' && $ano === '') {
+            return null;
+        }
+
+        if ($dia === '' || $mes === '' || $ano === '') {
+            $this->addError('exp_dia', 'Para la fecha de expedición debes completar día, mes y año.');
+            return false;
+        }
+
+        $year = (int) $ano;
+
+        if (! checkdate((int) $mes, (int) $dia, $year)) {
+            $this->addError('exp_dia', 'La fecha de expedición no es válida.');
+            return false;
+        }
+
+        return sprintf('%04d-%02d-%02d', $year, (int) $mes, (int) $dia);
     }
 }

@@ -19,12 +19,6 @@
                 Nueva Inscripción
             </a>
 
-            <a href="{{ route('inscripcion-curso.certificados-aprobados.pdf') }}"
-               target="_blank"
-               class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium flex items-center shadow-sm">
-                Certificados aprobados (PDF)
-            </a>
-
             <button
                 type="button"
                 wire:click="aprobarTodos"
@@ -42,17 +36,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 <p class="text-green-800 dark:text-green-200 font-medium">{{ session('success') }}</p>
-            </div>
-        </div>
-    @endif
-
-    @if (session()->has('error'))
-        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-            <div class="flex items-center">
-                <svg class="w-5 h-5 text-red-600 dark:text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <p class="text-red-800 dark:text-red-200 font-medium">{{ session('error') }}</p>
             </div>
         </div>
     @endif
@@ -86,8 +69,6 @@
 
     {{-- TABLA --}}
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 overflow-hidden">
-
-        <div class="overflow-x-auto">
 
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
 
@@ -123,10 +104,6 @@
                         Fecha certificado
                     </th>
 
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Acciones
-                    </th>
-
                 </tr>
             </thead>
 
@@ -138,18 +115,18 @@
                     <tr>
 
                         {{-- PERSONA --}}
-                        <td class="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-[16rem] break-words">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                             {{ $inscripcion->feligres->persona->nombre_completo ?? 'N/A' }}
                         </td>
 
                         {{-- CURSO --}}
-                        <td class="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-[14rem] break-words">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                             {{ $inscripcion->curso->nombre ?? 'N/A' }}
                         </td>
 
                         {{-- INSTRUCTOR --}}
-                        <td class="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-[16rem] break-words">
-                            {{ $inscripcion->curso?->instructor?->feligres?->persona?->nombre_completo ?? '—' }}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            {{ $inscripcion->curso?->instructors?->pluck('feligres.persona.nombre_completo')?->filter()?->join(', ') ?: ($inscripcion->curso?->instructor?->feligres?->persona?->nombre_completo ?? '—') }}
                         </td>
 
                         {{-- FECHA INSCRIPCION --}}
@@ -188,35 +165,13 @@
                             {{ $inscripcion->fecha_certificado ?? '—' }}
                         </td>
 
-                        {{-- ACCIONES --}}
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <div class="flex items-center gap-2">
-                                <a href="{{ route('matriculado-curso.show', $inscripcion->id) }}"
-                                   class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">
-                                    Ver
-                                </a>
-
-                                @if ($inscripcion->aprobado)
-                                    <a href="{{ route('inscripcion-curso.certificado.pdf', $inscripcion->id) }}"
-                                       target="_blank"
-                                       class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors">
-                                        Certificado
-                                    </a>
-                                @else
-                                    <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded bg-gray-100 text-gray-500">
-                                        Certificado
-                                    </span>
-                                @endif
-                            </div>
-                        </td>
-
                     </tr>
 
                 @empty
 
                     <tr>
                         <td
-                            colspan="8"
+                            colspan="7"
                             class="px-6 py-6 text-center text-gray-500"
                         >
                             No hay inscripciones registradas
@@ -228,8 +183,6 @@
             </tbody>
 
         </table>
-
-        </div>
 
     </div>
 

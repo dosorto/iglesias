@@ -24,6 +24,7 @@ class Bautismo extends BaseModel
         'partida_numero',
         'observaciones',
         'nota_marginal',
+        'parroco_celebrante',
         'lugar_nacimiento',
         'lugar_expedicion',
         'fecha_expedicion',

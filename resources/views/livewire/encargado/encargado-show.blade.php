@@ -70,9 +70,9 @@
                         </p>
                     </div>
 
-                    {{-- Iglesia --}}
+                    {{-- Parroquia --}}
                     <div>
-                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Iglesia</p>
+                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Parroquia</p>
                         <p class="text-sm font-medium text-gray-900 dark:text-white">
                             {{ $encargado->feligres->iglesia->nombre ?? '—' }}
                         </p>

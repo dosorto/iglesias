@@ -3,7 +3,6 @@
 namespace App\Livewire\Bautismo;
 
 use App\Models\Bautismo;
-use App\Models\DocumentoGenerado;
 use App\Models\Encargado;
 use App\Models\Feligres;
 use App\Models\Iglesias;
@@ -26,6 +25,7 @@ class BautismoEdit extends Component
     public string $partida_numero = '';
     public string $observaciones  = '';
     public string $nota_marginal    = '';
+    public string $parroco_celebrante = '';
     public string $lugar_nacimiento = '';
     public string $lugar_expedicion = '';
     public string $exp_dia          = '';
@@ -87,13 +87,15 @@ class BautismoEdit extends Component
         $this->partida_numero = $bautismo->partida_numero ?? '';
         $this->observaciones  = $bautismo->observaciones ?? '';
         $this->nota_marginal    = $bautismo->nota_marginal ?? '';
+        $this->parroco_celebrante = $bautismo->parroco_celebrante ?? '';
         $this->lugar_nacimiento = $bautismo->lugar_nacimiento ?? '';
         $this->lugar_expedicion = $bautismo->lugar_expedicion ?? '';
+        $this->aplicarLugarExpedicionPorDefecto();
 
         $fechaExp = $bautismo->fecha_expedicion;
         $this->exp_dia = $fechaExp?->day ? (string) $fechaExp->day : '';
         $this->exp_mes = $fechaExp?->month ? (string) $fechaExp->month : '';
-        $this->exp_ano = $fechaExp?->year ? (string) ($fechaExp->year - 2000) : '';
+        $this->exp_ano = $fechaExp?->year ? (string) $fechaExp->year : '';
         $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
 
         $this->cargarEncargado();
@@ -103,6 +105,22 @@ class BautismoEdit extends Component
         $this->cargarRolExistente('madre', $bautismo->madre_id);
         $this->cargarRolExistente('padrino', $bautismo->padrino_id);
         $this->cargarRolExistente('madrina', $bautismo->madrina_id);
+    }
+
+    private function aplicarLugarExpedicionPorDefecto(): void
+    {
+        if (trim($this->lugar_expedicion) !== '') {
+            return;
+        }
+
+        $direccion = trim((string) ($this->bautismo->iglesia?->direccion ?? ''));
+        if ($direccion === '' && session('tenant')) {
+            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        }
+
+        if ($direccion !== '') {
+            $this->lugar_expedicion = $direccion;
+        }
     }
 
     private function cargarEncargado(): void
@@ -175,11 +193,12 @@ class BautismoEdit extends Component
             'partida_numero' => ['nullable', 'string', 'max:50'],
             'observaciones'  => ['nullable', 'string', 'max:500'],
             'nota_marginal'    => ['nullable', 'string', 'max:500'],
+            'parroco_celebrante' => ['nullable', 'string', 'max:150'],
             'lugar_nacimiento' => ['nullable', 'string', 'max:150'],
             'lugar_expedicion' => ['nullable', 'string', 'max:150'],
             'exp_dia'          => ['nullable', 'integer', 'min:1', 'max:31'],
             'exp_mes'          => ['nullable', 'integer', 'min:1', 'max:12'],
-            'exp_ano'          => ['nullable', 'integer', 'min:0', 'max:99'],
+            'exp_ano'          => ['nullable', 'integer', 'digits:4', 'min:1900', 'max:2100'],
             'bautizado_feligres_id' => ['required', 'integer', 'exists:feligres,id'],
             'padre_feligres_id'     => ['nullable', 'integer', 'exists:feligres,id'],
             'madre_feligres_id'     => ['nullable', 'integer', 'exists:feligres,id'],
@@ -203,6 +222,7 @@ class BautismoEdit extends Component
             'partida_numero.max'            => 'La partida no puede superar los 50 caracteres.',
             'observaciones.max'             => 'Las observaciones no pueden superar los 500 caracteres.',
             'nota_marginal.max'             => 'La nota marginal no puede superar los 500 caracteres.',
+            'parroco_celebrante.max'        => 'El nombre del párroco celebrante no puede superar los 150 caracteres.',
             'lugar_nacimiento.max'          => 'El lugar de nacimiento no puede superar los 150 caracteres.',
             'lugar_expedicion.max'          => 'El lugar de expedición no puede superar los 150 caracteres.',
             'exp_dia.min'                   => 'El día de expedición debe ser entre 1 y 31.',
@@ -427,14 +447,14 @@ class BautismoEdit extends Component
     public function guardarMiniPersona(): void
     {
         $this->validate([
-            'mini_p_dni'              => ['required', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')],
+            'mini_p_dni'              => ['nullable', 'string', 'min:8', 'max:20', Rule::unique('personas', 'dni')], 
             'mini_p_primer_nombre'    => ['required', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_primer_apellido'  => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_nombre'   => ['nullable', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_segundo_apellido' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\']+$/u'],
             'mini_p_fecha_nacimiento' => ['required', 'date', 'before:today'],
             'mini_p_sexo'             => ['required', 'in:M,F'],
-            'mini_p_telefono'         => ['required', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
+            'mini_p_telefono'         => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-]+$/'],
             'mini_p_email'            => ['nullable', 'email', 'max:255'],
             'mini_f_fecha_ingreso'    => ['nullable', 'date'],
             'mini_f_estado'           => ['required', 'in:Activo,Inactivo'],
@@ -448,7 +468,7 @@ class BautismoEdit extends Component
             }
 
             $persona = Persona::create([
-                'dni'              => $this->mini_p_dni,
+                'dni'              => $this->mini_p_dni ?: null,
                 'primer_nombre'    => Str::title($this->mini_p_primer_nombre),
                 'segundo_nombre'   => $this->mini_p_segundo_nombre ? Str::title($this->mini_p_segundo_nombre) : null,
                 'primer_apellido'  => Str::title($this->mini_p_primer_apellido),
@@ -518,24 +538,14 @@ class BautismoEdit extends Component
             $this->iglesia_id = TenantIglesia::currentId();
         }
 
-        $this->fecha_bautismo = $this->fecha_bautismo ?: now()->format('Y-m-d');
-
         $this->cargarEncargado();
         $this->encargado_id = $this->encargado_info['encargado_id'] ?? null;
 
         $this->validate();
 
-        $fechaExp = now()->format('Y-m-d');
-        if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
-            try {
-                $fechaExp = \Carbon\Carbon::createFromDate(
-                    2000 + (int) $this->exp_ano,
-                    (int) $this->exp_mes,
-                    (int) $this->exp_dia
-                )->format('Y-m-d');
-            } catch (\Exception) {
-                $fechaExp = now()->format('Y-m-d');
-            }
+        $fechaExp = $this->resolverFechaExpedicion();
+        if ($fechaExp === false) {
+            return;
         }
 
         $this->bautismo->update([
@@ -552,19 +562,11 @@ class BautismoEdit extends Component
             'partida_numero' => $this->partida_numero ?: null,
             'observaciones'  => $this->observaciones ?: null,
             'nota_marginal'    => $this->nota_marginal ?: null,
+            'parroco_celebrante' => $this->parroco_celebrante ?: null,
             'lugar_nacimiento' => $this->lugar_nacimiento ?: null,
             'lugar_expedicion' => $this->lugar_expedicion ?: null,
             'fecha_expedicion' => $fechaExp,
         ]);
-
-        $iglesiaDocumentoId = TenantIglesia::currentId();
-
-        DocumentoGenerado::query()
-            ->where('tipo_documento', 'bautismo_certificado')
-            ->where('fuente_tipo', Bautismo::class)
-            ->where('fuente_id', (int) $this->bautismo->id)
-            ->when($iglesiaDocumentoId !== null, fn ($query) => $query->where('iglesia_id', $iglesiaDocumentoId))
-            ->delete();
 
         session()->flash('success', 'Bautismo actualizado correctamente.');
         $this->redirect(route('bautismo.index'), navigate: false);
@@ -581,5 +583,30 @@ class BautismoEdit extends Component
         $iglesiaActual = $iglesias->firstWhere('id', $this->iglesia_id);
 
         return view('livewire.bautismo.bautismo-edit', compact('iglesias', 'iglesiaActual'));
+    }
+
+    private function resolverFechaExpedicion(): string|false|null
+    {
+        $dia = trim((string) $this->exp_dia);
+        $mes = trim((string) $this->exp_mes);
+        $ano = trim((string) $this->exp_ano);
+
+        if ($dia === '' && $mes === '' && $ano === '') {
+            return null;
+        }
+
+        if ($dia === '' || $mes === '' || $ano === '') {
+            $this->addError('exp_dia', 'Para la fecha de expedición debes completar día, mes y año.');
+            return false;
+        }
+
+        $year = (int) $ano;
+
+        if (! checkdate((int) $mes, (int) $dia, $year)) {
+            $this->addError('exp_dia', 'La fecha de expedición no es válida.');
+            return false;
+        }
+
+        return sprintf('%04d-%02d-%02d', $year, (int) $mes, (int) $dia);
     }
 }

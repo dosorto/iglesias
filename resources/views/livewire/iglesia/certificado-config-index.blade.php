@@ -60,7 +60,7 @@
 
     {{-- ===== LOGO SECTION ===== --}}
     <div>
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Logo izquierdo de la Iglesia</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Logo izquierdo de la Parroquia</h2>
         <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Este logo aparece en el lado izquierdo de la cabecera de todos los certificados.</p>
     </div>
 
@@ -159,7 +159,7 @@
     </div>
 
     <div class="mt-2">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Logo derecho de la Iglesia</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Logo derecho de la Parroquia</h2>
         <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Este logo aparece en el lado derecho de la cabecera. Si no se configura, se usará el logo izquierdo.</p>
     </div>
 

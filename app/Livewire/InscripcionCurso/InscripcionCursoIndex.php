@@ -62,6 +62,7 @@ class InscripcionCursoIndex extends Component
 
         $query = InscripcionCurso::with([
             'curso.instructor.feligres.persona',
+            'curso.instructors.feligres.persona',
             'feligres.persona'
         ]);
 
@@ -90,6 +91,10 @@ class InscripcionCursoIndex extends Component
                     $q->where('nombre', 'like', '%' . $this->search . '%');
                 })
                 ->orWhereHas('curso.instructor.feligres.persona', function ($q) {
+                    $q->where('primer_nombre', 'like', '%' . $this->search . '%')
+                    ->orWhere('primer_apellido', 'like', '%' . $this->search . '%');
+                })
+                ->orWhereHas('curso.instructors.feligres.persona', function ($q) {
                     $q->where('primer_nombre', 'like', '%' . $this->search . '%')
                     ->orWhere('primer_apellido', 'like', '%' . $this->search . '%');
                 });

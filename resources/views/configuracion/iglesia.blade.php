@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Configuración de la Iglesia')
+@section('title', 'Configuración de la Parroquia')
 
 @section('content')
 <div class="content-container space-y-6 max-w-4xl">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Configuración de la Iglesia</h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-1">Actualiza los datos generales y encabezado de documentos de la iglesia activa.</p>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Configuración de la Parroquia</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">Actualiza el nombre y la dirección de la parroquia activa.</p>
         </div>
 
         <a href="{{ route('settings.index') }}"
@@ -26,7 +26,7 @@
 
             <div>
                 <label for="nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Nombre de la Iglesia <span class="text-red-500">*</span>
+                    Nombre de la Parroquia <span class="text-red-500">*</span>
                 </label>
                 <input type="text"
                        name="nombre"
@@ -51,24 +51,6 @@
                 @error('direccion')
                     <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                 @enderror
-            </div>
-
-            <div>
-                <label for="header_diocesis" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Diócesis (Encabezado)
-                </label>
-                <input type="text"
-                       name="header_diocesis"
-                       id="header_diocesis"
-                       value="{{ old('header_diocesis', $iglesia->header_diocesis) }}"
-                       placeholder="Ej. Diócesis de Choluteca"
-                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('header_diocesis') border-red-500 @enderror">
-                @error('header_diocesis')
-                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                @enderror
-                <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                    El lugar del encabezado se toma automáticamente de la Dirección.
-                </p>
             </div>
 
             <div class="flex justify-end gap-3">

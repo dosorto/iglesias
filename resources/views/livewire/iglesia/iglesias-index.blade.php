@@ -2,8 +2,8 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Iglesias</h1>
-            <p class="text-gray-600 dark:text-gray-300 mt-1">Administra el registro de las iglesias y sus párrocos asignados</p>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Parroquias</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">Administra el registro de las parroquias y sus párrocos asignados</p>
         </div>
 
         <div class="flex flex-wrap gap-2">
@@ -25,7 +25,7 @@
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
-                    Nueva Iglesia
+                    Nueva Parroquia
                 </a>
             @endcan
         </div>
@@ -51,7 +51,7 @@
             <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
                 <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
                     <div class="flex items-center gap-4">
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Lista de Iglesias</h2>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Lista de Parroquias</h2>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
                             {{ $iglesias->total() }} {{ $iglesias->total() === 1 ? 'registro' : 'registros' }}
                         </span>
@@ -90,7 +90,7 @@
                     <thead class="bg-gray-100 dark:bg-gray-900">
                         <tr>
                             <th class="px-6 py-3 text-left">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Iglesia</span>
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Parroquia</span>
                             </th>
                             <th class="px-6 py-3 text-left">
                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</span>
@@ -121,7 +121,7 @@
                                 class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer group"
                                 wire:click="verIglesia({{ $iglesia->id }})"
                             >
-                                {{-- Iglesia --}}
+                                {{-- Parroquia --}}
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3 shadow-sm group-hover:scale-110 transition-transform">
@@ -201,7 +201,7 @@
                                         @can('iglesias.edit')
                                             <a href="{{ route('iglesias.edit', $iglesia) }}"
                                                class="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
-                                               title="Editar iglesia">
+                                               title="Editar parroquia">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                 </svg>
@@ -212,7 +212,7 @@
                                             <button
                                                 wire:click="confirmIglesiaDeletion({{ $iglesia->id }}, '{{ addslashes($iglesia->nombre ?? '') }}')"
                                                 class="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                                                title="Eliminar iglesia">
+                                                title="Eliminar parroquia">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                 </svg>
@@ -234,14 +234,14 @@
                                             @if($search)
                                                 No se encontraron resultados
                                             @else
-                                                No hay iglesias registradas
+                                                No hay parroquias registradas
                                             @endif
                                         </h3>
                                         <p class="text-gray-500 dark:text-gray-400 mb-4 max-w-sm">
                                             @if($search)
                                                 No hay registros que coincidan con tu búsqueda "{{ $search }}".
                                             @else
-                                                Comienza registrando las iglesias para gestionar sus datos.
+                                                Comienza registrando las parroquias para gestionar sus datos.
                                             @endif
                                         </p>
                                         @if(!$search && auth()->user()->can('iglesias.create'))
@@ -250,7 +250,7 @@
                                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                                 </svg>
-                                                Crear primera iglesia
+                                                Crear primera parroquia
                                             </a>
                                         @endif
                                     </div>
@@ -280,9 +280,9 @@
                     </div>
 
                     <div class="text-center">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">¿Eliminar Iglesia?</h3>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">¿Eliminar Parroquia?</h3>
                         <p class="text-gray-600 dark:text-gray-400">
-                            Estás a punto de eliminar la iglesia <span class="font-semibold text-gray-900 dark:text-white">{{ $iglesiaNameBeingDeleted }}</span>.
+                            Estás a punto de eliminar la parroquia <span class="font-semibold text-gray-900 dark:text-white">{{ $iglesiaNameBeingDeleted }}</span>.
                             Esta acción es permanente y afectará a los registros vinculados.
                         </p>
                     </div>

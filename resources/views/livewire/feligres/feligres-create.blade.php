@@ -287,7 +287,7 @@
                                 {{-- DNI --}}
                                 <div class="sm:col-span-2">
                                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                                        Número de Identidad <span class="text-red-500">*</span>
+                                        Número de Identidad <span class="text-gray-400">(opcional)</span>
                                     </label>
                                     <input type="text"
                                            wire:model.defer="p_dni"
@@ -413,7 +413,7 @@
                                 {{-- Teléfono --}}
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                                        Teléfono <span class="text-red-500">*</span>
+                                        Teléfono <span class="text-gray-400">(opcional)</span>
                                     </label>
                                     <input type="text"
                                            wire:model.defer="p_telefono"

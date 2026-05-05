@@ -2,8 +2,8 @@
     {{-- Sidebar --}}
     <aside id="sidebar"
            class="block relative h-screen shrink-0
-                  bg-gradient-to-b from-[#6C5DD3]/20 to-[#8A7BE9]/20 dark:from-gray-900 dark:to-gray-800
-                  border-r-2 border-gray-300 dark:border-gray-700
+                bg-gradient-to-b from-emerald-50 to-white dark:from-gray-900 dark:to-gray-800
+                border-r border-emerald-200 dark:border-gray-700
                   transition-all duration-300 ease-in-out shadow-xl dark:shadow-gray-900
                   {{ $isCollapsed ? 'w-16' : 'w-64' }}"
            data-collapsed="{{ $isCollapsed ? 'true' : 'false' }}">
@@ -12,11 +12,11 @@
 
             {{-- Logo/Header --}}
             <div class="flex items-center mb-6 px-2 {{ $isCollapsed ? 'justify-center' : '' }}">
-                <img src="{{ $logoUrl ?? asset('image/Logo_guest.png') }}" 
-                     alt="Logo Iglesia"
+                 <img src="{{ $logoUrl ?? asset('image/Logo_guest.png') }}" 
+                     alt="Logo Parroquial"
                      class="w-10 h-10 object-contain {{ $isCollapsed ? '' : 'mr-3' }}" />
                 @if(!$isCollapsed)
-                    <span class="text-xl font-bold text-gray-900 dark:text-white">{{ $churchName }}</span>
+                    <span class="text-xl font-bold text-[var(--color-purpura-sagrado)] dark:text-white">{{ $churchName }}</span>
                 @endif
             </div>
 
@@ -31,7 +31,7 @@
                 {{-- Sección Principal --}}
                 @if(!$isCollapsed)
                     <div class="mb-4">
-                        <h3 class="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <h3 class="px-2 text-xs font-semibold text-emerald-700 dark:text-gray-400 uppercase tracking-wider">
                             Principal
                         </h3>
                     </div>
@@ -43,10 +43,10 @@
                     <li>
                         <a href="{{ $dashboardRoute }}"
                            class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
-                                  rounded-xl text-gray-700 dark:text-gray-200 hover:bg-[#4B3FBD]/20 dark:hover:bg-[#6C5DD3]/20
-                                  hover:text-[#4B3FBD] dark:hover:text-[#B2A4F2] transition-colors duration-200 group"
+                                  rounded-xl text-gray-700 dark:text-gray-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/30
+                                  hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors duration-200 group"
                            title="{{ $isCollapsed ? 'Dashboard' : '' }}">
-                            <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-[#4B3FBD] dark:group-hover:text-[#B2A4F2] transition-colors duration-200"
+                               <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors duration-200"
                                  fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
                             </svg>
@@ -61,10 +61,10 @@
                         <li>
                             <a href="{{ route('personas.index') }}"
                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
-                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-purple-100 dark:hover:bg-purple-900
-                                      hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200 group"
+                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/30
+                                      hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors duration-200 group"
                                title="{{ $isCollapsed ? 'Personas' : '' }}">
-                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200"
+                                  <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors duration-200"
                                      fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
                                 </svg>
@@ -80,10 +80,10 @@
                         <li>
                             <a href="{{ route('feligres.index') }}"
                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
-                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-indigo-100 dark:hover:bg-indigo-900
-                                      hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-200 group"
+                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/30
+                                      hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors duration-200 group"
                                title="{{ $isCollapsed ? 'Feligreses' : '' }}">
-                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-200"
+                                  <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors duration-200"
                                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                 </svg>
@@ -98,11 +98,11 @@
                     @if(auth()->user()?->can('instructor.view') && ! $isInstructorOnly)
                         <li>
                             <a href="{{ route('instructor.index') }}"
-                            class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
-                                    rounded-xl text-gray-700 dark:text-gray-200 hover:bg-amber-100 dark:hover:bg-amber-900
-                                    hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200 group"
+                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
+                                    rounded-xl text-gray-700 dark:text-gray-200 hover:bg-amber-100 dark:hover:bg-amber-900/30
+                                    hover:text-amber-700 dark:hover:text-amber-300 transition-colors duration-200 group"
                             title="{{ $isCollapsed ? 'Instructores' : '' }}">
-                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-200"
+                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-amber-700 dark:group-hover:text-amber-300 transition-colors duration-200"
                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
@@ -118,10 +118,10 @@
                         <li>
                             <a href="{{ route('sacramentos.index') }}"
                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
-                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-sky-100 dark:hover:bg-sky-900
-                                      hover:text-sky-600 dark:hover:text-sky-400 transition-colors duration-200 group"
+                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-sky-100 dark:hover:bg-sky-900/30
+                                      hover:text-sky-700 dark:hover:text-sky-300 transition-colors duration-200 group"
                                title="{{ $isCollapsed ? 'Sacramentos' : '' }}">
-                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors duration-200"
+                                  <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-sky-700 dark:group-hover:text-sky-300 transition-colors duration-200"
                                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                           d="M12 2l2.2 4.5 5 .7-3.6 3.5.9 4.9L12 13.9 7.5 15.6l.9-4.9-3.6-3.5 5-.7L12 2z" />
@@ -138,11 +138,11 @@
                     <li>
                         <a href="{{ route('curso.index') }}"
                         class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
-                                rounded-xl text-gray-700 dark:text-gray-200 hover:bg-blue-100 dark:hover:bg-blue-900
-                                hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 group"
+                            rounded-xl text-gray-700 dark:text-gray-200 hover:bg-sky-100 dark:hover:bg-sky-900/30
+                            hover:text-sky-700 dark:hover:text-sky-300 transition-colors duration-200 group"
                         title="{{ $isCollapsed ? 'Cursos' : '' }}">
                         
-                            <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200"
+                            <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-sky-700 dark:group-hover:text-sky-300 transition-colors duration-200"
                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -179,21 +179,21 @@
                     </li>
                     @endcan
                     
-                    {{-- Iglesias --}}
+                    {{-- Parroquias --}}
                     @can('iglesias.view')
                         @if(!session('tenant.id_iglesia'))
                         <li>
                             <a href="{{ route('iglesias.index') }}"
                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
-                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-purple-100 dark:hover:bg-purple-900
-                                      hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200 group"
-                               title="{{ $isCollapsed ? 'Iglesias' : '' }}">
-                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200"
+                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/30
+                                      hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors duration-200 group"
+                               title="{{ $isCollapsed ? 'Parroquias' : '' }}">
+                                  <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors duration-200"
                                      fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
                                 </svg>
                                 @if(!$isCollapsed)
-                                    <span class="ml-3">Iglesias</span>
+                                    <span class="ml-3">Parroquias</span>
                                 @endif
                             </a>
                         </li>
@@ -206,10 +206,10 @@
                         <li>
                             <a href="{{ route('religion.index') }}"
                                 class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
-                                    rounded-xl text-gray-700 dark:text-gray-200 hover:bg-purple-100 dark:hover:bg-purple-900
-                                    hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200 group"
+                                    rounded-xl text-gray-700 dark:text-gray-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/30
+                                    hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors duration-200 group"
                                 title="{{ $isCollapsed ? 'Religion' : '' }}">
-                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200"
+                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors duration-200"
                                     fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
                                 </svg>
@@ -226,10 +226,10 @@
                         <li>
                             <a href="{{ route('users.index') }}"
                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
-                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-green-100 dark:hover:bg-green-900
-                                      hover:text-green-600 dark:hover:text-green-400 transition-colors duration-200 group"
+                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/30
+                                      hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors duration-200 group"
                                title="{{ $isCollapsed ? 'Usuarios' : '' }}">
-                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200"
+                                  <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors duration-200"
                                      fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
                                 </svg>
@@ -244,7 +244,7 @@
                 {{-- Sección Configuración --}}
                 @if(!$isCollapsed)
                     <div class="mb-4">
-                        <h3 class="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <h3 class="px-2 text-xs font-semibold text-emerald-700 dark:text-gray-400 uppercase tracking-wider">
                             Configuración
                         </h3>
                     </div>
@@ -255,10 +255,10 @@
                         <li>
                             <a href="{{ route('settings.index') }}"
                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
-                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-orange-100 dark:hover:bg-orange-900
-                                      hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-200 group"
+                                      rounded-xl text-gray-700 dark:text-gray-200 hover:bg-amber-100 dark:hover:bg-amber-900/30
+                                      hover:text-amber-700 dark:hover:text-amber-300 transition-colors duration-200 group"
                                title="{{ $isCollapsed ? 'Configuración' : '' }}">
-                                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200"
+                                  <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-amber-700 dark:group-hover:text-amber-300 transition-colors duration-200"
                                      fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
                                 </svg>
@@ -275,8 +275,8 @@
             <div class="mt-auto">
                 @if(!$isCollapsed)
                     <div class="px-2">
-                        <div class="p-3 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-center">
-                            <p class="text-xs text-gray-600 dark:text-gray-400">Sistema de Gestión de Iglesia</p>
+                        <div class="p-3 rounded-xl bg-emerald-50 dark:bg-gray-800 border border-emerald-200 dark:border-gray-700 text-center">
+                            <p class="text-xs text-gray-600 dark:text-gray-400">Sistema de Gestión Parroquial</p>
                         </div>
                     </div>
                 @endif

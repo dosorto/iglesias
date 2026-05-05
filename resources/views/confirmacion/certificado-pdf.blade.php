@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Certificación de Confirmación</title>
-    @php $isLandscape = (($iglesiaConfig?->orientacion_certificado_confirmacion ?? $iglesiaConfig?->orientacion_certificado) === 'landscape'); @endphp
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #1a1a1a; background: #fff; }
-        .page-wrapper { padding: 30px 46px 28px; border: none; margin: 2px; position: relative; z-index: 1; }
+        .page-wrapper { padding: 30px 46px; border: 4px double #7D5A1E; margin: 10px; position: relative; z-index: 1; }
 
         .watermark-logo {
             position: fixed;
@@ -55,10 +54,45 @@
         .name-line { display: block; width: 100%; border-bottom: 2px solid #333; margin: 8px 0 12px; min-height: 22px; font-size: 13pt; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
 
         .nota-marginal { font-size: 10.5pt; margin-top: 14px; line-height: 1.8; color: #444; }
-        .issuance { font-size: 11.5pt; line-height: 2.4; margin-top: 26px; }
-        .sello { font-size: 10pt; font-style: italic; margin-top: 4px; color: #666; }
+        .issuance { font-size: 11.5pt; line-height: 2.2; margin-top: 22px; }
 
-        .signature-block { margin-top: 44px; text-align: center; }
+        .bottom-signatures {
+            display: table;
+            width: 100%;
+            margin-top: 14px;
+            page-break-inside: avoid;
+        }
+
+        .seal-cell {
+            display: table-cell;
+            width: 50%;
+            vertical-align: bottom;
+            text-align: center;
+        }
+
+        .signature-cell {
+            display: table-cell;
+            width: 50%;
+            vertical-align: bottom;
+            text-align: center;
+        }
+
+        .sello {
+            width: 78px;
+            height: 78px;
+            margin: 0 auto;
+            border: 2px dashed #999;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 7.5pt;
+            color: #999;
+            line-height: 1.2;
+        }
+
+        .signature-block { margin-top: 0; text-align: center; }
         .sig-img {
             max-height: 65px;
             max-width: 210px;
@@ -75,83 +109,6 @@
         }
         .sig-name { font-size: 11pt; font-weight: bold; margin-bottom: 2px; color: #1a1a1a; margin-top: 4px; }
         .sig-title { font-size: 10pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #7D5A1E; }
-
-        .footer-row {
-            display: table;
-            width: 100%;
-            margin-top: 10px;
-            page-break-inside: avoid;
-        }
-        .footer-seal,
-        .footer-qr,
-        .footer-signature {
-            display: table-cell;
-            vertical-align: bottom;
-        }
-        .footer-seal {
-            width: 33%;
-            text-align: left;
-        }
-        .footer-qr {
-            width: 34%;
-            text-align: center;
-        }
-        .footer-signature {
-            width: 33%;
-            text-align: right;
-        }
-
-        .qr-verify {
-            position: fixed;
-            left: 16px;
-            bottom: 12px;
-            display: block;
-            margin-top: 0;
-            text-align: center;
-            font-size: 8pt;
-            color: #555;
-            line-height: 1;
-            z-index: 2;
-        }
-        .qr-verify img {
-            width: 54px;
-            height: 54px;
-            border: 1px solid #d1d5db;
-            padding: 2px;
-            background: #fff;
-        }
-        .qr-code { margin-top: 3px; letter-spacing: 0.4px; }
-
-        body.is-landscape .page-wrapper { padding: 16px 24px 20px; margin: 2px; }
-        body.is-landscape .header { margin-bottom: 6px; }
-        body.is-landscape .header-logo-cell,
-        body.is-landscape .header-right-cell { width: 72px; }
-        body.is-landscape .header-logo-cell img,
-        body.is-landscape .header-right-cell img { width: 58px; height: 58px; }
-        body.is-landscape .parish-name { font-size: 15pt; letter-spacing: 1px; }
-        body.is-landscape .diocese-name { font-size: 10pt; margin-top: 1px; }
-        body.is-landscape .header-address { font-size: 9pt; margin-top: 2px; }
-        body.is-landscape .header-divider { margin: 4px 0 6px; }
-        body.is-landscape .ornament { margin: 1px 0; }
-        body.is-landscape .cert-title-wrap { margin: 5px 0; }
-        body.is-landscape .cert-title { font-size: 11.5pt; padding: 3px 24px; letter-spacing: 3px; }
-        body.is-landscape .cert-intro { margin-top: 8px; margin-bottom: 8px; font-size: 9.8pt; line-height: 1.35; }
-        body.is-landscape .name-line { margin: 4px 0 8px; min-height: 18px; font-size: 10.5pt; }
-        body.is-landscape .cert-block { font-size: 9.5pt; line-height: 1.45; margin-bottom: 4px; }
-        body.is-landscape .cert-block p { margin-bottom: 1px; }
-        body.is-landscape .field-sm { min-width: 65px; }
-        body.is-landscape .field-md { min-width: 120px; }
-        body.is-landscape .field-lg { min-width: 190px; }
-        body.is-landscape .field-xl { min-width: 250px; }
-        body.is-landscape .field-full { min-width: 320px; }
-        body.is-landscape .nota-marginal { margin-top: 8px; font-size: 9pt; line-height: 1.45; }
-        body.is-landscape .issuance { margin-top: 10px; font-size: 9.5pt; line-height: 1.45; }
-        body.is-landscape .footer-row { margin-top: 4px; }
-        body.is-landscape .signature-block { margin-top: 10px; }
-        body.is-landscape .sig-img { max-height: 46px; }
-        body.is-landscape .sig-line { width: 220px; }
-        body.is-landscape .sig-name { font-size: 9.5pt; }
-        body.is-landscape .sig-title { font-size: 8.8pt; letter-spacing: 1px; }
     </style>
 </head>
 @php
@@ -167,7 +124,14 @@
 
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
-    $certBgPath = $resolvePublicFilePath($plantillaCertificadoPath ?? ($iglesiaConfig?->path_certificado_confirmacion ?: $iglesiaConfig?->path_certificado_bautismo));
+
+    $logoEstaticoPath = public_path('image/Logo_guest.png');
+    if (! $logoIglesiaPath && is_file($logoEstaticoPath)) {
+        $logoIglesiaPath = $logoEstaticoPath;
+    }
+    if (! $logoIglesiaDerechaPath) {
+        $logoIglesiaDerechaPath = $logoIglesiaPath;
+    }
 
     $confirmado      = $confirmacion->feligres?->persona;
     $padrino         = $confirmacion->padrino?->persona;
@@ -176,8 +140,6 @@
     $encargado       = $confirmacion->encargado?->feligres?->persona;
 
     $iglesiaNombre   = $iglesiaConfig?->nombre ?? $confirmacion->iglesia?->nombre ?? '';
-    $headerDiocesis = $iglesiaConfig?->header_diocesis ?: '';
-    $headerLugar = $iglesiaConfig?->direccion ?: '';
     $ministroNombre  = $ministro?->nombre_completo ?? '';
     $encargadoNombre = $encargado?->nombre_completo ?? '';
 
@@ -194,24 +156,30 @@
     $mesConf = $fc ? $mesesEs[$fc->month] : '';
     $anoConf = $fc ? $fc->year            : '';
 
-    $fe        = $confirmacion->fecha_expedicion;
+    $fe        = $confirmacion->fecha_expedicion ?: now();
     $diaExp    = $fe ? $fe->day             : '';
     $mesExp    = $fe ? $mesesEs[$fe->month] : '';
     $anoExpMil = $fe ? ($fe->year - 2000)   : '';
 
     $lugarConf    = $confirmacion->lugar_confirmacion ?? '';
-    $lugarExp     = $confirmacion->lugar_expedicion   ?? '';
+    $lugarExp     = trim((string) ($iglesiaConfig?->direccion ?? ''));
+    if ($lugarExp === '') {
+        $lugarExp = trim((string) ($confirmacion->iglesia?->direccion ?? ''));
+    }
+    if ($lugarExp === '') {
+        $lugarExp = trim((string) ($confirmacion->lugar_expedicion ?? ''));
+    }
+    if ($lugarExp === '') {
+        $lugarExp = 'Monjaras, Marcovia, Choluteca, Honduras C. A.';
+    }
     $notaMarginal = $confirmacion->nota_marginal      ?? '';
 
     $firmaPath = null;
     if ($confirmacion->encargado?->path_firma_principal) {
         $firmaPath = $resolvePublicFilePath($confirmacion->encargado->path_firma_principal);
     }
-    $codigoVerificacion = $codigoVerificacion ?? '';
-    $urlVerificacion = $urlVerificacion ?? '';
-    $qrDataUri = $qrDataUri ?? null;
 @endphp
-<body class="{{ $isLandscape ? 'is-landscape' : '' }}" @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
+<body>
 @if ($logoIglesiaPath)
     <div class="watermark-logo">
         <img src="{{ $logoIglesiaPath }}" alt="Marca de agua">
@@ -221,23 +189,15 @@
 
     <div class="header">
         <div class="header-logo-cell">
-            @if ($logoIglesiaPath)
-                <img src="{{ $logoIglesiaPath }}" alt="Logo">
-            @else
-                <div class="logo-placeholder"></div>
-            @endif
+            @if ($logoIglesiaPath)<img src="{{ $logoIglesiaPath }}" alt="Logo">@endif
         </div>
         <div class="header-title-cell">
-            <div class="parish-name">{{ $iglesiaNombre }}</div>
-            <div class="diocese-name">{{ $headerDiocesis }}</div>
-            <div class="header-address">{{ $headerLugar }}</div>
+            <div class="parish-name">Parroquia{{ $iglesiaNombre ? ' ' . $iglesiaNombre : '' }}</div>
+            <div class="diocese-name">Di&oacute;cesis de Choluteca</div>
+            <div class="header-address">Monjarás, Marcovia, Choluteca, Honduras, C.A.</div>
         </div>
         <div class="header-right-cell">
-            @if ($logoIglesiaDerechaPath)
-                <img src="{{ $logoIglesiaDerechaPath }}" alt="Logo">
-            @else
-                <div class="logo-placeholder"></div>
-            @endif
+            @if ($logoIglesiaDerechaPath)<img src="{{ $logoIglesiaDerechaPath }}" alt="Logo">@endif
         </div>
     </div>
 
@@ -285,36 +245,26 @@
 
     <div class="issuance">
         <p>
-            Dado en <span class="field field-lg">{{ $lugarExp }}</span>
+            Dado en <span>{{ $lugarExp }}</span>
             a los <span class="field field-sm">{{ $diaExp }}</span>
             del mes de <span class="field field-md">{{ $mesExp }}</span>
             año <span class="field field-sm">{{ $anoExpMil ? '20'.$anoExpMil : '' }}</span>
         </p>
     </div>
 
-    <div class="footer-row">
-        <div class="footer-seal">
-            <p class="sello">(Sello)</p>
+    <div class="bottom-signatures">
+        <div class="seal-cell">
+            <div class="sello">Sello de la<br>Parroquia</div>
         </div>
-
-        <div class="footer-qr">
-            @if ($qrDataUri)
-                <div class="qr-verify">
-                    <img src="{{ $qrDataUri }}" alt="QR de verificación">
-                </div>
-            @endif
-        </div>
-
-        <div class="footer-signature">
-            <div class="signature-block" style="margin-top: 0; text-align: center;">
+        <div class="signature-cell">
+            <div class="signature-block">
                 @if ($firmaPath)
                     <img src="{{ $firmaPath }}" alt="Firma" class="sig-img">
                 @else
                     <div style="height: 65px;"></div>
                 @endif
                 <div><span class="sig-line"></span></div>
-                <p class="sig-name">{{ $encargadoNombre ?: '' }}</p>
-                <p class="sig-title">P&aacute;rroco</p>
+                <div class="sig-name">{{ $encargadoNombre }}</div>
             </div>
         </div>
     </div>
