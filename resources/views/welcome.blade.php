@@ -109,32 +109,11 @@
             Archivo Sagrado Digital
         </div>
         <h1>Gestión parroquial <span>moderna y ordenada</span></h1>
-        <p>Administra feligreses, sacramentos, matrimonios y certificados desde un solo lugar. Diseñado para parroquias que quieren custodiar su historia con reverencia y tecnología.</p>
         <div class="hero-btns">
             <a href="{{ route('register.organization') }}" class="btn-primary">Registrar mi parroquia</a>
             <a href="{{ route('login') }}" class="btn-outline">Iniciar sesión</a>
         </div>
     </section>
-
-    {{-- ESTADÍSTICAS --}}
-    <div class="lp-stats">
-        <div class="stat-item">
-            <div class="stat-num">+500</div>
-            <div class="stat-label">Feligreses registrados</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-num">+120</div>
-            <div class="stat-label">Bautismos este año</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-num">+40</div>
-            <div class="stat-label">Matrimonios celebrados</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-num">100%</div>
-            <div class="stat-label">Datos seguros</div>
-        </div>
-    </div>
 
     {{-- CARACTERÍSTICAS --}}
     <section class="lp-section" id="caracteristicas">
@@ -257,7 +236,7 @@
 
     {{-- FOOTER --}}
     <footer class="lp-footer">
-        <p>Sistema Parroquial UNAH · "Custodiando la fe y la historia de nuestra comunidad parroquial con reverencia y orden."</p>
+        <p>Sistema Parroquial UNAH</p>
     </footer>
 
 </body>

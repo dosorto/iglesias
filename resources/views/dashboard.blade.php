@@ -79,8 +79,7 @@
 
 {{-- ENCABEZADO --}}
 <div class="mb-8">
-    <h1 class="text-4xl font-serif text-[var(--color-purpura-sagrado)] dark:text-white">Bienvenido al Archivo Sagrado</h1>
-    <p class="text-slate-600 dark:text-gray-300 mt-2 max-w-2xl italic text-sm">Gestión administrativa y sacramental de tu parroquia con una visión clara y ordenada.</p>
+    <h1 class="text-4xl font-serif text-[var(--color-purpura-sagrado)] dark:text-white">Bienvenido, {{ auth()->user()->name }}</h1>
 </div>
 
 {{-- ACCIONES RÁPIDAS --}}
