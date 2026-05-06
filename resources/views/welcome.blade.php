@@ -1,9 +1,10 @@
+@php $appName = \App\Models\AppSetting::current()->company_name ?? config('app.name'); @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sistema Parroquial UNAH</title>
+    <title>{{ $appName }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -91,7 +92,7 @@
                     <polyline points="9 22 9 12 15 12 15 22"/>
                 </svg>
             </div>
-            <span class="nav-logo-text">Sistema Parroquial UNAH</span>
+            <span class="nav-logo-text">{{ $appName }}</span>
         </a>
         <div class="nav-links">
             <a href="#caracteristicas">Características</a>
@@ -236,7 +237,7 @@
 
     {{-- FOOTER --}}
     <footer class="lp-footer">
-        <p>Sistema Parroquial UNAH</p>
+        <p>{{ $appName }}</p>
     </footer>
 
 </body>

@@ -75,12 +75,62 @@
     $confirmacionYearCount = Confirmacion::query()->whereYear('fecha_confirmacion', $year)->count();
     $comunionYearCount = PrimeraComunion::query()->whereYear('fecha_primera_comunion', $year)->count();
     $recentFeligreses = Feligres::with('persona')->latest()->take(6)->get();
+
+    $recentActivity = collect([
+        ...Bautismo::with('bautizado.persona')->latest()->take(5)->get()->map(fn($b) => [
+            'tipo'   => 'Bautismo',
+            'nombre' => optional(optional($b->bautizado)->persona)->primer_nombre . ' ' . optional(optional($b->bautizado)->persona)->primer_apellido,
+            'folio'  => $b->folio ? 'Folio #' . $b->folio : null,
+            'fecha'  => $b->created_at,
+            'color'  => 'sky',
+            'icon'   => 'M12 3v1m0 16v1m9-9h-1M4 12H3M12 8a4 4 0 100 8 4 4 0 000-8z',
+        ])->toArray(),
+        ...Matrimonio::with('esposo.persona')->latest()->take(5)->get()->map(fn($m) => [
+            'tipo'   => 'Matrimonio',
+            'nombre' => optional(optional($m->esposo)->persona)->primer_nombre . ' ' . optional(optional($m->esposo)->persona)->primer_apellido,
+            'folio'  => $m->folio ? 'Folio #' . $m->folio : null,
+            'fecha'  => $m->created_at,
+            'color'  => 'rose',
+            'icon'   => 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
+        ])->toArray(),
+        ...Confirmacion::with('feligres.persona')->latest()->take(5)->get()->map(fn($c) => [
+            'tipo'   => 'Confirmación',
+            'nombre' => optional(optional($c->feligres)->persona)->primer_nombre . ' ' . optional(optional($c->feligres)->persona)->primer_apellido,
+            'folio'  => $c->folio ? 'Folio #' . $c->folio : null,
+            'fecha'  => $c->created_at,
+            'color'  => 'emerald',
+            'icon'   => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+        ])->toArray(),
+        ...PrimeraComunion::with('feligres.persona')->latest()->take(5)->get()->map(fn($p) => [
+            'tipo'   => 'Primera Comunión',
+            'nombre' => optional(optional($p->feligres)->persona)->primer_nombre . ' ' . optional(optional($p->feligres)->persona)->primer_apellido,
+            'folio'  => $p->folio ? 'Folio #' . $p->folio : null,
+            'fecha'  => $p->created_at,
+            'color'  => 'amber',
+            'icon'   => 'M12 6.253v11.494m-5.747-8.12l11.494 4.373M6.253 14.373l11.494-4.373',
+        ])->toArray(),
+    ])->sortByDesc('fecha')->take(5)->values();
 @endphp
 
 {{-- ENCABEZADO --}}
 <div class="mb-8">
     <h1 class="text-4xl font-serif text-[var(--color-purpura-sagrado)] dark:text-white">Bienvenido, {{ auth()->user()->name }}</h1>
 </div>
+
+@php
+    $encargadoSinFirma = \App\Models\Encargado::whereNull('path_firma_principal')->exists();
+@endphp
+@if($encargadoSinFirma)
+<div class="mb-6 flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-xl text-amber-800 dark:text-amber-200">
+    <svg class="w-5 h-5 flex-shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+    </svg>
+    <div class="flex-1 text-sm">
+        <span class="font-semibold">Firma pendiente:</span> Hay encargados sin firma digital registrada. Sin ella no se pueden generar certificados.
+    </div>
+    <a href="{{ route('encargado.index') }}" class="text-xs font-semibold underline hover:no-underline">Ver encargados</a>
+</div>
+@endif
 
 {{-- ACCIONES RÁPIDAS --}}
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -218,41 +268,28 @@
 
         {{-- INGRESOS RECIENTES --}}
         <section class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-            <h2 class="text-xl font-serif text-gray-900 dark:text-white mb-5">Ingresos recientes</h2>
+            <h2 class="text-xl font-serif text-gray-900 dark:text-white mb-5">Actividad reciente</h2>
             <div class="space-y-4">
+                @forelse($recentActivity as $item)
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    <div class="w-9 h-9 rounded-full bg-{{ $item['color'] }}-100 dark:bg-{{ $item['color'] }}-900/30 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-{{ $item['color'] }}-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $item['icon'] }}"/>
                         </svg>
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white">Nueva acta de matrimonio</p>
-                        <p class="text-xs text-gray-400">Hace 2 horas · Folio #452</p>
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                            {{ $item['tipo'] }}: {{ trim($item['nombre']) ?: 'Sin nombre' }}
+                        </p>
+                        <p class="text-xs text-gray-400">
+                            {{ $item['fecha']?->diffForHumans() }}
+                            @if($item['folio']) · {{ $item['folio'] }} @endif
+                        </p>
                     </div>
                 </div>
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white">Registro feligrés: Elena Solís</p>
-                        <p class="text-xs text-gray-400">Hace 4 horas · ID: 1209</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3M12 8a4 4 0 100 8 4 4 0 000-8z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white">Bautismo registrado</p>
-                        <p class="text-xs text-gray-400">Hace 1 día · Folio #891</p>
-                    </div>
-                </div>
+                @empty
+                <p class="text-sm text-center text-gray-400 py-6">Sin actividad reciente</p>
+                @endforelse
             </div>
         </section>
     </div>
