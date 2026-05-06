@@ -63,6 +63,7 @@ class CursoCreate extends Component
     public string $i_email = '';
     public string $i_fecha_nacimiento = '';
     public string $i_sexo = '';
+    public string $opcionCredencialesInstructor = '';
 
     public function mount(): void
     {
@@ -212,6 +213,7 @@ class CursoCreate extends Component
         $this->i_email = '';
         $this->i_fecha_nacimiento = '';
         $this->i_sexo = '';
+        $this->opcionCredencialesInstructor = '';
     }
 
     public function buscarPersonaInstructor(): void
@@ -482,8 +484,17 @@ class CursoCreate extends Component
 
         $instructorExistente = Instructor::where('feligres_id', $feligres->id)->first();
 
+        $emailPersona = strtolower(trim((string) ($this->personaInstructor['email'] ?? '')));
+        if ($emailPersona && $this->opcionCredencialesInstructor === '') {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'opcionCredencialesInstructor' => 'Debes indicar si deseas generar credenciales de acceso para este instructor.',
+            ]);
+        }
+
         if ($instructorExistente) {
-            $credentials = $this->asegurarUsuarioInstructor($feligres, (int) $this->iglesia_id);
+            $credentials = $this->opcionCredencialesInstructor !== 'omitir'
+                ? $this->asegurarUsuarioInstructor($feligres, (int) $this->iglesia_id)
+                : null;
 
             $this->instructor_id = $instructorExistente->id;
             $this->instructor_ids = [$instructorExistente->id];
@@ -503,7 +514,9 @@ class CursoCreate extends Component
             'created_by' => Auth::id(),
         ]);
 
-        $credentials = $this->asegurarUsuarioInstructor($feligres, (int) $this->iglesia_id);
+        $credentials = $this->opcionCredencialesInstructor !== 'omitir'
+            ? $this->asegurarUsuarioInstructor($feligres, (int) $this->iglesia_id)
+            : null;
 
         $this->instructor_id = $instructor->id;
         $this->instructor_ids = [$instructor->id];

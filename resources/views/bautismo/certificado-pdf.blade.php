@@ -19,7 +19,7 @@
             padding: 26px 30px 30px;
             position: relative;
             margin: 8px;
-            border: 3px double #7D5A1E;
+            border: none;
             z-index: 2;
             background: transparent;
         }
@@ -223,6 +223,25 @@
             font-size: 13pt;
             font-weight: 700;
         }
+
+        .qr-verify {
+            position: fixed;
+            left: 16px;
+            bottom: 12px;
+            margin-top: 0;
+            font-size: 8pt;
+            color: #555;
+            line-height: 1;
+            z-index: 2;
+        }
+        .qr-verify img {
+            width: 54px;
+            height: 54px;
+            border: 1px solid #d1d5db;
+            padding: 2px;
+            background: #fff;
+        }
+        .qr-code { margin-top: 3px; letter-spacing: 0.4px; }
     </style>
 </head>
 @php
@@ -420,6 +439,12 @@
             </div>
         </div>
     </div>
+
+    @if ($qrDataUri ?? null)
+        <div class="qr-verify">
+            <img src="{{ $qrDataUri }}" alt="QR de verificación">
+        </div>
+    @endif
 
 </div>
 </body>

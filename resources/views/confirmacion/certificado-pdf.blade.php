@@ -6,7 +6,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #1a1a1a; background: #fff; }
-        .page-wrapper { padding: 30px 46px; border: 4px double #7D5A1E; margin: 10px; position: relative; z-index: 1; }
+        .page-wrapper { padding: 30px 46px; border: none; margin: 10px; position: relative; z-index: 1; }
 
         .watermark-logo {
             position: fixed;

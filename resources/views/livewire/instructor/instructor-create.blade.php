@@ -462,6 +462,38 @@
         </div>
 
         <div class="p-6">
+            @if($persona_id && !empty($personaSeleccionada['email']))
+                <div class="mb-5 rounded-xl border border-blue-200 dark:border-blue-700/50 bg-blue-50 dark:bg-blue-900/20 p-4">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-300 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                        </svg>
+                        <div class="w-full">
+                            <p class="text-sm font-semibold text-blue-800 dark:text-blue-200">
+                                Esta persona ya tiene correo registrado
+                            </p>
+                            <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                                <span class="font-mono">{{ $personaSeleccionada['email'] }}</span>
+                                — ¿Deseas generar credenciales de acceso al sistema para este instructor?
+                            </p>
+                            <div class="mt-3 space-y-2">
+                                <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200 cursor-pointer">
+                                    <input type="radio" wire:model.live="opcionCredenciales" value="generar" class="text-blue-600 focus:ring-blue-500" />
+                                    Sí, generar credenciales de acceso
+                                </label>
+                                <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200 cursor-pointer">
+                                    <input type="radio" wire:model.live="opcionCredenciales" value="omitir" class="text-blue-600 focus:ring-blue-500" />
+                                    No, solo registrar como instructor
+                                </label>
+                            </div>
+                            @error('opcionCredenciales')
+                                <p class="mt-2 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             @if($persona_id && empty($personaSeleccionada['email']))
                 <div class="mb-5 rounded-xl border border-amber-200 dark:border-amber-700/50 bg-amber-50 dark:bg-amber-900/20 p-4">
                     <div class="flex items-start gap-3">

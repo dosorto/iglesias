@@ -12,19 +12,19 @@
         .watermark-logo { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.08; z-index: 0; }
         .watermark-logo img { width: 430px; height: auto; object-fit: contain; }
 
-        .page-wrapper { padding: 26px 36px 106px; border: none; margin: 2px; position: relative; z-index: 1; }
+        .page-wrapper { padding: 26px 36px 24px; border: none; margin: 2px; position: relative; z-index: 1; }
 
         .header { display: table; width: 100%; margin-bottom: 10px; }
-        .header-logo-cell { display: table-cell; width: 85px; vertical-align: middle; text-align: center; }
-        .header-logo-cell img { width: 75px; height: 75px; object-fit: contain; }
+        .header-logo-cell { display: table-cell; width: 90px; vertical-align: middle; text-align: center; }
+        .header-logo-cell img { width: 80px; height: 80px; object-fit: contain; }
         .header-title-cell { display: table-cell; vertical-align: middle; text-align: center; }
-        .header-right-cell { display: table-cell; width: 85px; vertical-align: middle; text-align: center; }
-        .header-right-cell img { width: 75px; height: 75px; object-fit: contain; }
+        .header-right-cell { display: table-cell; width: 90px; vertical-align: middle; text-align: center; }
+        .header-right-cell img { width: 80px; height: 80px; object-fit: contain; }
 
         .parish-name { font-size: 19pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; line-height: 1.1; }
         .diocese-name { font-size: 13pt; text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; color: #555; }
         .header-address { font-size: 11pt; margin-top: 4px; color: #222; letter-spacing: 0.5px; }
-        .header-divider { border-top: 1px solid #6f99ad; margin: 7px 0 14px; }
+        .header-divider { border-top: 1px solid #6f99ad; margin: 7px 0 18px; }
 
         .doc-title {
             text-align: center;
@@ -33,21 +33,21 @@
             text-transform: uppercase;
             text-decoration: underline;
             letter-spacing: 0.4px;
-            margin-bottom: 12px;
+            margin-bottom: 24px;
         }
 
-        .body-text { font-size: 11.5pt; line-height: 2.2; }
-        .body-text p { margin-bottom: 6px; }
+        .body-text { font-size: 12.5pt; line-height: 2.6; }
+        .body-text p { margin-bottom: 4px; }
 
         .underline { display: inline-block; border-bottom: 1px solid #333; vertical-align: bottom; }
-        .name-line { display: block; width: 100%; border-bottom: 2px solid #7D5A1E; margin: 8px 0 12px; min-height: 22px; font-size: 13pt; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 1px; color: #1a1a1a; }
+        .name-line { display: block; width: 100%; border-bottom: 2px solid #7D5A1E; margin: 10px 0 18px; min-height: 26px; font-size: 14pt; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 1px; color: #1a1a1a; }
 
         .nota-marginal { font-size: 10.5pt; margin-top: 14px; line-height: 1.8; color: #444; }
 
         .bottom-signatures {
             display: table;
             width: 100%;
-            margin-top: 14px;
+            margin-top: 60px;
             page-break-inside: avoid;
         }
 
@@ -229,7 +229,7 @@
 
     <div class="doc-title">CERTIFICACI&Oacute;N DE PRIMERA COMUNI&Oacute;N</div>
 
-    <div class="body-text" style="margin-top: 20px;">
+    <div class="body-text" style="margin-top: 10px;">
 
         <p>El infrascrito encargado del archivo de esta parroquia certifica que</p>
 
@@ -261,7 +261,7 @@
 
     </div>
 
-    <div class="body-text" style="margin-top: 40px;">
+    <div class="body-text" style="margin-top: 50px;">
         <p>
             Dado en
             <span>{{ $lugarExp }}</span>

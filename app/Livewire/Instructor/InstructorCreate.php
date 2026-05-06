@@ -47,6 +47,7 @@ class InstructorCreate extends Component
     public string $estado = 'Activo';
     public string $emailProvisionMode = '';
     public string $emailManual = '';
+    public string $opcionCredenciales = '';
 
     public function mount(): void
     {
@@ -130,6 +131,7 @@ class InstructorCreate extends Component
         $this->resultadosBusqueda = [];
         $this->emailProvisionMode = '';
         $this->emailManual = '';
+        $this->opcionCredenciales = '';
 
         if (!empty($persona->email)) {
             $this->emailProvisionMode = 'existing';
@@ -149,6 +151,7 @@ class InstructorCreate extends Component
         $this->resultadosBusqueda = [];
         $this->emailProvisionMode = '';
         $this->emailManual = '';
+        $this->opcionCredenciales = '';
 
         $this->reset([
             'p_dni',
@@ -322,6 +325,13 @@ class InstructorCreate extends Component
             return;
         }
 
+        // Si la persona ya tiene email, exigir que el usuario elija si generar credenciales o no
+        if (!empty($persona->email) && $this->opcionCredenciales === '') {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'opcionCredenciales' => 'Debes indicar si deseas generar credenciales de acceso para este instructor.',
+            ]);
+        }
+
         $this->resolverCorreoPersonaParaInstructor($persona);
 
         $feligres = Feligres::where('id_persona', $this->persona_id)
@@ -358,7 +368,9 @@ class InstructorCreate extends Component
                     'updated_by' => Auth::id(),
                 ]);
 
-                $credentials = $this->asegurarUsuarioInstructor($feligres, $iglesiaId);
+                $credentials = $this->opcionCredenciales !== 'omitir'
+                    ? $this->asegurarUsuarioInstructor($feligres, $iglesiaId)
+                    : null;
 
                 session()->flash('success', 'Instructor restaurado correctamente.');
                 if ($credentials) {
@@ -366,7 +378,7 @@ class InstructorCreate extends Component
                 }
                 $this->redirect(route('instructor.index'), navigate: false);
                 return;
-            } 
+            }
 
             $this->addError('persona_id', 'La persona seleccionada ya está registrada como instructor.');
             return;
@@ -382,7 +394,9 @@ class InstructorCreate extends Component
             'created_by' => Auth::id(),
         ]);
 
-        $credentials = $this->asegurarUsuarioInstructor($feligres, $iglesiaId);
+        $credentials = $this->opcionCredenciales !== 'omitir'
+            ? $this->asegurarUsuarioInstructor($feligres, $iglesiaId)
+            : null;
 
         session()->flash('success', 'Instructor registrado correctamente.');
         if ($credentials) {
