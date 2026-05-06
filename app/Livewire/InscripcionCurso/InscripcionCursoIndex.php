@@ -2,12 +2,14 @@
 
 namespace App\Livewire\InscripcionCurso;
 
-use Livewire\Component;
-use Livewire\WithPagination;
+use App\Exports\InscripcionCursoExport;
 use App\Models\InscripcionCurso;
 use App\Models\Instructor;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 class InscripcionCursoIndex extends Component
 {
@@ -54,6 +56,12 @@ class InscripcionCursoIndex extends Component
 
         $this->showDeleteModal = false;
         $this->inscripcionIdBeingDeleted = null;
+    }
+
+    public function export(): mixed
+    {
+        abort_if(!auth()->user()->can('inscripcion-curso.view'), 403);
+        return Excel::download(new InscripcionCursoExport($this->search, $this->feligresId), 'inscripciones_' . now()->format('Y_m_d_His') . '.xlsx');
     }
 
     public function render()

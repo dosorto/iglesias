@@ -2,9 +2,11 @@
 
 namespace App\Livewire\PrimeraComunion;
 
+use App\Exports\PrimeraComunionExport;
+use App\Models\PrimeraComunion;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\PrimeraComunion;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PrimeraComunionIndex extends Component
 {
@@ -38,6 +40,12 @@ class PrimeraComunionIndex extends Component
         $this->showDeleteModal                 = false;
         $this->primeraComunionIdBeingDeleted   = null;
         $this->primeraComunionNameBeingDeleted = '';
+    }
+
+    public function export(): mixed
+    {
+        abort_if(!auth()->user()->can('primera-comunion.view'), 403);
+        return Excel::download(new PrimeraComunionExport($this->search), 'primeras_comuniones_' . now()->format('Y_m_d_His') . '.xlsx');
     }
 
     public function render()

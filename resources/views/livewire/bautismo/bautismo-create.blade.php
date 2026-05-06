@@ -545,6 +545,33 @@
 
                                 </div>
 
+                                {{-- Advertencia duplicado --}}
+                                @if ($advertenciaDuplicado)
+                                    <div class="mb-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 p-3">
+                                        <div class="flex items-start gap-2">
+                                            <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                                            </svg>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-semibold text-amber-800 dark:text-amber-300">Posible duplicado</p>
+                                                <p class="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+                                                    Ya existe <strong>{{ $advertenciaDuplicado }}</strong> sin número de identidad.
+                                                </p>
+                                                <div class="flex items-center gap-3 mt-2">
+                                                    <button type="button" wire:click="confirmarYGuardarMiniPersona"
+                                                            class="text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 px-3 py-1 rounded-md transition-colors">
+                                                        Sí, registrar de todas formas
+                                                    </button>
+                                                    <button type="button" wire:click="$set('advertenciaDuplicado', '')"
+                                                            class="text-xs text-amber-700 dark:text-amber-400 underline hover:no-underline">
+                                                        Cancelar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+
                                 {{-- Botones mini-form persona --}}
                                 <div class="flex justify-end gap-3 pt-2 border-t border-emerald-100 dark:border-emerald-800/40">
                                     <button type="button" wire:click="cancelarMini"

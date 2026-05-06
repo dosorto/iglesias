@@ -57,8 +57,9 @@ new #[Layout('layouts.guest')] class extends Component
         <div class="mt-4">
             <div class="flex items-center justify-between mb-1">
                 <x-input-label for="password" value="Contraseña" class="uppercase tracking-[0.08em] text-xs text-[#1d2247]" />
-                @if (Route::has('password.request'))
-                    <a class="text-xs font-semibold text-[#4f5cf0] hover:text-[#3d4adc]" href="{{ route('password.request') }}" wire:navigate>
+                @if (Route::has('recuperar-acceso'))
+                    <a class="text-xs font-semibold text-[#4f5cf0] hover:text-[#3d4adc]"
+                       href="{{ route('recuperar-acceso') }}" wire:navigate>
                         ¿Olvidaste tu contraseña?
                     </a>
                 @endif

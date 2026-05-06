@@ -2,12 +2,14 @@
 
 namespace App\Livewire\Curso;
 
-use Livewire\Component;
-use Livewire\WithPagination;
+use App\Exports\CursoExport;
 use App\Models\Curso;
 use App\Models\Instructor;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CursoIndex extends Component
 {
@@ -42,6 +44,12 @@ class CursoIndex extends Component
         $this->showDeleteModal = false;
         $this->cursoIdBeingDeleted = null;
         $this->cursoNameBeingDeleted = '';
+    }
+
+    public function export(): mixed
+    {
+        abort_if(!auth()->user()->can('curso.view'), 403);
+        return Excel::download(new CursoExport($this->search), 'cursos_' . now()->format('Y_m_d_His') . '.xlsx');
     }
 
     public function render()

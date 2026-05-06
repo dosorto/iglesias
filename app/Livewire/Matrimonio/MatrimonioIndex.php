@@ -2,9 +2,11 @@
 
 namespace App\Livewire\Matrimonio;
 
+use App\Exports\MatrimonioExport;
+use App\Models\Matrimonio;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Matrimonio;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MatrimonioIndex extends Component
 {
@@ -38,6 +40,12 @@ class MatrimonioIndex extends Component
         $this->showDeleteModal            = false;
         $this->matrimonioIdBeingDeleted   = null;
         $this->matrimonioNameBeingDeleted = '';
+    }
+
+    public function export(): mixed
+    {
+        abort_if(!auth()->user()->can('matrimonio.view'), 403);
+        return Excel::download(new MatrimonioExport($this->search), 'matrimonios_' . now()->format('Y_m_d_His') . '.xlsx');
     }
 
     public function render()

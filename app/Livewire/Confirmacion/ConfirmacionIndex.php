@@ -2,9 +2,11 @@
 
 namespace App\Livewire\Confirmacion;
 
+use App\Exports\ConfirmacionExport;
+use App\Models\Confirmacion;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Confirmacion;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ConfirmacionIndex extends Component
 {
@@ -39,6 +41,12 @@ class ConfirmacionIndex extends Component
         $this->showDeleteModal              = false;
         $this->confirmacionIdBeingDeleted   = null;
         $this->confirmacionNameBeingDeleted = '';
+    }
+
+    public function export(): mixed
+    {
+        abort_if(!auth()->user()->can('confirmacion.view'), 403);
+        return Excel::download(new ConfirmacionExport($this->search), 'confirmaciones_' . now()->format('Y_m_d_His') . '.xlsx');
     }
 
     public function render()

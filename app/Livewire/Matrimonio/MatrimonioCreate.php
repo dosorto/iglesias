@@ -65,6 +65,9 @@ class MatrimonioCreate extends Component
     public string $mini_f_fecha_ingreso = '';
     public string $mini_f_estado        = 'Activo';
 
+    public string $advertenciaDuplicado = '';
+    public bool   $confirmarDuplicado   = false;
+
     // Paso 2 – datos del registro
     public string $libro_matrimonio = '';
     public string $folio            = '';
@@ -311,6 +314,12 @@ class MatrimonioCreate extends Component
         $this->resetErrorBag();
     }
 
+    public function confirmarYGuardarMiniPersona(): void
+    {
+        $this->confirmarDuplicado = true;
+        $this->guardarMiniPersona();
+    }
+
     // Mini-form: guardar nueva persona + feligrés
 
     public function guardarMiniPersona(): void
@@ -343,6 +352,19 @@ class MatrimonioCreate extends Component
         ]);
 
         $rol = $this->mini_rol;
+
+        if (! $this->mini_p_dni && ! $this->confirmarDuplicado) {
+            $duplicado = Persona::where('primer_nombre', $this->mini_p_primer_nombre)
+                ->where('primer_apellido', $this->mini_p_primer_apellido)
+                ->whereNull('dni')
+                ->first();
+            if ($duplicado) {
+                $this->advertenciaDuplicado = $duplicado->nombre_completo;
+                return;
+            }
+        }
+        $this->advertenciaDuplicado = '';
+        $this->confirmarDuplicado   = false;
 
         DB::transaction(function () use ($rol) {
             if (session('tenant')) {
@@ -455,6 +477,24 @@ class MatrimonioCreate extends Component
             return;
         }
 
+        if (! $this->validarFechaPosteriorNacimiento(
+            $this->esposo_feligres_id,
+            $this->fecha_matrimonio,
+            'esposo_dni',
+            'matrimonio'
+        )) {
+            return;
+        }
+
+        if (! $this->validarFechaPosteriorNacimiento(
+            $this->esposa_feligres_id,
+            $this->fecha_matrimonio,
+            'esposa_dni',
+            'matrimonio'
+        )) {
+            return;
+        }
+
         $fechaExp = null;
         if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
             try {
@@ -505,6 +545,27 @@ class MatrimonioCreate extends Component
         return view('livewire.matrimonio.matrimonio-create', [
             'iglesias'   => $iglesias,
         ]);
+    }
+
+    private function validarFechaPosteriorNacimiento(?int $feligresId, string $fechaSacramento, string $campo, string $label): bool
+    {
+        if (! $feligresId || ! $fechaSacramento) {
+            return true;
+        }
+
+        $persona = \App\Models\Feligres::with('persona:id,fecha_nacimiento')->find($feligresId)?->persona;
+        if (! $persona?->fecha_nacimiento) {
+            return true;
+        }
+
+        try {
+            if (\Carbon\Carbon::parse($fechaSacramento)->lt(\Carbon\Carbon::parse($persona->fecha_nacimiento))) {
+                $this->addError($campo, "La fecha de {$label} no puede ser anterior a la fecha de nacimiento.");
+                return false;
+            }
+        } catch (\Exception) {}
+
+        return true;
     }
 
     private function validarEspososSexoDiferente(): bool

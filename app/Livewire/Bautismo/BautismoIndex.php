@@ -2,9 +2,11 @@
 
 namespace App\Livewire\Bautismo;
 
+use App\Exports\BautismoExport;
+use App\Models\Bautismo;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Bautismo;
+use Maatwebsite\Excel\Facades\Excel;
 
 class BautismoIndex extends Component
 {
@@ -38,6 +40,12 @@ class BautismoIndex extends Component
         $this->showDeleteModal         = false;
         $this->bautismoIdBeingDeleted  = null;
         $this->bautismoNameBeingDeleted = '';
+    }
+
+    public function export(): mixed
+    {
+        abort_if(!auth()->user()->can('bautismo.view'), 403);
+        return Excel::download(new BautismoExport($this->search), 'bautismos_' . now()->format('Y_m_d_His') . '.xlsx');
     }
 
     public function render()

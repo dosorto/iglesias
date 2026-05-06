@@ -70,6 +70,9 @@ class BautismoCreate extends Component
     public string $mini_f_fecha_ingreso = '';
     public string $mini_f_estado        = 'Activo';
 
+    public string $advertenciaDuplicado = '';
+    public bool   $confirmarDuplicado   = false;
+
     // Paso 3
     public string $libro_bautismo = '';
     public string $folio          = '';
@@ -341,6 +344,12 @@ class BautismoCreate extends Component
         $this->resetErrorBag();
     }
 
+    public function confirmarYGuardarMiniPersona(): void
+    {
+        $this->confirmarDuplicado = true;
+        $this->guardarMiniPersona();
+    }
+
     // Mini-form: guardar nueva persona + feligres (transaccion atomica)
 
     public function guardarMiniPersona(): void
@@ -373,6 +382,19 @@ class BautismoCreate extends Component
         ]);
 
         $rol = $this->mini_rol;
+
+        if (! $this->mini_p_dni && ! $this->confirmarDuplicado) {
+            $duplicado = Persona::where('primer_nombre', $this->mini_p_primer_nombre)
+                ->where('primer_apellido', $this->mini_p_primer_apellido)
+                ->whereNull('dni')
+                ->first();
+            if ($duplicado) {
+                $this->advertenciaDuplicado = $duplicado->nombre_completo;
+                return;
+            }
+        }
+        $this->advertenciaDuplicado = '';
+        $this->confirmarDuplicado   = false;
 
         DB::transaction(function () use ($rol) {
             if (session('tenant')) {
@@ -479,6 +501,19 @@ class BautismoCreate extends Component
             return;
         }
 
+        if (! $this->validarGeneroRoles()) {
+            return;
+        }
+
+        if (! $this->validarFechaPosteriorNacimiento(
+            $this->bautizado_feligres_id,
+            $this->fecha_bautismo,
+            'fecha_bautismo',
+            'bautismo'
+        )) {
+            return;
+        }
+
         $fechaExp = $this->resolverFechaExpedicion();
         if ($fechaExp === false) {
             return;
@@ -547,5 +582,70 @@ class BautismoCreate extends Component
         }
 
         return sprintf('%04d-%02d-%02d', $year, (int) $mes, (int) $dia);
+    }
+
+    private function validarGeneroRoles(): bool
+    {
+        $roles = [
+            'padre'   => ['id' => $this->padre_feligres_id,   'esperado' => 'M', 'campo' => 'padre_dni',   'label' => 'El padre'],
+            'madre'   => ['id' => $this->madre_feligres_id,   'esperado' => 'F', 'campo' => 'madre_dni',   'label' => 'La madre'],
+            'padrino' => ['id' => $this->padrino_feligres_id, 'esperado' => 'M', 'campo' => 'padrino_dni', 'label' => 'El padrino'],
+            'madrina' => ['id' => $this->madrina_feligres_id, 'esperado' => 'F', 'campo' => 'madrina_dni', 'label' => 'La madrina'],
+        ];
+
+        $valido = true;
+        foreach ($roles as $config) {
+            if (! $config['id']) {
+                continue;
+            }
+
+            $sexo = $this->normalizarSexoCanonico(
+                Feligres::with('persona:id,sexo')->find($config['id'])?->persona?->sexo
+            );
+
+            if ($sexo && $sexo !== $config['esperado']) {
+                $genero = $config['esperado'] === 'M' ? 'masculino' : 'femenino';
+                $this->addError($config['campo'], "{$config['label']} debe ser de género {$genero}.");
+                $valido = false;
+            }
+        }
+
+        return $valido;
+    }
+
+    private function normalizarSexoCanonico(?string $sexo): ?string
+    {
+        if (! $sexo) {
+            return null;
+        }
+        $valor = mb_strtolower(trim($sexo));
+        if (in_array($valor, ['m', 'masculino', 'hombre'], true)) {
+            return 'M';
+        }
+        if (in_array($valor, ['f', 'femenino', 'mujer'], true)) {
+            return 'F';
+        }
+        return null;
+    }
+
+    private function validarFechaPosteriorNacimiento(?int $feligresId, string $fechaSacramento, string $campo, string $label): bool
+    {
+        if (! $feligresId || ! $fechaSacramento) {
+            return true;
+        }
+
+        $persona = \App\Models\Feligres::with('persona:id,fecha_nacimiento')->find($feligresId)?->persona;
+        if (! $persona?->fecha_nacimiento) {
+            return true;
+        }
+
+        try {
+            if (\Carbon\Carbon::parse($fechaSacramento)->lt(\Carbon\Carbon::parse($persona->fecha_nacimiento))) {
+                $this->addError($campo, "La fecha de {$label} no puede ser anterior a la fecha de nacimiento.");
+                return false;
+            }
+        } catch (\Exception) {}
+
+        return true;
     }
 }
