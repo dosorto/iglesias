@@ -5,6 +5,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $appName }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('image/Logo_guest.png') }}?v=holyapp">
+    <link rel="shortcut icon" href="{{ asset('image/Logo_guest.png') }}?v=holyapp">
+    <link rel="apple-touch-icon" href="{{ asset('image/Logo_guest.png') }}?v=holyapp">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -105,10 +108,6 @@
 
     {{-- HERO --}}
     <section class="lp-hero">
-        <div class="hero-badge">
-            <span class="hero-badge-dot"></span>
-            Archivo Sagrado Digital
-        </div>
         <h1>Gestión parroquial <span>moderna y ordenada</span></h1>
         <div class="hero-btns">
             <a href="{{ route('register.organization') }}" class="btn-primary">Registrar mi parroquia</a>

@@ -26,7 +26,7 @@ class SidebarToggle extends Component
 
         $setting = AppSetting::current();
         $this->logoUrl = $setting->company_logo_url;
-        $this->churchName = $setting->company_name ?: 'NekoTech';
+        $this->churchName = $setting->company_name ?: 'Holy App';
     }
 
     public function toggleSidebar()

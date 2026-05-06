@@ -11,7 +11,7 @@ class AppSettingSeeder extends Seeder
     {
         AppSetting::query()->updateOrCreate(
             ['id' => 1],
-            ['company_name' => 'NekoTech']
+            ['company_name' => 'Holy App']
         );
     }
 }

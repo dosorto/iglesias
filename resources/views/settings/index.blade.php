@@ -33,7 +33,7 @@
             </div>
             <div class="flex justify-between items-center">
                 <span class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ $companySettings->company_name ?: 'NekoTech' }}
+                    {{ $companySettings->company_name ?: 'Holy App' }}
                 </span>
                 <a href="{{ route('configuracion.empresa.edit') }}"
                    class="inline-flex items-center px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">

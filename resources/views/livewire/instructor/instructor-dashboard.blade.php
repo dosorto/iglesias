@@ -15,7 +15,7 @@
                        class="rounded-xl bg-amber-300 px-5 py-2.5 text-sm font-bold text-amber-950 shadow hover:bg-amber-200 transition-colors">
                         Ver mis cursos
                     </a>
-                    <a href="{{ route('instructor.index') }}"
+                    <a href="{{ route('instructor.show', $instructorId) }}"
                        class="rounded-xl border border-white/30 bg-white/10 px-5 py-2.5 text-sm font-bold text-white hover:bg-white/20 transition-colors">
                         Mi perfil de instructor
                     </a>

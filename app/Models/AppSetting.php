@@ -25,7 +25,7 @@ class AppSetting extends Model
     {
         return static::query()->firstOrCreate(
             ['id' => 1],
-            ['company_name' => 'NekoTech']
+            ['company_name' => 'Holy App']
         );
     }
 
