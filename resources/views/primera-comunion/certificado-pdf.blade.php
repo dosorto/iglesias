@@ -38,7 +38,7 @@
         .body-text { font-size: 12.5pt; line-height: 2.6; }
         .body-text p { margin-bottom: 4px; }
 
-        .underline { display: inline-block; vertical-align: bottom; }
+        .underline { display: inline; }
         .name-line { display: block; width: 100%; margin: 10px 0 18px; min-height: 26px; font-size: 14pt; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 1px; color: #1a1a1a; }
 
         .nota-marginal { font-size: 10.5pt; margin-top: 14px; line-height: 1.8; color: #444; }

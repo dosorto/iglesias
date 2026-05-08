@@ -119,9 +119,8 @@
             margin-bottom: 3px;
         }
         .line-field {
-            display: inline-block;
-            margin: 0 3px;
-            vertical-align: bottom;
+            display: inline;
+            margin: 0 1px;
         }
         .section-label { font-weight: bold; }
 

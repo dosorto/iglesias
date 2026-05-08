@@ -70,10 +70,8 @@
         }
 
         .line {
-            display: inline-block;
-            min-height: 16px;
-            vertical-align: bottom;
-            padding: 0 2px;
+            display: inline;
+            padding: 0 1px;
         }
 
 
