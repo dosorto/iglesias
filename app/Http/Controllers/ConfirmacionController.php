@@ -46,6 +46,12 @@ class ConfirmacionController extends Controller
             $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
         }
 
+        $sanitizarNombre = fn(string $s): string =>
+            preg_replace('/[^a-z]/', '', mb_strtolower(
+                str_replace(['á','é','í','ó','ú','ü','ñ','à','â','ã','ê','î','ô','û'],
+                            ['a','e','i','o','u','u','n','a','a','a','e','i','o','u'],
+                            explode(' ', trim($s))[0] ?? ''), 'UTF-8')) ?: 'persona';
+
         $tipoDocumento = 'confirmacion_certificado';
         $nombreArchivo = 'certificado-confirmacion-' . $confirmacion->id . '.pdf';
         $layoutVersion = 'header-config-v8';
@@ -111,6 +117,13 @@ class ConfirmacionController extends Controller
             'ministro.persona',
             'encargado.feligres.persona',
         ]);
+
+        $nombreArchivo = sprintf(
+            'certificado-confirmacion-%s-%s-%s.pdf',
+            $confirmacion->id,
+            $sanitizarNombre($confirmacion->feligres?->persona?->nombre_completo ?? ''),
+            ($confirmacion->fecha_expedicion ?? now())->format('Ymd')
+        );
 
         $plantillaCertificadoPath = $pathFormatoConfirmacion;
         $html = view('confirmacion.certificado-pdf', compact('confirmacion', 'iglesiaConfig', 'plantillaCertificadoPath'))->render();

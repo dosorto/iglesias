@@ -43,8 +43,13 @@ class InscripcionCursoController extends Controller
 
     public function certificadoPdf(InscripcionCurso $inscripcion)
     {
+        $sanitizarNombre = fn(string $s): string =>
+            preg_replace('/[^a-z]/', '', mb_strtolower(
+                str_replace(['á','é','í','ó','ú','ü','ñ','à','â','ã','ê','î','ô','û'],
+                            ['a','e','i','o','u','u','n','a','a','a','e','i','o','u'],
+                            explode(' ', trim($s))[0] ?? ''), 'UTF-8')) ?: 'persona';
+
         $tipoDocumento = 'curso_certificado';
-        $nombreArchivo = 'certificado-curso-' . $inscripcion->id . '.pdf';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
 
         $inscripcion->load([
@@ -52,6 +57,13 @@ class InscripcionCursoController extends Controller
             'curso.encargado.feligres.persona',
             'feligres.persona',
         ]);
+
+        $nombreArchivo = sprintf(
+            'certificado-curso-%s-%s-%s.pdf',
+            $inscripcion->id,
+            $sanitizarNombre($inscripcion->feligres?->persona?->nombre_completo ?? ''),
+            ($inscripcion->fecha_certificado ?? now())->format('Ymd')
+        );
 
         $iglesiaConfig = TenantIglesia::current();
         $iglesiaId = (int) ($inscripcion->curso?->iglesia_id ?: TenantIglesia::currentId());

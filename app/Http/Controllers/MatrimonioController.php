@@ -40,6 +40,12 @@ class MatrimonioController extends Controller
 
         $iglesiaConfig = TenantIglesia::current();
 
+        $sanitizarNombre = fn(string $s): string =>
+            preg_replace('/[^a-z]/', '', mb_strtolower(
+                str_replace(['á','é','í','ó','ú','ü','ñ','à','â','ã','ê','î','ô','û'],
+                            ['a','e','i','o','u','u','n','a','a','a','e','i','o','u'],
+                            explode(' ', trim($s))[0] ?? ''), 'UTF-8')) ?: 'persona';
+
         $tipoDocumento = 'matrimonio_constancia';
         $nombreArchivo = 'constancia-matrimonio-' . $matrimonio->id . '.pdf';
         $layoutVersion = 'header-config-v8';
@@ -103,6 +109,13 @@ class MatrimonioController extends Controller
             'testigo2.persona',
             'encargado.feligres.persona',
         ]);
+
+        $nombreArchivo = sprintf(
+            'constancia-matrimonio-%s-%s-%s.pdf',
+            $matrimonio->id,
+            $sanitizarNombre($matrimonio->esposo?->persona?->nombre_completo ?? ''),
+            ($matrimonio->fecha_expedicion ?? now())->format('Ymd')
+        );
 
         $plantillaCertificadoPath = $pathFormatoMatrimonio;
         $html = view('matrimonio.certificado-pdf', compact('matrimonio', 'iglesiaConfig', 'plantillaCertificadoPath'))->render();

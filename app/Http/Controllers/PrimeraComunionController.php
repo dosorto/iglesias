@@ -49,6 +49,12 @@ class PrimeraComunionController extends Controller
 
         $iglesiaConfig = TenantIglesia::current();
 
+        $sanitizarNombre = fn(string $s): string =>
+            preg_replace('/[^a-z]/', '', mb_strtolower(
+                str_replace(['á','é','í','ó','ú','ü','ñ','à','â','ã','ê','î','ô','û'],
+                            ['a','e','i','o','u','u','n','a','a','a','e','i','o','u'],
+                            explode(' ', trim($s))[0] ?? ''), 'UTF-8')) ?: 'persona';
+
         $tipoDocumento = 'primera_comunion_certificado';
         $nombreArchivo = 'certificado-primera-comunion-' . $primeraComunion->id . '.pdf';
         $layoutVersion = 'header-config-v8';
@@ -120,6 +126,13 @@ class PrimeraComunionController extends Controller
             ->whereNull('deleted_at')
             ->latest()
             ->first();
+
+        $nombreArchivo = sprintf(
+            'certificado-primera-comunion-%s-%s-%s.pdf',
+            $primeraComunion->id,
+            $sanitizarNombre($primeraComunion->feligres?->persona?->nombre_completo ?? ''),
+            ($primeraComunion->fecha_expedicion ?? now())->format('Ymd')
+        );
 
         $plantillaCertificadoPath = $pathFormatoPrimeraComunion;
         $html = view('primera-comunion.certificado-pdf', compact('primeraComunion', 'encargado', 'iglesiaConfig', 'plantillaCertificadoPath'))->render();

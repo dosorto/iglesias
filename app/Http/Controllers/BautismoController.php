@@ -42,6 +42,12 @@ class BautismoController extends Controller
 
         $iglesiaConfig = TenantIglesia::current();
 
+        $sanitizarNombre = fn(string $s): string =>
+            preg_replace('/[^a-z]/', '', mb_strtolower(
+                str_replace(['á','é','í','ó','ú','ü','ñ','à','â','ã','ê','î','ô','û'],
+                            ['a','e','i','o','u','u','n','a','a','a','e','i','o','u'],
+                            explode(' ', trim($s))[0] ?? ''), 'UTF-8')) ?: 'persona';
+
         $tipoDocumento = 'bautismo_certificado';
         $nombreArchivo = 'certificado-bautismo-' . $bautismo->id . '.pdf';
         $layoutVersion = 'header-config-v8';
@@ -105,6 +111,13 @@ class BautismoController extends Controller
             'madrina.persona',
             'encargado.feligres.persona',
         ]);
+
+        $nombreArchivo = sprintf(
+            'certificado-bautismo-%s-%s-%s.pdf',
+            $bautismo->id,
+            $sanitizarNombre($bautismo->bautizado?->persona?->nombre_completo ?? ''),
+            ($bautismo->fecha_expedicion ?? now())->format('Ymd')
+        );
 
         $plantillaCertificadoPath = $pathFormatoBautismo;
         $html = view('bautismo.certificado-pdf', compact('bautismo', 'iglesiaConfig', 'plantillaCertificadoPath'))->render();
