@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Certificacion de Bautismo</title>
+    <title>Certificación de Bautismo</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 

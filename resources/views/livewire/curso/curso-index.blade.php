@@ -5,7 +5,7 @@
                 {{ $isInstructorView ? 'Mis Cursos' : 'Gestión de Cursos' }}
             </h1>
             <p class="text-gray-600 dark:text-gray-300 mt-1">
-                {{ $isInstructorView ? 'Vista de instructor: solo cursos asignados a tu perfil.' : 'Administra los cursos disponibles en el sistema' }}
+                {{ $isInstructorView ? 'Vista de instructor: sólo cursos asignados a tu perfil.' : 'Administra los cursos disponibles en el sistema' }}
             </p>
         </div>
 

@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Configuracion de Empresa')
+@section('title', 'Configuración de Empresa')
 
 @section('content')
 <div class="max-w-4xl mx-auto space-y-6">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Configuracion de Empresa</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Configuración de Empresa</h1>
         <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Administra el nombre y el logo global que se muestran en el panel de test.</p>
     </div>
 

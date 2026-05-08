@@ -288,7 +288,7 @@
                     <iframe
                         src="{{ $pdfPreviewUrl }}"
                         class="w-full h-[980px]"
-                        title="Vista previa constancia de primera comunion">
+                        title="Vista previa constancia de primera comunión">
                     </iframe>
                 @else
                     <div class="p-6 text-sm text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20">

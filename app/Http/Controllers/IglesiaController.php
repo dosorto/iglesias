@@ -172,7 +172,7 @@ class IglesiaController extends Controller
     {
         if (!session('tenant_can_return_global')) {
             return redirect()->route('dashboard')
-                ->with('error', 'No hay una gestion global activa para finalizar.');
+                ->with('error', 'No hay una gestión global activa para finalizar.');
         }
 
         session()->forget('tenant');

@@ -8,7 +8,7 @@
                 <p class="text-xs uppercase tracking-[0.2em] text-emerald-100">Panel del Instructor</p>
                 <h1 class="mt-2 text-3xl font-black leading-tight md:text-5xl">{{ $saludoInstructor }}, {{ $nombreInstructor }}</h1>
                 <p class="mt-4 max-w-2xl text-sm text-emerald-100 md:text-base">
-                    Gestiona tus cursos, revisa el progreso de tus alumnos y mantente al dia con la actividad reciente.
+                    Gestiona tus cursos, revisa el progreso de tus alumnos y mantente al día con la actividad reciente.
                 </p>
                 <div class="mt-6 flex flex-wrap gap-3">
                     <a href="{{ route('curso.index') }}"

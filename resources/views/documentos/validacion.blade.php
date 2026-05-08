@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Validacion de Documento</title>
+    <title>Validación de Documento</title>
     <style>
         :root {
             --bg: #f3f5f8;
@@ -137,17 +137,17 @@
 <body>
     <div class="card">
         <div class="header">
-            <h1 class="title">Validacion de Documento</h1>
-            <p class="subtitle">Resultado de verificacion por codigo QR</p>
+            <h1 class="title">Validación de Documento</h1>
+            <p class="subtitle">Resultado de verificación por código</p>
         </div>
 
         <div class="status {{ $integridadValida ? 'ok' : 'bad' }}">
-            {{ $integridadValida ? 'Documento valido: integridad del snapshot verificada.' : 'Advertencia: no se pudo validar integridad del snapshot.' }}
+            {{ $integridadValida ? 'Documento válido: integridad del snapshot verificada.' : 'Advertencia: no se pudo validar integridad del snapshot.' }}
         </div>
 
         <div class="content">
             <div class="grid">
-                <div class="label">Codigo de verificacion</div>
+                <div class="label">Código de verificación</div>
                 <div class="value">{{ $documentoGenerado->codigo_verificacion }}</div>
 
                 <div class="label">Tipo de documento</div>
@@ -156,7 +156,7 @@
                 <div class="label">Nombre de archivo</div>
                 <div class="value">{{ $documentoGenerado->nombre_archivo }}</div>
 
-                <div class="label">Fecha de emision</div>
+                <div class="label">Fecha de emisión</div>
                 <div class="value">{{ $documentoGenerado->fecha_emision?->format('Y-m-d H:i:s') }}</div>
 
                 <div class="label">Hash del payload</div>

@@ -36,7 +36,7 @@ class ConfirmacionController extends Controller
     {
         $confirmacion->loadMissing('encargado');
         if (! filled($confirmacion->encargado?->path_firma_principal)) {
-            abort(422, 'Debe configurar la firma principal del encargado para generar el PDF de confirmacion.');
+            abort(422, 'Debe configurar la firma principal del encargado para generar el PDF de confirmación.');
         }
 
         $iglesiaConfig = TenantIglesia::current();

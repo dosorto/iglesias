@@ -44,7 +44,7 @@ class PrimeraComunionController extends Controller
     {
         $primeraComunion->loadMissing('encargado');
         if (! filled($primeraComunion->encargado?->path_firma_principal)) {
-            abort(422, 'Debe configurar la firma principal del encargado para generar el PDF de primera comunion.');
+            abort(422, 'Debe configurar la firma principal del encargado para generar el PDF de primera comunión.');
         }
 
         $iglesiaConfig = TenantIglesia::current();

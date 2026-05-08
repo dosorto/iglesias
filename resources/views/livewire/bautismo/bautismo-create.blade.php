@@ -399,7 +399,7 @@
 
                                         <div class="sm:col-span-2">
                                             <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
-                                                Numero de Identidad <span class="text-red-500">*</span>
+                                                Número de Identidad <span class="text-red-500">*</span>
                                             </label>
                                             <input type="text" wire:model="mini_p_dni" placeholder="Ej: 0801199912345"
                                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
@@ -506,7 +506,7 @@
 
                                         <div>
                                             <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 tracking-wide">
-                                                Telefono <span class="text-red-500">*</span>
+                                                Teléfono <span class="text-red-500">*</span>
                                             </label>
                                             <input type="text" wire:model="mini_p_telefono"
                                                    oninput="this.value=this.value.replace(/[^0-9+\-]/g,'')"
@@ -804,7 +804,7 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                        Partida Numero
+                        Partida Número
                     </label>
                     <input type="text" wire:model="partida_numero"
                            placeholder="Ej: 0125"

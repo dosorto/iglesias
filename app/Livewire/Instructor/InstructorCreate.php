@@ -531,7 +531,7 @@ class InstructorCreate extends Component
 
         if ($this->emailProvisionMode === '') {
             throw ValidationException::withMessages([
-                'emailProvisionMode' => 'Esta persona no tiene correo. Elige si deseas configurarlo manualmente o generarlo automaticamente.',
+                'emailProvisionMode' => 'Esta persona no tiene correo. Elige si deseas configurarlo manualmente o generarlo automáticamente.',
             ]);
         }
 
@@ -546,7 +546,7 @@ class InstructorCreate extends Component
                 ],
             ], [
                 'emailManual.required' => 'Debes ingresar un correo para el instructor.',
-                'emailManual.email' => 'El correo ingresado no es valido.',
+                'emailManual.email' => 'El correo ingresado no es válido.',
                 'emailManual.unique' => 'Ese correo ya esta en uso por otro usuario.',
             ]);
 
@@ -566,7 +566,7 @@ class InstructorCreate extends Component
         }
 
         throw ValidationException::withMessages([
-            'emailProvisionMode' => 'Selecciona una opcion valida para configurar el correo del instructor.',
+            'emailProvisionMode' => 'Selecciona una opción válida para configurar el correo del instructor.',
         ]);
     }
 

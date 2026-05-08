@@ -25,7 +25,7 @@ class CompanySettingsController extends Controller
             'company_logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ], [
             'company_name.required' => 'El nombre de la empresa es obligatorio.',
-            'company_logo.image' => 'El logo debe ser una imagen valida.',
+            'company_logo.image' => 'El logo debe ser una imagen válida.',
             'company_logo.mimes' => 'El logo debe ser JPG, PNG o WEBP.',
             'company_logo.max' => 'El logo no puede exceder 2 MB.',
         ]);
@@ -46,6 +46,6 @@ class CompanySettingsController extends Controller
 
         return redirect()
             ->route('configuracion.empresa.edit')
-            ->with('success', 'Configuracion de empresa actualizada correctamente.');
+            ->with('success', 'Configuración de empresa actualizada correctamente.');
     }
 }

@@ -367,7 +367,7 @@ class BautismoCreate extends Component
             'mini_f_fecha_ingreso'    => ['nullable', 'date'],
             'mini_f_estado'           => ['required', 'in:Activo,Inactivo'],
         ], [
-            'mini_p_dni.required'             => 'El numero de identidad es obligatorio.',
+            'mini_p_dni.required'             => 'El número de identidad es obligatorio.',
             'mini_p_dni.min'                  => 'El DNI debe tener al menos 8 caracteres.',
             'mini_p_dni.unique'               => 'Ya existe una persona con ese DNI.',
             'mini_p_primer_nombre.required'   => 'El primer nombre es obligatorio.',

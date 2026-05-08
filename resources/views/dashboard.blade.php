@@ -13,7 +13,7 @@
         <div class="mb-2">
             <h1 class="text-4xl font-serif text-[var(--color-purpura-sagrado)] dark:text-white">Dashboard Global</h1>
             <p class="text-slate-600 dark:text-gray-300 mt-2 max-w-3xl italic text-sm">
-                Este panel te permite administrar todas las iglesias. Desde aqui puedes seleccionar una iglesia para gestionarla en modo tenant.
+                Este panel te permite administrar todas las iglesias. Desde aquí puedes seleccionar una iglesia para gestionarla en modo tenant.
             </p>
         </div>
 
@@ -196,7 +196,7 @@
                 ->take(6)
                 ->get()
                 ->map(fn ($item) => [
-                    'title' => 'Confirmacion registrada',
+                    'title' => 'Confirmación registrada',
                     'date' => $item->fecha_confirmacion,
                     'url' => route('confirmacion.show', $item),
                 ])
@@ -208,7 +208,7 @@
                 ->take(6)
                 ->get()
                 ->map(fn ($item) => [
-                    'title' => 'Primera comunion registrada',
+                    'title' => 'Primera comunión registrada',
                     'date' => $item->fecha_primera_comunion,
                     'url' => route('primera-comunion.show', $item),
                 ])
