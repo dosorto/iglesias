@@ -19,7 +19,8 @@
 </head>
 @php
     use App\Models\TenantIglesia;
-    $iglesiaConfig    = TenantIglesia::current();
+    $isTenantActive   = config('database.default') === config('tenancy.tenant_connection', 'tenant');
+    $iglesiaConfig    = $isTenantActive ? TenantIglesia::current() : null;
     $logoUrl          = $iglesiaConfig?->logo_url          ?? asset('image/Logo_guest.png');
     $logoDerUrl       = $iglesiaConfig?->logo_derecha_url  ?? null;
     $iglesiaNombre    = $iglesiaConfig?->nombre             ?? '';
