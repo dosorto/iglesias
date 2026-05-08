@@ -107,7 +107,6 @@
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
-            border-bottom: 1px solid #444;
             padding-bottom: 4px;
         }
 
@@ -317,7 +316,7 @@
             <p>ha aprobado satisfactoriamente el curso denominado:</p>
 
             <p>
-                <span class="line-field line-field-xl" style="font-weight:bold; font-size:14pt; border-bottom:1.5px solid #444;">{{ $curso?->nombre ?? 'N/A' }}</span>
+                <span class="line-field line-field-xl" style="font-weight:bold; font-size:14pt;">{{ $curso?->nombre ?? 'N/A' }}</span>
             </p>
 
             <p style="margin-bottom:18px;"></p>

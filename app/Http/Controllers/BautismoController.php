@@ -36,8 +36,18 @@ class BautismoController extends Controller
     public function certificadoPdf(Bautismo $bautismo)
     {
         $bautismo->loadMissing('encargado');
-        if (! filled($bautismo->encargado?->path_firma_principal)) {
-            abort(422, 'Debe configurar la firma principal del encargado para generar el PDF de bautismo.');
+
+        $datosCriticos = [
+            'Fecha de bautismo' => $bautismo->fecha_bautismo,
+            'Bautizado'         => $bautismo->bautizado_id,
+            'Padre'             => $bautismo->padre_id,
+            'Madre'             => $bautismo->madre_id,
+            'Padrino'           => $bautismo->padrino_id,
+            'Madrina'           => $bautismo->madrina_id,
+        ];
+        $faltantes = array_keys(array_filter($datosCriticos, fn($v) => ! filled($v)));
+        if (! empty($faltantes)) {
+            abort(422, 'Faltan datos requeridos para generar el PDF: ' . implode(', ', $faltantes) . '.');
         }
 
         $iglesiaConfig = TenantIglesia::current();

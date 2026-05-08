@@ -34,8 +34,17 @@ class MatrimonioController extends Controller
     public function certificadoPdf(Matrimonio $matrimonio)
     {
         $matrimonio->loadMissing('encargado');
-        if (! filled($matrimonio->encargado?->path_firma_principal)) {
-            abort(422, 'Debe configurar la firma principal del encargado para generar la constancia de matrimonio.');
+
+        $datosCriticos = [
+            'Fecha de matrimonio' => $matrimonio->fecha_matrimonio,
+            'Esposo'              => $matrimonio->esposo_id,
+            'Esposa'              => $matrimonio->esposa_id,
+            'Testigo 1'           => $matrimonio->testigo1_id,
+            'Testigo 2'           => $matrimonio->testigo2_id,
+        ];
+        $faltantes = array_keys(array_filter($datosCriticos, fn($v) => ! filled($v)));
+        if (! empty($faltantes)) {
+            abort(422, 'Faltan datos requeridos para generar el PDF: ' . implode(', ', $faltantes) . '.');
         }
 
         $iglesiaConfig = TenantIglesia::current();

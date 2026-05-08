@@ -35,8 +35,17 @@ class ConfirmacionController extends Controller
     public function certificadoPdf(Confirmacion $confirmacion)
     {
         $confirmacion->loadMissing('encargado');
-        if (! filled($confirmacion->encargado?->path_firma_principal)) {
-            abort(422, 'Debe configurar la firma principal del encargado para generar el PDF de confirmación.');
+
+        $datosCriticos = [
+            'Fecha de confirmación' => $confirmacion->fecha_confirmacion,
+            'Confirmado'            => $confirmacion->feligres_id,
+            'Padrino'               => $confirmacion->padrino_id,
+            'Madrina'               => $confirmacion->madrina_id,
+            'Ministro'              => $confirmacion->ministro_id,
+        ];
+        $faltantes = array_keys(array_filter($datosCriticos, fn($v) => ! filled($v)));
+        if (! empty($faltantes)) {
+            abort(422, 'Faltan datos requeridos para generar el PDF: ' . implode(', ', $faltantes) . '.');
         }
 
         $iglesiaConfig = TenantIglesia::current();

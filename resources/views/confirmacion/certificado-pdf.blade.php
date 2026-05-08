@@ -1,65 +1,89 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Certificación de Confirmación</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #1a1a1a; background: #fff; }
-        .page-wrapper { padding: 30px 46px; border: none; margin: 10px; position: relative; z-index: 1; }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            color: #1a1a1a;
+            background: #fff;
+        }
 
         .watermark-logo {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            opacity: 0.08;
+            opacity: 0.075;
             z-index: 0;
         }
 
         .watermark-logo img {
-            width: 430px;
+            width: 390px;
             height: auto;
             object-fit: contain;
         }
 
-        .header { display: table; width: 100%; margin-bottom: 10px; }
-        .header-logo-cell { display: table-cell; width: 85px; vertical-align: middle; text-align: center; }
-        .header-logo-cell img { width: 75px; height: 75px; object-fit: contain; }
-        .header-title-cell { display: table-cell; vertical-align: middle; text-align: center; }
-        .header-right-cell { display: table-cell; width: 85px; vertical-align: middle; text-align: center; }
-        .header-right-cell img { width: 75px; height: 75px; object-fit: contain; }
+        .page-wrapper {
+            padding: 26px 44px 30px;
+            border: none;
+            margin: 8px;
+            position: relative;
+            z-index: 2;
+            background: transparent;
+        }
 
-        .parish-name { font-size: 19pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; line-height: 1.1; }
-        .diocese-name { font-size: 12pt; text-transform: uppercase; letter-spacing: 3px; color: #4a7aad; margin-top: 3px; }
-        .header-address { font-size: 11pt; margin-top: 4px; color: #222; letter-spacing: 0.5px; }
-        .header-divider { border-top: 2px solid #8aa8bc; margin: 6px 0 8px; }
+        /* ── HEADER ── */
+        .header { display: table; width: 100%; margin-bottom: 8px; }
+        .header-logo-cell { display: table-cell; width: 88px; vertical-align: top; text-align: left; padding-top: 2px; }
+        .header-logo-cell img { width: 80px; height: 80px; object-fit: contain; }
+        .header-title-cell { display: table-cell; vertical-align: top; text-align: center; }
+        .header-right-cell { display: table-cell; width: 88px; vertical-align: top; text-align: right; padding-top: 2px; }
+        .header-right-cell img { width: 80px; height: 80px; object-fit: contain; }
 
-        .hr-accent { border: none; border-top: 1px solid #7D5A1E; margin: 3px 0; }
-        .ornament { text-align: center; color: #7D5A1E; font-size: 11pt; letter-spacing: 8px; margin: 3px 0; }
-        .cert-title-wrap { text-align: center; margin: 8px 0; }
-        .cert-title { display: inline-block; background: #7D5A1E; color: #fff; font-size: 13pt; font-weight: bold; letter-spacing: 4px; text-transform: uppercase; padding: 5px 32px; }
+        .parish-name { font-size: 19pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.7px; line-height: 1.1; }
+        .diocese-name { font-size: 14pt; font-weight: bold; text-transform: uppercase; margin-top: 3px; }
+        .header-address { font-size: 12pt; font-weight: bold; margin-top: 3px; }
 
-        .cert-intro { font-size: 11.5pt; margin-bottom: 14px; line-height: 1.6; margin-top: 14px; }
-        .cert-block { font-size: 11.5pt; line-height: 2.4; margin-bottom: 6px; }
-        .cert-block p { margin-bottom: 2px; }
+        .header-divider { border: none; border-top: 1px solid #6f99ad; margin: 7px 0 14px; }
 
-        .field { display: inline-block; border-bottom: 1px solid #333; vertical-align: bottom; margin: 0 3px; }
-        .field-sm   { min-width: 90px; }
-        .field-md   { min-width: 160px; }
-        .field-lg   { min-width: 260px; }
-        .field-xl   { min-width: 340px; }
-        .field-full { min-width: 460px; }
+        /* ── TÍTULO ── */
+        .doc-title {
+            text-align: center;
+            font-size: 15.5pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 20px;
+        }
 
-        .name-line { display: block; width: 100%; border-bottom: 2px solid #333; margin: 8px 0 12px; min-height: 22px; font-size: 13pt; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+        /* ── CUERPO ── */
+        .cert-intro { font-size: 12pt; margin-bottom: 12px; line-height: 1.5; }
 
-        .nota-marginal { font-size: 10.5pt; margin-top: 14px; line-height: 1.8; color: #444; }
-        .issuance { font-size: 11.5pt; line-height: 2.2; margin-top: 22px; }
+        .name-display {
+            text-align: center;
+            font-size: 15pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 0 22px;
+        }
 
+        .cert-block { font-size: 12pt; line-height: 1.8; }
+        .cert-block p { margin-bottom: 4px; }
+
+        .nota-marginal { font-size: 10.5pt; margin-top: 18px; line-height: 1.8; color: #444; }
+        .issuance { font-size: 12pt; line-height: 1.5; margin-top: 28px; }
+
+        /* ── FIRMAS ── */
         .bottom-signatures {
             display: table;
             width: 100%;
-            margin-top: 14px;
+            margin-top: 48px;
             page-break-inside: avoid;
         }
 
@@ -77,22 +101,7 @@
             text-align: center;
         }
 
-        .sello {
-            width: 78px;
-            height: 78px;
-            margin: 0 auto;
-            border: 2px dashed #999;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            font-size: 7.5pt;
-            color: #999;
-            line-height: 1.2;
-        }
-
-        .signature-block { margin-top: 0; text-align: center; }
+        .signature-block { text-align: center; }
         .sig-img {
             max-height: 65px;
             max-width: 210px;
@@ -104,11 +113,9 @@
             display: inline-block;
             width: 260px;
             border-top: 2px solid #7D5A1E;
-            margin-top: 0;
             padding-top: 4px;
         }
-        .sig-name { font-size: 11pt; font-weight: bold; margin-bottom: 2px; color: #1a1a1a; margin-top: 4px; }
-        .sig-title { font-size: 10pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #7D5A1E; }
+        .sig-name { font-size: 11pt; font-weight: bold; color: #1a1a1a; margin-top: 4px; }
     </style>
 </head>
 @php
@@ -122,28 +129,29 @@
         return is_file($candidate) ? $candidate : null;
     };
 
-    $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
+    $logoIglesiaPath        = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
+    $certBgPath             = $resolvePublicFilePath($plantillaCertificadoPath ?? ($iglesiaConfig?->path_certificado_confirmacion ?: $iglesiaConfig?->path_certificado_bautismo));
 
-    $logoEstaticoPath = public_path('image/Logo_guest.png');
-    if (! $logoIglesiaPath && is_file($logoEstaticoPath)) {
-        $logoIglesiaPath = $logoEstaticoPath;
+    if (! $logoIglesiaPath) {
+        $logoEstaticoPath = public_path('image/Logo_guest.png');
+        if (is_file($logoEstaticoPath)) $logoIglesiaPath = $logoEstaticoPath;
     }
-    if (! $logoIglesiaDerechaPath) {
-        $logoIglesiaDerechaPath = $logoIglesiaPath;
-    }
+    if (! $logoIglesiaDerechaPath) $logoIglesiaDerechaPath = $logoIglesiaPath;
 
-    $confirmado      = $confirmacion->feligres?->persona;
-    $padrino         = $confirmacion->padrino?->persona;
-    $madrina         = $confirmacion->madrina?->persona;
-    $ministro        = $confirmacion->ministro?->persona;
-    $encargado       = $confirmacion->encargado?->feligres?->persona;
+    $confirmado     = $confirmacion->feligres?->persona;
+    $padrino        = $confirmacion->padrino?->persona;
+    $madrina        = $confirmacion->madrina?->persona;
+    $ministro       = $confirmacion->ministro?->persona;
+    $encargado      = $confirmacion->encargado?->feligres?->persona;
 
     $iglesiaNombre   = $iglesiaConfig?->nombre ?? $confirmacion->iglesia?->nombre ?? '';
-    $ministroNombre  = mb_strtoupper($ministro?->nombre_completo ?? '', 'UTF-8');
-    $encargadoNombre = mb_strtoupper($encargado?->nombre_completo ?? '', 'UTF-8');
+    $headerDiocesis  = $iglesiaConfig?->header_diocesis ?: 'Diócesis de Choluteca';
+    $headerLugar     = $iglesiaConfig?->direccion ?: '';
 
-    $padrinosStr = mb_strtoupper(
+    $ministroNombre  = mb_strtoupper($ministro?->nombre_completo  ?? '', 'UTF-8');
+    $encargadoNombre = mb_strtoupper($encargado?->nombre_completo ?? '', 'UTF-8');
+    $padrinosStr     = mb_strtoupper(
         collect([$padrino?->nombre_completo, $madrina?->nombre_completo])->filter()->implode(' y '),
         'UTF-8'
     );
@@ -158,30 +166,25 @@
     $mesConf = $fc ? $mesesEs[$fc->month] : '';
     $anoConf = $fc ? $fc->year            : '';
 
-    $fe        = $confirmacion->fecha_expedicion ?: now();
-    $diaExp    = $fe ? $fe->day             : '';
-    $mesExp    = $fe ? $mesesEs[$fe->month] : '';
-    $anoExpMil = $fe ? ($fe->year - 2000)   : '';
+    $fe     = $confirmacion->fecha_expedicion ?: now();
+    $diaExp = $fe ? $fe->day             : '';
+    $mesExp = $fe ? $mesesEs[$fe->month] : '';
+    $anoExp = $fe ? $fe->year            : '';
 
-    $lugarConf    = $confirmacion->lugar_confirmacion ?? '';
-    $lugarExp     = trim((string) ($iglesiaConfig?->direccion ?? ''));
-    if ($lugarExp === '') {
-        $lugarExp = trim((string) ($confirmacion->iglesia?->direccion ?? ''));
-    }
-    if ($lugarExp === '') {
-        $lugarExp = trim((string) ($confirmacion->lugar_expedicion ?? ''));
-    }
-    if ($lugarExp === '') {
-        $lugarExp = 'Monjaras, Marcovia, Choluteca, Honduras C. A.';
-    }
-    $notaMarginal = $confirmacion->nota_marginal      ?? '';
+    $lugarConf = $confirmacion->lugar_confirmacion ?? '';
+    $lugarExp  = trim((string) ($iglesiaConfig?->direccion ?? ''));
+    if ($lugarExp === '') $lugarExp = trim((string) ($confirmacion->iglesia?->direccion ?? ''));
+    if ($lugarExp === '') $lugarExp = trim((string) ($confirmacion->lugar_expedicion ?? ''));
+    if ($lugarExp === '') $lugarExp = 'Monjaras, Marcovia, Choluteca, Honduras C. A.';
+
+    $notaMarginal = $confirmacion->nota_marginal ?? '';
 
     $firmaPath = null;
     if ($confirmacion->encargado?->path_firma_principal) {
         $firmaPath = $resolvePublicFilePath($confirmacion->encargado->path_firma_principal);
     }
 @endphp
-<body>
+<body @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
 @if ($logoIglesiaPath)
     <div class="watermark-logo">
         <img src="{{ $logoIglesiaPath }}" alt="Marca de agua">
@@ -189,54 +192,42 @@
 @endif
 <div class="page-wrapper">
 
+    {{-- HEADER --}}
     <div class="header">
         <div class="header-logo-cell">
             @if ($logoIglesiaPath)<img src="{{ $logoIglesiaPath }}" alt="Logo">@endif
         </div>
         <div class="header-title-cell">
-            <div class="parish-name">Parroquia{{ $iglesiaNombre ? ' ' . $iglesiaNombre : '' }}</div>
-            <div class="diocese-name">Di&oacute;cesis de Choluteca</div>
-            <div class="header-address">Monjarás, Marcovia, Choluteca, Honduras, C.A.</div>
+            <div class="parish-name">{{ mb_strtoupper($iglesiaNombre, 'UTF-8') }}</div>
+            <div class="diocese-name">{{ $headerDiocesis }}</div>
+            @if ($headerLugar)<div class="header-address">{{ $headerLugar }}</div>@endif
         </div>
         <div class="header-right-cell">
             @if ($logoIglesiaDerechaPath)<img src="{{ $logoIglesiaDerechaPath }}" alt="Logo">@endif
         </div>
     </div>
 
-    <div class="header-divider"></div>
+    <hr class="header-divider">
 
-    <hr class="hr-accent">
-    <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
-    <hr class="hr-accent">
-    <div class="cert-title-wrap">
-        <span class="cert-title">CERTIFICACI&Oacute;N DE CONFIRMACI&Oacute;N</span>
-    </div>
-    <hr class="hr-accent">
-    <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
-    <hr class="hr-accent">
+    {{-- TÍTULO --}}
+    <div class="doc-title">CERTIFICACI&Oacute;N DE CONFIRMACI&Oacute;N</div>
 
+    {{-- CUERPO --}}
     <p class="cert-intro">El infrascrito encargado del archivo de esta parroquia certifica que</p>
 
-    <div style="margin-bottom: 18px; text-align: center;">
-        <span class="name-line">{{ mb_strtoupper($confirmado?->nombre_completo ?? '', 'UTF-8') }}</span>
+    <div class="name-display">
+        {{ mb_strtoupper($confirmado?->nombre_completo ?? '', 'UTF-8') }}
     </div>
 
     <div class="cert-block">
         <p>
-            Fue confirmado (a) el día
-            <span class="field field-sm">{{ $diaConf }}</span>
-            del mes
-            <span class="field field-md">{{ $mesConf }}</span>
-            año
-            <span class="field field-md">{{ $anoConf }}</span>
+            Fue confirmado (a) el día {{ $diaConf }}
+            del mes {{ $mesConf }}
+            año {{ $anoConf }}
         </p>
-        <p>En <span class="field field-lg">{{ $lugarConf }}</span></p>
-        <p>Por Mons. <span class="field field-lg">{{ $ministroNombre }}</span></p>
-        <p>Siendo sus padrinos: <span class="field field-xl">{{ $padrinosStr }}</span></p>
-    </div>
-
-    <div style="margin-top: 20px; margin-bottom: 6px;">
-        <span class="field field-full"></span>
+        <p>En {{ $lugarConf }}</p>
+        <p>Por Mons. {{ $ministroNombre }}</p>
+        <p>Siendo sus padrinos: {{ $padrinosStr }}</p>
     </div>
 
     @if ($notaMarginal)
@@ -247,17 +238,16 @@
 
     <div class="issuance">
         <p>
-            Dado en <span>{{ $lugarExp }}</span>
-            a los <span class="field field-sm">{{ $diaExp }}</span>
-            del mes de <span class="field field-md">{{ $mesExp }}</span>
-            año <span class="field field-sm">{{ $anoExpMil ? '20'.$anoExpMil : '' }}</span>
+            Dado en {{ $lugarExp }}
+            a los {{ $diaExp }}
+            dias del mes de {{ $mesExp }}
+            del año {{ $anoExp }}
         </p>
     </div>
 
+    {{-- FIRMAS --}}
     <div class="bottom-signatures">
-        <div class="seal-cell">
-            <div class="sello">Sello de la<br>Parroquia</div>
-        </div>
+        <div class="seal-cell"></div>
         <div class="signature-cell">
             <div class="signature-block">
                 @if ($firmaPath)

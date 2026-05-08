@@ -15,23 +15,22 @@
         .page-wrapper { padding: 26px 36px 24px; border: none; margin: 2px; position: relative; z-index: 1; }
 
         .header { display: table; width: 100%; margin-bottom: 10px; }
-        .header-logo-cell { display: table-cell; width: 90px; vertical-align: middle; text-align: center; }
+        .header-logo-cell { display: table-cell; width: 88px; vertical-align: top; text-align: left; padding-top: 2px; }
         .header-logo-cell img { width: 80px; height: 80px; object-fit: contain; }
-        .header-title-cell { display: table-cell; vertical-align: middle; text-align: center; }
-        .header-right-cell { display: table-cell; width: 90px; vertical-align: middle; text-align: center; }
+        .header-title-cell { display: table-cell; vertical-align: top; text-align: center; }
+        .header-right-cell { display: table-cell; width: 88px; vertical-align: top; text-align: right; padding-top: 2px; }
         .header-right-cell img { width: 80px; height: 80px; object-fit: contain; }
 
-        .parish-name { font-size: 19pt; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; line-height: 1.1; }
-        .diocese-name { font-size: 13pt; text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; color: #555; }
-        .header-address { font-size: 11pt; margin-top: 4px; color: #222; letter-spacing: 0.5px; }
-        .header-divider { border-top: 1px solid #6f99ad; margin: 7px 0 18px; }
+        .parish-name { font-size: 19pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; }
+        .diocese-name { font-size: 14pt; font-weight: 700; text-transform: uppercase; margin-top: 3px; }
+        .header-address { font-size: 12pt; font-weight: 700; margin-top: 3px; }
+        .header-divider { border: none; border-top: 1px solid #6f99ad; margin: 7px 0 14px; }
 
         .doc-title {
             text-align: center;
             font-size: 15.5pt;
             font-weight: 700;
             text-transform: uppercase;
-            text-decoration: underline;
             letter-spacing: 0.4px;
             margin-bottom: 24px;
         }
@@ -39,8 +38,8 @@
         .body-text { font-size: 12.5pt; line-height: 2.6; }
         .body-text p { margin-bottom: 4px; }
 
-        .underline { display: inline-block; border-bottom: 1px solid #333; vertical-align: bottom; }
-        .name-line { display: block; width: 100%; border-bottom: 2px solid #7D5A1E; margin: 10px 0 18px; min-height: 26px; font-size: 14pt; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 1px; color: #1a1a1a; }
+        .underline { display: inline-block; vertical-align: bottom; }
+        .name-line { display: block; width: 100%; margin: 10px 0 18px; min-height: 26px; font-size: 14pt; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 1px; color: #1a1a1a; }
 
         .nota-marginal { font-size: 10.5pt; margin-top: 14px; line-height: 1.8; color: #444; }
 
@@ -219,25 +218,22 @@
 
         <p>
             Hizo su <strong>PRIMERA COMUNIÓN</strong> el día
-            <span class="underline" style="min-width:110px; text-align:center;">{{ $diaComunion }}</span>
+            <span class="underline">{{ $diaComunion }}</span>
             del mes
-            <span class="underline" style="min-width:180px; text-align:center;">{{ $mesComunion }}</span>
-        </p>
-
-        <p>
+            <span class="underline">{{ $mesComunion }}</span>
             año
-            <span class="underline" style="min-width:140px; text-align:center;">{{ $anoComunion }}</span>
+            <span class="underline">{{ $anoComunion }}</span>
         </p>
 
         <p>
             En
-            <span class="underline" style="min-width:400px;">{{ $lugarCelebracion }}</span>
+            <span class="underline">{{ $lugarCelebracion }}</span>
         </p>
 
         @if ($notaMarginal)
         <p style="margin-top:10px;">
             <strong>NOTA MARGINAL:</strong>
-            <span class="underline" style="min-width:300px;">{{ $notaMarginal }}</span>
+            <span class="underline">{{ $notaMarginal }}</span>
         </p>
         @endif
 
@@ -245,21 +241,15 @@
 
     <div class="body-text" style="margin-top: 50px;">
         <p>
-            Dado en
-            <span>{{ $lugarExp }}</span>
-            a los
-            <span class="underline" style="min-width:80px; text-align:center;">{{ $diaExp }}</span>
-            del mes de
-            <span class="underline" style="min-width:140px; text-align:center;">{{ $mesExp }}</span>
-            año
-            <span class="underline" style="min-width:80px; text-align:center;">{{ $anoExpMil ? '20'.str_pad($anoExpMil, 2, '0', STR_PAD_LEFT) : '' }}</span>
+            Dado en {{ $lugarExp }}
+            a los <span class="underline">{{ $diaExp }}</span>
+            del mes de <span class="underline">{{ $mesExp }}</span>
+            año <span class="underline">{{ $anoExpMil ? '20'.str_pad($anoExpMil, 2, '0', STR_PAD_LEFT) : '' }}</span>
         </p>
     </div>
 
     <div class="bottom-signatures">
-        <div class="seal-cell">
-            <div class="sello">Sello de la<br>Parroquia</div>
-        </div>
+        <div class="seal-cell"></div>
         <div class="signature-cell">
             <div class="signature-block">
                 @if ($firmaPath)

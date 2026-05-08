@@ -16,7 +16,7 @@
         }
 
         .page {
-            padding: 26px 30px 30px;
+            padding: 26px 38px 30px;
             position: relative;
             margin: 8px;
             border: none;
@@ -39,68 +39,18 @@
             object-fit: contain;
         }
 
-        .header {
-            width: 100%;
-            margin-bottom: 8px;
-        }
+        .header { display: table; width: 100%; margin-bottom: 8px; }
+        .header-logo-cell { display: table-cell; width: 88px; vertical-align: top; text-align: left; padding-top: 2px; }
+        .header-logo-cell img { width: 80px; height: 80px; object-fit: contain; }
+        .header-title-cell { display: table-cell; vertical-align: top; text-align: center; }
+        .header-right-cell { display: table-cell; width: 88px; vertical-align: top; text-align: right; padding-top: 2px; }
+        .header-right-cell img { width: 80px; height: 80px; object-fit: contain; }
 
-        .header-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        .parish-name { font-size: 19pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; }
+        .diocese-name { font-size: 14pt; font-weight: 700; text-transform: uppercase; margin-top: 3px; }
+        .header-address { font-size: 12pt; font-weight: 700; margin-top: 3px; }
 
-        .logo-cell {
-            width: 84px;
-            vertical-align: top;
-            text-align: left;
-            padding-top: 2px;
-        }
-
-        .logo-cell img {
-            width: 80px;
-            height: 80px;
-            object-fit: contain;
-        }
-
-        .logo-right-cell {
-            width: 84px;
-            vertical-align: top;
-            text-align: right;
-            padding-top: 2px;
-        }
-
-        .logo-right-cell img {
-            width: 80px;
-            height: 80px;
-            object-fit: contain;
-        }
-
-        .title-cell {
-            text-align: center;
-            vertical-align: top;
-        }
-
-        .parroquia {
-            font-size: 19pt;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.7px;
-        }
-
-        .diocesis {
-            font-size: 14pt;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-top: 3px;
-        }
-
-        .direccion {
-            font-size: 12pt;
-            font-weight: 700;
-            margin-top: 3px;
-        }
-
-        .top-rule {
+        .header-divider {
             border: none;
             border-top: 1px solid #6f99ad;
             margin: 7px 0 14px;
@@ -111,7 +61,6 @@
             font-size: 15.5pt;
             font-weight: 700;
             text-transform: uppercase;
-            text-decoration: underline;
             margin-bottom: 12px;
             letter-spacing: 0.4px;
         }
@@ -122,18 +71,11 @@
 
         .line {
             display: inline-block;
-            border-bottom: 1px solid #222;
             min-height: 16px;
             vertical-align: bottom;
             padding: 0 2px;
         }
 
-        .line-xxs { min-width: 34px; }
-        .line-xs  { min-width: 60px; }
-        .line-sm  { min-width: 95px; }
-        .line-md  { min-width: 175px; }
-        .line-lg  { min-width: 260px; }
-        .line-xl  { min-width: 330px; }
 
         .spacer-1 { height: 10px; }
         .spacer-2 { height: 18px; }
@@ -220,7 +162,7 @@
         }
 
         .firma-nombre {
-            font-size: 13pt;
+            font-size: 11pt;
             font-weight: 700;
         }
 
@@ -258,7 +200,9 @@
     $encargado = $bautismo->encargado?->feligres?->persona;
 
     $parroquiaNombre = $iglesiaConfig?->nombre ?? $bautismo->iglesia?->nombre ?? '';
-    $parroquiaUpper = mb_strtoupper($parroquiaNombre ?: 'PARROQUIA', 'UTF-8');
+    $parroquiaUpper  = mb_strtoupper($parroquiaNombre ?: 'PARROQUIA', 'UTF-8');
+    $headerDiocesis  = $iglesiaConfig?->header_diocesis ?: 'Diócesis de Choluteca';
+    $headerLugar     = $iglesiaConfig?->direccion ?: $bautismo->iglesia?->direccion ?: '';
 
     $mesesEs = [
         1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril', 5 => 'mayo', 6 => 'junio',
@@ -316,27 +260,23 @@
 <div class="page">
 
     <div class="header">
-        <table class="header-table">
-            <tr>
-                <td class="logo-cell">
-                    @if($logoIglesiaPath)
-                        <img src="{{ $logoIglesiaPath }}" alt="Logo parroquia">
-                    @endif
-                </td>
-                <td class="title-cell">
-                    <div class="parroquia">{{ $parroquiaUpper }}</div>
-                    <div class="diocesis">DIOCESIS DE CHOLUTECA</div>
-                    <div class="direccion">Monjaras, Marcovia, Choluteca, Honduras, C.A.</div>
-                </td>
-                <td class="logo-right-cell">
-                    @if($logoIglesiaDerechaPath)
-                        <img src="{{ $logoIglesiaDerechaPath }}" alt="Logo parroquia">
-                    @endif
-                </td>
-            </tr>
-        </table>
-        <hr class="top-rule">
+        <div class="header-logo-cell">
+            @if($logoIglesiaPath)
+                <img src="{{ $logoIglesiaPath }}" alt="Logo parroquia">
+            @endif
+        </div>
+        <div class="header-title-cell">
+            <div class="parish-name">{{ $parroquiaUpper }}</div>
+            <div class="diocese-name">{{ $headerDiocesis }}</div>
+            @if($headerLugar)<div class="header-address">{{ $headerLugar }}</div>@endif
+        </div>
+        <div class="header-right-cell">
+            @if($logoIglesiaDerechaPath)
+                <img src="{{ $logoIglesiaDerechaPath }}" alt="Logo parroquia">
+            @endif
+        </div>
     </div>
+    <hr class="header-divider">
 
     <div class="doc-title">CERTIFICACION DE BAUTISMO</div>
 
@@ -388,15 +328,12 @@
     </div>
 
     <div class="notes">
-        <p>
-            Nota Marginal: <span class="line line-xl">{{ $notaMarginal }}</span>
-        </p>
-        <p><span class="line" style="width: 100%;"></span></p>
-        <p>
-            Nota Aclaratoria: <span class="line line-xl">{{ $notaAclaratoria }}</span>
-        </p>
-        <p><span class="line" style="width: 100%;"></span></p>
-        <p><span class="line" style="width: 100%;"></span></p>
+        @if($notaMarginal)
+        <p>Nota Marginal: <span class="line line-xl">{{ $notaMarginal }}</span></p>
+        @endif
+        @if($notaAclaratoria)
+        <p>Nota Aclaratoria: <span class="line line-xl">{{ $notaAclaratoria }}</span></p>
+        @endif
     </div>
 
     <div class="bottom-section">
@@ -407,9 +344,7 @@
         </p>
 
         <div class="bottom-signatures">
-            <div class="seal-cell">
-                <div class="sello">Sello de la<br>Parroquia</div>
-            </div>
+            <div class="seal-cell"></div>
             <div class="signature-cell">
                 <div class="signature-bottom">
                     @if($firmaPath)

@@ -14,7 +14,7 @@
 
         body {
             font-family: 'Times New Roman', Times, serif;
-            font-size: 11pt;
+            font-size: 12pt;
             color: #1a1a1a;
             background: #fff;
         }
@@ -24,12 +24,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            opacity: 0.08;
+            opacity: 0.075;
             z-index: 0;
         }
 
         .watermark-logo img {
-            width: 430px;
+            width: 390px;
             height: auto;
             object-fit: contain;
         }
@@ -65,24 +65,21 @@
             text-align: center;
         }
         .parish-name {
-            font-size: 15.5pt;
-            font-weight: bold;
+            font-size: 19pt;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            line-height: 1.05;
+            letter-spacing: 0.7px;
         }
         .diocese-name {
-            font-size: 10pt;
+            font-size: 14pt;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 1px;
-            color: #555;
+            margin-top: 3px;
         }
         .header-address {
-            font-size: 9.5pt;
+            font-size: 12pt;
+            font-weight: 700;
             margin-top: 3px;
-            color: #222;
-            letter-spacing: 0.4px;
         }
         .header-divider {
             border-top: 1px solid #6f99ad;
@@ -105,7 +102,6 @@
             font-size: 15.5pt;
             font-weight: 700;
             text-transform: uppercase;
-            text-decoration: underline;
             letter-spacing: 0.4px;
             margin-bottom: 12px;
         }
@@ -124,14 +120,9 @@
         }
         .line-field {
             display: inline-block;
-            min-width: 220px;
-            border-bottom: 1px solid #333;
             margin: 0 3px;
             vertical-align: bottom;
         }
-        .line-field-sm { min-width: 70px; }
-        .line-field-lg { min-width: 280px; }
-        .line-field-xl { min-width: 360px; }
         .section-label { font-weight: bold; }
 
         /* ── SIGNATURES SECTION ── */
@@ -171,7 +162,8 @@
             color: #444;
         }
         .sig-name {
-            font-size: 9.4pt;
+            font-size: 11pt;
+            font-weight: bold;
             margin-top: 1px;
         }
 
@@ -226,7 +218,7 @@
             color: #7D5A1E;
         }
         .priest-name {
-            font-size: 9.4pt;
+            font-size: 11pt;
             margin-top: 1px;
         }
 
@@ -263,8 +255,10 @@
         body.is-landscape .page-wrapper { padding: 14px 24px 18px; }
         body.is-landscape .header { margin-bottom: 5px; }
         body.is-landscape .header-divider { margin: 4px 0 6px; }
-        body.is-landscape .cert-title-wrap { margin: 5px 0; }
-        body.is-landscape .cert-title { font-size: 10.8pt; padding: 3px 18px; letter-spacing: 2px; }
+        body.is-landscape .parish-name { font-size: 13pt; }
+        body.is-landscape .diocese-name { font-size: 10pt; font-weight: 700; }
+        body.is-landscape .header-address { font-size: 9pt; }
+        body.is-landscape .doc-title { font-size: 11pt; margin-bottom: 6px; }
         body.is-landscape .body-text {
             margin-top: 10px;
             line-height: 1.5;
@@ -272,10 +266,6 @@
             width: 96%;
         }
         body.is-landscape .body-text p { margin-bottom: 1px; }
-        body.is-landscape .line-field { min-width: 170px; }
-        body.is-landscape .line-field-sm { min-width: 52px; }
-        body.is-landscape .line-field-lg { min-width: 220px; }
-        body.is-landscape .line-field-xl { min-width: 280px; }
         body.is-landscape .priest-section {
             margin-top: 28px;
             width: 96%;
@@ -440,11 +430,7 @@
 
     {{-- ===== SELLO Y SACERDOTE ===== --}}
     <div class="priest-section">
-        <div class="seal-cell">
-            <div class="seal-box">
-                <p class="seal-text">Sello de la<br>Parroquia</p>
-            </div>
-        </div>
+        <div class="seal-cell"></div>
         <div class="priest-cell">
             @if ($firmaPath && file_exists($firmaPath))
                 <div class="signature-image-wrap">

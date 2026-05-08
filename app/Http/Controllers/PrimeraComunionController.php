@@ -43,8 +43,14 @@ class PrimeraComunionController extends Controller
     public function certificadoPdf(PrimeraComunion $primeraComunion)
     {
         $primeraComunion->loadMissing('encargado');
-        if (! filled($primeraComunion->encargado?->path_firma_principal)) {
-            abort(422, 'Debe configurar la firma principal del encargado para generar el PDF de primera comunión.');
+
+        $datosCriticos = [
+            'Fecha de primera comunión' => $primeraComunion->fecha_primera_comunion,
+            'Comulgante'                => $primeraComunion->id_feligres,
+        ];
+        $faltantes = array_keys(array_filter($datosCriticos, fn($v) => ! filled($v)));
+        if (! empty($faltantes)) {
+            abort(422, 'Faltan datos requeridos para generar el PDF: ' . implode(', ', $faltantes) . '.');
         }
 
         $iglesiaConfig = TenantIglesia::current();
