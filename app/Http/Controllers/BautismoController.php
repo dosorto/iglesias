@@ -44,7 +44,7 @@ class BautismoController extends Controller
 
         $tipoDocumento = 'bautismo_certificado';
         $nombreArchivo = 'certificado-bautismo-' . $bautismo->id . '.pdf';
-        $layoutVersion = 'header-config-v7';
+        $layoutVersion = 'header-config-v8';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
         $iglesiaDocumentoId = (int) $bautismo->iglesia_id;
         $orientacionBautismo = (string) ($iglesiaConfig?->orientacion_certificado_bautismo

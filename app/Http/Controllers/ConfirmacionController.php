@@ -48,7 +48,7 @@ class ConfirmacionController extends Controller
 
         $tipoDocumento = 'confirmacion_certificado';
         $nombreArchivo = 'certificado-confirmacion-' . $confirmacion->id . '.pdf';
-        $layoutVersion = 'header-config-v6';
+        $layoutVersion = 'header-config-v8';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
         $iglesiaDocumentoId = (int) $confirmacion->iglesia_id;
         $orientacionConfirmacion = (string) ($iglesiaConfig?->orientacion_certificado_confirmacion

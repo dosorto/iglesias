@@ -140,11 +140,13 @@
     $encargado       = $confirmacion->encargado?->feligres?->persona;
 
     $iglesiaNombre   = $iglesiaConfig?->nombre ?? $confirmacion->iglesia?->nombre ?? '';
-    $ministroNombre  = $ministro?->nombre_completo ?? '';
-    $encargadoNombre = $encargado?->nombre_completo ?? '';
+    $ministroNombre  = mb_strtoupper($ministro?->nombre_completo ?? '', 'UTF-8');
+    $encargadoNombre = mb_strtoupper($encargado?->nombre_completo ?? '', 'UTF-8');
 
-    $padrinosStr = collect([$padrino?->nombre_completo, $madrina?->nombre_completo])
-        ->filter()->implode(' y ');
+    $padrinosStr = mb_strtoupper(
+        collect([$padrino?->nombre_completo, $madrina?->nombre_completo])->filter()->implode(' y '),
+        'UTF-8'
+    );
 
     $mesesEs = [
         1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',5=>'mayo',6=>'junio',
@@ -216,7 +218,7 @@
     <p class="cert-intro">El infrascrito encargado del archivo de esta parroquia certifica que</p>
 
     <div style="margin-bottom: 18px; text-align: center;">
-        <span class="name-line">{{ $confirmado?->nombre_completo ?? '' }}</span>
+        <span class="name-line">{{ mb_strtoupper($confirmado?->nombre_completo ?? '', 'UTF-8') }}</span>
     </div>
 
     <div class="cert-block">

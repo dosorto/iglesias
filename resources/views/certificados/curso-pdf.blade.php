@@ -306,7 +306,7 @@
             <p>El presente documento certifica que:</p>
 
             <p>
-                <span class="line-field line-field-xl">{{ $persona?->nombre_completo ?? 'N/A' }}</span>
+                <span class="line-field line-field-xl">{{ mb_strtoupper($persona?->nombre_completo ?? 'N/A', 'UTF-8') }}</span>
             </p>
 
             <p>
@@ -352,7 +352,7 @@
 
             <p>
                 Instructor responsable:
-                <span class="line-field line-field-xl">{{ $instructor?->nombre_completo ?? 'N/A' }}</span>
+                <span class="line-field line-field-xl">{{ mb_strtoupper($instructor?->nombre_completo ?? 'N/A', 'UTF-8') }}</span>
             </p>
 
             <p style="margin-bottom:18px;"></p>
@@ -365,7 +365,7 @@
 
         <div class="sig-right">
             @if ($instructor?->nombre_completo)
-                <p class="sig-name">{{ $instructor->nombre_completo }}</p>
+                <p class="sig-name">{{ mb_strtoupper($instructor->nombre_completo, 'UTF-8') }}</p>
             @endif
             <div class="sig-line-accent">I N S T R U C T O R</div>
         </div>
@@ -382,7 +382,7 @@
 
             <p>
                 Responsable administrativo:
-                <span class="line-field line-field-xl">{{ $encargado?->nombre_completo ?? 'N/A' }}</span>
+                <span class="line-field line-field-xl">{{ mb_strtoupper($encargado?->nombre_completo ?? 'N/A', 'UTF-8') }}</span>
             </p>
         </div>
 

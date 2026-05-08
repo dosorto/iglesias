@@ -321,7 +321,7 @@
     $encargado= $matrimonio->encargado?->feligres?->persona;
     $encargadoModel = $matrimonio->encargado;
     $firmaPath = $resolvePublicFilePath($encargadoModel?->path_firma_principal);
-    $firmaEncargadoNombre = trim((string) ($encargado?->nombre_completo ?? ''));
+    $firmaEncargadoNombre = mb_strtoupper(trim((string) ($encargado?->nombre_completo ?? '')), 'UTF-8');
 
     $iglesiaNombreHeader = $matrimonio->iglesia?->nombre ?? $iglesiaConfig?->nombre ?? '';
     $headerDiocesis = $iglesiaConfig?->header_diocesis ?: '';
@@ -354,11 +354,11 @@
         $lugarExp = 'Monjaras, Marcovia, Choluteca, Honduras C. A.';
     }
 
-    $esposoNombre  = $esposo?->nombre_completo  ?? '______________________________';
-    $esposaNombre  = $esposa?->nombre_completo  ?? '______________________________';
-    $sacerdote     = $encargado?->nombre_completo ?? '______________________________';
-    $testigo1Nombre= $testigo1?->nombre_completo ?? '______________________________';
-    $testigo2Nombre= $testigo2?->nombre_completo ?? '______________________________';
+    $esposoNombre  = mb_strtoupper($esposo?->nombre_completo  ?? '______________________________', 'UTF-8');
+    $esposaNombre  = mb_strtoupper($esposa?->nombre_completo  ?? '______________________________', 'UTF-8');
+    $sacerdote     = mb_strtoupper($encargado?->nombre_completo ?? '______________________________', 'UTF-8');
+    $testigo1Nombre= mb_strtoupper($testigo1?->nombre_completo ?? '______________________________', 'UTF-8');
+    $testigo2Nombre= mb_strtoupper($testigo2?->nombre_completo ?? '______________________________', 'UTF-8');
     $codigoVerificacion = $codigoVerificacion ?? '';
     $urlVerificacion = $urlVerificacion ?? '';
     $qrDataUri = $qrDataUri ?? null;

@@ -42,7 +42,7 @@ class MatrimonioController extends Controller
 
         $tipoDocumento = 'matrimonio_constancia';
         $nombreArchivo = 'constancia-matrimonio-' . $matrimonio->id . '.pdf';
-        $layoutVersion = 'header-config-v7';
+        $layoutVersion = 'header-config-v8';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
         $iglesiaDocumentoId = (int) $matrimonio->iglesia_id;
         $orientacionMatrimonio = (string) ($iglesiaConfig?->orientacion_certificado_matrimonio

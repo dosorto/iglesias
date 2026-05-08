@@ -292,19 +292,19 @@
         $lugarExp = 'Monjaras, Marcovia, Choluteca, Honduras C. A.';
     }
 
-    $parrocoCelebrante = trim((string) ($bautismo->parroco_celebrante ?: ($encargado?->nombre_completo ?? '')));
-    $firmaEncargadoNombre = trim((string) ($encargado?->nombre_completo ?? ''));
+    $parrocoCelebrante = mb_strtoupper(trim((string) ($bautismo->parroco_celebrante ?: ($encargado?->nombre_completo ?? ''))), 'UTF-8');
+    $firmaEncargadoNombre = mb_strtoupper(trim((string) ($encargado?->nombre_completo ?? '')), 'UTF-8');
 
     $firmaPath = $resolvePublicFilePath($bautismo->encargado?->path_firma_principal);
 
     $notaMarginal = (string) ($bautismo->nota_marginal ?? '');
     $notaAclaratoria = (string) ($bautismo->observaciones ?? '');
 
-    $nombreBautizado = trim((string) ($bautizado?->nombre_completo ?? ''));
-    $nombrePadre = trim((string) ($padre?->nombre_completo ?? ''));
-    $nombreMadre = trim((string) ($madre?->nombre_completo ?? ''));
-    $nombrePadrino = trim((string) ($padrino?->nombre_completo ?? ''));
-    $nombreMadrina = trim((string) ($madrina?->nombre_completo ?? ''));
+    $nombreBautizado = mb_strtoupper(trim((string) ($bautizado?->nombre_completo ?? '')), 'UTF-8');
+    $nombrePadre = mb_strtoupper(trim((string) ($padre?->nombre_completo ?? '')), 'UTF-8');
+    $nombreMadre = mb_strtoupper(trim((string) ($madre?->nombre_completo ?? '')), 'UTF-8');
+    $nombrePadrino = mb_strtoupper(trim((string) ($padrino?->nombre_completo ?? '')), 'UTF-8');
+    $nombreMadrina = mb_strtoupper(trim((string) ($madrina?->nombre_completo ?? '')), 'UTF-8');
 @endphp
 <body @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
 @if($logoIglesiaPath)

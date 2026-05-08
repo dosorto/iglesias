@@ -133,7 +133,7 @@
     $iglesiaNombre   = $iglesiaConfig?->nombre ?? $iglesia?->nombre ?? '';
     $headerDiocesis = $iglesiaConfig?->header_diocesis ?: '';
     $headerLugar = $iglesiaConfig?->direccion ?: '';
-    $encargadoNombre = $encargadoPersn?->nombre_completo ?? '';
+    $encargadoNombre = mb_strtoupper($encargadoPersn?->nombre_completo ?? '', 'UTF-8');
 
     $firmaPath = $resolvePublicFilePath($encargadoModel?->path_firma_principal);
 
@@ -215,7 +215,7 @@
 
         <p>El infrascrito encargado del archivo de esta parroquia certifica que</p>
 
-        <span class="name-line">{{ $comulgante?->nombre_completo ?? '' }}</span>
+        <span class="name-line">{{ mb_strtoupper($comulgante?->nombre_completo ?? '', 'UTF-8') }}</span>
 
         <p>
             Hizo su <strong>PRIMERA COMUNIÓN</strong> el día
