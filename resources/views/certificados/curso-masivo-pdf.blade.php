@@ -111,7 +111,6 @@
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
-            border-bottom: 1px solid #444;
             padding-bottom: 4px;
         }
 
@@ -128,18 +127,14 @@
         }
 
         .line-field {
-            display: inline-block;
-            min-width: 110px;
-            margin: 0 2px;
-            vertical-align: bottom;
-            padding: 0 6px 2px;
-            text-align: center;
-            white-space: nowrap;
+            display: inline;
+            margin: 0 1px;
+            padding: 0 1px;
         }
 
-        .line-field-sm { min-width: 45px; }
-        .line-field-lg { min-width: 180px; }
-        .line-field-xl { min-width: 240px; }
+        .line-field-sm { }
+        .line-field-lg { }
+        .line-field-xl { }
 
         .sig-right {
             width: 260px;
