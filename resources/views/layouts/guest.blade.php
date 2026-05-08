@@ -19,13 +19,27 @@
 </head>
 @php
     use App\Models\TenantIglesia;
-    $isTenantActive   = config('database.default') === config('tenancy.tenant_connection', 'tenant');
-    $iglesiaConfig    = $isTenantActive ? TenantIglesia::current() : null;
-    $logoUrl          = $iglesiaConfig?->logo_url          ?? asset('image/Logo_guest.png');
-    $logoDerUrl       = $iglesiaConfig?->logo_derecha_url  ?? null;
-    $iglesiaNombre    = $iglesiaConfig?->nombre             ?? '';
-    $iglesiaSubtitulo = $iglesiaConfig?->header_diocesis    ?? '';
-    $iglesiaDir       = $iglesiaConfig?->direccion          ?? '';
+    use App\Models\Iglesias;
+
+    $isTenantActive = config('database.default') === config('tenancy.tenant_connection', 'tenant');
+    $makePath       = fn($p) => $p ? asset('storage/' . ltrim($p, '/')) : null;
+
+    if ($isTenantActive) {
+        $iglesiaConfig    = TenantIglesia::current();
+        $logoUrl          = $iglesiaConfig?->logo_url         ?? asset('image/Logo_guest.png');
+        $logoDerUrl       = $iglesiaConfig?->logo_derecha_url ?? null;
+        $bgUrl            = $iglesiaConfig?->login_background_url ?? null;
+    } else {
+        // Fallback al dominio central: solo muestra iglesias con base tenant real
+        $iglesiaConfig    = Iglesias::whereNotNull('db_database')->first();
+        $logoUrl          = $makePath($iglesiaConfig?->path_logo)            ?? asset('image/Logo_guest.png');
+        $logoDerUrl       = $makePath($iglesiaConfig?->path_logo_derecha);
+        $bgUrl            = $makePath($iglesiaConfig?->path_login_background);
+    }
+
+    $iglesiaNombre    = $iglesiaConfig?->nombre          ?? '';
+    $iglesiaSubtitulo = $iglesiaConfig?->header_diocesis ?? '';
+    $iglesiaDir       = $iglesiaConfig?->direccion       ?? '';
     $hasTenant        = (bool) $iglesiaConfig;
 @endphp
 <body class="font-sans antialiased min-h-screen flex">
@@ -33,7 +47,6 @@
     {{-- ══════════════════════════════════════════════════════
          PANEL IZQUIERDO  — branding de la parroquia (solo desktop)
     ══════════════════════════════════════════════════════ --}}
-    @php $bgUrl = $iglesiaConfig?->login_background_url ?? null; @endphp
     <div class="hidden lg:flex lg:w-[58%] flex-col bg-[#0F6E46] relative overflow-hidden"
          @if($bgUrl) style="background-image:url('{{ $bgUrl }}'); background-size:cover; background-position:center;" @endif>
 
