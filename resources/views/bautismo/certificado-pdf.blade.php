@@ -57,8 +57,8 @@
         }
 
         .logo-cell img {
-            width: 62px;
-            height: auto;
+            width: 80px;
+            height: 80px;
             object-fit: contain;
         }
 
@@ -70,8 +70,8 @@
         }
 
         .logo-right-cell img {
-            width: 62px;
-            height: auto;
+            width: 80px;
+            height: 80px;
             object-fit: contain;
         }
 

@@ -55,8 +55,8 @@
 
         .header-logo-cell img,
         .header-right-cell img {
-            width: 70px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             object-fit: contain;
         }
 

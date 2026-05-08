@@ -50,13 +50,13 @@
         }
         .header-logo-cell {
             display: table-cell;
-            width: 72px;
+            width: 90px;
             vertical-align: middle;
             text-align: center;
         }
         .header-logo-cell img {
-            width: 58px;
-            height: 58px;
+            width: 80px;
+            height: 80px;
             object-fit: contain;
         }
         .header-title-cell {
@@ -90,13 +90,13 @@
         }
         .header-right-cell {
             display: table-cell;
-            width: 72px;
+            width: 90px;
             vertical-align: middle;
             text-align: center;
         }
         .header-right-cell img {
-            width: 58px;
-            height: 58px;
+            width: 80px;
+            height: 80px;
             object-fit: contain;
         }
 
