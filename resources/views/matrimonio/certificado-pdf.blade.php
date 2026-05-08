@@ -259,24 +259,6 @@
             color: #666;
         }
 
-        .qr-verify {
-            position: fixed;
-            left: 16px;
-            bottom: 12px;
-            margin-top: 0;
-            font-size: 8pt;
-            color: #555;
-            line-height: 1;
-            z-index: 2;
-        }
-        .qr-verify img {
-            width: 54px;
-            height: 54px;
-            border: 1px solid #d1d5db;
-            padding: 2px;
-            background: #fff;
-        }
-        .qr-code { margin-top: 3px; letter-spacing: 0.4px; }
 
         body.is-landscape .page-wrapper { padding: 14px 24px 18px; }
         body.is-landscape .header { margin-bottom: 5px; }
@@ -498,11 +480,6 @@
     </div>
     @endif
 
-    @if ($qrDataUri)
-        <div class="qr-verify">
-            <img src="{{ $qrDataUri }}" alt="QR de verificación">
-        </div>
-    @endif
 
 </div>
 </body>

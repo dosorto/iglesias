@@ -6,11 +6,6 @@ use App\Models\InscripcionCurso;
 use App\Models\TenantIglesia;
 use App\Services\DocumentosGeneradosService;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Endroid\QrCode\Builder\Builder;
-use Endroid\QrCode\Encoding\Encoding;
-use Endroid\QrCode\ErrorCorrectionLevel;
-use Endroid\QrCode\RoundBlockSizeMode;
-use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -79,22 +74,8 @@ class InscripcionCursoController extends Controller
             ?: ''
         );
 
-        $codigoVerificacion = $servicioDocumentos->generarCodigoVerificacionUnico();
-        $urlVerificacion = $servicioDocumentos->construirUrlVerificacion($codigoVerificacion);
-        $urlQr = $servicioDocumentos->construirUrlVerificacionPdf($codigoVerificacion);
-        $qrDataUri = Builder::create()
-            ->writer(new PngWriter())
-            ->data($urlQr)
-            ->encoding(new Encoding('UTF-8'))
-            ->errorCorrectionLevel(ErrorCorrectionLevel::Medium)
-            ->size(130)
-            ->margin(1)
-            ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
-            ->build()
-            ->getDataUri();
-
         $plantillaCertificadoPath = $pathFormatoCurso;
-        $html = view('certificados.curso-pdf', compact('inscripcion', 'iglesiaConfig', 'codigoVerificacion', 'urlVerificacion', 'qrDataUri', 'plantillaCertificadoPath'))->render();
+        $html = view('certificados.curso-pdf', compact('inscripcion', 'iglesiaConfig', 'plantillaCertificadoPath'))->render();
 
         $pdf = Pdf::loadHTML($html)
             ->setPaper($paperSizeCurso, $orientation);
@@ -112,15 +93,10 @@ class InscripcionCursoController extends Controller
                 'paper_size' => $paperSizeCurso,
                 'orientation' => $orientation,
                 'html' => $html,
-                'codigo_verificacion' => $codigoVerificacion,
-                'url_verificacion' => $urlVerificacion,
-                'url_qr' => $urlQr,
-                'qr_data_uri' => $qrDataUri,
                 'registro' => $inscripcion->toArray(),
                 'iglesia_config' => $iglesiaConfig?->toArray(),
             ],
-            Auth::id(),
-            $codigoVerificacion
+            Auth::id()
         );
 
         return response($pdfBinario, 200, [

@@ -203,24 +203,6 @@
             padding-right: 20px;
         }
 
-        .qr-verify {
-            position: fixed;
-            left: 16px;
-            bottom: 12px;
-            display: block;
-            font-size: 8pt;
-            color: #555;
-            z-index: 1;
-            line-height: 1;
-        }
-
-        .qr-verify img {
-            width: 54px;
-            height: 54px;
-            border: 1px solid #d1d5db;
-            padding: 2px;
-            background: #fff;
-        }
     </style>
 </head>
 
@@ -406,11 +388,6 @@
 
         <div class="footer-row">
             <div class="footer-left">
-                @if ($qrDataUri)
-                    <div class="qr-verify">
-                        <img src="{{ $qrDataUri }}" alt="QR de verificación">
-                    </div>
-                @endif
             </div>
 
             <div class="footer-right">
