@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\DB;
 
 class TenantIglesia extends Model
 {
@@ -147,5 +148,30 @@ class TenantIglesia extends Model
     public static function current(): ?self
     {
         return static::query()->first();
+    }
+
+    public static function currentFromCentral(): ?self
+    {
+        $iglesia = Iglesias::whereNotNull('db_database')->first();
+
+        if (! $iglesia?->db_database) {
+            return null;
+        }
+
+        $tenantConn  = config('tenancy.tenant_connection', 'tenant');
+        $centralConn = config('tenancy.central_connection', 'mysql');
+        $base        = config("database.connections.{$centralConn}", []);
+
+        config(["database.connections.{$tenantConn}" => array_merge($base, [
+            'host'     => $iglesia->db_host     ?: ($base['host']     ?? null),
+            'port'     => $iglesia->db_port     ?: ($base['port']     ?? null),
+            'database' => $iglesia->db_database,
+            'username' => $iglesia->db_username ?: ($base['username'] ?? null),
+            'password' => $iglesia->db_password ?: ($base['password'] ?? null),
+        ])]);
+
+        \Illuminate\Support\Facades\DB::purge($tenantConn);
+
+        return static::on($tenantConn)->first();
     }
 }
