@@ -33,7 +33,14 @@
     {{-- ══════════════════════════════════════════════════════
          PANEL IZQUIERDO  — branding de la parroquia (solo desktop)
     ══════════════════════════════════════════════════════ --}}
-    <div class="hidden lg:flex lg:w-[58%] flex-col bg-[#0F6E46] relative overflow-hidden">
+    @php $bgUrl = $iglesiaConfig?->login_background_url ?? null; @endphp
+    <div class="hidden lg:flex lg:w-[58%] flex-col bg-[#0F6E46] relative overflow-hidden"
+         @if($bgUrl) style="background-image:url('{{ $bgUrl }}'); background-size:cover; background-position:center;" @endif>
+
+        {{-- Overlay cuando hay imagen de fondo --}}
+        @if($bgUrl)
+            <div class="absolute inset-0 bg-[#0F6E46]/70 pointer-events-none"></div>
+        @endif
 
         {{-- Decoración de fondo --}}
         <div class="absolute inset-0 pointer-events-none">

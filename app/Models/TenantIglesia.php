@@ -24,6 +24,7 @@ class TenantIglesia extends Model
         'id_religion',
         'path_logo',
         'path_logo_derecha',
+        'path_login_background',
         'path_certificado_bautismo',
         'path_certificado_bautismo_portrait',
         'path_certificado_bautismo_landscape',
@@ -56,6 +57,7 @@ class TenantIglesia extends Model
     protected $appends = [
         'logo_url',
         'logo_derecha_url',
+        'login_background_url',
         'certificado_bautismo_url',
         'certificado_confirmacion_url',
         'certificado_primera_comunion_url',
@@ -122,6 +124,15 @@ class TenantIglesia extends Model
         return Attribute::make(
             get: fn () => $this->path_logo_derecha
                 ? asset('storage/' . ltrim($this->path_logo_derecha, '/'))
+                : null,
+        );
+    }
+
+    protected function loginBackgroundUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->path_login_background
+                ? asset('storage/' . ltrim($this->path_login_background, '/'))
                 : null,
         );
     }

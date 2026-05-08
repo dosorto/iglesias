@@ -185,5 +185,17 @@
         </div>
 
     </div>
+
+    {{-- ── Imagen de fondo del login ── --}}
+    @if($isTenantActive ?? false)
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-1">Imagen de fondo del login</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">
+            Se muestra detrás del panel verde en la pantalla de inicio de sesión. Recomendado: imagen de la parroquia o fondo decorativo.
+        </p>
+        @livewire('iglesia.login-background-update')
+    </div>
+    @endif
+
 </div>
 @endsection

@@ -79,7 +79,9 @@ class IglesiaController extends Controller
 
         abort_unless($iglesia, 404, 'No se encontró una iglesia activa para configurar.');
 
-        return view('configuracion.iglesia', compact('iglesia'));
+        $isTenantActive = config('database.default') === config('tenancy.tenant_connection', 'tenant');
+
+        return view('configuracion.iglesia', compact('iglesia', 'isTenantActive'));
     }
 
     public function update(UpdateIglesiaRequest $request, Iglesias $iglesia)
