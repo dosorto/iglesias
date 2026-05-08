@@ -13,7 +13,7 @@ use Illuminate\Validation\Rule;
 
 class ConfirmacionCreate extends Component
 {
-    private const LUGAR_CONFIRMACION_FIJO = 'Monjaras, Marcovia, Choluteca, Honduras, C.A.';
+    private const LUGAR_CONFIRMACION_FIJO = 'Monjaras, Marcovia';
 
     // Wizard
     public int $paso = 1;
