@@ -4,60 +4,178 @@ use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\PersonaController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 use Livewire\Volt\Volt;
 use App\Livewire\Curso\MatriculadoCursoShow;
 
-Route::view('/', 'welcome');
+Route::middleware(['tenant.document'])->group(function () {
+    Route::get('/verificar-documento/{codigo}', [\App\Http\Controllers\DocumentoGeneradoController::class, 'verificar'])
+        ->name('documentos.verificar');
 
-Route::middleware(['auth'])->group(function () {
-    Route::view('dashboard', 'dashboard')
-        ->middleware('verified')
-        ->name('dashboard');
+    Route::get('/verificar-documento/{codigo}/pdf', [\App\Http\Controllers\DocumentoGeneradoController::class, 'pdfPorCodigo'])
+        ->name('documentos.verificar.pdf');
+});
+
+Route::get('/', function () {
+    if (Auth::check() && session('pending_encargado_registration')) {
+        return redirect()->route('register-perfil');
+    }
+
+    if (session()->has('tenant.id_iglesia')) {
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+
+        return redirect()->route('login');
+    }
+
+    return view('welcome');
+});
+
+Route::get('/tenant/enter', function () {
+    $tenantId = (int) session('tenant.id_iglesia');
+    $autoLogin = session('tenant_auto_login');
+
+    if (! $tenantId || ! is_array($autoLogin)) {
+        return redirect()->route('login');
+    }
+
+    $autoTenantId = (int) ($autoLogin['tenant_id'] ?? 0);
+    $autoEmail = strtolower(trim((string) ($autoLogin['email'] ?? '')));
+
+    if ($autoTenantId !== $tenantId) {
+        session()->forget('tenant_auto_login');
+        return redirect()->route('login');
+    }
+
+    // Expira en 2 minutos para evitar reutilización accidental.
+    $initiatedAt = (int) ($autoLogin['initiated_at'] ?? 0);
+    if ($initiatedAt <= 0 || (now()->timestamp - $initiatedAt) > 120) {
+        session()->forget('tenant_auto_login');
+        return redirect()->route('login');
+    }
+
+    $tenantUser = null;
+
+    if ($autoEmail !== '') {
+        $tenantUser = \App\Models\User::query()
+            ->whereRaw('LOWER(email) = ?', [$autoEmail])
+            ->whereNull('deleted_at')
+            ->first();
+    }
+
+    if (! $tenantUser) {
+        $tenantUser = \App\Models\User::query()
+            ->whereNull('deleted_at')
+            ->whereHas('roles', fn ($q) => $q->where('name', 'root'))
+            ->first()
+            ?: \App\Models\User::query()
+                ->whereNull('deleted_at')
+                ->whereHas('roles', fn ($q) => $q->where('name', 'admin'))
+                ->first()
+            ?: \App\Models\User::query()
+                ->whereNull('deleted_at')
+                ->orderBy('id')
+                ->first();
+    }
+
+    session()->forget('tenant_auto_login');
+
+    if (! $tenantUser) {
+        return redirect()->route('login')
+            ->withErrors(['form.email' => 'La iglesia seleccionada no tiene usuarios tenant disponibles para ingresar.']);
+    }
+
+    \Illuminate\Support\Facades\Auth::login($tenantUser);
+
+    return redirect()->route('dashboard');
+})->name('tenant.enter');
+
+Route::middleware(['auth', 'encargado.pending'])->group(function () {
+    Route::get('dashboard', function () {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $isInstructorOnly = $user
+            ? \App\Models\User::query()
+                ->whereKey($user->id)
+                ->whereHas('roles', fn ($q) => $q->where('name', 'instructor'))
+                ->whereDoesntHave('roles', fn ($q) => $q->whereIn('name', ['root', 'admin']))
+                ->exists()
+            : false;
+
+        if ($isInstructorOnly) {
+            return redirect()->route('instructor.dashboard');
+        }
+
+        return view('dashboard');
+    })->middleware('verified')->name('dashboard');
+
+    Route::middleware(['permission:iglesias.view', 'central.context'])
+        ->get('/iglesias/{iglesia}/gestionar', [\App\Http\Controllers\IglesiaController::class, 'gestionar'])
+        ->name('iglesias.gestionar');
+
+    Route::get('/iglesias/salir-gestion', [\App\Http\Controllers\IglesiaController::class, 'salirGestion'])
+        ->name('iglesias.salir-gestion');
 
     Route::view('profile', 'profile')->name('profile');
 
-    Route::middleware('permission:users.view')
+    Route::middleware('role:admin|root')
         ->get('/users', fn () => view('users.index'))
         ->name('users.index');
 
-    Route::middleware('permission:users.create')
+    Route::middleware('role:admin|root')
         ->get('/users/create', fn () => view('users.create'))
         ->name('users.create');
 
-    Route::middleware('permission:users.edit')
+    Route::middleware('role:admin|root')
         ->get('/users/{user}/edit', fn (User $user) => view('users.edit', compact('user')))
         ->name('users.edit');
 
-    Route::middleware('permission:roles.view')
+    Route::middleware('role:admin|root')
         ->get('/roles', fn () => view('roles.index'))
         ->name('roles.index');
 
-    Route::middleware('permission:roles.create')
+    Route::middleware('role:admin|root')
         ->get('/roles/create', fn () => view('roles.create'))
         ->name('roles.create');
 
-    Route::middleware('permission:roles.edit')
+    Route::middleware('role:admin|root')
         ->get('/roles/{role}/edit', fn (Role $role) => view('roles.edit', compact('role')))
         ->name('roles.edit');
 
-    Route::middleware('permission:roles.view')
+    Route::middleware('role:admin|root')
         ->get('/settings', fn () => view('settings.index'))
         ->name('settings.index');
+
+    Route::middleware(['role:admin|root', 'central.context'])
+        ->get('/configuracion/empresa', [\App\Http\Controllers\CompanySettingsController::class, 'edit'])
+        ->name('configuracion.empresa.edit');
+
+    Route::middleware(['role:admin|root', 'central.context'])
+        ->put('/configuracion/empresa', [\App\Http\Controllers\CompanySettingsController::class, 'update'])
+        ->name('configuracion.empresa.update');
 
     Route::middleware('permission:bautismo.view|matrimonio.view|confirmacion.view|primera-comunion.view')
         ->get('/sacramentos', fn () => view('sacramentos.index'))
         ->name('sacramentos.index');
 
-    Route::middleware('permission:roles.view')
+    Route::middleware('role:admin|root')
         ->get('/configuracion/certificado-bautismo', fn () => view('configuracion.certificado-bautismo'))
         ->name('configuracion.certificado-bautismo');
 
-    Route::middleware('permission:roles.view')
+    Route::middleware('role:admin|root')
+        ->get('/configuracion/documentos-generados', fn () => view('configuracion.documentos-generados'))
+        ->name('configuracion.documentos-generados');
+
+    Route::middleware('role:admin|root')
+        ->get('/configuracion/documentos-generados/{documentoGenerado}/pdf', [\App\Http\Controllers\DocumentoGeneradoController::class, 'pdf'])
+        ->name('configuracion.documentos-generados.pdf');
+
+    Route::middleware('role:admin|root')
         ->get('/configuracion/iglesia', [\App\Http\Controllers\IglesiaController::class, 'editConfiguracion'])
         ->name('configuracion.iglesia.edit');
 
-    Route::middleware('permission:roles.view')
+    Route::middleware('role:admin|root')
         ->put('/configuracion/iglesia', [\App\Http\Controllers\IglesiaController::class, 'updateConfiguracion'])
         ->name('configuracion.iglesia.update');
 
@@ -68,31 +186,31 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('register-perfil', 'pages.auth.register-perfil')->name('register-perfil');
 
     // Personas CRUD
-    Route::middleware('permission:personas.view')
+    Route::middleware(['permission:personas.view', 'role:root'])
         ->get('/personas', [PersonaController::class, 'index'])
         ->name('personas.index');
 
-    Route::middleware('permission:personas.create')
+    Route::middleware(['permission:personas.create', 'role:root'])
         ->get('/personas/create', [PersonaController::class, 'create'])
         ->name('personas.create');
 
-    Route::middleware('permission:personas.create')
+    Route::middleware(['permission:personas.create', 'role:root'])
         ->post('/personas', [PersonaController::class, 'store'])
         ->name('personas.store');
 
-    Route::middleware('permission:personas.view')
+    Route::middleware(['permission:personas.view', 'role:root'])
         ->get('/personas/{persona}', [PersonaController::class, 'show'])
         ->name('personas.show');
 
-    Route::middleware('permission:personas.edit')
+    Route::middleware(['permission:personas.edit', 'role:root'])
         ->get('/personas/{persona}/edit', [PersonaController::class, 'edit'])
         ->name('personas.edit');
 
-    Route::middleware('permission:personas.edit')
+    Route::middleware(['permission:personas.edit', 'role:root'])
         ->put('/personas/{persona}', [PersonaController::class, 'update'])
         ->name('personas.update');
 
-    Route::middleware('permission:personas.delete')
+    Route::middleware(['permission:personas.delete', 'role:root'])
         ->delete('/personas/{persona}', [PersonaController::class, 'destroy'])
         ->name('personas.destroy');
 
@@ -156,6 +274,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Instructores CRUD
     Route::middleware('permission:instructor.view')
+        ->get('/instructor/dashboard', [\App\Http\Controllers\InstructorController::class, 'dashboard'])
+        ->name('instructor.dashboard');
+
+    Route::middleware('permission:instructor.view')
         ->get('/instructor', [\App\Http\Controllers\InstructorController::class, 'index'])
         ->name('instructor.index');
 
@@ -183,70 +305,66 @@ Route::middleware(['auth'])->group(function () {
         ->get('/matriculado-curso/{inscripcionCurso}', [\App\Http\Controllers\InscripcionCursoController::class, 'matricula'])
         ->name('matriculado-curso.show');
 
-    Route::middleware('permission:inscripcion-curso.view')
-    ->get('/matriculado-curso/{inscripcionId}', function ($inscripcionId) {return view('curso.matricula', compact('inscripcionId'));})
-    ->name('matriculado-curso.show');
-
     // Estudiantes
     Route::middleware('permission:estudiantes.view')
         ->get('/estudiantes', [EstudianteController::class, 'index'])
         ->name('estudiantes.index');
     // Iglesias CRUD
-    Route::middleware('permission:iglesias.view')
+    Route::middleware(['permission:iglesias.view', 'central.context'])
         ->get('/iglesias', [\App\Http\Controllers\IglesiaController::class, 'index'])
         ->name('iglesias.index');
 
-    Route::middleware('permission:iglesias.create')
+    Route::middleware(['permission:iglesias.create', 'central.context'])
         ->get('/iglesias/create', [\App\Http\Controllers\IglesiaController::class, 'create'])
         ->name('iglesias.create');
 
-    Route::middleware('permission:iglesias.create')
+    Route::middleware(['permission:iglesias.create', 'central.context'])
         ->post('/iglesias', [\App\Http\Controllers\IglesiaController::class, 'store'])
         ->name('iglesias.store');
 
-    Route::middleware('permission:iglesias.view')
+    Route::middleware(['permission:iglesias.view', 'central.context'])
         ->get('/iglesias/{iglesia}', [\App\Http\Controllers\IglesiaController::class, 'show'])
         ->name('iglesias.show');
 
-    Route::middleware('permission:iglesias.edit')
+    Route::middleware(['permission:iglesias.edit', 'central.context'])
         ->get('/iglesias/{iglesia}/edit', [\App\Http\Controllers\IglesiaController::class, 'edit'])
         ->name('iglesias.edit');
 
-    Route::middleware('permission:iglesias.edit')
+    Route::middleware(['permission:iglesias.edit', 'central.context'])
         ->put('/iglesias/{iglesia}', [\App\Http\Controllers\IglesiaController::class, 'update'])
         ->name('iglesias.update');
 
-    Route::middleware('permission:iglesias.delete')
+    Route::middleware(['permission:iglesias.delete', 'central.context'])
         ->delete('/iglesias/{iglesia}', [\App\Http\Controllers\IglesiaController::class, 'destroy'])
         ->name('iglesias.destroy');    
 
 
     // Religion
-        Route::middleware('permission:religion.view')
+        Route::middleware(['permission:religion.view', 'role:admin|root', 'central.context'])
         ->get('/religion', [\App\Http\Controllers\ReligionController::class, 'index'])
         ->name('religion.index');   
 
-    Route::middleware('permission:religion.create')
+        Route::middleware(['permission:religion.create', 'role:admin|root', 'central.context'])
         ->get('/religion/create', [\App\Http\Controllers\ReligionController::class, 'create'])
         ->name('religion.create');
 
-    Route::middleware('permission:religion.create')
+        Route::middleware(['permission:religion.create', 'role:admin|root', 'central.context'])
         ->post('/religion', [\App\Http\Controllers\ReligionController::class, 'store'])
         ->name('religion.store');
 
-    Route::middleware('permission:religion.view')
+        Route::middleware(['permission:religion.view', 'role:admin|root', 'central.context'])
         ->get('/religion/{religion}', [\App\Http\Controllers\ReligionController::class, 'show'])
         ->name('religion.show');
 
-    Route::middleware('permission:religion.edit')
+        Route::middleware(['permission:religion.edit', 'role:admin|root', 'central.context'])
         ->get('/religion/{religion}/edit', [\App\Http\Controllers\ReligionController::class, 'edit'])
         ->name('religion.edit');
 
-    Route::middleware('permission:religion.edit')
+        Route::middleware(['permission:religion.edit', 'role:admin|root', 'central.context'])
         ->put('/religion/{religion}', [\App\Http\Controllers\ReligionController::class, 'update'])
         ->name('religion.update');
 
-    Route::middleware('permission:religion.delete')
+        Route::middleware(['permission:religion.delete', 'role:admin|root', 'central.context'])
         ->delete('/religion/{religion}', [\App\Http\Controllers\ReligionController::class, 'destroy'])
         ->name('religion.destroy');
 
@@ -404,9 +522,6 @@ Route::middleware(['auth'])->group(function () {
             ->get('/inscripcion-curso/{inscripcionCurso}/edit', [\App\Http\Controllers\InscripcionCursoController::class, 'edit'])
             ->name('inscripcion-curso.edit');
 
-    Route::get('/inscripcion-curso/{inscripcion}/edit', [\App\Http\Controllers\InscripcionCursoController::class, 'edit'])
-        ->name('inscripcion-curso.edit');
-
     Route::middleware('permission:inscripcion-curso.delete')
             ->delete('/inscripcion-curso/{inscripcionCurso}', [\App\Http\Controllers\InscripcionCursoController::class, 'destroy'])
             ->name('inscripcion-curso.destroy');
@@ -441,6 +556,10 @@ Route::middleware(['auth'])->group(function () {
         ->get('/confirmacion/{confirmacion}/certificado/pdf', [\App\Http\Controllers\ConfirmacionController::class, 'certificadoPdf'])
         ->name('confirmacion.certificado.pdf');
 
+
+    Route::middleware('permission:inscripcion-curso.view')
+        ->get('/inscripcion-curso/certificados/aprobados/pdf', [\App\Http\Controllers\InscripcionCursoController::class, 'certificadosAprobadosPdf'])
+        ->name('inscripcion-curso.certificados-aprobados.pdf');
 
     Route::middleware('permission:inscripcion-curso.view')
         ->get('/inscripcion-curso/{inscripcion}/certificado/pdf', [\App\Http\Controllers\InscripcionCursoController::class, 'certificadoPdf'])

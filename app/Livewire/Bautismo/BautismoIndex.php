@@ -2,9 +2,11 @@
 
 namespace App\Livewire\Bautismo;
 
+use App\Exports\BautismoExport;
+use App\Models\Bautismo;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Bautismo;
+use Maatwebsite\Excel\Facades\Excel;
 
 class BautismoIndex extends Component
 {
@@ -40,9 +42,21 @@ class BautismoIndex extends Component
         $this->bautismoNameBeingDeleted = '';
     }
 
+    public function export(): mixed
+    {
+        abort_if(!auth()->user()->can('bautismo.view'), 403);
+        return Excel::download(new BautismoExport($this->search), 'bautismos_' . now()->format('Y_m_d_His') . '.xlsx');
+    }
+
     public function render()
     {
-        $bautismos = Bautismo::with(['iglesia', 'bautizado.persona', 'encargado.feligres.persona'])
+        // Issue #6: Cargar feligrés eliminados para preservar datos históricos en sacramentos
+        $bautismos = Bautismo::with([
+            'iglesia',
+            'bautizado' => fn($q) => $q->withTrashed(),
+            'bautizado.persona',
+            'encargado.feligres.persona'
+        ])
             ->when($this->search, function ($q) {
                 $q->whereHas('bautizado.persona', fn ($p) =>
                     $p->where('primer_nombre',    'like', "%{$this->search}%")

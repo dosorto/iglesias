@@ -68,6 +68,35 @@
         </div>
     @endif
 
+    @if (session()->has('instructor_credentials'))
+        @php($credentials = session('instructor_credentials'))
+        <div class="rounded-xl border border-amber-200 dark:border-amber-700/50
+                    bg-amber-50 dark:bg-amber-900/20 px-4 py-3">
+            <p class="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                Credenciales temporales del instructor
+            </p>
+            <p class="mt-1 text-sm text-amber-800 dark:text-amber-200">
+                Correo: {{ $credentials['email'] ?? '-' }}
+            </p>
+
+            @if (!empty($credentials['password']))
+                <p class="text-sm text-amber-800 dark:text-amber-200">
+                    Clave temporal: {{ $credentials['password'] }}
+                </p>
+                <p class="mt-1 text-xs text-amber-700 dark:text-amber-300">
+                    Comparte esta clave solo una vez; se ocultará automáticamente después del primer login del instructor.
+                </p>
+            @else
+                <p class="text-sm text-amber-800 dark:text-amber-200">
+                    No se genero nueva clave temporal.
+                </p>
+                <p class="mt-1 text-xs text-amber-700 dark:text-amber-300">
+                    {{ $credentials['note'] ?? 'Este instructor ya tenia una cuenta activa y debe usar su contrasena actual.' }}
+                </p>
+            @endif
+        </div>
+    @endif
+
     @if($paso === 1)
         <div class="bg-white dark:bg-gray-800/80 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700/60
                     ring-1 ring-black/5 dark:ring-white/5">
@@ -534,6 +563,29 @@
                                         </div>
                                     </div>
 
+                                    @if(!empty($personaInstructor['email']))
+                                        <div class="rounded-lg border border-blue-200 dark:border-blue-700/50 bg-blue-50 dark:bg-blue-900/20 p-3 mt-1">
+                                            <p class="text-xs font-semibold text-blue-800 dark:text-blue-200 flex items-center gap-1.5">
+                                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/></svg>
+                                                Correo registrado: <span class="font-mono font-normal">{{ $personaInstructor['email'] }}</span>
+                                            </p>
+                                            <p class="text-xs text-blue-700 dark:text-blue-300 mt-1">¿Deseas generar credenciales de acceso al sistema?</p>
+                                            <div class="mt-2 space-y-1.5">
+                                                <label class="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-200 cursor-pointer">
+                                                    <input type="radio" wire:model.live="opcionCredencialesInstructor" value="generar" class="text-blue-600 focus:ring-blue-500" />
+                                                    Sí, generar credenciales
+                                                </label>
+                                                <label class="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-200 cursor-pointer">
+                                                    <input type="radio" wire:model.live="opcionCredencialesInstructor" value="omitir" class="text-blue-600 focus:ring-blue-500" />
+                                                    No, solo registrar como instructor
+                                                </label>
+                                            </div>
+                                            @error('opcionCredencialesInstructor')
+                                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                    @endif
+
                                     <div class="flex justify-end gap-3 pt-2 border-t border-emerald-100 dark:border-emerald-800/40">
                                         <button type="button"
                                                 wire:click="cancelarCrearInstructor"
@@ -818,13 +870,13 @@
                     type="button"
                     wire:loading.attr="disabled"
                     class="inline-flex items-center gap-2.5 px-7 py-2.5 rounded-lg text-sm font-bold
-                           shadow-md shadow-emerald-500/30 transition-all duration-150
-                           bg-gradient-to-r from-emerald-500 to-emerald-600
-                           hover:from-emerald-600 hover:to-emerald-700
-                           active:scale-[0.98]
-                           disabled:opacity-50 disabled:cursor-not-allowed
-                           text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
-                           dark:focus:ring-offset-gray-800">
+                            shadow-md shadow-emerald-500/30 transition-all duration-150
+                            bg-gradient-to-r from-emerald-500 to-emerald-600
+                            hover:from-emerald-600 hover:to-emerald-700
+                            active:scale-[0.98]
+                            disabled:opacity-50 disabled:cursor-not-allowed
+                            text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
+                            dark:focus:ring-offset-gray-800">
                 <svg wire:loading wire:target="guardar" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>

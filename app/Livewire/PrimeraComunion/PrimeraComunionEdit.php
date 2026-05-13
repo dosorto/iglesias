@@ -66,6 +66,9 @@ class PrimeraComunionEdit extends Component
     public string  $mini_f_fecha_ingreso   = '';
     public string  $mini_f_estado          = 'Activo';
 
+    public string $advertenciaDuplicado = '';
+    public bool   $confirmarDuplicado   = false;
+
     public function mount(PrimeraComunion $primeraComunion): void
     {
         $this->primeraComunion        = $primeraComunion;
@@ -270,6 +273,12 @@ class PrimeraComunionEdit extends Component
         $this->resetErrorBag();
     }
 
+    public function confirmarYGuardarMiniPersona(): void
+    {
+        $this->confirmarDuplicado = true;
+        $this->guardarMiniPersona();
+    }
+
     public function guardarMiniPersona(): void
     {
         $this->validate([
@@ -286,6 +295,20 @@ class PrimeraComunionEdit extends Component
             'mini_f_estado'           => ['required','in:Activo,Inactivo'],
         ]);
         $rol = $this->mini_rol;
+
+        if (! $this->mini_p_dni && ! $this->confirmarDuplicado) {
+            $duplicado = \App\Models\Persona::where('primer_nombre', $this->mini_p_primer_nombre)
+                ->where('primer_apellido', $this->mini_p_primer_apellido)
+                ->whereNull('dni')
+                ->first();
+            if ($duplicado) {
+                $this->advertenciaDuplicado = $duplicado->nombre_completo;
+                return;
+            }
+        }
+        $this->advertenciaDuplicado = '';
+        $this->confirmarDuplicado   = false;
+
         DB::transaction(function () use ($rol) {
             $iglesiaId = session('tenant') ? TenantIglesia::currentId() : $this->iglesia_id;
             $persona   = Persona::create([
@@ -362,6 +385,15 @@ class PrimeraComunionEdit extends Component
             return;
         }
 
+        if (! $this->validarFechaPosteriorNacimiento(
+            $this->primeraComunion->id_feligres,
+            $this->fecha_primera_comunion,
+            'fecha_primera_comunion',
+            'primera comunión'
+        )) {
+            return;
+        }
+
         $fechaExp = null;
         if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
             try {
@@ -406,6 +438,27 @@ class PrimeraComunionEdit extends Component
             : Iglesias::find($this->primeraComunion->id_iglesia);
 
         return view('livewire.primera-comunion.primera-comunion-edit', compact('iglesiaActual'));
+    }
+
+    private function validarFechaPosteriorNacimiento(?int $feligresId, string $fechaSacramento, string $campo, string $label): bool
+    {
+        if (! $feligresId || ! $fechaSacramento) {
+            return true;
+        }
+
+        $persona = \App\Models\Feligres::with('persona:id,fecha_nacimiento')->find($feligresId)?->persona;
+        if (! $persona?->fecha_nacimiento) {
+            return true;
+        }
+
+        try {
+            if (\Carbon\Carbon::parse($fechaSacramento)->lt(\Carbon\Carbon::parse($persona->fecha_nacimiento))) {
+                $this->addError($campo, "La fecha de {$label} no puede ser anterior a la fecha de nacimiento.");
+                return false;
+            }
+        } catch (\Exception) {}
+
+        return true;
     }
 
     private function validarPadreNoSeaCatequista(?int $feligresId, ?int $catequistaId): bool

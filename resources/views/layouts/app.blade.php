@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>@yield('title', 'Dashboard')</title>
+    <link rel="icon" type="image/png" href="{{ asset('image/Logo_guest.png') }}?v=holyapp">
+    <link rel="shortcut icon" href="{{ asset('image/Logo_guest.png') }}?v=holyapp">
+    <link rel="apple-touch-icon" href="{{ asset('image/Logo_guest.png') }}?v=holyapp">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles

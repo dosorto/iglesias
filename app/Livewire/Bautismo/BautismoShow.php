@@ -4,6 +4,7 @@ namespace App\Livewire\Bautismo;
 
 use App\Models\AuditLog;
 use App\Models\Bautismo;
+use App\Models\DocumentoGenerado;
 use App\Models\TenantIglesia;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -114,6 +115,15 @@ class BautismoShow extends Component
 
         $this->firma_nueva = null;
         $this->bautismo->load('encargado.feligres.persona');
+        $iglesiaDocumentoId = TenantIglesia::currentId();
+
+        DocumentoGenerado::query()
+            ->where('tipo_documento', 'bautismo_certificado')
+            ->where('fuente_tipo', Bautismo::class)
+            ->where('fuente_id', (int) $this->bautismo->id)
+            ->when($iglesiaDocumentoId !== null, fn ($query) => $query->where('iglesia_id', $iglesiaDocumentoId))
+            ->delete();
+
         session()->flash('success', 'Firma guardada correctamente.');
     }
 
@@ -134,7 +144,7 @@ class BautismoShow extends Component
             'exp_mes.min'          => 'El mes debe ser entre 1 y 12.',
         ]);
 
-        $fechaExp = null;
+        $fechaExp = now()->format('Y-m-d');
         if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
             try {
                 $fechaExp = \Carbon\Carbon::createFromDate(
@@ -143,7 +153,7 @@ class BautismoShow extends Component
                     (int) $this->exp_dia
                 )->format('Y-m-d');
             } catch (\Exception) {
-                $fechaExp = null;
+                $fechaExp = now()->format('Y-m-d');
             }
         }
 
@@ -157,6 +167,15 @@ class BautismoShow extends Component
             'lugar_expedicion' => $lugarExpedicion,
             'fecha_expedicion' => $fechaExp,
         ]);
+
+        $iglesiaDocumentoId = TenantIglesia::currentId();
+
+        DocumentoGenerado::query()
+            ->where('tipo_documento', 'bautismo_certificado')
+            ->where('fuente_tipo', Bautismo::class)
+            ->where('fuente_id', (int) $this->bautismo->id)
+            ->when($iglesiaDocumentoId !== null, fn ($query) => $query->where('iglesia_id', $iglesiaDocumentoId))
+            ->delete();
 
         $this->bautismo->refresh();
         session()->flash('success', 'Borrador guardado correctamente.');

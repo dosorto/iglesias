@@ -1,13 +1,13 @@
 <nav class="bg-white border-b p-4 flex gap-4">
     <a href="/" class="font-bold">Dashboard</a>
 
-    @can('users.view')
+    @if(auth()->user()?->hasAnyRole(['admin', 'root']))
         <a href="{{ route('users.index') }}">Usuarios</a>
-    @endcan
+    @endif
 
-    @can('roles.view')
+    @if(auth()->user()?->hasAnyRole(['admin', 'root']))
         <a href="{{ route('roles.index') }}">Roles</a>
-    @endcan
+    @endif
 
     <form method="POST" action="{{ route('logout') }}" class="ml-auto">
         @csrf

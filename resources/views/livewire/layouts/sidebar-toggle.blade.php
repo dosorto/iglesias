@@ -25,6 +25,7 @@
                 @php
                     $isInstructorOnly = auth()->user()?->hasRole('instructor')
                         && ! auth()->user()?->hasAnyRole(['root', 'admin']);
+                    $dashboardRoute = $isInstructorOnly ? route('instructor.dashboard') : route('dashboard');
                 @endphp
 
                 {{-- Sección Principal --}}
@@ -40,7 +41,7 @@
 
                     {{-- Dashboard --}}
                     <li>
-                        <a href="{{ route('dashboard') }}"
+                        <a href="{{ $dashboardRoute }}"
                            class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
                                   rounded-xl text-gray-700 dark:text-gray-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/30
                                   hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors duration-200 group"
@@ -56,7 +57,7 @@
                     </li>
 
                     {{-- Personas --}}
-                    @can('personas.view')
+                    @if(auth()->user()?->can('personas.view') && auth()->user()?->hasRole('root'))
                         <li>
                             <a href="{{ route('personas.index') }}"
                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
@@ -72,7 +73,7 @@
                                 @endif
                             </a>
                         </li>
-                    @endcan
+                    @endif
 
                     {{-- Feligreses --}}
                     @can('feligres.view')
@@ -155,9 +156,32 @@
                         </a>
                     </li>
                     @endcan
+
+                    {{-- Inscripciones --}}
+                    @can('inscripcion-curso.view')
+                    <li>
+                        <a href="{{ route('inscripcion-curso.index') }}"
+                        class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
+                                rounded-xl text-gray-700 dark:text-gray-200 hover:bg-yellow-100 dark:hover:bg-yellow-900
+                                hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors duration-200 group"
+                        title="{{ $isCollapsed ? 'Inscripciones' : '' }}">
+
+                            <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors duration-200"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+
+                            @if(!$isCollapsed)
+                                <span class="ml-3">Inscripciones</span>
+                            @endif
+
+                        </a>
+                    </li>
+                    @endcan
                     
                     {{-- Parroquias --}}
                     @can('iglesias.view')
+                        @if(!session('tenant.id_iglesia'))
                         <li>
                             <a href="{{ route('iglesias.index') }}"
                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
@@ -173,10 +197,12 @@
                                 @endif
                             </a>
                         </li>
+                        @endif
                     @endcan
                     
                     {{-- Religion --}}
                     @can('religion.view')
+                        @if(auth()->user()?->hasAnyRole(['admin', 'root']) && !session('tenant.id_iglesia'))
                         <li>
                             <a href="{{ route('religion.index') }}"
                                 class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
@@ -192,10 +218,11 @@
                                 @endif
                             </a>
                         </li>
+                        @endif
                     @endcan
 
                     {{-- Usuarios --}}
-                    @can('users.view')
+                    @if(auth()->user()?->hasAnyRole(['admin', 'root']))
                         <li>
                             <a href="{{ route('users.index') }}"
                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
@@ -211,7 +238,7 @@
                                 @endif
                             </a>
                         </li>
-                    @endcan
+                    @endif
                 </ul>
 
                 {{-- Sección Configuración --}}
@@ -224,7 +251,7 @@
                 @endif
 
                 <ul class="space-y-2 font-medium">
-                    @can('roles.view')
+                    @if(auth()->user()?->hasAnyRole(['admin', 'root']))
                         <li>
                             <a href="{{ route('settings.index') }}"
                                class="flex items-center {{ $isCollapsed ? 'justify-center px-2' : 'p-3' }}
@@ -240,7 +267,7 @@
                                 @endif
                             </a>
                         </li>
-                    @endcan
+                    @endif
                 </ul>
             </div>
 

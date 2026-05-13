@@ -83,4 +83,17 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
     }
+
+    public function test_users_with_pending_encargado_registration_are_redirected_from_landing(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+
+        $response = $this
+            ->withSession(['pending_encargado_registration' => true])
+            ->get('/');
+
+        $response->assertRedirect(route('register-perfil'));
+    }
 }

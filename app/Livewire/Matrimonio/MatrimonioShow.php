@@ -76,7 +76,7 @@ class MatrimonioShow extends Component
             'exp_mes.min'          => 'El mes debe ser entre 1 y 12.',
         ]);
 
-        $fechaExp = null;
+        $fechaExp = now()->format('Y-m-d');
         if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
             try {
                 $fechaExp = \Carbon\Carbon::createFromDate(
@@ -85,7 +85,7 @@ class MatrimonioShow extends Component
                     (int) $this->exp_dia
                 )->format('Y-m-d');
             } catch (\Exception) {
-                $fechaExp = null;
+                $fechaExp = now()->format('Y-m-d');
             }
         }
 

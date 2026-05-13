@@ -2,9 +2,11 @@
 
 namespace App\Livewire\Matrimonio;
 
+use App\Exports\MatrimonioExport;
+use App\Models\Matrimonio;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Matrimonio;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MatrimonioIndex extends Component
 {
@@ -40,11 +42,20 @@ class MatrimonioIndex extends Component
         $this->matrimonioNameBeingDeleted = '';
     }
 
+    public function export(): mixed
+    {
+        abort_if(!auth()->user()->can('matrimonio.view'), 403);
+        return Excel::download(new MatrimonioExport($this->search), 'matrimonios_' . now()->format('Y_m_d_His') . '.xlsx');
+    }
+
     public function render()
     {
+        // Issue #6: Cargar feligrés eliminados para preservar datos históricos en sacramentos
         $matrimonios = Matrimonio::with([
             'iglesia',
+            'esposo' => fn($q) => $q->withTrashed(),
             'esposo.persona',
+            'esposa' => fn($q) => $q->withTrashed(),
             'esposa.persona',
             'encargado.feligres.persona',
         ])

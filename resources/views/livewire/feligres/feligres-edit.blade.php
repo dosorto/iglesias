@@ -64,15 +64,15 @@
                         </div>
                         <div>
                             <p class="font-semibold text-gray-900 dark:text-white text-sm">
-                                {{ $personaSeleccionada['nombre_completo'] }}
+                                {{ trim(($primer_nombre ?? '') . ' ' . ($segundo_nombre ?? '') . ' ' . ($primer_apellido ?? '') . ' ' . ($segundo_apellido ?? '')) ?: $personaSeleccionada['nombre_completo'] }}
                             </p>
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                DNI: {{ $personaSeleccionada['dni'] }}
-                                @if ($personaSeleccionada['telefono'])
-                                    <span class="mx-1 opacity-40">·</span>{{ $personaSeleccionada['telefono'] }}
+                                DNI: {{ $dni ?: $personaSeleccionada['dni'] }}
+                                @if ($telefono)
+                                    <span class="mx-1 opacity-40">·</span>{{ $telefono }}
                                 @endif
-                                @if ($personaSeleccionada['email'])
-                                    <span class="mx-1 opacity-40">·</span>{{ $personaSeleccionada['email'] }}
+                                @if ($email)
+                                    <span class="mx-1 opacity-40">·</span>{{ $email }}
                                 @endif
                             </p>
                         </div>
@@ -88,6 +88,164 @@
                         </svg>
                         Cambiar
                     </button>
+                </div>
+
+                <div class="mt-5 pt-5 border-t border-gray-100 dark:border-gray-700/60">
+                    <div class="flex items-center justify-between gap-2 mb-4">
+                        <h3 class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                            Editar datos de persona
+                        </h3>
+                        <span class="text-[11px] text-gray-400 dark:text-gray-500">Se guardarán junto al feligrés</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                DNI <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text"
+                                   wire:model="dni"
+                                   class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                          border border-gray-300 dark:border-gray-600
+                                          bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                          focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                          @error('dni') border-red-400 @enderror" />
+                            @error('dni')
+                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                Sexo <span class="text-red-500">*</span>
+                            </label>
+                            <select wire:model="sexo"
+                                    class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                           border border-gray-300 dark:border-gray-600
+                                           bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                           focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                           @error('sexo') border-red-400 @enderror">
+                                <option value="">Seleccione...</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                            </select>
+                            @error('sexo')
+                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                Primer nombre <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text"
+                                   wire:model="primer_nombre"
+                                   class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                          border border-gray-300 dark:border-gray-600
+                                          bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                          focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                          @error('primer_nombre') border-red-400 @enderror" />
+                            @error('primer_nombre')
+                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                Segundo nombre
+                            </label>
+                            <input type="text"
+                                   wire:model="segundo_nombre"
+                                   class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                          border border-gray-300 dark:border-gray-600
+                                          bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                          focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                          @error('segundo_nombre') border-red-400 @enderror" />
+                            @error('segundo_nombre')
+                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                Primer apellido <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text"
+                                   wire:model="primer_apellido"
+                                   class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                          border border-gray-300 dark:border-gray-600
+                                          bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                          focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                          @error('primer_apellido') border-red-400 @enderror" />
+                            @error('primer_apellido')
+                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                Segundo apellido
+                            </label>
+                            <input type="text"
+                                   wire:model="segundo_apellido"
+                                   class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                          border border-gray-300 dark:border-gray-600
+                                          bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                          focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                          @error('segundo_apellido') border-red-400 @enderror" />
+                            @error('segundo_apellido')
+                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                Fecha de nacimiento <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date"
+                                   wire:model="fecha_nacimiento"
+                                   class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                          border border-gray-300 dark:border-gray-600
+                                          bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                          focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                          @error('fecha_nacimiento') border-red-400 @enderror" />
+                            @error('fecha_nacimiento')
+                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                Teléfono
+                            </label>
+                            <input type="text"
+                                   wire:model="telefono"
+                                   class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                          border border-gray-300 dark:border-gray-600
+                                          bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                          focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                          @error('telefono') border-red-400 @enderror" />
+                            @error('telefono')
+                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                                Correo electrónico
+                            </label>
+                            <input type="email"
+                                   wire:model="email"
+                                   class="w-full px-3 py-2.5 text-sm rounded-lg transition-colors
+                                          border border-gray-300 dark:border-gray-600
+                                          bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
+                                          focus:ring-2 focus:ring-emerald-500 focus:border-transparent
+                                          @error('email') border-red-400 @enderror" />
+                            @error('email')
+                                <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
 
             {{-- Buscador --}}

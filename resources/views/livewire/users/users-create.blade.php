@@ -85,6 +85,10 @@
                     @if($role->name === 'root' && ! $canAssignRootRole)
                         @continue
                     @endif
+                    {{-- Issue #15: Unify instructor creation flow --}}
+                    @if($role->name === 'instructor')
+                        @continue
+                    @endif
                     <label class="flex items-center">
                         <input
                             type="checkbox"
@@ -100,6 +104,9 @@
             @error('selectedRoles')
                 <span class="text-red-600 text-sm mt-1">{{ $message }}</span>
             @enderror
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">
+                <strong>Nota:</strong> Para crear un instructor, usa el módulo de <a href="{{ route('instructor.index') }}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline">Gestión de Instructores</a>.
+            </p>
         </div>
 
         <!-- Botones -->

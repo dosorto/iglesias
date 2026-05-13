@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Bautismo;
 use App\Models\TenantIglesia;
+use App\Services\DocumentosGeneradosService;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class BautismoController extends Controller
 {
@@ -29,8 +31,87 @@ class BautismoController extends Controller
         return view('bautismo.edit', compact('bautismo'));
     }
 
+    
+    
     public function certificadoPdf(Bautismo $bautismo)
     {
+        $bautismo->loadMissing('encargado');
+
+        $datosCriticos = [
+            'Fecha de bautismo' => $bautismo->fecha_bautismo,
+            'Bautizado'         => $bautismo->bautizado_id,
+            'Padre'             => $bautismo->padre_id,
+            'Madre'             => $bautismo->madre_id,
+            'Padrino'           => $bautismo->padrino_id,
+            'Madrina'           => $bautismo->madrina_id,
+        ];
+        $faltantes = array_keys(array_filter($datosCriticos, fn($v) => ! filled($v)));
+        if (! empty($faltantes)) {
+            abort(422, 'Faltan datos requeridos para generar el PDF: ' . implode(', ', $faltantes) . '.');
+        }
+
+        $iglesiaConfig = TenantIglesia::current();
+
+        $sanitizarNombre = fn(string $s): string =>
+            preg_replace('/[^a-z]/', '', mb_strtolower(
+                str_replace(['á','é','í','ó','ú','ü','ñ','à','â','ã','ê','î','ô','û'],
+                            ['a','e','i','o','u','u','n','a','a','a','e','i','o','u'],
+                            explode(' ', trim($s))[0] ?? ''), 'UTF-8')) ?: 'persona';
+
+        $tipoDocumento = 'bautismo_certificado';
+        $nombreArchivo = 'certificado-bautismo-' . $bautismo->id . '.pdf';
+        $layoutVersion = 'header-config-v8';
+        $servicioDocumentos = app(DocumentosGeneradosService::class);
+        $iglesiaDocumentoId = (int) $bautismo->iglesia_id;
+        $orientacionBautismo = (string) ($iglesiaConfig?->orientacion_certificado_bautismo
+            ?? $iglesiaConfig?->orientacion_certificado
+            ?? 'portrait');
+        $orientation = $orientacionBautismo === 'landscape' ? 'landscape' : 'portrait';
+        $paperSizeBautismo = (string) ($iglesiaConfig?->paper_size_certificado_bautismo
+            ?? $iglesiaConfig?->paper_size_certificado
+            ?? 'letter');
+        $paperSizeBautismo = in_array($paperSizeBautismo, ['letter', 'legal', 'a4', 'folio'], true)
+            ? $paperSizeBautismo
+            : 'letter';
+        $pathFormatoBautismo = (string) (
+            ($orientation === 'landscape'
+                ? $iglesiaConfig?->path_certificado_bautismo_landscape
+                : $iglesiaConfig?->path_certificado_bautismo_portrait)
+            ?: $iglesiaConfig?->path_certificado_bautismo
+            ?: ''
+        );
+
+        $dataVersion = hash('sha256', implode('|', [
+            (string) ($bautismo->updated_at?->timestamp ?? 0),
+            (string) ($iglesiaConfig?->updated_at?->timestamp ?? 0),
+            (string) ($bautismo->encargado?->path_firma_principal ?? ''),
+            (string) ($iglesiaConfig?->path_logo ?? ''),
+            (string) ($iglesiaConfig?->path_logo_derecha ?? ''),
+            $pathFormatoBautismo,
+            $orientacionBautismo,
+            $paperSizeBautismo,
+            (string) ($iglesiaConfig?->header_diocesis ?? ''),
+            (string) ($iglesiaConfig?->direccion ?? ''),
+            (string) ($iglesiaConfig?->nombre ?? ''),
+        ]));
+
+        $documentoExistente = $servicioDocumentos->obtenerUltimo($tipoDocumento, Bautismo::class, (int) $bautismo->id, $iglesiaDocumentoId);
+        $payloadExistente = is_array($documentoExistente?->payload) ? $documentoExistente->payload : [];
+        $layoutVersionActual = (string) ($payloadExistente['layout_version'] ?? '');
+        $dataVersionActual = (string) ($payloadExistente['data_version'] ?? '');
+        $layoutActualizado = $layoutVersionActual === $layoutVersion;
+        $dataActualizada = $dataVersionActual === $dataVersion;
+
+        if ($documentoExistente && $layoutActualizado && $dataActualizada && ! empty($documentoExistente->path_pdf) && Storage::disk('local')->exists($documentoExistente->path_pdf)) {
+            return response()->file(
+                Storage::disk('local')->path($documentoExistente->path_pdf),
+                [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'inline; filename="' . $documentoExistente->nombre_archivo . '"',
+                ]
+            );
+        }
+
         $bautismo->load([
             'iglesia',
             'bautizado.persona',
@@ -41,14 +122,47 @@ class BautismoController extends Controller
             'encargado.feligres.persona',
         ]);
 
-        $iglesiaConfig = TenantIglesia::current();
-        $orientation = $iglesiaConfig?->orientacion_certificado === 'landscape' ? 'landscape' : 'portrait';
+        $nombreArchivo = sprintf(
+            'certificado-bautismo-%s-%s-%s.pdf',
+            $bautismo->id,
+            $sanitizarNombre($bautismo->bautizado?->persona?->nombre_completo ?? ''),
+            ($bautismo->fecha_expedicion ?? now())->format('Ymd')
+        );
 
-        $pdf = Pdf::loadView('bautismo.certificado-pdf', compact('bautismo', 'iglesiaConfig'))
-            ->setPaper('letter', $orientation);
+        $plantillaCertificadoPath = $pathFormatoBautismo;
+        $html = view('bautismo.certificado-pdf', compact('bautismo', 'iglesiaConfig', 'plantillaCertificadoPath'))->render();
 
-        $nombreArchivo = 'certificado-bautismo-' . $bautismo->id . '.pdf';
+        $pdf = Pdf::loadHTML($html)
+            ->setPaper($paperSizeBautismo, $orientation);
 
-        return $pdf->stream($nombreArchivo);
+        $pdfBinario = $pdf->output();
+
+        $servicioDocumentos->guardarDocumento(
+            $tipoDocumento,
+            $bautismo,
+            $iglesiaDocumentoId,
+            $nombreArchivo,
+            [
+                'emitido_en' => now()->toIso8601String(),
+                'view' => 'bautismo.certificado-pdf',
+                'paper_size' => $paperSizeBautismo,
+                'orientation' => $orientation,
+                'html' => $html,
+                'layout_version' => $layoutVersion,
+                'data_version' => $dataVersion,
+                'registro' => $bautismo->toArray(),
+                'iglesia_config' => $iglesiaConfig?->toArray(),
+            ],
+            Auth::id()
+        );
+
+
+        return response($pdfBinario, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $nombreArchivo . '"',
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ]);
     }
 }

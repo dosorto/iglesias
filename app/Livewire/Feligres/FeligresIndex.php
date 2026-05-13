@@ -2,10 +2,12 @@
 
 namespace App\Livewire\Feligres;
 
+use App\Exports\FeligresExport;
 use App\Models\Feligres;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
+use Maatwebsite\Excel\Facades\Excel;
 
 class FeligresIndex extends Component
 {
@@ -40,6 +42,12 @@ class FeligresIndex extends Component
         $this->showDeleteModal = false;
 
         session()->flash('success', 'Feligrés eliminado exitosamente.');
+    }
+
+    public function export()
+    {
+        abort_if(!auth()->user()->can('feligres.view'), 403);
+        return Excel::download(new FeligresExport($this->search), 'feligreses_' . now()->format('Y_m_d_His') . '.xlsx');
     }
 
     public function render()

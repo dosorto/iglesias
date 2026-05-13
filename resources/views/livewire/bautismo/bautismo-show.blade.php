@@ -6,6 +6,21 @@
     $padrino     = $bautismo->padrino?->persona;
     $madrina     = $bautismo->madrina?->persona;
     $encargado   = $bautismo->encargado?->feligres?->persona;
+    $encargadoModel = $bautismo->encargado;
+    $firmaEncargadoDisponible = filled($bautismo->encargado?->path_firma_principal);
+    $configurarFirmaUrl = $encargadoModel
+        ? route('encargado.edit', $encargadoModel)
+        : route('encargado.create');
+    $datosCriticos = [
+        'Fecha de bautismo' => $bautismo->fecha_bautismo,
+        'Bautizado'         => $bautismo->bautizado_id,
+        'Padre'             => $bautismo->padre_id,
+        'Madre'             => $bautismo->madre_id,
+        'Padrino'           => $bautismo->padrino_id,
+        'Madrina'           => $bautismo->madrina_id,
+    ];
+    $faltantesLista = array_keys(array_filter($datosCriticos, fn($v) => ! filled($v)));
+    $datosCriticosFaltantes = ! empty($faltantesLista);
     $iglesiaNombre = $iglesiaConfig?->nombre ?? $bautismo->iglesia?->nombre ?? '';
     $logoIglesia = $iglesiaConfig?->logo_url ?? asset('image/Logo_guest.png');
     $logoIglesiaDerecha = $iglesiaConfig?->logo_derecha_url ?? $logoIglesia;
@@ -41,7 +56,9 @@
         $bautismo->updated_at?->timestamp ?? 0,
         $iglesiaConfig?->updated_at?->timestamp ?? 0,
     );
-    $pdfPreviewUrl = route('bautismo.certificado.pdf', $bautismo) . '?v=' . ($previewVersion ?: time());
+    $pdfPreviewUrl = ! $datosCriticosFaltantes
+        ? route('bautismo.certificado.pdf', $bautismo) . '?v=' . ($previewVersion ?: time())
+        : null;
 @endphp
 
 <div class="flex flex-col lg:flex-row gap-5 items-start">
@@ -61,15 +78,40 @@
             <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Acciones</p>
 
             <div class="space-y-2">
-                <a href="{{ route('bautismo.certificado.pdf', $bautismo) }}" target="_blank"
-                   class="flex items-center w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-colors">
-                    <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17h6M9 13h6M9 9h1"/>
-                    </svg>
-                    Generar PDF
-                </a>
-
+                @if ($datosCriticosFaltantes)
+                    <div class="w-full bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-3 py-2 rounded-lg text-xs">
+                        <p class="font-semibold mb-1">Datos incompletos:</p>
+                        <ul class="list-disc list-inside space-y-0.5">
+                            @foreach ($faltantesLista as $campo)
+                                <li>{{ $campo }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    <span class="flex items-center w-full bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 px-3 py-2 rounded-lg text-sm font-semibold cursor-not-allowed">
+                        <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17h6M9 13h6M9 9h1"/>
+                        </svg>
+                        Generar PDF
+                    </span>
+                @else
+                    <a href="{{ route('bautismo.certificado.pdf', $bautismo) }}" target="_blank"
+                       class="flex items-center w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-colors">
+                        <svg class="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17h6M9 13h6M9 9h1"/>
+                        </svg>
+                        Generar PDF
+                    </a>
+                    @if (! $firmaEncargadoDisponible)
+                        <div class="w-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-300 px-3 py-2 rounded-lg text-xs">
+                            El PDF se generará sin firma del encargado.
+                            @can($encargadoModel ? 'encargado.edit' : 'encargado.create')
+                                <a href="{{ $configurarFirmaUrl }}" class="underline font-semibold ml-1">Configurar firma</a>
+                            @endcan
+                        </div>
+                    @endif
+                @endif
 
                 @can('bautismo.edit')
                     <a href="{{ route('bautismo.edit', $bautismo) }}"
@@ -276,18 +318,20 @@
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
             <div class="flex items-center justify-between gap-3 mb-4">
                 <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Vista Previa de Constancia</p>
-                <a href="{{ route('bautismo.certificado.pdf', $bautismo) }}" target="_blank"
-                   class="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
-                    Abrir PDF
-                </a>
             </div>
 
             <div class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-50 dark:bg-gray-900">
-                <iframe
-                    src="{{ $pdfPreviewUrl }}"
-                    class="w-full h-[980px]"
-                    title="Vista previa constancia de bautismo">
-                </iframe>
+                @if ($datosCriticosFaltantes)
+                    <div class="p-6 text-sm text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20">
+                        <p>Vista previa no disponible. Complete los datos requeridos del bautismo.</p>
+                    </div>
+                @else
+                    <iframe
+                        src="{{ $pdfPreviewUrl }}"
+                        class="w-full h-[980px]"
+                        title="Vista previa constancia de bautismo">
+                    </iframe>
+                @endif
             </div>
         </div>
     </div>

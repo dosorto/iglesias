@@ -186,6 +186,12 @@ class EncargadoCreate extends Component
             return;
         }
 
+        $persona = Persona::find($this->persona_id);
+        if (! $persona) {
+            $this->addError('persona_id', 'No se pudo cargar la persona seleccionada.');
+            return;
+        }
+
         // Auto-crear feligrés si no existe
         $feligres = Feligres::firstOrCreate(
             ['id_persona' => $this->persona_id],

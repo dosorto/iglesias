@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Iglesias extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'iglesias';
 
@@ -45,15 +47,33 @@ class Iglesias extends Model
     protected $fillable = [
         'nombre',
         'direccion',
+        'header_diocesis',
+        'header_lugar',
         'parroco_nombre',
         'telefono',
         'email',
+        'subdomain',
         'estado',
         'id_religion',
         'path_logo',
         'path_logo_derecha',
         'path_certificado_bautismo',
+        'path_certificado_confirmacion',
+        'path_certificado_primera_comunion',
+        'path_certificado_matrimonio',
+        'path_certificado_curso',
         'orientacion_certificado',
+        'orientacion_certificado_bautismo',
+        'orientacion_certificado_confirmacion',
+        'orientacion_certificado_primera_comunion',
+        'orientacion_certificado_matrimonio',
+        'orientacion_certificado_curso',
+        'paper_size_certificado',
+        'paper_size_certificado_bautismo',
+        'paper_size_certificado_confirmacion',
+        'paper_size_certificado_primera_comunion',
+        'paper_size_certificado_matrimonio',
+        'paper_size_certificado_curso',
         'db_connection',
         'db_host',
         'db_port',
@@ -62,7 +82,15 @@ class Iglesias extends Model
         'db_password',
     ];
 
-    protected $appends = ['logo_url', 'logo_derecha_url', 'certificado_bautismo_url'];
+    protected $appends = [
+        'logo_url',
+        'logo_derecha_url',
+        'certificado_bautismo_url',
+        'certificado_confirmacion_url',
+        'certificado_primera_comunion_url',
+        'certificado_matrimonio_url',
+        'certificado_curso_url',
+    ];
 
     // URL pública del logo (null si no tiene)
     protected function logoUrl(): Attribute
@@ -84,6 +112,42 @@ class Iglesias extends Model
         );
     }
 
+    protected function certificadoConfirmacionUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->path_certificado_confirmacion
+                ? asset('storage/' . $this->path_certificado_confirmacion)
+                : null,
+        );
+    }
+
+    protected function certificadoPrimeraComunionUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->path_certificado_primera_comunion
+                ? asset('storage/' . $this->path_certificado_primera_comunion)
+                : null,
+        );
+    }
+
+    protected function certificadoMatrimonioUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->path_certificado_matrimonio
+                ? asset('storage/' . $this->path_certificado_matrimonio)
+                : null,
+        );
+    }
+
+    protected function certificadoCursoUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->path_certificado_curso
+                ? asset('storage/' . $this->path_certificado_curso)
+                : null,
+        );
+    }
+
     protected function logoDerechaUrl(): Attribute
     {
         return Attribute::make(
@@ -98,8 +162,33 @@ class Iglesias extends Model
     {
         return $this->hasMany(User::class, 'id_iglesia');
     }
+
+    public static function resolveUniqueSubdomainForName(string $churchName, int $ignoreId = 0): string
+    {
+        $base = Str::slug(Str::ascii($churchName), '-');
+
+        if ($base === '') {
+            $base = 'iglesia';
+        }
+
+        $candidate = $base;
+        $counter = 1;
+
+        while (
+            static::query()
+                ->where('subdomain', $candidate)
+                ->when($ignoreId > 0, fn ($query) => $query->where('id', '!=', $ignoreId))
+                ->exists()
+        ) {
+            $counter++;
+            $candidate = $base . '-' . $counter;
+        }
+
+        return strtolower($candidate);
+    }
+
     public function religion()
 {
-    return $this->belongsTo(Religion::class, 'id_religion');
+        return $this->belongsTo(Religion::class, 'id_religion')->withTrashed();
 }
 }

@@ -23,6 +23,6 @@ class Encargado extends BaseModel
 
     public function feligres()
     {
-        return $this->belongsTo(Feligres::class, 'id_feligres');
+        return $this->belongsTo(Feligres::class, 'id_feligres')->withTrashed();
     }
 }

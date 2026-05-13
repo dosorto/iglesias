@@ -57,7 +57,7 @@ class User extends Authenticatable
 
     public function organization(): BelongsTo
     {
-        return $this->belongsTo(Organization::class);
+        return $this->belongsTo(Organization::class)->withTrashed();
     }
 
 }

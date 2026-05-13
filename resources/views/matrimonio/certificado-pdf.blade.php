@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Constancia de Celebración de Matrimonio</title>
+    @php $isLandscape = (($iglesiaConfig?->orientacion_certificado_matrimonio ?? $iglesiaConfig?->orientacion_certificado) === 'landscape'); @endphp
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -13,7 +14,7 @@
 
         body {
             font-family: 'Times New Roman', Times, serif;
-            font-size: 11pt;
+            font-size: 12pt;
             color: #1a1a1a;
             background: #fff;
         }
@@ -23,18 +24,18 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            opacity: 0.08;
+            opacity: 0.075;
             z-index: 0;
         }
 
         .watermark-logo img {
-            width: 430px;
+            width: 390px;
             height: auto;
             object-fit: contain;
         }
 
         .page-wrapper {
-            padding: 18px 18px 24px 18px;
+            padding: 22px 38px 108px 38px;
             border: none;
             margin: 2px;
             position: relative;
@@ -49,13 +50,13 @@
         }
         .header-logo-cell {
             display: table-cell;
-            width: 72px;
+            width: 90px;
             vertical-align: middle;
             text-align: center;
         }
         .header-logo-cell img {
-            width: 58px;
-            height: 58px;
+            width: 80px;
+            height: 80px;
             object-fit: contain;
         }
         .header-title-cell {
@@ -64,24 +65,21 @@
             text-align: center;
         }
         .parish-name {
-            font-size: 15.5pt;
-            font-weight: bold;
+            font-size: 19pt;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            line-height: 1.05;
+            letter-spacing: 0.7px;
         }
         .diocese-name {
-            font-size: 10pt;
+            font-size: 14pt;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 1px;
-            color: #555;
+            margin-top: 3px;
         }
         .header-address {
-            font-size: 9.5pt;
+            font-size: 12pt;
+            font-weight: 700;
             margin-top: 3px;
-            color: #222;
-            letter-spacing: 0.4px;
         }
         .header-divider {
             border-top: 1px solid #6f99ad;
@@ -89,13 +87,13 @@
         }
         .header-right-cell {
             display: table-cell;
-            width: 72px;
+            width: 90px;
             vertical-align: middle;
             text-align: center;
         }
         .header-right-cell img {
-            width: 58px;
-            height: 58px;
+            width: 80px;
+            height: 80px;
             object-fit: contain;
         }
 
@@ -104,7 +102,6 @@
             font-size: 15.5pt;
             font-weight: 700;
             text-transform: uppercase;
-            text-decoration: underline;
             letter-spacing: 0.4px;
             margin-bottom: 12px;
         }
@@ -114,26 +111,26 @@
             margin-top: 16px;
             line-height: 2.24;
             font-size: 10.6pt;
+            width: 94%;
+            margin-left: auto;
+            margin-right: auto;
         }
         .body-text p {
             margin-bottom: 3px;
         }
         .line-field {
-            display: inline-block;
-            min-width: 220px;
-            border-bottom: 1px solid #333;
-            margin: 0 3px;
-            vertical-align: bottom;
+            display: inline;
+            margin: 0 1px;
         }
-        .line-field-sm { min-width: 70px; }
-        .line-field-lg { min-width: 280px; }
-        .line-field-xl { min-width: 360px; }
         .section-label { font-weight: bold; }
 
         /* ── SIGNATURES SECTION ── */
         .sig-section {
             margin-top: 30px;
             page-break-inside: avoid;
+            width: 94%;
+            margin-left: auto;
+            margin-right: auto;
         }
         .sig-row {
             display: table;
@@ -164,7 +161,8 @@
             color: #444;
         }
         .sig-name {
-            font-size: 9.4pt;
+            font-size: 11pt;
+            font-weight: bold;
             margin-top: 1px;
         }
 
@@ -174,6 +172,9 @@
             display: table;
             width: 100%;
             page-break-inside: avoid;
+            width: 94%;
+            margin-left: auto;
+            margin-right: auto;
         }
         .seal-cell {
             display: table-cell;
@@ -216,7 +217,7 @@
             color: #7D5A1E;
         }
         .priest-name {
-            font-size: 9.4pt;
+            font-size: 11pt;
             margin-top: 1px;
         }
 
@@ -226,6 +227,9 @@
             font-size: 10.2pt;
             line-height: 1.95;
             page-break-inside: avoid;
+            width: 94%;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .signature-image-wrap {
@@ -245,6 +249,43 @@
             font-style: italic;
             color: #666;
         }
+
+
+        body.is-landscape .page-wrapper { padding: 14px 24px 18px; }
+        body.is-landscape .header { margin-bottom: 5px; }
+        body.is-landscape .header-divider { margin: 4px 0 6px; }
+        body.is-landscape .parish-name { font-size: 13pt; }
+        body.is-landscape .diocese-name { font-size: 10pt; font-weight: 700; }
+        body.is-landscape .header-address { font-size: 9pt; }
+        body.is-landscape .doc-title { font-size: 11pt; margin-bottom: 6px; }
+        body.is-landscape .body-text {
+            margin-top: 10px;
+            line-height: 1.5;
+            font-size: 9.3pt;
+            width: 96%;
+        }
+        body.is-landscape .body-text p { margin-bottom: 1px; }
+        body.is-landscape .priest-section {
+            margin-top: 28px;
+            width: 96%;
+        }
+        body.is-landscape .seal-box {
+            width: 64px;
+            height: 64px;
+        }
+        body.is-landscape .priest-label,
+        body.is-landscape .sig-label { font-size: 8pt; }
+        body.is-landscape .priest-name,
+        body.is-landscape .sig-name { font-size: 8.7pt; }
+        body.is-landscape .issuance {
+            margin-top: 10px;
+            font-size: 9pt;
+            line-height: 1.45;
+            width: 96%;
+        }
+        body.is-landscape .note-marginal { margin-top: 7px; font-size: 8.2pt; }
+        body.is-landscape .signature-image-wrap { height: 34px; margin-bottom: 3px; }
+        body.is-landscape .signature-image { max-height: 34px; }
     </style>
 </head>
 @php
@@ -260,6 +301,7 @@
 
     $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
+    $certBgPath = $resolvePublicFilePath($plantillaCertificadoPath ?? ($iglesiaConfig?->path_certificado_matrimonio ?: $iglesiaConfig?->path_certificado_bautismo));
 
     $esposo   = $matrimonio->esposo?->persona;
     $esposa   = $matrimonio->esposa?->persona;
@@ -268,9 +310,11 @@
     $encargado= $matrimonio->encargado?->feligres?->persona;
     $encargadoModel = $matrimonio->encargado;
     $firmaPath = $resolvePublicFilePath($encargadoModel?->path_firma_principal);
-    $firmaEncargadoNombre = trim((string) ($encargado?->nombre_completo ?? ''));
+    $firmaEncargadoNombre = mb_strtoupper(trim((string) ($encargado?->nombre_completo ?? '')), 'UTF-8');
 
-    $iglesiaNombreHeader = $matrimonio->iglesia?->nombre ?? $iglesiaConfig?->nombre ?? 'Parroquia';
+    $iglesiaNombreHeader = $matrimonio->iglesia?->nombre ?? $iglesiaConfig?->nombre ?? '';
+    $headerDiocesis = $iglesiaConfig?->header_diocesis ?: '';
+    $headerLugar = $iglesiaConfig?->direccion ?: '';
 
     $mesesEs = [
         1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',
@@ -299,13 +343,16 @@
         $lugarExp = 'Monjaras, Marcovia, Choluteca, Honduras C. A.';
     }
 
-    $esposoNombre  = $esposo?->nombre_completo  ?? '______________________________';
-    $esposaNombre  = $esposa?->nombre_completo  ?? '______________________________';
-    $sacerdote     = $encargado?->nombre_completo ?? '______________________________';
-    $testigo1Nombre= $testigo1?->nombre_completo ?? '______________________________';
-    $testigo2Nombre= $testigo2?->nombre_completo ?? '______________________________';
+    $esposoNombre  = mb_strtoupper($esposo?->nombre_completo  ?? '______________________________', 'UTF-8');
+    $esposaNombre  = mb_strtoupper($esposa?->nombre_completo  ?? '______________________________', 'UTF-8');
+    $sacerdote     = mb_strtoupper($encargado?->nombre_completo ?? '______________________________', 'UTF-8');
+    $testigo1Nombre= mb_strtoupper($testigo1?->nombre_completo ?? '______________________________', 'UTF-8');
+    $testigo2Nombre= mb_strtoupper($testigo2?->nombre_completo ?? '______________________________', 'UTF-8');
+    $codigoVerificacion = $codigoVerificacion ?? '';
+    $urlVerificacion = $urlVerificacion ?? '';
+    $qrDataUri = $qrDataUri ?? null;
 @endphp
-<body>
+<body class="{{ $isLandscape ? 'is-landscape' : '' }}" @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
 @if ($logoIglesiaPath)
     <div class="watermark-logo">
         <img src="{{ $logoIglesiaPath }}" alt="Marca de agua">
@@ -321,9 +368,9 @@
             @endif
         </div>
         <div class="header-title-cell">
-            <div class="parish-name">Parroquia{{ $iglesiaNombreHeader ? ' ' . $iglesiaNombreHeader : '' }}</div>
-            <div class="diocese-name">Di&oacute;cesis de Choluteca</div>
-            <div class="header-address">Monjarás, Marcovia, Choluteca, Honduras, C.A.</div>
+            <div class="parish-name">{{ $iglesiaNombreHeader }}</div>
+            <div class="diocese-name">{{ $headerDiocesis }}</div>
+            <div class="header-address">{{ $headerLugar }}</div>
         </div>
         <div class="header-right-cell">
             @if ($logoIglesiaDerechaPath)
@@ -382,11 +429,7 @@
 
     {{-- ===== SELLO Y SACERDOTE ===== --}}
     <div class="priest-section">
-        <div class="seal-cell">
-            <div class="seal-box">
-                <p class="seal-text">Sello de la<br>Parroquia</p>
-            </div>
-        </div>
+        <div class="seal-cell"></div>
         <div class="priest-cell">
             @if ($firmaPath && file_exists($firmaPath))
                 <div class="signature-image-wrap">
@@ -421,6 +464,7 @@
         {{ $matrimonio->nota_marginal }}
     </div>
     @endif
+
 
 </div>
 </body>

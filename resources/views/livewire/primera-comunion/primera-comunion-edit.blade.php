@@ -402,6 +402,29 @@
                                     <input type="email" wire:model="mini_p_email" placeholder="ejemplo@correo.com"
                                            class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500" />
                                 </div>
+                                @if ($advertenciaDuplicado)
+                                    <div class="sm:col-span-2 mb-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 p-3">
+                                        <div class="flex items-start gap-2">
+                                            <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-semibold text-amber-800 dark:text-amber-300">Posible duplicado</p>
+                                                <p class="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+                                                    Ya existe <strong>{{ $advertenciaDuplicado }}</strong> sin número de identidad.
+                                                </p>
+                                                <div class="flex items-center gap-3 mt-2">
+                                                    <button type="button" wire:click="confirmarYGuardarMiniPersona"
+                                                            class="text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 px-3 py-1 rounded-md transition-colors">
+                                                        Sí, registrar de todas formas
+                                                    </button>
+                                                    <button type="button" wire:click="$set('advertenciaDuplicado', '')"
+                                                            class="text-xs text-amber-700 dark:text-amber-400 underline hover:no-underline">
+                                                        Cancelar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                                 <div class="sm:col-span-2 flex justify-end gap-2 pt-2 border-t border-emerald-100 dark:border-emerald-800/40">
                                     <button type="button" wire:click="cancelarMini"
                                             class="px-4 py-2 text-xs font-medium rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 transition-all">Cancelar</button>

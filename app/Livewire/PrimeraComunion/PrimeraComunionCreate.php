@@ -64,6 +64,9 @@ class PrimeraComunionCreate extends Component
     public string $mini_f_fecha_ingreso = '';
     public string $mini_f_estado        = 'Activo';
 
+    public string $advertenciaDuplicado = '';
+    public bool   $confirmarDuplicado   = false;
+
     // Paso 2 - Libro parroquial
     public string $libro_comunion = '';
     public string $folio          = '';
@@ -209,6 +212,15 @@ class PrimeraComunionCreate extends Component
 
         $feligres = Feligres::where('id_persona', $persona->id)->first();
 
+        // Validar que el comulgante no haya recibido la primera comunión anteriormente
+        if ($rol === 'feligres' && $feligres) {
+            $yaComunicado = PrimeraComunion::where('id_feligres', $feligres->id)->exists();
+            if ($yaComunicado) {
+                $this->addError("{$rol}_dni", 'Esta persona ya recibió su primera comunión.');
+                return;
+            }
+        }
+
         $this->{"{$rol}_persona"} = [
             'id'              => $persona->id,
             'dni'             => $persona->dni,
@@ -304,6 +316,12 @@ class PrimeraComunionCreate extends Component
         $this->resetErrorBag();
     }
 
+    public function confirmarYGuardarMiniPersona(): void
+    {
+        $this->confirmarDuplicado = true;
+        $this->guardarMiniPersona();
+    }
+
     // ─── Mini-form: guardar nueva persona + feligrés ───────────────────────────
 
     public function guardarMiniPersona(): void
@@ -341,6 +359,19 @@ class PrimeraComunionCreate extends Component
         ]);
 
         $rol = $this->mini_rol;
+
+        if (! $this->mini_p_dni && ! $this->confirmarDuplicado) {
+            $duplicado = Persona::where('primer_nombre', $this->mini_p_primer_nombre)
+                ->where('primer_apellido', $this->mini_p_primer_apellido)
+                ->whereNull('dni')
+                ->first();
+            if ($duplicado) {
+                $this->advertenciaDuplicado = $duplicado->nombre_completo;
+                return;
+            }
+        }
+        $this->advertenciaDuplicado = '';
+        $this->confirmarDuplicado   = false;
 
         DB::transaction(function () use ($rol) {
             $persona = Persona::create([
@@ -418,6 +449,8 @@ class PrimeraComunionCreate extends Component
             $this->iglesia_id = TenantIglesia::currentId();
         }
 
+        $this->fecha_primera_comunion = $this->fecha_primera_comunion ?: now()->format('Y-m-d');
+
         $this->validate([
             'fecha_primera_comunion' => ['required', 'date'],
         ], [
@@ -431,6 +464,15 @@ class PrimeraComunionCreate extends Component
         }
 
         if (! $this->validarPadreNoSeaCatequista($this->feligres_feligres_id, $this->catequista_feligres_id)) {
+            return;
+        }
+
+        if (! $this->validarFechaPosteriorNacimiento(
+            $this->feligres_feligres_id,
+            $this->fecha_primera_comunion,
+            'fecha_primera_comunion',
+            'primera comunión'
+        )) {
             return;
         }
 
@@ -471,6 +513,27 @@ class PrimeraComunionCreate extends Component
         return view('livewire.primera-comunion.primera-comunion-create', [
             'iglesias' => $iglesias,
         ]);
+    }
+
+    private function validarFechaPosteriorNacimiento(?int $feligresId, string $fechaSacramento, string $campo, string $label): bool
+    {
+        if (! $feligresId || ! $fechaSacramento) {
+            return true;
+        }
+
+        $persona = \App\Models\Feligres::with('persona:id,fecha_nacimiento')->find($feligresId)?->persona;
+        if (! $persona?->fecha_nacimiento) {
+            return true;
+        }
+
+        try {
+            if (\Carbon\Carbon::parse($fechaSacramento)->lt(\Carbon\Carbon::parse($persona->fecha_nacimiento))) {
+                $this->addError($campo, "La fecha de {$label} no puede ser anterior a la fecha de nacimiento.");
+                return false;
+            }
+        } catch (\Exception) {}
+
+        return true;
     }
 
     private function validarPadreNoSeaCatequista(?int $feligresId, ?int $catequistaId): bool

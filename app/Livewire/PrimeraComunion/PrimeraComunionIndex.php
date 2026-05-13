@@ -2,9 +2,11 @@
 
 namespace App\Livewire\PrimeraComunion;
 
+use App\Exports\PrimeraComunionExport;
+use App\Models\PrimeraComunion;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\PrimeraComunion;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PrimeraComunionIndex extends Component
 {
@@ -40,9 +42,21 @@ class PrimeraComunionIndex extends Component
         $this->primeraComunionNameBeingDeleted = '';
     }
 
+    public function export(): mixed
+    {
+        abort_if(!auth()->user()->can('primera-comunion.view'), 403);
+        return Excel::download(new PrimeraComunionExport($this->search), 'primeras_comuniones_' . now()->format('Y_m_d_His') . '.xlsx');
+    }
+
     public function render()
     {
-        $primeraComuniones = PrimeraComunion::with(['iglesia', 'feligres.persona'])
+        // Issue #6: Cargar feligrés eliminados para preservar datos históricos en sacramentos
+        $primeraComuniones = PrimeraComunion::with([
+            'iglesia',
+            'feligres' => fn($q) => $q->withTrashed(),
+            'feligres.persona',
+            'catequista.persona',
+        ])
             ->when($this->search, function ($q) {
                 $q->whereHas('feligres.persona', fn ($p) =>
                     $p->where('primer_nombre',    'like', "%{$this->search}%")

@@ -58,14 +58,19 @@ class InstructorIndex extends Component
     {
         $query = Instructor::with(['feligres.persona', 'feligres.iglesia'])
             ->where(function ($query) {
-                $query->whereHas('feligres.persona', function ($q) {
-                    $q->where('primer_nombre', 'like', '%' . $this->search . '%')
-                        ->orWhere('segundo_nombre', 'like', '%' . $this->search . '%')
-                        ->orWhere('primer_apellido', 'like', '%' . $this->search . '%')
-                        ->orWhere('segundo_apellido', 'like', '%' . $this->search . '%')
-                        ->orWhere('dni', 'like', '%' . $this->search . '%');
-                })->orWhereHas('feligres.iglesia', function ($q) {
-                    $q->where('nombre', 'like', '%' . $this->search . '%');
+                // Issue #18: Ensure newly created instructors appear by properly querying relationships
+                $query->whereHas('feligres', function ($fq) {
+                    $fq->withTrashed()->whereHas('persona', function ($q) {
+                        $q->where('primer_nombre', 'like', '%' . $this->search . '%')
+                            ->orWhere('segundo_nombre', 'like', '%' . $this->search . '%')
+                            ->orWhere('primer_apellido', 'like', '%' . $this->search . '%')
+                            ->orWhere('segundo_apellido', 'like', '%' . $this->search . '%')
+                            ->orWhere('dni', 'like', '%' . $this->search . '%');
+                    });
+                })->orWhereHas('feligres', function ($fq) {
+                    $fq->withTrashed()->whereHas('iglesia', function ($q) {
+                        $q->where('nombre', 'like', '%' . $this->search . '%');
+                    });
                 });
             });
 
@@ -109,32 +114,10 @@ class InstructorIndex extends Component
     {
         $authUser = Auth::user();
 
-        if (! $authUser || ! $authUser->email) {
+        if (! $authUser) {
             return null;
         }
 
-        $email = strtolower(trim($authUser->email));
-
-        $instructorByEmail = Instructor::whereHas('feligres.persona', function ($q) use ($email) {
-            $q->whereRaw('LOWER(email) = ?', [$email]);
-        })->first();
-
-        if ($instructorByEmail) {
-            return (int) $instructorByEmail->id;
-        }
-
-        if (preg_match('/^instructor\.([0-9]+)(?:\+[0-9]+)?@tenant\.local$/', $email, $matches)) {
-            $dni = $matches[1] ?? null;
-
-            if ($dni) {
-                $instructorByDni = Instructor::whereHas('feligres.persona', function ($q) use ($dni) {
-                    $q->where('dni', $dni);
-                })->first();
-
-                return $instructorByDni ? (int) $instructorByDni->id : null;
-            }
-        }
-
-        return null;
+        return Instructor::resolveIdFromAuthEmail($authUser->email);
     }
 }

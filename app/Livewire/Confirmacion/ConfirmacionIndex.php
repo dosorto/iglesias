@@ -2,9 +2,11 @@
 
 namespace App\Livewire\Confirmacion;
 
+use App\Exports\ConfirmacionExport;
+use App\Models\Confirmacion;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Confirmacion;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ConfirmacionIndex extends Component
 {
@@ -41,11 +43,20 @@ class ConfirmacionIndex extends Component
         $this->confirmacionNameBeingDeleted = '';
     }
 
+    public function export(): mixed
+    {
+        abort_if(!auth()->user()->can('confirmacion.view'), 403);
+        return Excel::download(new ConfirmacionExport($this->search), 'confirmaciones_' . now()->format('Y_m_d_His') . '.xlsx');
+    }
+
     public function render()
     {
+        // Issue #6: Cargar feligrés eliminados para preservar datos históricos en sacramentos
         $confirmaciones = Confirmacion::with([
             'iglesia',
+            'feligres' => fn($q) => $q->withTrashed(),
             'feligres.persona',
+            'ministro' => fn($q) => $q->withTrashed(),
             'ministro.persona',
         ])
             ->when($this->search, function ($q) {

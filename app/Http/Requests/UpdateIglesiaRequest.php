@@ -47,8 +47,8 @@ class UpdateIglesiaRequest extends FormRequest
     {
         return [
             'nombre' => 'nombre',
-            'direccion' => 'direccion',
-            'telefono' => 'telefono',
+            'direccion' => 'dirección',
+            'telefono' => 'teléfono',
             'email' => 'email',
             'parroco_nombre' => 'parroco_nombre',
             'estado' => 'estado',

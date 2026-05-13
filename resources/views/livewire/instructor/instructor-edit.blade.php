@@ -135,17 +135,32 @@
                             style="max-height:150px;">
                     @endif
 
-                    <input type="file"
-                           wire:model="firma"
-                           accept="image/*"
-                           class="block w-full text-sm text-gray-700 dark:text-gray-300
-                                  file:mr-4 file:py-2 file:px-4
-                                  file:rounded-lg file:border-0
-                                  file:text-sm file:font-semibold
-                                  file:bg-amber-50 file:text-amber-700
-                                  dark:file:bg-amber-900/30 dark:file:text-amber-300
-                                  hover:file:bg-amber-100 dark:hover:file:bg-amber-900/50
-                                  transition-colors" />
+                    <label class="relative mt-3 block cursor-pointer rounded-xl border-2 border-dashed border-amber-300 dark:border-amber-700/60
+                                 bg-amber-50/60 dark:bg-amber-900/10 p-4 transition-colors
+                                 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20">
+                        <input type="file"
+                               wire:model="firma"
+                               accept="image/*"
+                               class="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+
+                        <div class="flex items-center gap-3">
+                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                            </span>
+
+                            <div>
+                                <p class="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                                    {{ $firma ? 'Imagen seleccionada para reemplazar firma' : 'Haz clic para subir una nueva firma' }}
+                                </p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">
+                                    Formatos permitidos: JPG, PNG, WEBP. Tamaño máximo: 2 MB.
+                                </p>
+                            </div>
+                        </div>
+                    </label>
 
                     @error('firma')
                         <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">

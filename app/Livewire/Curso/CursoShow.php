@@ -5,8 +5,10 @@ namespace App\Livewire\Curso;
 use Livewire\Component;
 use App\Models\Curso;
 use App\Models\Instructor;
+use App\Models\InscripcionCurso;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class CursoShow extends Component
 {
@@ -44,6 +46,63 @@ class CursoShow extends Component
 
 
         session()->flash('success', 'Matriculado quitado correctamente.');
+    }
+
+    public function toggleAprobadoMatriculado(int $inscripcionId): void
+    {
+        $this->ensureCanEditInscripciones();
+
+        $inscripcion = InscripcionCurso::query()
+            ->where('curso_id', $this->curso->id)
+            ->findOrFail($inscripcionId);
+
+        if ($inscripcion->aprobado) {
+            $inscripcion->update([
+                'aprobado' => false,
+                'certificado_emitido' => false,
+                'fecha_certificado' => null,
+            ]);
+        } else {
+            $inscripcion->update([
+                'aprobado' => true,
+            ]);
+        }
+
+        $this->curso->refresh();
+        $this->curso->load([
+            'tipoCurso',
+            'instructor.feligres.persona',
+            'encargado.feligres.persona',
+            'auditLogs',
+            'inscripcionesCurso.feligres.persona',
+        ]);
+
+        session()->flash('success', 'Estado de aprobación actualizado.');
+    }
+
+    public function aprobarTodosMatriculados(): void
+    {
+        $this->ensureCanEditInscripciones();
+
+        $actualizados = InscripcionCurso::query()
+            ->where('curso_id', $this->curso->id)
+            ->where('aprobado', false)
+            ->update([
+                'aprobado' => true,
+            ]);
+
+        $this->curso->refresh();
+        $this->curso->load([
+            'tipoCurso',
+            'instructor.feligres.persona',
+            'encargado.feligres.persona',
+            'auditLogs',
+            'inscripcionesCurso.feligres.persona',
+        ]);
+
+        session()->flash('success', $actualizados > 0
+            ? 'Se aprobaron todos los matriculados pendientes.'
+            : 'No hay matriculados pendientes por aprobar.');
     }
 
     public function render()
@@ -84,32 +143,17 @@ class CursoShow extends Component
     {
         $authUser = Auth::user();
 
-        if (! $authUser || ! $authUser->email) {
+        if (! $authUser) {
             return null;
         }
 
-        $email = strtolower(trim($authUser->email));
+        return Instructor::resolveIdFromAuthEmail($authUser->email);
+    }
 
-        $instructorByEmail = Instructor::whereHas('feligres.persona', function ($q) use ($email) {
-            $q->whereRaw('LOWER(email) = ?', [$email]);
-        })->first();
-
-        if ($instructorByEmail) {
-            return $instructorByEmail->id;
+    private function ensureCanEditInscripciones(): void
+    {
+        if (! Gate::allows('inscripcion-curso.edit')) {
+            abort(403, 'No tienes permiso para editar inscripciones.');
         }
-
-        if (preg_match('/^instructor\.([0-9]+)(?:\+[0-9]+)?@tenant\.local$/', $email, $matches)) {
-            $dni = $matches[1] ?? null;
-
-            if ($dni) {
-                $instructorByDni = Instructor::whereHas('feligres.persona', function ($q) use ($dni) {
-                    $q->where('dni', $dni);
-                })->first();
-
-                return $instructorByDni?->id;
-            }
-        }
-
-        return null;
     }
 }

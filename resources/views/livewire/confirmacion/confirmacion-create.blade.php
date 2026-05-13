@@ -1,4 +1,18 @@
-<div class="space-y-6">
+<div class="space-y-6 sacramento-create-form">
+
+    @once
+        <style>
+            .sacramento-create-form input::placeholder,
+            .sacramento-create-form textarea::placeholder {
+                color: rgb(156 163 175 / 0.55);
+            }
+
+            .dark .sacramento-create-form input::placeholder,
+            .dark .sacramento-create-form textarea::placeholder {
+                color: rgb(156 163 175 / 0.45);
+            }
+        </style>
+    @endonce
 
     {{-- HEADER --}}
     <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 to-purple-600
@@ -34,7 +48,7 @@
     <div class="bg-white dark:bg-gray-800/80 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700/60
                 ring-1 ring-black/5 dark:ring-white/5 px-6 py-4">
         <div class="flex items-center gap-0">
-            @php $pasos = [['n'=>1,'label'=>'Personas'], ['n'=>2,'label'=>'Registro']]; @endphp
+            @php $pasos = [['n'=>1,'label'=>'Feligreses'], ['n'=>2,'label'=>'Registro']]; @endphp
             @foreach ($pasos as $i => $p)
                 <div class="flex flex-col items-center flex-shrink-0">
                     <div @class([
@@ -69,7 +83,7 @@
         </div>
     </div>
 
-    {{-- PASO 1: PERSONAS --}}
+    {{-- PASO 1: FELIGRESES --}}
     @if ($paso === 1)
     <div class="space-y-4">
 
@@ -142,6 +156,7 @@
                                        placeholder="DNI o nombre del {{ strtolower($rc['label']) }}..."
                                        autocomplete="off"
                                        wire:keydown.enter="buscarPersona('{{ $key }}')"
+                                       oninput="if(this.value && /^[0-9]+$/.test(this.value) === false) { const letters = this.value.match(/[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']/g); if(letters) this.value = letters.join(''); }"
                                        class="block w-full pl-10 pr-4 py-2.5 text-sm rounded-lg transition-colors
                                               border border-gray-300 dark:border-gray-600
                                               bg-gray-50 dark:bg-gray-700/60
@@ -179,7 +194,7 @@
                     {{-- Estado: MULTIPLES RESULTADOS --}}
                     @if ($rolEstado === 'multiples' && $busqueda_rol === $key)
                         <p class="text-xs text-gray-500 dark:text-gray-400">
-                            Se encontraron {{ count($busqueda_resultados) }} personas. Selecciona una:
+                            Se encontraron {{ count($busqueda_resultados) }} feligreses. Selecciona uno:
                         </p>
                         <div class="space-y-1.5 max-h-64 overflow-y-auto pr-1">
                             @foreach ($busqueda_resultados as $res)
@@ -335,6 +350,7 @@
                                     <div class="sm:col-span-2">
                                         <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">Número de Identidad <span class="text-red-500">*</span></label>
                                         <input type="text" wire:model="mini_p_dni" placeholder="Ej: 0801199912345"
+                                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                                class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600
                                                       bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
                                                       focus:ring-2 focus:ring-emerald-500 focus:border-transparent
@@ -420,6 +436,29 @@
                                         @error('mini_p_email') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                                     </div>
                                 </div>
+                                @if ($advertenciaDuplicado)
+                                    <div class="mb-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 p-3">
+                                        <div class="flex items-start gap-2">
+                                            <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-semibold text-amber-800 dark:text-amber-300">Posible duplicado</p>
+                                                <p class="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+                                                    Ya existe <strong>{{ $advertenciaDuplicado }}</strong> sin número de identidad.
+                                                </p>
+                                                <div class="flex items-center gap-3 mt-2">
+                                                    <button type="button" wire:click="confirmarYGuardarMiniPersona"
+                                                            class="text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 px-3 py-1 rounded-md transition-colors">
+                                                        Sí, registrar de todas formas
+                                                    </button>
+                                                    <button type="button" wire:click="$set('advertenciaDuplicado', '')"
+                                                            class="text-xs text-amber-700 dark:text-amber-400 underline hover:no-underline">
+                                                        Cancelar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                                 <div class="flex justify-end gap-3 pt-2 border-t border-emerald-100 dark:border-emerald-800/40">
                                     <button type="button" wire:click="cancelarMini"
                                             class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium

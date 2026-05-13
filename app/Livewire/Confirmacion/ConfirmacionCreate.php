@@ -13,7 +13,7 @@ use Illuminate\Validation\Rule;
 
 class ConfirmacionCreate extends Component
 {
-    private const LUGAR_CONFIRMACION_FIJO = 'Monjaras, Marcovia, Choluteca, Honduras, C.A.';
+    private const LUGAR_CONFIRMACION_FIJO = 'Monjaras, Marcovia';
 
     // Wizard
     public int $paso = 1;
@@ -74,6 +74,9 @@ class ConfirmacionCreate extends Component
 
     public string $mini_f_fecha_ingreso = '';
     public string $mini_f_estado        = 'Activo';
+
+    public string $advertenciaDuplicado = '';
+    public bool   $confirmarDuplicado   = false;
 
     // Paso 2
     public string $libro_confirmacion = '';
@@ -314,6 +317,12 @@ class ConfirmacionCreate extends Component
         $this->resetErrorBag();
     }
 
+    public function confirmarYGuardarMiniPersona(): void
+    {
+        $this->confirmarDuplicado = true;
+        $this->guardarMiniPersona();
+    }
+
     public function guardarMiniPersona(): void
     {
         $this->validate([
@@ -344,6 +353,19 @@ class ConfirmacionCreate extends Component
         ]);
 
         $rol = $this->mini_rol;
+
+        if (! $this->mini_p_dni && ! $this->confirmarDuplicado) {
+            $duplicado = Persona::where('primer_nombre', $this->mini_p_primer_nombre)
+                ->where('primer_apellido', $this->mini_p_primer_apellido)
+                ->whereNull('dni')
+                ->first();
+            if ($duplicado) {
+                $this->advertenciaDuplicado = $duplicado->nombre_completo;
+                return;
+            }
+        }
+        $this->advertenciaDuplicado = '';
+        $this->confirmarDuplicado   = false;
 
         DB::transaction(function () use ($rol) {
             if (session('tenant')) {
@@ -432,6 +454,8 @@ class ConfirmacionCreate extends Component
             $this->iglesia_id = TenantIglesia::currentId();
         }
 
+        $this->fecha_confirmacion = $this->fecha_confirmacion ?: now()->format('Y-m-d');
+
         $this->validate([
             'fecha_confirmacion' => ['required', 'date'],
         ], [
@@ -441,6 +465,19 @@ class ConfirmacionCreate extends Component
 
         if (! $this->confirmado_feligres_id) {
             $this->addError('confirmado_dni', 'El confirmado es obligatorio.');
+            return;
+        }
+
+        if (!$this->validarGeneroRoles()) {
+            return;
+        }
+
+        if (! $this->validarFechaPosteriorNacimiento(
+            $this->confirmado_feligres_id,
+            $this->fecha_confirmacion,
+            'fecha_confirmacion',
+            'confirmación'
+        )) {
             return;
         }
 
@@ -478,5 +515,77 @@ class ConfirmacionCreate extends Component
         return view('livewire.confirmacion.confirmacion-create', [
             'iglesias' => $iglesias,
         ]);
+    }
+
+    private function validarFechaPosteriorNacimiento(?int $feligresId, string $fechaSacramento, string $campo, string $label): bool
+    {
+        if (! $feligresId || ! $fechaSacramento) {
+            return true;
+        }
+
+        $persona = \App\Models\Feligres::with('persona:id,fecha_nacimiento')->find($feligresId)?->persona;
+        if (! $persona?->fecha_nacimiento) {
+            return true;
+        }
+
+        try {
+            if (\Carbon\Carbon::parse($fechaSacramento)->lt(\Carbon\Carbon::parse($persona->fecha_nacimiento))) {
+                $this->addError($campo, "La fecha de {$label} no puede ser anterior a la fecha de nacimiento.");
+                return false;
+            }
+        } catch (\Exception) {}
+
+        return true;
+    }
+
+    private function validarGeneroRoles(): bool
+    {
+        $roles = [
+            'padre'   => ['id' => $this->padre_feligres_id,   'esperado' => 'M', 'label' => 'El padre', 'campo' => 'padre_dni'],
+            'madre'   => ['id' => $this->madre_feligres_id,   'esperado' => 'F', 'label' => 'La madre', 'campo' => 'madre_dni'],
+            'padrino' => ['id' => $this->padrino_feligres_id, 'esperado' => 'M', 'label' => 'El padrino', 'campo' => 'padrino_dni'],
+            'madrina' => ['id' => $this->madrina_feligres_id, 'esperado' => 'F', 'label' => 'La madrina', 'campo' => 'madrina_dni'],
+        ];
+
+        $valido = true;
+
+        foreach ($roles as $info) {
+            if (!$info['id']) {
+                continue;
+            }
+
+            $feligres = \App\Models\Feligres::with('persona')->find($info['id']);
+            if (!$feligres?->persona) {
+                continue;
+            }
+
+            $sexo = $this->normalizarSexoCanonico($feligres->persona->sexo);
+
+            if ($sexo !== null && $sexo !== $info['esperado']) {
+                $this->addError($info['campo'], "{$info['label']} debe ser de sexo {$info['esperado']}.");
+                $valido = false;
+            }
+        }
+
+        return $valido;
+    }
+
+    private function normalizarSexoCanonico(?string $sexo): ?string
+    {
+        if ($sexo === null) {
+            return null;
+        }
+
+        $s = strtoupper(trim($sexo));
+
+        if (in_array($s, ['M', 'MASCULINO', 'HOMBRE', 'H', 'MALE'], true)) {
+            return 'M';
+        }
+
+        if (in_array($s, ['F', 'FEMENINO', 'MUJER', 'W', 'FEMALE'], true)) {
+            return 'F';
+        }
+
+        return null;
     }
 }

@@ -8,18 +8,18 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Times New Roman', Times, serif;
+            font-family: Arial, Helvetica, sans-serif;
             font-size: 12pt;
-            color: #1a1a1a;
+            color: #1f1f1f;
             background: #fff;
         }
 
         .page-wrapper {
-            padding: 26px 36px;
-            border: 4px double #7D5A1E;
-            margin: 10px;
+            padding: 24px 30px;
+            border: none;
+            margin: 2px;
             position: relative;
-            z-index: 1;
+            overflow: visible;
         }
 
         .watermark-logo {
@@ -27,12 +27,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            opacity: 0.08;
+            opacity: 0.05;
             z-index: 0;
         }
 
         .watermark-logo img {
-            width: 430px;
+            width: 360px;
             height: auto;
             object-fit: contain;
         }
@@ -40,21 +40,23 @@
         .header {
             display: table;
             width: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 1;
         }
 
         .header-logo-cell,
         .header-right-cell {
             display: table-cell;
-            width: 85px;
+            width: 90px;
             vertical-align: middle;
             text-align: center;
         }
 
         .header-logo-cell img,
         .header-right-cell img {
-            width: 75px;
-            height: 75px;
+            width: 80px;
+            height: 80px;
             object-fit: contain;
         }
 
@@ -62,96 +64,82 @@
             display: table-cell;
             vertical-align: middle;
             text-align: center;
+            padding: 0 10px;
         }
 
         .parish-name {
-            font-size: 19pt;
+            font-size: 18pt;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            line-height: 1.1;
+            line-height: 1.2;
         }
 
         .diocese-name {
-            font-size: 13pt;
+            font-size: 11pt;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 3px;
+            margin-top: 4px;
             color: #555;
         }
 
         .header-address {
-            font-size: 11pt;
+            font-size: 10.5pt;
             margin-top: 4px;
-            color: #222;
-            letter-spacing: 0.5px;
+            color: #444;
         }
 
         .header-divider {
-            border-top: 2px solid #8aa8bc;
-            margin: 6px 0 8px;
-        }
-
-        .hr-accent {
-            border: none;
-            border-top: 1px solid #7D5A1E;
-            margin: 3px 0;
-        }
-
-        .ornament {
-            text-align: center;
-            color: #7D5A1E;
-            font-size: 11pt;
-            letter-spacing: 8px;
-            margin: 3px 0;
+            border-top: 1px solid #444;
+            margin: 10px 0 14px;
+            position: relative;
+            z-index: 1;
         }
 
         .cert-title-wrap {
             text-align: center;
-            margin: 8px 0;
+            margin: 10px 0 18px;
+            position: relative;
+            z-index: 1;
         }
 
         .cert-title {
             display: inline-block;
-            background: #7D5A1E;
-            color: #fff;
-            font-size: 13.5pt;
+            font-size: 16pt;
             font-weight: bold;
-            letter-spacing: 4px;
             text-transform: uppercase;
-            padding: 5px 32px;
+            letter-spacing: 1px;
+            padding-bottom: 4px;
         }
 
         .body-text {
-            line-height: 2;
+            line-height: 1.9;
             font-size: 11.5pt;
-            margin-top: 14px;
+            margin-top: 12px;
+            position: relative;
+            z-index: 1;
         }
 
         .body-text p {
-            margin-bottom: 2px;
+            margin-bottom: 6px;
         }
 
         .line-field {
-            display: inline-block;
-            min-width: 200px;
-            border-bottom: 1px solid #333;
-            margin: 0 3px;
-            vertical-align: bottom;
+            display: inline;
+            margin: 0 1px;
+            padding: 0 1px;
         }
 
-        .line-field-sm { min-width: 70px; }
-        .line-field-lg { min-width: 260px; }
-        .line-field-xl { min-width: 320px; }
-
-        .section-label { font-weight: bold; }
+        .line-field-sm { }
+        .line-field-lg { }
+        .line-field-xl { }
 
         .sig-right {
             width: 260px;
             margin-left: auto;
-            margin-right: 24px;
+            margin-right: 20px;
             text-align: center;
-            margin-top: 26px;
+            margin-top: 24px;
+            position: relative;
+            z-index: 1;
         }
 
         .sig-name {
@@ -165,54 +153,51 @@
             display: block;
             width: 220px;
             margin: 0 auto;
-            border-top: 2px solid #7D5A1E;
+            border-top: 1px solid #333;
             text-align: center;
             font-size: 9.5pt;
             font-weight: bold;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             padding-top: 4px;
-            color: #7D5A1E;
+            color: #333;
         }
 
         .issuance {
             margin-top: 22px;
             font-size: 11.5pt;
-            line-height: 2;
+            line-height: 1.9;
+            position: relative;
+            z-index: 1;
         }
 
         .sig-bottom {
-            margin-top: 34px;
             width: 260px;
-            margin-left: auto;
-            margin-right: 24px;
             text-align: center;
+            position: relative;
+            z-index: 1;
         }
 
-        .print-actions {
-            margin: 16px auto;
-            width: fit-content;
-            display: flex;
-            gap: 10px;
+        .footer-row {
+            display: table;
+            width: 100%;
+            margin-top: 16px;
+            position: relative;
+            z-index: 1;
         }
 
-        .btn {
-            padding: 10px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            color: white;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            border: none;
-            cursor: pointer;
+        .footer-left {
+            display: table-cell;
+            width: 100px;
+            vertical-align: bottom;
         }
 
-        .btn-print { background: #059669; }
-        .btn-back { background: #2563eb; }
-
-        @media print {
-            .print-actions { display: none; }
-            body { background: white; }
+        .footer-right {
+            display: table-cell;
+            text-align: right;
+            vertical-align: bottom;
+            padding-right: 20px;
         }
+
     </style>
 </head>
 
@@ -241,18 +226,23 @@
     $instructor = $curso?->instructor?->feligres?->persona;
     $encargado = $curso?->encargado?->feligres?->persona;
 
-    $iglesiaNombre = 'Capacitaciones';
-    $logoIglesiaPath = null;
-    $logoIglesiaDerechaPath = null;
+    $iglesiaNombre = $iglesiaConfig?->nombre ?? '';
+    $headerDiocesis = $iglesiaConfig?->header_diocesis ?: '';
+    $headerLugar = $iglesiaConfig?->direccion ?: '';
+    $logoIglesiaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo);
+    $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
+    $certBgPath = $resolvePublicFilePath($plantillaCertificadoPath ?? ($iglesiaConfig?->path_certificado_curso ?: $iglesiaConfig?->path_certificado_bautismo));
+
+    $firmaPath = $resolvePublicFilePath($curso?->instructor?->path_firma);
 
     $fechaInicio = $curso?->fecha_inicio;
     $fechaFin = $curso?->fecha_fin;
     $fechaCertificado = $inscripcion->fecha_certificado;
 
     $mesesEs = [
-        1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',
-        5=>'mayo',6=>'junio',7=>'julio',8=>'agosto',
-        9=>'septiembre',10=>'octubre',11=>'noviembre',12=>'diciembre'
+        1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril',
+        5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto',
+        9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre',
     ];
 
     $diaCert = $fechaCertificado?->day ?? '';
@@ -266,10 +256,14 @@
     $diaFin = $fechaFin?->day ?? '';
     $mesFin = $fechaFin ? $mesesEs[$fechaFin->month] : '';
     $anoFin = $fechaFin?->year ?? '';
+
+    $codigoVerificacion = $codigoVerificacion ?? '';
+    $urlVerificacion = $urlVerificacion ?? '';
+    $qrDataUri = $qrDataUri ?? null;
 @endphp
 
-<body>
-    @if ($logoIglesiaPath)
+<body @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
+    @if ($logoIglesiaPath && file_exists($logoIglesiaPath))
         <div class="watermark-logo">
             <img src="{{ $logoIglesiaPath }}" alt="Marca de agua">
         </div>
@@ -279,19 +273,19 @@
 
         <div class="header">
             <div class="header-logo-cell">
-                @if ($logoIglesiaPath)
+                @if ($logoIglesiaPath && file_exists($logoIglesiaPath))
                     <img src="{{ $logoIglesiaPath }}" alt="Logo">
                 @endif
             </div>
 
             <div class="header-title-cell">
                 <div class="parish-name">{{ $iglesiaNombre }}</div>
-                <div class="diocese-name">Sistema de Gestión de Capacitaciones</div>
-                <div class="header-address">Constancia formal de aprobación de curso</div>
+                <div class="diocese-name">{{ $headerDiocesis }}</div>
+                <div class="header-address">{{ $headerLugar }}</div>
             </div>
 
             <div class="header-right-cell">
-                @if ($logoIglesiaDerechaPath)
+                @if ($logoIglesiaDerechaPath && file_exists($logoIglesiaDerechaPath))
                     <img src="{{ $logoIglesiaDerechaPath }}" alt="Logo">
                 @endif
             </div>
@@ -299,25 +293,15 @@
 
         <div class="header-divider"></div>
 
-        <hr class="hr-accent">
-        <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
-        <hr class="hr-accent">
-
         <div class="cert-title-wrap">
-            <span class="cert-title">CERTIFICADO DE APROBACIÓN</span>
+            <span class="cert-title">Certificado de Aprobación</span>
         </div>
 
-        <hr class="hr-accent">
-        <div class="ornament">&bull; &nbsp; &bull; &nbsp; &bull;</div>
-        <hr class="hr-accent">
-
         <div class="body-text">
-            <p>
-                El presente documento certifica que:
-            </p>
+            <p>El presente documento certifica que:</p>
 
             <p>
-                <span class="line-field line-field-xl">{{ $persona?->nombre_completo ?? 'N/A' }}</span>
+                <span class="line-field line-field-xl">{{ mb_strtoupper($persona?->nombre_completo ?? 'N/A', 'UTF-8') }}</span>
             </p>
 
             <p>
@@ -325,13 +309,13 @@
                 <span class="line-field line-field-lg">{{ $persona?->dni ?? 'N/A' }}</span>
             </p>
 
-            <p>
-                ha aprobado satisfactoriamente el curso denominado:
-            </p>
+            <p>ha aprobado satisfactoriamente el curso denominado:</p>
 
             <p>
-                <span class="line-field line-field-xl">{{ $curso?->nombre ?? 'N/A' }}</span>
+                <span class="line-field line-field-xl" style="font-weight:bold; font-size:14pt;">{{ $curso?->nombre ?? 'N/A' }}</span>
             </p>
+
+            <p style="margin-bottom:18px;"></p>
 
             <p>
                 @if($fechaInicio && $fechaFin)
@@ -359,15 +343,24 @@
                 @endif
             </p>
 
+            <p style="margin-bottom:18px;"></p>
+
             <p>
                 Instructor responsable:
-                <span class="line-field line-field-xl">{{ $instructor?->nombre_completo ?? 'N/A' }}</span>
+                <span class="line-field line-field-xl">{{ mb_strtoupper($instructor?->nombre_completo ?? 'N/A', 'UTF-8') }}</span>
             </p>
+
+            <p style="margin-bottom:18px;"></p>
+
+            {{-- Observaciones opcional --}}
+            @if(!empty($observaciones))
+                <p><strong>Observaciones:</strong> {{ $observaciones }}</p>
+            @endif
         </div>
 
         <div class="sig-right">
             @if ($instructor?->nombre_completo)
-                <p class="sig-name">{{ $instructor->nombre_completo }}</p>
+                <p class="sig-name">{{ mb_strtoupper($instructor->nombre_completo, 'UTF-8') }}</p>
             @endif
             <div class="sig-line-accent">I N S T R U C T O R</div>
         </div>
@@ -384,18 +377,27 @@
 
             <p>
                 Responsable administrativo:
-                <span class="line-field line-field-xl">{{ $encargado?->nombre_completo ?? 'N/A' }}</span>
+                <span class="line-field line-field-xl">{{ mb_strtoupper($encargado?->nombre_completo ?? 'N/A', 'UTF-8') }}</span>
             </p>
         </div>
 
-        <div class="sig-bottom">
-            <div class="sig-line-accent">A U T O R I Z A C I Ó N</div>
+        <div class="footer-row">
+            <div class="footer-left">
+            </div>
+
+            <div class="footer-right">
+                <div class="sig-bottom">
+                    @if ($firmaPath && file_exists($firmaPath))
+                        <p style="text-align:center; margin-bottom: 2px;">
+                            <img src="{{ $firmaPath }}" style="max-height:50px; max-width:180px;" alt="Firma del instructor">
+                        </p>
+                    @endif
+
+                    <div class="sig-line-accent">F I R M A</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="print-actions">
-        <button class="btn btn-print" onclick="window.print()">Imprimir</button>
-        <a href="{{ route('curso.show', $inscripcion->curso_id) }}" class="btn btn-back">Volver al curso</a>
-    </div>
 </body>
 </html>

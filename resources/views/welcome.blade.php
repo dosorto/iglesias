@@ -1,9 +1,13 @@
+@php $appName = \App\Models\AppSetting::current()->company_name ?? config('app.name'); @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sistema Parroquial UNAH</title>
+    <title>{{ $appName }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('image/Logo_guest.png') }}?v=holyapp">
+    <link rel="shortcut icon" href="{{ asset('image/Logo_guest.png') }}?v=holyapp">
+    <link rel="apple-touch-icon" href="{{ asset('image/Logo_guest.png') }}?v=holyapp">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -91,7 +95,7 @@
                     <polyline points="9 22 9 12 15 12 15 22"/>
                 </svg>
             </div>
-            <span class="nav-logo-text">Sistema Parroquial UNAH</span>
+            <span class="nav-logo-text">{{ $appName }}</span>
         </a>
         <div class="nav-links">
             <a href="#caracteristicas">Características</a>
@@ -104,37 +108,12 @@
 
     {{-- HERO --}}
     <section class="lp-hero">
-        <div class="hero-badge">
-            <span class="hero-badge-dot"></span>
-            Archivo Sagrado Digital
-        </div>
         <h1>Gestión parroquial <span>moderna y ordenada</span></h1>
-        <p>Administra feligreses, sacramentos, matrimonios y certificados desde un solo lugar. Diseñado para parroquias que quieren custodiar su historia con reverencia y tecnología.</p>
         <div class="hero-btns">
             <a href="{{ route('register.organization') }}" class="btn-primary">Registrar mi parroquia</a>
             <a href="{{ route('login') }}" class="btn-outline">Iniciar sesión</a>
         </div>
     </section>
-
-    {{-- ESTADÍSTICAS --}}
-    <div class="lp-stats">
-        <div class="stat-item">
-            <div class="stat-num">+500</div>
-            <div class="stat-label">Feligreses registrados</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-num">+120</div>
-            <div class="stat-label">Bautismos este año</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-num">+40</div>
-            <div class="stat-label">Matrimonios celebrados</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-num">100%</div>
-            <div class="stat-label">Datos seguros</div>
-        </div>
-    </div>
 
     {{-- CARACTERÍSTICAS --}}
     <section class="lp-section" id="caracteristicas">
@@ -257,7 +236,7 @@
 
     {{-- FOOTER --}}
     <footer class="lp-footer">
-        <p>Sistema Parroquial UNAH · "Custodiando la fe y la historia de nuestra comunidad parroquial con reverencia y orden."</p>
+        <p>{{ $appName }}</p>
     </footer>
 
 </body>

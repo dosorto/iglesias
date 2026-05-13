@@ -3,5 +3,5 @@
 @section('title', 'Editar Tipo de Curso')
 
 @section('content')
-    <livewire:tipocurso.tipo-curso-edit :tipocurso="$tipocurso" />
+    <livewire:tipo-curso.tipo-curso-edit :tipocurso="$tipocurso" />
 @endsection

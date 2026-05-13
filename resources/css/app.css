@@ -5,14 +5,24 @@
 @tailwind utilities;
 
 :root {
-    --color-purpura-sagrado:  #0D5C3A;
+    /* Púrpura litúrgico — Adviento y Cuaresma (logo Espíritu Santo) */
+    --color-purpura-sagrado:  #5B21B6;
+    /* Dorado sagrado — Gloria y solemnidades (borde dorado ambos logos) */
     --color-dorado-divino:    #C8A547;
-    --color-azul-mariano:     #2A79B3;
-    --color-blanco-liturgico: #F4F5F2;
-    --color-marfil-calido:    #E9ECE5;
-    --color-rojo-martir:      #A13B3B;
-    --color-verde-esperanza:  #0F6E46;
-    --color-gris-piedra:      #253238;
+    /* Azul mariano — devoción a María (Diócesis Choluteca) */
+    --color-azul-mariano:     #1E3A8A;
+    /* Crema litúrgico — pureza, interior logo Espíritu Santo */
+    --color-blanco-liturgico: #FFF8E1;
+    /* Marfil cálido — fondos suaves, pergamino */
+    --color-marfil-calido:    #F5F0E8;
+    /* Rojo mártir — Pentecostés y mártires (Diócesis Choluteca) */
+    --color-rojo-martir:      #991B1B;
+    /* Verde esperanza — Tiempo Ordinario (Diócesis Choluteca) */
+    --color-verde-esperanza:  #166534;
+    /* Gris piedra — texto principal */
+    --color-gris-piedra:      #1E293B;
+    /* Llama del Espíritu Santo — naranja fuego (logo Espíritu Santo) */
+    --color-llama-espiritu:   #C2410C;
 }
 
 @layer base {

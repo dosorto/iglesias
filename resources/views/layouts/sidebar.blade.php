@@ -24,7 +24,7 @@
                 </a>
             </li>
 
-            @can('users.view')
+            @if(auth()->user()?->hasAnyRole(['admin', 'root']))
                 <li>
                     <a href="{{ route('users.index') }}"
                        class="flex items-center p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group">
@@ -34,17 +34,19 @@
                         <span class="ml-3">Usuarios</span>
                     </a>
                 </li>
-            @endcan
+            @endif
 
-            <li>
-                <a href="{{ route('roles.index') }}"
-                   class="flex items-center p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group">
-                    <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
-                    </svg>
-                    <span class="ml-3">Roles</span>
-                </a>
-            </li>
+            @if(auth()->user()?->hasAnyRole(['admin', 'root']))
+                <li>
+                    <a href="{{ route('roles.index') }}"
+                       class="flex items-center p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group">
+                        <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="ml-3">Roles</span>
+                    </a>
+                </li>
+            @endif
 
             @can('audit.view')
                 <li>
@@ -67,14 +69,14 @@
                 $showInstructorMenu = auth()->user()?->can('instructor.view')
                     && ! $isInstructorOnly;
             @endphp
-            @if(auth()->user()?->canAny(['personas.view','feligres.view','encargado.view']) || $showInstructorMenu)
+            @if(auth()->user()?->canAny(['feligres.view','encargado.view']) || (auth()->user()?->can('personas.view') && auth()->user()?->hasRole('root')) || $showInstructorMenu)
                 <li class="pt-3">
                     <p class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">
                         Membresía
                     </p>
                 </li>
 
-                @can('personas.view')
+                @if(auth()->user()?->can('personas.view') && auth()->user()?->hasRole('root'))
                     <li>
                         <a href="{{ route('personas.index') }}"
                            class="flex items-center p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group">
@@ -84,7 +86,7 @@
                             <span class="ml-3">Personas</span>
                         </a>
                     </li>
-                @endcan
+                @endif
 
                 @can('feligres.view')
                     <li>
@@ -124,7 +126,7 @@
             @endif
 
             {{-- ── Actos Parroquiales ────────────────────────── --}}
-            @canany(['bautismo.view','confirmacion.view','curso.view','matrimonio.view','primera-comunion.view'])
+            @canany(['bautismo.view','confirmacion.view','curso.view','inscripcion-curso.view','matrimonio.view','primera-comunion.view'])
                 <li class="pt-3">
                     <p class="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">
                         Actos Parroquiales
@@ -155,6 +157,18 @@
                 </li>
             @endcan
 
+            @can('inscripcion-curso.view')
+                <li>
+                    <a href="{{ route('inscripcion-curso.index') }}"
+                       class="flex items-center p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group">
+                        <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <span class="ml-3">Inscripciones</span>
+                    </a>
+                </li>
+            @endcan
+
             {{-- ── Configuración ─────────────────────────────── --}}
             @canany(['iglesias.view','religion.view'])
                 <li class="pt-3">
@@ -164,6 +178,7 @@
                 </li>
 
                 @can('iglesias.view')
+                    @if(!session('tenant.id_iglesia'))
                     <li>
                         <a href="{{ route('iglesias.index') }}"
                            class="flex items-center p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group">
@@ -173,9 +188,11 @@
                             <span class="ml-3">Parroquias</span>
                         </a>
                     </li>
+                    @endif
                 @endcan
 
                 @can('religion.view')
+                    @if(auth()->user()?->hasAnyRole(['admin', 'root']) && !session('tenant.id_iglesia'))
                     <li>
                         <a href="{{ route('religion.index') }}"
                            class="flex items-center p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 group">
@@ -185,6 +202,7 @@
                             <span class="ml-3">Religiones</span>
                         </a>
                     </li>
+                    @endif
                 @endcan
 
             @endcanany

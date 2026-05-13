@@ -1,8 +1,10 @@
 <?php
 
 use App\Models\User;
+use App\Models\Encargado;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Volt\Component;
 
@@ -25,12 +27,49 @@ new class extends Component
      */
     public function updateProfileInformation(): void
     {
+        // Issue #8: Bloquear edición de perfil para rol instructor
+        /** @var User $user */
         $user = Auth::user();
+
+        if ($user->roles->contains('name', 'instructor')) {
+            Session::flash('error', 'No puedes editar tu perfil. Contacta al administrador para realizar cambios.');
+            return;
+        }
 
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
         ]);
+
+        $normalizedEmail = Str::lower(trim((string) $validated['email']));
+        $currentEmail = Str::lower(trim((string) $user->email));
+
+        if ($normalizedEmail !== $currentEmail) {
+            if ($this->correoExisteEnOtroUsuario($normalizedEmail, $user->id)) {
+                $this->addError('email', 'Este correo ya existe en otra cuenta de usuario. Usa uno distinto para evitar problemas al iniciar sesión.');
+                return;
+            }
+
+            $encargadoActual = Encargado::query()
+                ->whereHas('feligres.persona', function ($query) use ($currentEmail) {
+                    $query->whereRaw('LOWER(email) = ?', [$currentEmail]);
+                })
+                ->first();
+
+            $emailUsadoPorOtroEncargado = Encargado::query()
+                ->whereHas('feligres.persona', function ($query) use ($normalizedEmail) {
+                    $query->whereRaw('LOWER(email) = ?', [$normalizedEmail]);
+                })
+                ->when($encargadoActual, function ($query) use ($encargadoActual) {
+                    $query->where('encargado.id', '!=', $encargadoActual->id);
+                })
+                ->exists();
+
+            if ($emailUsadoPorOtroEncargado) {
+                $this->addError('email', 'Este correo ya está asignado a otro encargado. Usa uno distinto para evitar problemas al iniciar sesión.');
+                return;
+            }
+        }
 
         $user->fill($validated);
 
@@ -48,6 +87,7 @@ new class extends Component
      */
     public function sendVerification(): void
     {
+        /** @var User $user */
         $user = Auth::user();
 
         if ($user->hasVerifiedEmail()) {
@@ -60,56 +100,99 @@ new class extends Component
 
         Session::flash('status', 'verification-link-sent');
     }
+
+    private function correoExisteEnOtroUsuario(string $normalizedEmail, int $ignoreUserId): bool
+    {
+        return User::withTrashed()
+            ->whereRaw('LOWER(email) = ?', [$normalizedEmail])
+            ->where('id', '!=', $ignoreUserId)
+            ->exists();
+    }
 }; ?>
 
 <section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Profile Information') }}
-        </h2>
+    @php
+        $authUser = auth()->user();
+        $isInstructor = $authUser?->roles?->contains('name', 'instructor');
+        $isEncargado = $authUser?->roles?->contains('name', 'encargado');
+    @endphp
 
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __("Update your account's profile information and email address.") }}
+    <header>
+        <div class="flex flex-wrap items-center gap-2">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Información del perfil
+            </h2>
+
+            @if($isEncargado)
+                <span class="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700 dark:border-sky-800 dark:bg-sky-900/40 dark:text-sky-200">
+                    Encargado
+                </span>
+            @endif
+        </div>
+
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
+            Actualiza la información de tu perfil y tu correo electrónico.
         </p>
     </header>
 
-    <form wire:submit="updateProfileInformation" class="mt-6 space-y-6">
+    {{-- Issue #8: Advertencia para instructores --}}
+    @if($isInstructor)
+        <div class="mt-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-amber-800 dark:text-amber-200">
+                        No puedes editar tu perfil como instructor. Contacta al administrador si necesitas realizar cambios en tu cuenta.
+                    </p>
+                </div>
+            </div>
+        </div>
+    @else
+        <form wire:submit="updateProfileInformation" class="mt-6 space-y-6">
         <div>
-            <x-input-label for="name" :value="__('Name')" />
+            <x-input-label for="name" value="Nombre" />
             <x-text-input wire:model="name" id="name" name="name" type="text" class="mt-1 block w-full" required autofocus autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
 
         <div>
-            <x-input-label for="email" :value="__('Email')" />
+            <x-input-label for="email" value="Correo electrónico" />
             <x-text-input wire:model="email" id="email" name="email" type="email" class="mt-1 block w-full" required autocomplete="username" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
             @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
                 <div>
-                    <p class="text-sm mt-2 text-gray-800">
-                        {{ __('Your email address is unverified.') }}
+                    <p class="text-sm mt-2 text-gray-800 dark:text-gray-200">
+                        Tu dirección de correo electrónico no está verificada.
 
-                        <button wire:click.prevent="sendVerification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            {{ __('Click here to re-send the verification email.') }}
+                        <button wire:click.prevent="sendVerification" class="underline text-sm text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Haz clic aquí para reenviar el correo de verificación.
                         </button>
                     </p>
 
                     @if (session('status') === 'verification-link-sent')
                         <p class="mt-2 font-medium text-sm text-green-600">
-                            {{ __('A new verification link has been sent to your email address.') }}
+                            Se ha enviado un nuevo enlace de verificación a tu correo electrónico.
                         </p>
                     @endif
                 </div>
             @endif
         </div>
 
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+        <div class="flex items-center gap-4 pt-2">
+            <x-primary-button wire:loading.attr="disabled" wire:target="updateProfileInformation">
+                <span wire:loading.remove wire:target="updateProfileInformation">Guardar cambios</span>
+                <span wire:loading wire:target="updateProfileInformation">Guardando...</span>
+            </x-primary-button>
 
             <x-action-message class="me-3" on="profile-updated">
-                {{ __('Saved.') }}
+                Guardado.
             </x-action-message>
         </div>
-    </form>
+        </form>
+    @endif
 </section>

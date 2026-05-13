@@ -3,7 +3,9 @@
 use App\Models\Persona;
 use App\Models\Feligres;
 use App\Models\Encargado;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 use Livewire\WithFileUploads;
@@ -27,6 +29,11 @@ new #[Layout('layouts.guest')] class extends Component
 
     // --- Paso 2: Encargado / Firma ---
     public $path_firma_principal = null;
+
+    public function mount(): void
+    {
+        $this->email = (string) (Auth::user()?->email ?? '');
+    }
 
     public function nextStep(): void
     {
@@ -78,6 +85,7 @@ new #[Layout('layouts.guest')] class extends Component
             ]);
         });
 
+        session()->forget('pending_encargado_registration');
         session()->flash('success', 'Encargado registrado exitosamente.');
         $this->redirect(route('dashboard'), navigate: true);
     }
@@ -93,7 +101,24 @@ new #[Layout('layouts.guest')] class extends Component
         'sexo'             => ['required', 'in:M,F'],
         'telefono'         => ['required', 'string', 'regex:/^[0-9\+\-\s]+$/', 'min:8', 'max:20'],
         'dni'              => ['required', 'string', 'regex:/^[0-9]+$/', 'min:8', 'max:20'],
-        'email'            => ['nullable', 'email', 'max:100'],
+        'email'            => [
+            'required',
+            'email',
+            'max:100',
+            function (string $attribute, mixed $value, \Closure $fail): void {
+                $authEmail = Str::lower(trim((string) (Auth::user()?->email ?? '')));
+                $inputEmail = Str::lower(trim((string) $value));
+
+                if ($authEmail === '') {
+                    $fail('No se encontró el correo del usuario autenticado. Inicia sesión nuevamente.');
+                    return;
+                }
+
+                if ($inputEmail !== $authEmail) {
+                    $fail('Debes usar el mismo correo del usuario administrador registrado en el paso anterior.');
+                }
+            },
+        ],
     ], [
         'primer_nombre.required'    => 'El primer nombre es obligatorio.',
         'primer_apellido.required'  => 'El primer apellido es obligatorio.',
@@ -107,6 +132,8 @@ new #[Layout('layouts.guest')] class extends Component
         'dni.required'              => 'El número de identidad es obligatorio.',
         'dni.regex'                 => 'El DNI solo puede contener números, sin letras.',
         'dni.min'                   => 'El DNI debe tener al menos 8 dígitos.',
+        'email.required'            => 'El correo electrónico del encargado es obligatorio.',
+        'email.email'               => 'El correo electrónico no es válido.',
     ]);
 }
 
@@ -126,6 +153,12 @@ new #[Layout('layouts.guest')] class extends Component
         <h1 class="text-2xl font-bold text-gray-900">Registrar Encargado</h1>
         <p class="mt-2 text-sm text-gray-600">Completa los 2 pasos para registrar un nuevo encargado.</p>
     </div>
+
+    @if (session()->has('success'))
+        <div class="rounded-md bg-green-50 p-3 text-sm text-green-700 border border-green-200">
+            {{ session('success') }}
+        </div>
+    @endif
 
     {{-- Stepper --}}
     <div class="flex items-center gap-2">
@@ -206,8 +239,8 @@ new #[Layout('layouts.guest')] class extends Component
             </div>
 
             <div>
-                <x-input-label for="email" value="Correo Electrónico" />
-                <x-text-input wire:model="email" id="email" class="mt-1 block w-full" type="email" />
+                <x-input-label for="email" value="Correo Electrónico *" />
+                <x-text-input wire:model="email" id="email" class="mt-1 block w-full" type="email" required />
                 <x-input-error :messages="$errors->get('email')" class="mt-1" />
             </div>
 
@@ -219,7 +252,7 @@ new #[Layout('layouts.guest')] class extends Component
 
     {{-- PASO 2: Firma --}}
     {{-- PASO 2: Firma --}}
-@if ($step === 2)
+    @if ($step === 2)
     <form wire:submit="register" class="space-y-5">
         <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Firma del Encargado</p>
 
@@ -326,10 +359,4 @@ new #[Layout('layouts.guest')] class extends Component
         </div>
     </form>
 @endif
-
-    @if (session()->has('success'))
-        <div class="rounded-md bg-green-50 p-3 text-sm text-green-700 border border-green-200">
-            {{ session('success') }}
-        </div>
-    @endif
 </div>

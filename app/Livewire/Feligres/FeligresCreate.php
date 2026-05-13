@@ -31,6 +31,10 @@ class FeligresCreate extends Component
     public string $p_sexo             = '';
     public string $p_fecha_nacimiento = '';
 
+    // ── Advertencia duplicado ────────────────────────────────────────
+    public string $advertenciaDuplicado = '';
+    public bool   $confirmarDuplicado   = false;
+
     // ── Datos feligrés ──────────────────────────────────────────────
     public ?int   $id_iglesia    = null;
     public string $fecha_ingreso = '';
@@ -175,6 +179,19 @@ class FeligresCreate extends Component
             'p_telefono.regex'            => 'El teléfono solo puede contener números, + y -.',
         ]);
 
+        if (! $this->p_dni && ! $this->confirmarDuplicado) {
+            $duplicado = Persona::where('primer_nombre', $this->p_primer_nombre)
+                ->where('primer_apellido', $this->p_primer_apellido)
+                ->whereNull('dni')
+                ->first();
+            if ($duplicado) {
+                $this->advertenciaDuplicado = $duplicado->nombre_completo;
+                return;
+            }
+        }
+        $this->advertenciaDuplicado = '';
+        $this->confirmarDuplicado   = false;
+
         $persona = Persona::create([
             'dni'               => $this->p_dni ?: null,
             'primer_nombre'     => Str::title($this->p_primer_nombre),
@@ -189,6 +206,12 @@ class FeligresCreate extends Component
 
         $this->seleccionarPersona($persona->id);
         session()->flash('persona_nueva', "Persona \"{$persona->nombre_completo}\" creada y seleccionada.");
+    }
+
+    public function confirmarYCrearPersona(): void
+    {
+        $this->confirmarDuplicado = true;
+        $this->crearPersona();
     }
 
     // ── Guardar feligrés ─────────────────────────────────────────────

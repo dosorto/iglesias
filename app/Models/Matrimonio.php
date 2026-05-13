@@ -39,26 +39,26 @@ class Matrimonio extends BaseModel
 
     public function encargado()
     {
-        return $this->belongsTo(Encargado::class, 'encargado_id');
+        return $this->belongsTo(Encargado::class, 'encargado_id')->withTrashed();
     }
 
     public function esposo()
     {
-        return $this->belongsTo(Feligres::class, 'esposo_id');
+        return $this->belongsTo(Feligres::class, 'esposo_id')->withTrashed();
     }
 
     public function esposa()
     {
-        return $this->belongsTo(Feligres::class, 'esposa_id');
+        return $this->belongsTo(Feligres::class, 'esposa_id')->withTrashed();
     }
 
     public function testigo1()
     {
-        return $this->belongsTo(Feligres::class, 'testigo1_id');
+        return $this->belongsTo(Feligres::class, 'testigo1_id')->withTrashed();
     }
 
     public function testigo2()
     {
-        return $this->belongsTo(Feligres::class, 'testigo2_id');
+        return $this->belongsTo(Feligres::class, 'testigo2_id')->withTrashed();
     }
 }
