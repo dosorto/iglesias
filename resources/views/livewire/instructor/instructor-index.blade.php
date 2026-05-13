@@ -45,8 +45,8 @@
                         <p class="text-amber-800 dark:text-amber-200 text-sm">Clave temporal: {{ $credentials['password'] }}</p>
                         <p class="text-amber-700 dark:text-amber-300 text-xs mt-2">Comparte esta clave solo una vez; se ocultará automáticamente después del primer login del instructor.</p>
                     @else
-                        <p class="text-amber-800 dark:text-amber-200 text-sm">No se genero nueva clave temporal.</p>
-                        <p class="text-amber-700 dark:text-amber-300 text-xs mt-2">{{ $credentials['note'] ?? 'Este instructor ya tenia una cuenta activa y debe usar su contrasena actual.' }}</p>
+                        <p class="text-amber-800 dark:text-amber-200 text-sm">No se generó nueva clave temporal.</p>
+                        <p class="text-amber-700 dark:text-amber-300 text-xs mt-2">{{ $credentials['note'] ?? 'Este instructor ya tenía una cuenta activa y debe usar su contraseña actual.' }}</p>
                     @endif
                 </div>
             </div>

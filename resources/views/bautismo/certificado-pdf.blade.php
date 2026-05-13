@@ -324,7 +324,7 @@
                 </td>
                 <td class="title-cell">
                     <div class="parroquia">{{ $parroquiaUpper }}</div>
-                    <div class="diocesis">DIOCESIS DE CHOLUTECA</div>
+                    <div class="diocesis">DIÓCESIS DE CHOLUTECA</div>
                     <div class="direccion">Monjaras, Marcovia, Choluteca, Honduras, C.A.</div>
                 </td>
                 <td class="logo-right-cell">
@@ -346,7 +346,7 @@
         </p>
         <p>
             Certifica: Que en el libro de bautismos N° <span class="line line-xs">{{ $bautismo->libro_bautismo ?? '' }}</span>
-            en la pagina <span class="line line-xs">{{ $bautismo->folio ?? '' }}</span>
+            en la página <span class="line line-xs">{{ $bautismo->folio ?? '' }}</span>
             bajo el N° <span class="line line-xs">{{ $bautismo->partida_numero ?? '' }}</span>
         </p>
         <p>la partida que dice:</p>
@@ -356,7 +356,7 @@
         <p>
             En <span class="line line-lg">{{ $parroquiaNombre }}</span>
             a los <span class="line line-xxs">{{ $diaBautismo }}</span>
-            dias del mes de <span class="line line-md">{{ $mesBautismo }}</span>
+            días del mes de <span class="line line-md">{{ $mesBautismo }}</span>
         </p>
         <p>
             (P. <span class="line line-xl">{{ $firmaEncargadoNombre }}</span>)
@@ -367,7 +367,7 @@
         </p>
         <p>
             <span class="line line-xxs">{{ $diaNac }}</span>
-            dias del mes de <span class="line line-md">{{ $mesNac }}</span>
+            días del mes de <span class="line line-md">{{ $mesNac }}</span>
             de: <span class="line line-md">{{ $anoNac }}</span>
         </p>
         <p>
@@ -383,7 +383,7 @@
     <div class="signature-center">
         <div class="signature-label">{{ $parrocoCelebrante }}</div>
         <div class="signature-line"></div>
-        <div class="signature-sub">Cura Parroco</div>
+        <div class="signature-sub">Cura Párroco</div>
     </div>
 
     <div class="notes">
@@ -401,7 +401,7 @@
     <div class="bottom-section">
         <p>
             Dado en {{ $lugarExp }} a los <span class="line line-xs">{{ $diaExp }}</span>
-            dias del mes de <span class="line line-md">{{ $mesExp }}</span>
+            días del mes de <span class="line line-md">{{ $mesExp }}</span>
             del año <span class="line line-sm">{{ $anoExp }}</span>
         </p>
 

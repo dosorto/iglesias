@@ -83,11 +83,11 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'matrimonio.edit',   'display_name' => 'Editar Matrimonios'],
             ['name' => 'matrimonio.delete', 'display_name' => 'Eliminar Matrimonios'],
 
-            ['name' => 'primera-comunion.view',   'display_name' => 'Ver Primera Comunion'],
-            ['name' => 'primera-comunion.create', 'display_name' => 'Crear Primera Comunion'],
-            ['name' => 'primera-comunion.edit',   'display_name' => 'Editar Primera Comunion'],
-            ['name' => 'primera-comunion.delete', 'display_name' => 'Eliminar Primera Comunion'],
-            ['name' => 'primera-comunion.export', 'display_name' => 'Exportar Primera Comunion'],
+            ['name' => 'primera-comunion.view',   'display_name' => 'Ver Primera Comunión'],
+            ['name' => 'primera-comunion.create', 'display_name' => 'Crear Primera Comunión'],
+            ['name' => 'primera-comunion.edit',   'display_name' => 'Editar Primera Comunión'],
+            ['name' => 'primera-comunion.delete', 'display_name' => 'Eliminar Primera Comunión'],
+            ['name' => 'primera-comunion.export', 'display_name' => 'Exportar Primera Comunión'],
 
             ['name' => 'curso.view',   'display_name' => 'Ver Cursos'],
             ['name' => 'curso.create', 'display_name' => 'Crear Cursos'],
@@ -101,11 +101,11 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'inscripcion-curso.delete', 'display_name' => 'Eliminar Inscripciones de Curso'],
             ['name' => 'inscripcion-curso.export', 'display_name' => 'Exportar Inscripciones de Curso'],
 
-            ['name' => 'confirmacion.view',   'display_name' => 'Ver confirmacion'],
-            ['name' => 'confirmacion.create', 'display_name' => 'Crear confirmacion'],
-            ['name' => 'confirmacion.edit',   'display_name' => 'Editar confirmacion'],
-            ['name' => 'confirmacion.delete', 'display_name' => 'Eliminar confirmacion'],
-            ['name' => 'confirmacion.export', 'display_name' => 'Exportar confirmacion'],
+            ['name' => 'confirmacion.view',   'display_name' => 'Ver Confirmación'],
+            ['name' => 'confirmacion.create', 'display_name' => 'Crear Confirmación'],
+            ['name' => 'confirmacion.edit',   'display_name' => 'Editar Confirmación'],
+            ['name' => 'confirmacion.delete', 'display_name' => 'Eliminar Confirmación'],
+            ['name' => 'confirmacion.export', 'display_name' => 'Exportar Confirmación'],
 
         ];
 
