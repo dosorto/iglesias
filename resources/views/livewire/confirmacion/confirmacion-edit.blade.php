@@ -82,9 +82,9 @@
                 {{-- Lugar de confirmación --}}
                 <div class="sm:col-span-2">
                     <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Lugar de Confirmación</label>
-                    <input type="text" wire:model.live="lugar_confirmacion" readonly
+                    <input type="text" wire:model.live="lugar_confirmacion"
                            class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600
-                                  bg-gray-100 dark:bg-gray-700/80 text-gray-900 dark:text-white
+                                  bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                                   focus:ring-2 focus:ring-violet-500 focus:border-transparent
                                   @error('lugar_confirmacion') border-red-400 @enderror" />
                     @error('lugar_confirmacion') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror

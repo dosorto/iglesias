@@ -220,7 +220,7 @@
                 ->take(6)
                 ->get()
                 ->map(fn ($item) => [
-                    'title' => 'Nueva inscripcion de curso',
+                    'title' => 'Nueva inscripción de curso',
                     'date' => $item->created_at,
                     'url' => route('inscripcion-curso.show', $item),
                 ])

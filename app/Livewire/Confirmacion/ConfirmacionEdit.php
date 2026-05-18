@@ -13,8 +13,6 @@ use Illuminate\Validation\Rule;
 
 class ConfirmacionEdit extends Component
 {
-    private const LUGAR_CONFIRMACION_FIJO = 'Monjaras, Marcovia, Choluteca, Honduras, C.A.';
-
     public Confirmacion $confirmacion;
 
     // Campos principales
@@ -90,7 +88,10 @@ class ConfirmacionEdit extends Component
             ? TenantIglesia::currentId()
             : $confirmacion->iglesia_id;
         $this->fecha_confirmacion = $confirmacion->fecha_confirmacion?->format('Y-m-d') ?? '';
-        $this->lugar_confirmacion = self::LUGAR_CONFIRMACION_FIJO;
+        $this->lugar_confirmacion = trim((string) ($confirmacion->lugar_confirmacion ?? '')) ?:
+            trim((string) ($confirmacion->iglesia?->nombre ?? '')) ?:
+            trim((string) (TenantIglesia::current()?->nombre ?? '')) ?:
+            'Monjarás, Marcovia';
         $this->libro_confirmacion = $confirmacion->libro_confirmacion ?? '';
         $this->folio              = $confirmacion->folio ?? '';
         $this->partida_numero     = $confirmacion->partida_numero ?? '';
@@ -447,8 +448,6 @@ class ConfirmacionEdit extends Component
         $this->iglesia_id = session('tenant')
             ? TenantIglesia::currentId()
             : $this->confirmacion->iglesia_id;
-
-        $this->lugar_confirmacion = self::LUGAR_CONFIRMACION_FIJO;
 
         $this->validate();
 

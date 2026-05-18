@@ -52,11 +52,13 @@ class BautismoController extends Controller
 
         $iglesiaConfig = TenantIglesia::current();
 
-        $sanitizarNombre = fn(string $s): string =>
-            preg_replace('/[^a-z]/', '', mb_strtolower(
+        $slug = fn(?string $s): string =>
+            preg_replace('/[^a-z0-9]/', '', mb_strtolower(
                 str_replace(['á','é','í','ó','ú','ü','ñ','à','â','ã','ê','î','ô','û'],
                             ['a','e','i','o','u','u','n','a','a','a','e','i','o','u'],
-                            explode(' ', trim($s))[0] ?? ''), 'UTF-8')) ?: 'persona';
+                            (string) $s), 'UTF-8'));
+
+        $num = fn(?string $s): string => preg_replace('/\D/', '', (string) $s);
 
         $tipoDocumento = 'bautismo_certificado';
         $nombreArchivo = 'certificado-bautismo-' . $bautismo->id . '.pdf';
@@ -122,12 +124,15 @@ class BautismoController extends Controller
             'encargado.feligres.persona',
         ]);
 
-        $nombreArchivo = sprintf(
-            'certificado-bautismo-%s-%s-%s.pdf',
-            $bautismo->id,
-            $sanitizarNombre($bautismo->bautizado?->persona?->nombre_completo ?? ''),
-            ($bautismo->fecha_expedicion ?? now())->format('Ymd')
-        );
+        $libroN   = $num($bautismo->libro_bautismo);
+        $folioN   = $num($bautismo->folio);
+        $partidaN = $num($bautismo->partida_numero);
+        $apellido = $slug($bautismo->bautizado?->persona?->primer_apellido ?? '') ?: 'sinapellido';
+        $anio     = ($bautismo->fecha_expedicion ?? now())->format('Y');
+        $ref      = ($libroN || $folioN || $partidaN)
+            ? 'l' . ($libroN ?: '0') . 'f' . ($folioN ?: '0') . 'p' . ($partidaN ?: '0')
+            : 'id' . $bautismo->id;
+        $nombreArchivo = sprintf('bautismo-%s-%s-%s.pdf', $ref, $apellido, $anio);
 
         $plantillaCertificadoPath = $pathFormatoBautismo;
         $html = view('bautismo.certificado-pdf', compact('bautismo', 'iglesiaConfig', 'plantillaCertificadoPath'))->render();

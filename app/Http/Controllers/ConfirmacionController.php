@@ -55,11 +55,13 @@ class ConfirmacionController extends Controller
             $iglesiaConfig = $iglesiaId ? Iglesias::find($iglesiaId) : null;
         }
 
-        $sanitizarNombre = fn(string $s): string =>
-            preg_replace('/[^a-z]/', '', mb_strtolower(
+        $slug = fn(?string $s): string =>
+            preg_replace('/[^a-z0-9]/', '', mb_strtolower(
                 str_replace(['á','é','í','ó','ú','ü','ñ','à','â','ã','ê','î','ô','û'],
                             ['a','e','i','o','u','u','n','a','a','a','e','i','o','u'],
-                            explode(' ', trim($s))[0] ?? ''), 'UTF-8')) ?: 'persona';
+                            (string) $s), 'UTF-8'));
+
+        $num = fn(?string $s): string => preg_replace('/\D/', '', (string) $s);
 
         $tipoDocumento = 'confirmacion_certificado';
         $nombreArchivo = 'certificado-confirmacion-' . $confirmacion->id . '.pdf';
@@ -127,12 +129,15 @@ class ConfirmacionController extends Controller
             'encargado.feligres.persona',
         ]);
 
-        $nombreArchivo = sprintf(
-            'certificado-confirmacion-%s-%s-%s.pdf',
-            $confirmacion->id,
-            $sanitizarNombre($confirmacion->feligres?->persona?->nombre_completo ?? ''),
-            ($confirmacion->fecha_expedicion ?? now())->format('Ymd')
-        );
+        $libroN   = $num($confirmacion->libro_confirmacion);
+        $folioN   = $num($confirmacion->folio);
+        $partidaN = $num($confirmacion->partida_numero);
+        $apellido = $slug($confirmacion->feligres?->persona?->primer_apellido ?? '') ?: 'sinapellido';
+        $anio     = ($confirmacion->fecha_expedicion ?? now())->format('Y');
+        $ref      = ($libroN || $folioN || $partidaN)
+            ? 'l' . ($libroN ?: '0') . 'f' . ($folioN ?: '0') . 'p' . ($partidaN ?: '0')
+            : 'id' . $confirmacion->id;
+        $nombreArchivo = sprintf('confirmacion-%s-%s-%s.pdf', $ref, $apellido, $anio);
 
         $plantillaCertificadoPath = $pathFormatoConfirmacion;
         $html = view('confirmacion.certificado-pdf', compact('confirmacion', 'iglesiaConfig', 'plantillaCertificadoPath'))->render();

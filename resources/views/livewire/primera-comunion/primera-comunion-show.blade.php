@@ -164,7 +164,7 @@
                            class="px-2 py-1.5 text-xs rounded-md border border-gray-300 dark:border-gray-600
                                   bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                                   focus:ring-1 focus:ring-blue-500 focus:border-transparent">
-                    <input wire:model="exp_ano" type="number" min="0" max="99" placeholder="AA"
+                    <input wire:model="exp_ano" type="number" min="1900" max="2100" placeholder="AAAA"
                            class="px-2 py-1.5 text-xs rounded-md border border-gray-300 dark:border-gray-600
                                   bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                                   focus:ring-1 focus:ring-blue-500 focus:border-transparent">

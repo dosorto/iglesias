@@ -584,7 +584,7 @@ class CursoCreate extends Component
             $credentials = [
                 'email' => $email,
                 'password' => null,
-                'note' => 'El correo ya existia en este tenant. Se asigno rol instructor y debe usar su contrasena actual.',
+                'note' => 'El correo ya existía en este tenant. Se asignó rol instructor y debe usar su contraseña actual.',
             ];
         }
 

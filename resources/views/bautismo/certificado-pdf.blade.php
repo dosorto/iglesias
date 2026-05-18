@@ -231,7 +231,7 @@
         $lugarExp = trim((string) ($bautismo->lugar_expedicion ?? ''));
     }
     if ($lugarExp === '') {
-        $lugarExp = 'Monjaras, Marcovia, Choluteca, Honduras C. A.';
+        $lugarExp = 'Monjarás, Marcovia, Choluteca, Honduras C. A.';
     }
 
     $parrocoCelebrante = mb_strtoupper(trim((string) ($bautismo->parroco_celebrante ?: ($encargado?->nombre_completo ?? ''))), 'UTF-8');
@@ -276,39 +276,34 @@
     </div>
     <hr class="header-divider">
 
-    <div class="doc-title">CERTIFICACION DE BAUTISMO</div>
+    <div class="doc-title">CERTIFICACIÓN DE BAUTISMO</div>
 
     <div class="text-block">
         <p>
-            El Infrascrito encargado del archivo de la Parroquia "{{ $parroquiaUpper }}", Monjaras, Marcovia,
+            El Infrascrito encargado del archivo de la "{{ $parroquiaUpper }}", Monjarás, Marcovia,
             Choluteca.
         </p>
         <p>
             Certifica: Que en el libro de bautismos N° <span class="line line-xs">{{ $bautismo->libro_bautismo ?? '' }}</span>
-            en la pagina <span class="line line-xs">{{ $bautismo->folio ?? '' }}</span>
-            bajo el N° <span class="line line-xs">{{ $bautismo->partida_numero ?? '' }}</span>
+            en la página <span class="line line-xs">{{ $bautismo->folio ?? '' }}</span>
+            bajo el N° <span class="line line-xs">{{ $bautismo->partida_numero ?? '' }}</span> la partida que dice:
         </p>
-        <p>la partida que dice:</p>
 
         <div class="spacer-1"></div>
 
         <p>
-            En <span class="line line-lg">{{ $parroquiaNombre }}</span>
+            En la <span class="line line-lg">{{ $parroquiaNombre }}</span>
             a los <span class="line line-xxs">{{ $diaBautismo }}</span>
-            dias del mes de <span class="line line-md">{{ $mesBautismo }}</span>
-        </p>
-        <p>
-            (P. <span class="line line-xl">{{ $firmaEncargadoNombre }}</span>)
+            días del mes de <span class="line line-md">{{ $mesBautismo }}</span>
+            bauticé  (P. <span class="line line-xl">{{ $firmaEncargadoNombre }}</span>)
         </p>
         <p>
             a: <span class="line line-xl">{{ $nombreBautizado }}</span>
-            que nacio en <span class="line line-md">{{ $lugarNac }}</span>
+            que nació en <span class="line line-md">{{ $lugarNac }}</span>,
+            a los <span class="line line-xxs">{{ $diaNac }}</span> días del mes de <span class="line line-md">{{ $mesNac }}</span>
+            de <span class="line line-md">{{ $anoNac }}</span>.
         </p>
-        <p>
-            <span class="line line-xxs">{{ $diaNac }}</span>
-            dias del mes de <span class="line line-md">{{ $mesNac }}</span>
-            de: <span class="line line-md">{{ $anoNac }}</span>
-        </p>
+
         <p>
             Hijo(a) de <span class="line line-lg">{{ $nombrePadre }}</span>
             y <span class="line line-lg">{{ $nombreMadre }}</span>
@@ -322,7 +317,7 @@
     <div class="signature-center">
         <div class="signature-label">{{ $parrocoCelebrante }}</div>
         <div class="signature-line"></div>
-        <div class="signature-sub">Cura Parroco</div>
+        <div class="signature-sub">Cura Párroco</div>
     </div>
 
     <div class="notes">
@@ -337,7 +332,7 @@
     <div class="bottom-section">
         <p>
             Dado en {{ $lugarExp }} a los <span class="line line-xs">{{ $diaExp }}</span>
-            dias del mes de <span class="line line-md">{{ $mesExp }}</span>
+            días del mes de <span class="line line-md">{{ $mesExp }}</span>
             del año <span class="line line-sm">{{ $anoExp }}</span>
         </p>
 
@@ -350,6 +345,7 @@
                     @endif
                     <div class="signature-line"></div>
                     <div class="firma-nombre">{{ $firmaEncargadoNombre }}</div>
+                    <div class="sig-title">Párroco</div>
                 </div>
             </div>
         </div>

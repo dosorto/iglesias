@@ -562,7 +562,7 @@
                             <option value="7">jul</option><option value="8">ago</option><option value="9">sep</option>
                             <option value="10">oct</option><option value="11">nov</option><option value="12">dic</option>
                         </select>
-                        <input type="number" min="0" max="99" wire:model="exp_ano" placeholder="Año"
+                        <input type="number" min="1900" max="2100" wire:model="exp_ano" placeholder="Año"
                                class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none @error('exp_ano') border-red-400 @enderror" />
                     </div>
                 </div>

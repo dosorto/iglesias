@@ -61,6 +61,11 @@
                 <a href="{{ route('feligres.index') }}" class="px-5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-emerald-800 dark:text-emerald-300 font-semibold rounded-lg hover:bg-emerald-50 dark:hover:bg-slate-700 transition-colors duration-200">
                     Volver
                 </a>
+                @can('feligres.view')
+                    <a href="{{ route('feligres.constancia.pdf', $feligre) }}" target="_blank" class="px-5 py-2.5 bg-amber-700 text-white font-semibold rounded-lg shadow-sm hover:bg-amber-600 transition-colors duration-200">
+                        Constancia de Pertenencia
+                    </a>
+                @endcan
                 @can('feligres.edit')
                     <a href="{{ route('feligres.edit', $feligre) }}" class="px-5 py-2.5 bg-emerald-800 text-white font-semibold rounded-lg shadow-sm hover:bg-emerald-700 transition-colors duration-200">
                         Editar Perfil

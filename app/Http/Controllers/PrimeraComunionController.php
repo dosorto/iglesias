@@ -55,11 +55,13 @@ class PrimeraComunionController extends Controller
 
         $iglesiaConfig = TenantIglesia::current();
 
-        $sanitizarNombre = fn(string $s): string =>
-            preg_replace('/[^a-z]/', '', mb_strtolower(
+        $slug = fn(?string $s): string =>
+            preg_replace('/[^a-z0-9]/', '', mb_strtolower(
                 str_replace(['á','é','í','ó','ú','ü','ñ','à','â','ã','ê','î','ô','û'],
                             ['a','e','i','o','u','u','n','a','a','a','e','i','o','u'],
-                            explode(' ', trim($s))[0] ?? ''), 'UTF-8')) ?: 'persona';
+                            (string) $s), 'UTF-8'));
+
+        $num = fn(?string $s): string => preg_replace('/\D/', '', (string) $s);
 
         $tipoDocumento = 'primera_comunion_certificado';
         $nombreArchivo = 'certificado-primera-comunion-' . $primeraComunion->id . '.pdf';
@@ -133,12 +135,15 @@ class PrimeraComunionController extends Controller
             ->latest()
             ->first();
 
-        $nombreArchivo = sprintf(
-            'certificado-primera-comunion-%s-%s-%s.pdf',
-            $primeraComunion->id,
-            $sanitizarNombre($primeraComunion->feligres?->persona?->nombre_completo ?? ''),
-            ($primeraComunion->fecha_expedicion ?? now())->format('Ymd')
-        );
+        $libroN   = $num($primeraComunion->libro_comunion);
+        $folioN   = $num($primeraComunion->folio);
+        $partidaN = $num($primeraComunion->partida_numero);
+        $apellido = $slug($primeraComunion->feligres?->persona?->primer_apellido ?? '') ?: 'sinapellido';
+        $anio     = ($primeraComunion->fecha_expedicion ?? now())->format('Y');
+        $ref      = ($libroN || $folioN || $partidaN)
+            ? 'l' . ($libroN ?: '0') . 'f' . ($folioN ?: '0') . 'p' . ($partidaN ?: '0')
+            : 'id' . $primeraComunion->id;
+        $nombreArchivo = sprintf('primera-comunion-%s-%s-%s.pdf', $ref, $apellido, $anio);
 
         $plantillaCertificadoPath = $pathFormatoPrimeraComunion;
         $html = view('primera-comunion.certificado-pdf', compact('primeraComunion', 'encargado', 'iglesiaConfig', 'plantillaCertificadoPath'))->render();

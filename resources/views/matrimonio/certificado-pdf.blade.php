@@ -340,7 +340,7 @@
         $lugarExp = trim((string) ($matrimonio->lugar_expedicion ?? ''));
     }
     if ($lugarExp === '') {
-        $lugarExp = 'Monjaras, Marcovia, Choluteca, Honduras C. A.';
+        $lugarExp = 'Monjarás, Marcovia, Choluteca, Honduras C. A.';
     }
 
     $esposoNombre  = mb_strtoupper($esposo?->nombre_completo  ?? '______________________________', 'UTF-8');
@@ -385,7 +385,7 @@
     {{-- ===== BODY ===== --}}
     <div class="body-text">
         <p>
-            En la parroquia de
+            En la
             <span class="line-field line-field-xl">{{ $iglesiaNombreHeader }}</span>
         </p>
 
@@ -438,6 +438,7 @@
             @endif
             <span class="priest-sig-line"></span>
             <div class="priest-name">{{ $firmaEncargadoNombre }}</div>
+            <div class="sig-title">Párroco</div>
         </div>
     </div>
 

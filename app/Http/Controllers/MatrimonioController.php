@@ -49,11 +49,13 @@ class MatrimonioController extends Controller
 
         $iglesiaConfig = TenantIglesia::current();
 
-        $sanitizarNombre = fn(string $s): string =>
-            preg_replace('/[^a-z]/', '', mb_strtolower(
+        $slug = fn(?string $s): string =>
+            preg_replace('/[^a-z0-9]/', '', mb_strtolower(
                 str_replace(['á','é','í','ó','ú','ü','ñ','à','â','ã','ê','î','ô','û'],
                             ['a','e','i','o','u','u','n','a','a','a','e','i','o','u'],
-                            explode(' ', trim($s))[0] ?? ''), 'UTF-8')) ?: 'persona';
+                            (string) $s), 'UTF-8'));
+
+        $num = fn(?string $s): string => preg_replace('/\D/', '', (string) $s);
 
         $tipoDocumento = 'matrimonio_constancia';
         $nombreArchivo = 'constancia-matrimonio-' . $matrimonio->id . '.pdf';
@@ -119,12 +121,17 @@ class MatrimonioController extends Controller
             'encargado.feligres.persona',
         ]);
 
-        $nombreArchivo = sprintf(
-            'constancia-matrimonio-%s-%s-%s.pdf',
-            $matrimonio->id,
-            $sanitizarNombre($matrimonio->esposo?->persona?->nombre_completo ?? ''),
-            ($matrimonio->fecha_expedicion ?? now())->format('Ymd')
-        );
+        $libroN   = $num($matrimonio->libro_matrimonio);
+        $folioN   = $num($matrimonio->folio);
+        $partidaN = $num($matrimonio->partida_numero);
+        $apellidoEsposo = $slug($matrimonio->esposo?->persona?->primer_apellido ?? '') ?: 'sinapellido';
+        $apellidoEsposa = $slug($matrimonio->esposa?->persona?->primer_apellido ?? '') ?: '';
+        $apellidos = $apellidoEsposa !== '' ? $apellidoEsposo . '-' . $apellidoEsposa : $apellidoEsposo;
+        $anio      = ($matrimonio->fecha_expedicion ?? now())->format('Y');
+        $ref       = ($libroN || $folioN || $partidaN)
+            ? 'l' . ($libroN ?: '0') . 'f' . ($folioN ?: '0') . 'p' . ($partidaN ?: '0')
+            : 'id' . $matrimonio->id;
+        $nombreArchivo = sprintf('matrimonio-%s-%s-%s.pdf', $ref, $apellidos, $anio);
 
         $plantillaCertificadoPath = $pathFormatoMatrimonio;
         $html = view('matrimonio.certificado-pdf', compact('matrimonio', 'iglesiaConfig', 'plantillaCertificadoPath'))->render();

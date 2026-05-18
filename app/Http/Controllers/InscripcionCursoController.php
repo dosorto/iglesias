@@ -58,12 +58,12 @@ class InscripcionCursoController extends Controller
             'feligres.persona',
         ]);
 
-        $nombreArchivo = sprintf(
-            'certificado-curso-%s-%s-%s.pdf',
-            $inscripcion->id,
-            $sanitizarNombre($inscripcion->feligres?->persona?->nombre_completo ?? ''),
-            ($inscripcion->fecha_certificado ?? now())->format('Ymd')
-        );
+        $persona = $inscripcion->feligres?->persona;
+        $apellido = $sanitizarNombre($persona?->primer_apellido ?? '') ?: 'sinapellido';
+        $nombre = $sanitizarNombre($persona?->primer_nombre ?? '');
+        $titular = $nombre !== '' ? $nombre . '-' . $apellido : $apellido;
+        $fecha = ($inscripcion->fecha_certificado ?? now())->format('Y-m-d');
+        $nombreArchivo = sprintf('curso-id%s-%s-%s.pdf', $inscripcion->id, $titular, $fecha);
 
         $iglesiaConfig = TenantIglesia::current();
         $iglesiaId = (int) ($inscripcion->curso?->iglesia_id ?: TenantIglesia::currentId());

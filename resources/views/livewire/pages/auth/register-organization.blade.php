@@ -191,7 +191,6 @@ new #[Layout('layouts.guest')] class extends Component
     {
         $religion = Religion::query()
             ->where('religion', 'Católica')
-            ->orWhere('religion', 'Catolica')
             ->first();
 
         if (! $religion) {

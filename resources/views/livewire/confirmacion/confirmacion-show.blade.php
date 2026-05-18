@@ -295,7 +295,7 @@
                     <iframe
                         src="{{ $pdfPreviewUrl }}"
                         class="w-full h-[980px]"
-                        title="Vista previa constancia de confirmacion">
+                        title="Vista previa constancia de confirmación">
                     </iframe>
                 @endif
             </div>

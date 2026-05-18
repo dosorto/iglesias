@@ -43,11 +43,11 @@ class TenantRolesSeeder extends Seeder
             ['name' => 'iglesias.delete', 'display_name' => 'Eliminar Iglesias'],
             ['name' => 'iglesias.export', 'display_name' => 'Exportar Iglesias'],
 
-            ['name' => 'religion.view',   'display_name' => 'Ver Religion'],
-            ['name' => 'religion.create', 'display_name' => 'Crear Religion'],
-            ['name' => 'religion.edit',   'display_name' => 'Editar Religion'],
-            ['name' => 'religion.delete', 'display_name' => 'Eliminar Religion'],
-            ['name' => 'religion.export', 'display_name' => 'Exportar Religion'],
+            ['name' => 'religion.view',   'display_name' => 'Ver Religión'],
+            ['name' => 'religion.create', 'display_name' => 'Crear Religión'],
+            ['name' => 'religion.edit',   'display_name' => 'Editar Religión'],
+            ['name' => 'religion.delete', 'display_name' => 'Eliminar Religión'],
+            ['name' => 'religion.export', 'display_name' => 'Exportar Religión'],
 
             ['name' => 'feligres.view',   'display_name' => 'Ver Feligreses'],
             ['name' => 'feligres.create', 'display_name' => 'Crear Feligreses'],

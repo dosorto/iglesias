@@ -153,13 +153,13 @@
 
     $lugarCelebracion = trim((string) ($primeraComunion->lugar_celebracion ?? ''));
     if ($lugarCelebracion === '') {
-        $lugarCelebracion = trim((string) ($iglesiaConfig?->direccion ?? ''));
+        $lugarCelebracion = trim((string) ($iglesiaConfig?->nombre ?? ''));
     }
     if ($lugarCelebracion === '') {
-        $lugarCelebracion = trim((string) ($iglesia?->direccion ?? ''));
+        $lugarCelebracion = trim((string) ($iglesia?->nombre ?? ''));
     }
     if ($lugarCelebracion === '') {
-        $lugarCelebracion = 'Monjaras, Marcovia';
+        $lugarCelebracion = 'Monjarás, Marcovia';
     }
     $lugarExp = trim((string) ($iglesiaConfig?->direccion ?? ''));
     if ($lugarExp === '') {
@@ -169,7 +169,7 @@
         $lugarExp = trim((string) ($primeraComunion->lugar_expedicion ?? ''));
     }
     if ($lugarExp === '') {
-        $lugarExp = 'Monjaras, Marcovia, Choluteca, Honduras C. A.';
+        $lugarExp = 'Monjarás, Marcovia';
     }
     $notaMarginal     = $primeraComunion->nota_marginal     ?? '';
     $codigoVerificacion = $codigoVerificacion ?? '';
@@ -226,7 +226,7 @@
         </p>
 
         <p>
-            En
+            En la
             <span class="underline">{{ $lugarCelebracion }}</span>
         </p>
 
@@ -244,7 +244,7 @@
             Dado en {{ $lugarExp }}
             a los <span class="underline">{{ $diaExp }}</span>
             del mes de <span class="underline">{{ $mesExp }}</span>
-            año <span class="underline">{{ $anoExpMil ? '20'.str_pad($anoExpMil, 2, '0', STR_PAD_LEFT) : '' }}</span>
+            del año <span class="underline">{{ $anoExpMil ? '20'.str_pad($anoExpMil, 2, '0', STR_PAD_LEFT) : '' }}</span>
         </p>
     </div>
 
@@ -261,6 +261,7 @@
                     <span class="sig-line"></span>
                 </div>
                 <div class="sig-name">{{ $encargadoNombre }}</div>
+                <div class="sig-title">Párroco</div>
             </div>
         </div>
     </div>

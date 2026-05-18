@@ -40,7 +40,7 @@ class ReligionIndex extends Component
 
         $this->showDeleteModal = false;
         
-        session()->flash('success', 'Religion eliminada exitosamente.');
+        session()->flash('success', 'Religión eliminada exitosamente.');
     }
 
     public function render()

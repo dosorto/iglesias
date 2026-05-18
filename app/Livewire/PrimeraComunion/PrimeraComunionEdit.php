@@ -80,13 +80,14 @@ class PrimeraComunionEdit extends Component
         $this->observaciones          = $primeraComunion->observaciones     ?? '';
         $this->nota_marginal          = $primeraComunion->nota_marginal     ?? '';
         $this->lugar_celebracion      = $primeraComunion->lugar_celebracion ?? '';
+        $this->aplicarLugarCelebracionPorDefecto();
         $this->lugar_expedicion       = $primeraComunion->lugar_expedicion  ?? '';
         $this->aplicarLugarExpedicionPorDefecto();
 
         $fe = $primeraComunion->fecha_expedicion;
         $this->exp_dia = $fe ? (string) $fe->day   : '';
         $this->exp_mes = $fe ? (string) $fe->month : '';
-        $this->exp_ano = $fe ? (string) ($fe->year - 2000) : '';
+        $this->exp_ano = $fe ? (string) $fe->year : '';
 
         $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
 
@@ -111,7 +112,29 @@ class PrimeraComunionEdit extends Component
 
         if ($direccion !== '') {
             $this->lugar_expedicion = $direccion;
+            return;
         }
+
+        $this->lugar_expedicion = 'Monjarás, Marcovia';
+    }
+
+    private function aplicarLugarCelebracionPorDefecto(): void
+    {
+        if (trim($this->lugar_celebracion) !== '') {
+            return;
+        }
+
+        $parroquia = trim((string) ($this->primeraComunion->iglesia?->nombre ?? ''));
+        if ($parroquia === '' && session('tenant')) {
+            $parroquia = trim((string) (TenantIglesia::current()?->nombre ?? ''));
+        }
+
+        if ($parroquia !== '') {
+            $this->lugar_celebracion = $parroquia;
+            return;
+        }
+
+        $this->lugar_celebracion = 'Monjarás, Marcovia';
     }
 
     private function cargarEncargado(): void
@@ -368,7 +391,7 @@ class PrimeraComunionEdit extends Component
             'lugar_expedicion'       => ['nullable','string','max:150'],
             'exp_dia'                => ['nullable','integer','min:1','max:31'],
             'exp_mes'                => ['nullable','integer','min:1','max:12'],
-            'exp_ano'                => ['nullable','integer','min:0','max:99'],
+            'exp_ano'                => ['nullable','integer','min:1900','max:2100'],
         ];
     }
 
@@ -397,7 +420,7 @@ class PrimeraComunionEdit extends Component
         $fechaExp = null;
         if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
             try {
-                $fechaExp = \Carbon\Carbon::createFromDate(2000 + (int)$this->exp_ano, (int)$this->exp_mes, (int)$this->exp_dia)->format('Y-m-d');
+                $fechaExp = \Carbon\Carbon::createFromDate((int)$this->exp_ano, (int)$this->exp_mes, (int)$this->exp_dia)->format('Y-m-d');
             } catch (\Exception) {}
         }
 

@@ -31,6 +31,7 @@ class PrimeraComunionShow extends Component
     {
         $this->nota_marginal     = $this->primeraComunion->nota_marginal ?? '';
         $this->lugar_celebracion = $this->primeraComunion->lugar_celebracion ?? '';
+        $this->aplicarLugarCelebracionPorDefecto();
         $this->lugar_expedicion  = $this->primeraComunion->lugar_expedicion ?? '';
         $this->aplicarLugarExpedicionPorDefecto();
 
@@ -38,12 +39,12 @@ class PrimeraComunionShow extends Component
         if ($fe) {
             $this->exp_dia = (string) $fe->day;
             $this->exp_mes = (string) $fe->month;
-            $this->exp_ano = (string) ($fe->year - 2000);
+            $this->exp_ano = (string) $fe->year;
         } else {
             $today = now();
             $this->exp_dia = (string) $today->day;
             $this->exp_mes = (string) $today->month;
-            $this->exp_ano = $today->format('y');
+            $this->exp_ano = $today->format('Y');
         }
     }
 
@@ -60,7 +61,29 @@ class PrimeraComunionShow extends Component
 
         if ($direccion !== '') {
             $this->lugar_expedicion = $direccion;
+            return;
         }
+
+        $this->lugar_expedicion = 'Monjarás, Marcovia';
+    }
+
+    private function aplicarLugarCelebracionPorDefecto(): void
+    {
+        if (trim($this->lugar_celebracion) !== '') {
+            return;
+        }
+
+        $parroquia = trim((string) ($this->primeraComunion->iglesia?->nombre ?? ''));
+        if ($parroquia === '') {
+            $parroquia = trim((string) (TenantIglesia::current()?->nombre ?? ''));
+        }
+
+        if ($parroquia !== '') {
+            $this->lugar_celebracion = $parroquia;
+            return;
+        }
+
+        $this->lugar_celebracion = 'Monjarás, Marcovia';
     }
 
     private function resolverLugarExpedicionConfiguracion(): ?string
@@ -70,7 +93,7 @@ class PrimeraComunionShow extends Component
             $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
         }
 
-        return $direccion !== '' ? $direccion : null;
+        return $direccion !== '' ? $direccion : 'Monjarás, Marcovia';
     }
 
     public function mount(PrimeraComunion $primeraComunion): void
@@ -144,7 +167,7 @@ class PrimeraComunionShow extends Component
             'lugar_celebracion' => ['nullable', 'string', 'max:150'],
             'exp_dia'           => ['nullable', 'integer', 'min:1', 'max:31'],
             'exp_mes'           => ['nullable', 'integer', 'min:1', 'max:12'],
-            'exp_ano'           => ['nullable', 'integer', 'min:0', 'max:99'],
+            'exp_ano'           => ['nullable', 'integer', 'min:1900', 'max:2100'],
         ], [
             'nota_marginal.max'     => 'La nota marginal no puede superar los 500 caracteres.',
             'lugar_celebracion.max' => 'El lugar no puede superar los 150 caracteres.',
@@ -156,7 +179,7 @@ class PrimeraComunionShow extends Component
         if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
             try {
                 $fechaExp = \Carbon\Carbon::createFromDate(
-                    2000 + (int) $this->exp_ano,
+                    (int) $this->exp_ano,
                     (int) $this->exp_mes,
                     (int) $this->exp_dia
                 )->format('Y-m-d');
@@ -165,8 +188,10 @@ class PrimeraComunionShow extends Component
             }
         }
 
-        $lugarExpedicion = $this->resolverLugarExpedicionConfiguracion();
-        $this->lugar_expedicion = $lugarExpedicion ?? '';
+        $lugarExpedicion = trim($this->lugar_expedicion) !== ''
+            ? trim($this->lugar_expedicion)
+            : $this->resolverLugarExpedicionConfiguracion();
+        $this->lugar_expedicion = $lugarExpedicion;
 
         $this->primeraComunion->update([
             'nota_marginal'     => $this->nota_marginal     ?: null,

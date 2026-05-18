@@ -136,7 +136,7 @@
                 @empty
                     <article class="rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center dark:border-gray-600 dark:bg-gray-800 md:col-span-2">
                         <p class="text-sm font-medium text-gray-600 dark:text-gray-300">No hay cursos activos asignados.</p>
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Cuando tengas cursos en estado Activo apareceran aqui.</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Cuando tengas cursos en estado Activo aparecerán aquí.</p>
                     </article>
                 @endforelse
             </div>

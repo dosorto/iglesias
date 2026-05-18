@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Certificación de Confirmación</title>
+    <title>Constancia de Feligresía</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -37,7 +37,6 @@
             background: transparent;
         }
 
-        /* ── HEADER ── */
         .header { display: table; width: 100%; margin-bottom: 8px; }
         .header-logo-cell { display: table-cell; width: 88px; vertical-align: top; text-align: left; padding-top: 2px; }
         .header-logo-cell img { width: 80px; height: 80px; object-fit: contain; }
@@ -51,18 +50,24 @@
 
         .header-divider { border: none; border-top: 1px solid #6f99ad; margin: 7px 0 14px; }
 
-        /* ── TÍTULO ── */
         .doc-title {
             text-align: center;
             font-size: 15.5pt;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.4px;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
 
-        /* ── CUERPO ── */
-        .cert-intro { font-size: 12pt; margin-bottom: 12px; line-height: 1.5; }
+        .cert-intro { font-size: 12pt; margin-bottom: 14px; line-height: 1.6; text-align: justify; }
+
+        .certifica-label {
+            text-align: center;
+            font-size: 13pt;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin: 14px 0 14px;
+        }
 
         .name-display {
             text-align: center;
@@ -70,20 +75,18 @@
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin: 0 0 22px;
+            margin: 0 0 18px;
         }
 
-        .cert-block { font-size: 12pt; line-height: 1.8; }
-        .cert-block p { margin-bottom: 4px; }
+        .cert-block { font-size: 12pt; line-height: 1.7; text-align: justify; }
+        .cert-block p { margin-bottom: 10px; }
 
-        .nota-marginal { font-size: 10.5pt; margin-top: 18px; line-height: 1.8; color: #444; }
-        .issuance { font-size: 12pt; line-height: 1.5; margin-top: 28px; }
+        .issuance { font-size: 12pt; line-height: 1.6; margin-top: 24px; text-align: justify; }
 
-        /* ── FIRMAS ── */
         .bottom-signatures {
             display: table;
             width: 100%;
-            margin-top: 48px;
+            margin-top: 60px;
             page-break-inside: avoid;
         }
 
@@ -116,6 +119,7 @@
             padding-top: 4px;
         }
         .sig-name { font-size: 11pt; font-weight: bold; color: #1a1a1a; margin-top: 4px; }
+        .sig-title { font-size: 10.5pt; color: #555; margin-top: 2px; letter-spacing: 0.6px; }
     </style>
 </head>
 @php
@@ -131,7 +135,6 @@
 
     $logoIglesiaPath        = $resolvePublicFilePath($iglesiaConfig?->path_logo);
     $logoIglesiaDerechaPath = $resolvePublicFilePath($iglesiaConfig?->path_logo_derecha) ?: $logoIglesiaPath;
-    $certBgPath             = $resolvePublicFilePath($plantillaCertificadoPath ?? ($iglesiaConfig?->path_certificado_confirmacion ?: $iglesiaConfig?->path_certificado_bautismo));
 
     if (! $logoIglesiaPath) {
         $logoEstaticoPath = public_path('image/Logo_guest.png');
@@ -139,58 +142,36 @@
     }
     if (! $logoIglesiaDerechaPath) $logoIglesiaDerechaPath = $logoIglesiaPath;
 
-    $confirmado     = $confirmacion->feligres?->persona;
-    $padrino        = $confirmacion->padrino?->persona;
-    $madrina        = $confirmacion->madrina?->persona;
-    $ministro       = $confirmacion->ministro?->persona;
-    $encargado      = $confirmacion->encargado?->feligres?->persona;
+    $persona       = $feligre->persona;
 
-    $iglesiaNombre   = $iglesiaConfig?->nombre ?? $confirmacion->iglesia?->nombre ?? '';
+    $iglesiaNombre   = $iglesiaConfig?->nombre ?? $feligre->iglesia?->nombre ?? '';
     $headerDiocesis  = $iglesiaConfig?->header_diocesis ?: 'Diócesis de Choluteca';
     $headerLugar     = $iglesiaConfig?->direccion ?: '';
 
-    $ministroNombre  = mb_strtoupper($ministro?->nombre_completo  ?? '', 'UTF-8');
-    $encargadoNombre = mb_strtoupper($encargado?->nombre_completo ?? '', 'UTF-8');
-    $padrinosStr     = mb_strtoupper(
-        collect([$padrino?->nombre_completo, $madrina?->nombre_completo])->filter()->implode(' y '),
-        'UTF-8'
-    );
+    $parrocoNombreUpper = mb_strtoupper(trim((string) ($parrocoNombre ?? '')), 'UTF-8');
+    $nombreFeligres     = mb_strtoupper($persona?->nombre_completo ?? '', 'UTF-8');
+    $dniFeligres        = $persona?->dni ?? '';
 
     $mesesEs = [
         1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',5=>'mayo',6=>'junio',
         7=>'julio',8=>'agosto',9=>'septiembre',10=>'octubre',11=>'noviembre',12=>'diciembre',
     ];
 
-    $fc      = $confirmacion->fecha_confirmacion;
-    $diaConf = $fc ? $fc->day             : '';
-    $mesConf = $fc ? $mesesEs[$fc->month] : '';
-    $anoConf = $fc ? $fc->year            : '';
+    $fechaExp = now();
+    $diaExp = $fechaExp->day;
+    $mesExp = $mesesEs[$fechaExp->month];
+    $anoExp = $fechaExp->year;
 
-    $fe     = $confirmacion->fecha_expedicion ?: now();
-    $diaExp = $fe ? $fe->day             : '';
-    $mesExp = $fe ? $mesesEs[$fe->month] : '';
-    $anoExp = $fe ? $fe->year            : '';
-
-    $lugarConf = trim((string) ($confirmacion->lugar_confirmacion ?? ''));
-    if ($lugarConf === '') {
-        $lugarConf = trim((string) ($iglesiaConfig?->nombre ?? $confirmacion->iglesia?->nombre ?? ''));
-    }
-    if ($lugarConf === '') {
-        $lugarConf = 'Monjarás, Marcovia';
-    }
     $lugarExp  = trim((string) ($iglesiaConfig?->direccion ?? ''));
-    if ($lugarExp === '') $lugarExp = trim((string) ($confirmacion->iglesia?->direccion ?? ''));
-    if ($lugarExp === '') $lugarExp = trim((string) ($confirmacion->lugar_expedicion ?? ''));
+    if ($lugarExp === '') $lugarExp = trim((string) ($feligre->iglesia?->direccion ?? ''));
     if ($lugarExp === '') $lugarExp = 'Monjarás, Marcovia, Choluteca, Honduras C. A.';
 
-    $notaMarginal = $confirmacion->nota_marginal ?? '';
+    $firmaPath = $firmaParrocoPath ?? null;
 
-    $firmaPath = null;
-    if ($confirmacion->encargado?->path_firma_principal) {
-        $firmaPath = $resolvePublicFilePath($confirmacion->encargado->path_firma_principal);
-    }
+    $tieneBautismo = $feligre->bautismos?->isNotEmpty() ?? false;
+    $condicion = $tieneBautismo ? 'miembro activo y bautizado' : 'miembro activo';
 @endphp
-<body @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
+<body>
 @if ($logoIglesiaPath)
     <div class="watermark-logo">
         <img src="{{ $logoIglesiaPath }}" alt="Marca de agua">
@@ -216,38 +197,40 @@
     <hr class="header-divider">
 
     {{-- TÍTULO --}}
-    <div class="doc-title">CERTIFICACI&Oacute;N DE CONFIRMACI&Oacute;N</div>
+    <div class="doc-title">CONSTANCIA DE FELIGRES&Iacute;A</div>
 
     {{-- CUERPO --}}
-    <p class="cert-intro">El infrascrito encargado del archivo de esta parroquia certifica que</p>
+    <p class="cert-intro">
+        El suscrito{!! $parrocoNombreUpper !== '' ? ', <strong>' . e($parrocoNombreUpper) . '</strong>' : '' !!},
+        P&aacute;rroco de la <strong>{{ $iglesiaNombre }}</strong>,
+        perteneciente a la <strong>{{ $headerDiocesis }}</strong>.
+    </p>
 
-    <div class="name-display">
-        {{ mb_strtoupper($confirmado?->nombre_completo ?? '', 'UTF-8') }}
-    </div>
+    <div class="certifica-label">CERTIFICA:</div>
 
     <div class="cert-block">
         <p>
-            Fue confirmado (a) el día {{ $diaConf }}
-            del mes {{ $mesConf }}
-            año {{ $anoConf }}
+            Que
         </p>
-        <p>En la {{ $lugarConf }}</p>
-        <p>Por Mons. {{ $ministroNombre }}</p>
-        <p>Siendo sus padrinos: {{ $padrinosStr }}</p>
     </div>
 
-    @if ($notaMarginal)
-        <div class="nota-marginal">
-            <strong>NOTA MARGINAL:</strong> {{ $notaMarginal }}
-        </div>
-    @endif
+    <div class="name-display">{{ $nombreFeligres }}</div>
+
+    <div class="cert-block">
+        <p>
+            identificado(a) con DNI No. <strong>{{ $dniFeligres }}</strong>,
+            es {{ $condicion }} de nuestra comunidad parroquial.
+        </p>
+        <p>
+            El/la mencionado(a) feligr&eacute;s(a) participa activamente en la vida
+            sacramental y parroquial de esta instituci&oacute;n.
+        </p>
+    </div>
 
     <div class="issuance">
         <p>
-            Dado en {{ $lugarExp }}
-            a los {{ $diaExp }}
-            días del mes de {{ $mesExp }}
-            del año {{ $anoExp }}
+            Se extiende la presente constancia para los fines que al interesado(a) convengan,
+            en {{ $lugarExp }} a los {{ $diaExp }} d&iacute;as del mes de {{ $mesExp }} de {{ $anoExp }}.
         </p>
     </div>
 
@@ -262,8 +245,8 @@
                     <div style="height: 65px;"></div>
                 @endif
                 <div><span class="sig-line"></span></div>
-                <div class="sig-name">{{ $encargadoNombre }}</div>
-                <div class="sig-title">Párroco</div>
+                <div class="sig-name">{{ $parrocoNombreUpper }}</div>
+                <div class="sig-title">P&aacute;rroco</div>
             </div>
         </div>
     </div>

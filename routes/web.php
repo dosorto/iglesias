@@ -231,6 +231,10 @@ Route::middleware(['auth', 'encargado.pending'])->group(function () {
         ->get('/feligres/{feligre}', [\App\Http\Controllers\FeligresController::class, 'show'])
         ->name('feligres.show');
 
+    Route::middleware('permission:feligres.view')
+        ->get('/feligres/{feligre}/constancia/pdf', [\App\Http\Controllers\FeligresController::class, 'constanciaPdf'])
+        ->name('feligres.constancia.pdf');
+
     Route::middleware('permission:feligres.edit')
         ->get('/feligres/{feligre}/edit', [\App\Http\Controllers\FeligresController::class, 'edit'])
         ->name('feligres.edit');

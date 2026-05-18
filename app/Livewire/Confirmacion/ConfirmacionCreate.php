@@ -13,7 +13,6 @@ use Illuminate\Validation\Rule;
 
 class ConfirmacionCreate extends Component
 {
-    private const LUGAR_CONFIRMACION_FIJO = 'Monjaras, Marcovia';
 
     // Wizard
     public int $paso = 1;
@@ -88,7 +87,8 @@ class ConfirmacionCreate extends Component
     public function mount(): void
     {
         $this->fecha_confirmacion   = now()->format('Y-m-d');
-        $this->lugar_confirmacion   = self::LUGAR_CONFIRMACION_FIJO;
+        $parroquia = trim((string) (TenantIglesia::current()?->nombre ?? ''));
+        $this->lugar_confirmacion   = $parroquia !== '' ? $parroquia : 'Monjarás, Marcovia';
         $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
         $this->iglesia_id           = TenantIglesia::currentId();
     }
@@ -425,8 +425,6 @@ class ConfirmacionCreate extends Component
         if (session('tenant')) {
             $this->iglesia_id = TenantIglesia::currentId();
         }
-
-        $this->lugar_confirmacion = self::LUGAR_CONFIRMACION_FIJO;
 
         $rol     = $this->mini_rol;
         $persona = $this->{"{$rol}_persona"};

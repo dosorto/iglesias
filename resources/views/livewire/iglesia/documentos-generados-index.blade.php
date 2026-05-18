@@ -48,6 +48,7 @@
                     <tr>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Emitido</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Tipo</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Archivo</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Fuente</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Persona relacionada</th>
                         <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">Acciones</th>
@@ -61,6 +62,9 @@
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
                                 {{ $doc->tipo_documento }}
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-200 font-mono max-w-[280px] truncate" title="{{ $doc->nombre_archivo }}">
+                                {{ $doc->nombre_archivo }}
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
                                 {{ $this->nombreFuente($doc->fuente_tipo) }} #{{ $doc->fuente_id }}
@@ -104,7 +108,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                            <td colspan="6" class="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                                 No hay documentos generados aún.
                             </td>
                         </tr>

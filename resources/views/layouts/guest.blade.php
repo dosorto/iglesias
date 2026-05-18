@@ -60,11 +60,11 @@
             <div class="flex items-center justify-center gap-8">
                 <img src="{{ $logoUrl }}"
                      alt="Logo"
-                     class="w-32 h-32 object-contain drop-shadow-2xl">
+                     class="w-48 h-48 object-contain drop-shadow-2xl">
                 @if ($logoDerUrl && $logoDerUrl !== $logoUrl)
                     <img src="{{ $logoDerUrl }}"
                          alt="Logo"
-                         class="w-32 h-32 object-contain drop-shadow-2xl">
+                         class="w-48 h-48 object-contain drop-shadow-2xl">
                 @endif
             </div>
 
@@ -114,7 +114,7 @@
 
         {{-- Logo y nombre en móvil --}}
         <div class="lg:hidden flex flex-col items-center mb-8 gap-3">
-            <img src="{{ $logoUrl }}" alt="Logo" class="w-20 h-20 object-contain">
+            <img src="{{ $logoUrl }}" alt="Logo" class="w-28 h-28 object-contain">
             @if ($iglesiaNombre)
                 <p class="text-[#0F6E46] font-bold text-center uppercase tracking-wide text-base leading-tight">
                     {{ $iglesiaNombre }}
