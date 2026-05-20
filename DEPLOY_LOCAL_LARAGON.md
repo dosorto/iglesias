@@ -52,6 +52,8 @@ DB_DATABASE=iglesias
 DB_USERNAME=root
 DB_PASSWORD=
 
+SESSION_DRIVER=file
+
 BACKUP_ENABLED=true
 BACKUP_TIME=02:00
 BACKUP_KEEP_DAYS=14
@@ -59,12 +61,12 @@ BACKUP_DIRECTORY=C:\Users\NOMBRE_USUARIO\OneDrive\RespaldosIglesia
 BACKUP_IGLESIA_ID=1
 BACKUP_INCLUDE_ENV=true
 BACKUP_INCLUDE_FILES=true
-BACKUP_TENANT_NAME="PARROQUIA ESPIRITU SANTO"
-BACKUP_TENANT_SUBDOMAIN=iglesias
-BACKUP_TENANT_DB_HOST=127.0.0.1
-BACKUP_TENANT_DB_PORT=3306
-BACKUP_TENANT_DB_DATABASE=tenant_iglesia
-BACKUP_TENANT_DB_USERNAME=root
+BACKUP_TENANT_NAME=
+BACKUP_TENANT_SUBDOMAIN=
+BACKUP_TENANT_DB_HOST=
+BACKUP_TENANT_DB_PORT=
+BACKUP_TENANT_DB_DATABASE=
+BACKUP_TENANT_DB_USERNAME=
 BACKUP_TENANT_DB_PASSWORD=
 ```
 
@@ -72,7 +74,8 @@ Notas:
 
 - Reemplaza `NOMBRE_USUARIO` por el usuario real de Windows.
 - Si la iglesia tendrá otro `id`, cambia `BACKUP_IGLESIA_ID`.
-- Si quieres que el backup funcione aun cuando la base central falle, deja completos los `BACKUP_TENANT_DB_*`.
+- El nombre real de la base tenant no es fijo: el sistema la crea con el patrón `tenant_{slug}_{id}`.
+- Si quieres que el backup funcione aun cuando la base central falle, completa los `BACKUP_TENANT_DB_*` después de crear la iglesia y confirma el nombre real de su base tenant.
 
 ## 4. Crear la base de datos
 
@@ -87,6 +90,7 @@ iglesias
 ```powershell
 php artisan migrate --force
 php artisan tenants:migrate --force
+php artisan storage:link
 ```
 
 Si el proyecto usa seeders en tu flujo:
@@ -172,6 +176,7 @@ Todo debería quedar bien si esto funciona:
 ```powershell
 php artisan migrate:status
 php artisan backup:run
+php artisan storage:link
 ```
 
 Y si puedes abrir:

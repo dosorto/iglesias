@@ -3,7 +3,7 @@
     $appName = $setting->company_name ?? config('app.name');
     $logoUrl = $setting->company_logo_url;
     $landingIglesiaCentral = \App\Models\Iglesias::query()->first();
-    $landingIglesiaTenant = \App\Models\TenantIglesia::currentFromCentral();
+    $landingIglesiaTenant = rescue(fn () => \App\Models\TenantIglesia::currentFromCentral(), null, false);
     $rightLogoUrl = $landingIglesiaTenant?->logo_derecha_url ?: $landingIglesiaCentral?->logo_derecha_url;
     $hasRegisterOrganization = \Illuminate\Support\Facades\Route::has('register.organization');
     $hasRegister = \Illuminate\Support\Facades\Route::has('register');

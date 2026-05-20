@@ -23,7 +23,7 @@
     $isTenantActive = config('database.default') === config('tenancy.tenant_connection', 'tenant');
     $iglesiaConfig  = $isTenantActive
         ? TenantIglesia::current()
-        : TenantIglesia::currentFromCentral();
+        : rescue(fn () => TenantIglesia::currentFromCentral(), null, false);
 
     $logoUrl          = $iglesiaConfig?->logo_url             ?? asset('image/Logo_guest.png');
     $logoDerUrl       = $iglesiaConfig?->logo_derecha_url     ?? null;
