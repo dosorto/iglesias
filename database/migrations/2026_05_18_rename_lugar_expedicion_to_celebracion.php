@@ -12,20 +12,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('bautismos', function (Blueprint $table) {
-            // Agregar nueva columna si no existe
-            if (!Schema::hasColumn('bautismos', 'lugar_celebracion')) {
+        $hasLugarCelebracion = Schema::hasColumn('bautismos', 'lugar_celebracion');
+        $hasLugarExpedicion = Schema::hasColumn('bautismos', 'lugar_expedicion');
+        $hasMinistroCelebrante = Schema::hasColumn('bautismos', 'ministro_celebrante');
+
+        Schema::table('bautismos', function (Blueprint $table) use ($hasLugarCelebracion, $hasMinistroCelebrante) {
+            if (! $hasLugarCelebracion) {
                 $table->string('lugar_celebracion')->nullable()->after('lugar_nacimiento');
             }
-            
-            // Asegurar que ministro_celebrante existe
-            if (!Schema::hasColumn('bautismos', 'ministro_celebrante')) {
+
+            if (! $hasMinistroCelebrante) {
                 $table->string('ministro_celebrante')->nullable();
             }
         });
 
-        // Copiar datos de lugar_expedicion a lugar_celebracion si existen ambas columnas
-        if (Schema::hasColumn('bautismos', 'lugar_expedicion')) {
+        if ($hasLugarExpedicion) {
             DB::statement('UPDATE bautismos SET lugar_celebracion = lugar_expedicion WHERE lugar_expedicion IS NOT NULL');
 
             Schema::table('bautismos', function (Blueprint $table) {
@@ -39,19 +40,21 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('bautismos', function (Blueprint $table) {
-            // Agregar nueva columna si no existe
-            if (!Schema::hasColumn('bautismos', 'lugar_expedicion')) {
+        $hasLugarExpedicion = Schema::hasColumn('bautismos', 'lugar_expedicion');
+        $hasLugarCelebracion = Schema::hasColumn('bautismos', 'lugar_celebracion');
+
+        Schema::table('bautismos', function (Blueprint $table) use ($hasLugarExpedicion) {
+            if (! $hasLugarExpedicion) {
                 $table->string('lugar_expedicion')->nullable()->after('lugar_nacimiento');
             }
         });
 
-        // Copiar datos de vuelta
-        DB::statement('UPDATE bautismos SET lugar_expedicion = lugar_celebracion WHERE lugar_celebracion IS NOT NULL');
+        if ($hasLugarCelebracion) {
+            DB::statement('UPDATE bautismos SET lugar_expedicion = lugar_celebracion WHERE lugar_celebracion IS NOT NULL');
+        }
 
-        Schema::table('bautismos', function (Blueprint $table) {
-            // Eliminar columna nueva
-            if (Schema::hasColumn('bautismos', 'lugar_celebracion')) {
+        Schema::table('bautismos', function (Blueprint $table) use ($hasLugarCelebracion) {
+            if ($hasLugarCelebracion) {
                 $table->dropColumn('lugar_celebracion');
             }
         });

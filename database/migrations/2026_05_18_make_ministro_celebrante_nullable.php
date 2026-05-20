@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasColumn('bautismos', 'ministro_celebrante')) {
+            return;
+        }
+
         Schema::table('bautismos', function (Blueprint $table) {
-            // Make ministro_celebrante nullable
             $table->string('ministro_celebrante')->nullable()->change();
         });
     }
@@ -22,8 +25,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (! Schema::hasColumn('bautismos', 'ministro_celebrante')) {
+            return;
+        }
+
         Schema::table('bautismos', function (Blueprint $table) {
-            // Revert to NOT NULL
             $table->string('ministro_celebrante')->nullable(false)->change();
         });
     }

@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasColumn('bautismos', 'lugar_celebracion')) {
+            return;
+        }
+
         Schema::table('bautismos', function (Blueprint $table) {
-            // Make lugar_celebracion nullable
             $table->string('lugar_celebracion')->nullable()->change();
         });
     }
@@ -22,8 +25,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (! Schema::hasColumn('bautismos', 'lugar_celebracion')) {
+            return;
+        }
+
         Schema::table('bautismos', function (Blueprint $table) {
-            // Revert to NOT NULL
             $table->string('lugar_celebracion')->nullable(false)->change();
         });
     }
