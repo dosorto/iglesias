@@ -285,6 +285,12 @@ class ConfirmacionCreate extends Component
             'mini_p_primer_nombre', 'mini_p_segundo_nombre',
             'mini_p_primer_apellido', 'mini_p_segundo_apellido',
             'mini_p_telefono', 'mini_p_email',
+            'libro_confirmacion.required' => 'El libro de confirmación es obligatorio.',
+            'libro_confirmacion.max'      => 'El libro de confirmación no puede superar los 50 caracteres.',
+            'folio.required'              => 'El folio es obligatorio.',
+            'folio.max'                   => 'El folio no puede superar los 50 caracteres.',
+            'partida_numero.required'     => 'El número de partida es obligatorio.',
+            'partida_numero.max'          => 'El número de partida no puede superar los 50 caracteres.',
         ]);
 
         $this->resetErrorBag();
@@ -456,6 +462,9 @@ class ConfirmacionCreate extends Component
 
         $this->validate([
             'fecha_confirmacion' => ['required', 'date'],
+            'libro_confirmacion' => ['required', 'string', 'max:50'],
+            'folio'              => ['required', 'string', 'max:50'],
+            'partida_numero'     => ['required', 'string', 'max:50'],
         ], [
             'fecha_confirmacion.required' => 'La fecha de confirmación es obligatoria.',
             'fecha_confirmacion.date'     => 'La fecha de confirmación no es válida.',
@@ -489,9 +498,9 @@ class ConfirmacionCreate extends Component
             'padrino_id'          => $this->padrino_feligres_id,
             'madrina_id'          => $this->madrina_feligres_id,
             'ministro_id'         => $this->ministro_feligres_id,
-            'libro_confirmacion'  => $this->libro_confirmacion ?: null,
-            'folio'               => $this->folio              ?: null,
-            'partida_numero'      => $this->partida_numero     ?: null,
+            'libro_confirmacion'  => trim($this->libro_confirmacion),
+            'folio'               => trim($this->folio),
+            'partida_numero'      => trim($this->partida_numero),
             'observaciones'       => $this->observaciones      ?: null,
             'nota_marginal'       => $this->nota_marginal      ?: null,
         ]);

@@ -18,15 +18,18 @@ class BautismoShow extends Component
     
     // Certificate fields (editable from the show page)
     public string $nota_marginal    = '';
-    public string $parroco_celebrante = '';
+    public string $ministro_celebrante = '';
     public string $lugar_nacimiento = '';
-    public string $lugar_expedicion = '';
+    public string $lugar_celebracion = '';
     public string $exp_dia          = '';
     public string $exp_mes          = '';  // 1–12
     public string $exp_ano          = '';  // full year, e.g. 2026
 
     public bool $previewMode = false;
     public $firma_nueva = null;
+
+    public string $avisoMinistroCelebrante = '';
+    public bool   $mostrarAvisoMinistroCelebrante = false;
 
     public function mount(Bautismo $bautismo): void
     {
@@ -41,10 +44,10 @@ class BautismoShow extends Component
         ]);
 
         $this->nota_marginal    = $bautismo->nota_marginal    ?? '';
-        $this->parroco_celebrante = $bautismo->parroco_celebrante ?? '';
+        $this->ministro_celebrante = $bautismo->ministro_celebrante ?? '';
         $this->lugar_nacimiento = $bautismo->lugar_nacimiento  ?? '';
-        $this->lugar_expedicion = $bautismo->lugar_expedicion ?? '';
-        $this->aplicarLugarExpedicionPorDefecto();
+        $this->lugar_celebracion = $bautismo->lugar_celebracion ?? '';
+        $this->aplicarLugarCelebracionPorDefecto();
 
         $fe = $bautismo->fecha_expedicion;
         if ($fe) {
@@ -59,30 +62,30 @@ class BautismoShow extends Component
         }
     }
 
-    private function aplicarLugarExpedicionPorDefecto(): void
+    private function aplicarLugarCelebracionPorDefecto(): void
     {
-        if (trim($this->lugar_expedicion) !== '') {
+        if (trim($this->lugar_celebracion) !== '') {
             return;
         }
 
-        $direccion = trim((string) ($this->bautismo->iglesia?->direccion ?? ''));
-        if ($direccion === '') {
-            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        $nombreIglesia = trim((string) ($this->bautismo->iglesia?->nombre ?? ''));
+        if ($nombreIglesia === '') {
+            $nombreIglesia = trim((string) (TenantIglesia::current()?->nombre ?? ''));
         }
 
-        if ($direccion !== '') {
-            $this->lugar_expedicion = $direccion;
+        if ($nombreIglesia !== '') {
+            $this->lugar_celebracion = $nombreIglesia;
         }
     }
 
-    private function resolverLugarExpedicionConfiguracion(): ?string
+    private function resolverLugarCelebracionConfiguracion(): ?string
     {
-        $direccion = trim((string) ($this->bautismo->iglesia?->direccion ?? ''));
-        if ($direccion === '') {
-            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+        $nombreIglesia = trim((string) ($this->bautismo->iglesia?->nombre ?? ''));
+        if ($nombreIglesia === '') {
+            $nombreIglesia = trim((string) (TenantIglesia::current()?->nombre ?? ''));
         }
 
-        return $direccion !== '' ? $direccion : null;
+        return $nombreIglesia !== '' ? $nombreIglesia : null;
     }
 
     public function togglePreview(): void
@@ -131,19 +134,71 @@ class BautismoShow extends Component
     {
         $this->validate([
             'nota_marginal'    => ['nullable', 'string', 'max:500'],
-            'parroco_celebrante' => ['nullable', 'string', 'max:150'],
+            'ministro_celebrante' => ['nullable', 'string', 'max:150'],
             'lugar_nacimiento' => ['nullable', 'string', 'max:150'],
             'exp_dia'          => ['nullable', 'integer', 'min:1', 'max:31'],
             'exp_mes'          => ['nullable', 'integer', 'min:1', 'max:12'],
             'exp_ano'          => ['nullable', 'integer', 'digits:4', 'min:1900', 'max:2100'],
         ], [
             'nota_marginal.max'    => 'La nota marginal no puede superar los 500 caracteres.',
-            'parroco_celebrante.max' => 'El nombre del párroco celebrante no puede superar los 150 caracteres.',
+            'ministro_celebrante.max' => 'El nombre del ministro celebrante no puede superar los 150 caracteres.',
             'lugar_nacimiento.max' => 'El lugar de nacimiento no puede superar los 150 caracteres.',
             'exp_dia.min'          => 'El día debe ser entre 1 y 31.',
             'exp_mes.min'          => 'El mes debe ser entre 1 y 12.',
         ]);
 
+        // Verificar y aplicar ministro_celebrante antes de guardar
+        if (!$this->verificarMinistroCelebrante()) {
+            return; // Muestra aviso, no guarda aún
+        }
+
+        $this->guardarCertificado();
+    }
+
+    private function verificarMinistroCelebrante(): bool
+    {
+        // Si ministro_celebrante está vacío
+        if (trim($this->ministro_celebrante) === '') {
+            // Obtener el nombre del encargado
+            if ($this->bautismo->encargado_id) {
+                $encargado = $this->bautismo->encargado;
+                if ($encargado) {
+                    $nombreEncargado = trim((string) ($encargado->nombre_completo ?? ''));
+                    if ($nombreEncargado !== '') {
+                        // Mostrar aviso
+                        $this->avisoMinistroCelebrante = "El campo 'Ministro Celebrante' está vacío. ¿Desea llenarlo automáticamente con: {$nombreEncargado}?";
+                        $this->mostrarAvisoMinistroCelebrante = true;
+                        return false; // No guardar aún
+                    }
+                }
+            }
+        }
+        return true; // Puede guardar normalmente
+    }
+
+    public function confirmarYGuardarConMinistroCelebrante(): void
+    {
+        // Llenar ministro_celebrante con el nombre del encargado
+        if ($this->bautismo->encargado_id) {
+            $encargado = $this->bautismo->encargado;
+            if ($encargado) {
+                $this->ministro_celebrante = trim((string) ($encargado->nombre_completo ?? ''));
+            }
+        }
+
+        $this->mostrarAvisoMinistroCelebrante = false;
+        $this->guardarCertificado();
+    }
+
+    public function rechazarAvisoYGuardar(): void
+    {
+        $this->mostrarAvisoMinistroCelebrante = false;
+        $this->avisoMinistroCelebrante = '';
+        $this->guardarCertificado();
+    }
+
+    private function guardarCertificado(): void
+    {
         $fechaExp = now()->format('Y-m-d');
         if ($this->exp_dia && $this->exp_mes && $this->exp_ano !== '') {
             try {
@@ -157,14 +212,14 @@ class BautismoShow extends Component
             }
         }
 
-        $lugarExpedicion = $this->resolverLugarExpedicionConfiguracion();
-        $this->lugar_expedicion = $lugarExpedicion ?? '';
+        $lugarCelebracion = $this->resolverLugarCelebracionConfiguracion();
+        $this->lugar_celebracion = $lugarCelebracion ?? '';
 
         $this->bautismo->update([
             'nota_marginal'    => $this->nota_marginal    ?: null,
-            'parroco_celebrante' => $this->parroco_celebrante ?: null,
+            'ministro_celebrante' => $this->ministro_celebrante ?: null,
             'lugar_nacimiento' => $this->lugar_nacimiento ?: null,
-            'lugar_expedicion' => $lugarExpedicion,
+            'lugar_celebracion' => $lugarCelebracion,
             'fecha_expedicion' => $fechaExp,
         ]);
 

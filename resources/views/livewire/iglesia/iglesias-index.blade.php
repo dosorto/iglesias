@@ -1,4 +1,6 @@
 <div class="space-y-6">
+    @php($singleChurchMode = \App\Models\Iglesias::registrationLocked())
+
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -20,6 +22,7 @@
             @endcan
 
             @can('iglesias.create')
+                @if (! $singleChurchMode)
                 <a href="{{ route('iglesias.create') }}"
                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center shadow-sm">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -27,9 +30,17 @@
                     </svg>
                     Nueva Parroquia
                 </a>
+                @endif
             @endcan
         </div>
     </div>
+
+    @if ($singleChurchMode)
+        <div class="rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <p class="font-medium text-amber-900">Modo de iglesia única activo.</p>
+            <p class="mt-1 text-sm text-amber-800">Esta instalación ya tiene una parroquia registrada, por lo que no se permite crear otra.</p>
+        </div>
+    @endif
 
     {{-- Flash Messages --}}
     @if (session()->has('success'))
@@ -244,7 +255,7 @@
                                                 Comienza registrando las parroquias para gestionar sus datos.
                                             @endif
                                         </p>
-                                        @if(!$search && auth()->user()->can('iglesias.create'))
+                                        @if(!$search && auth()->user()->can('iglesias.create') && ! $singleChurchMode)
                                             <a href="{{ route('iglesias.create') }}"
                                                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
                                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

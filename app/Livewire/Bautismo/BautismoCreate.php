@@ -79,9 +79,9 @@ class BautismoCreate extends Component
     public string $partida_numero = '';
     public string $observaciones  = '';
     public string $nota_marginal    = '';
-    public string $parroco_celebrante = '';
+    public string $ministro_celebrante = '';
     public string $lugar_nacimiento = '';
-    public string $lugar_expedicion = '';
+    public string $lugar_celebracion = '';
     public string $exp_dia          = '';
     public string $exp_mes          = '';
     public string $exp_ano          = '';
@@ -92,30 +92,49 @@ class BautismoCreate extends Component
         $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
 
         $this->iglesia_id = TenantIglesia::currentId();
-        $this->aplicarLugarExpedicionPorDefecto();
+        $this->aplicarLugarCelebracionPorDefecto();
 
         // Encargado por defecto: primer encargado disponible
         $encargadoDefault   = Encargado::with('feligres.persona')->where('estado', 'Activo')->first();
         $this->encargado_id = $encargadoDefault?->id;
     }
 
-    private function aplicarLugarExpedicionPorDefecto(): void
+    private function aplicarLugarCelebracionPorDefecto(): void
     {
-        if (trim($this->lugar_expedicion) !== '') {
+        if (trim($this->lugar_celebracion) !== '') {
             return;
         }
 
-        $direccion = '';
+        $nombreIglesia = '';
 
         if (session('tenant')) {
-            $direccion = trim((string) (TenantIglesia::current()?->direccion ?? ''));
+            $nombreIglesia = trim((string) (TenantIglesia::current()?->nombre ?? ''));
         } elseif ($this->iglesia_id) {
-            $direccion = trim((string) (Iglesias::query()->find($this->iglesia_id)?->direccion ?? ''));
+            $nombreIglesia = trim((string) (Iglesias::query()->find($this->iglesia_id)?->nombre ?? ''));
         }
 
-        if ($direccion !== '') {
-            $this->lugar_expedicion = $direccion;
+        if ($nombreIglesia !== '') {
+            $this->lugar_celebracion = $nombreIglesia;
         }
+    }
+
+    private function resolverLugarCelebracion(): ?string
+    {
+        $lugarCelebracion = trim($this->lugar_celebracion);
+
+        if ($lugarCelebracion !== '') {
+            return $lugarCelebracion;
+        }
+
+        $nombreIglesia = '';
+
+        if (session('tenant')) {
+            $nombreIglesia = trim((string) (TenantIglesia::current()?->nombre ?? ''));
+        } elseif ($this->iglesia_id) {
+            $nombreIglesia = trim((string) (Iglesias::query()->find($this->iglesia_id)?->nombre ?? ''));
+        }
+
+        return $nombreIglesia !== '' ? $nombreIglesia : null;
     }
 
     // Navegacion
@@ -478,20 +497,29 @@ class BautismoCreate extends Component
 
         $this->validate([
             'fecha_bautismo' => ['required', 'date'],
+            'libro_bautismo' => ['required', 'string', 'max:100'],
+            'folio'          => ['required', 'string', 'max:50'],
+            'partida_numero' => ['required', 'string', 'max:50'],
             'nota_marginal'    => ['nullable', 'string', 'max:500'],
-            'parroco_celebrante' => ['nullable', 'string', 'max:150'],
+            'ministro_celebrante' => ['nullable', 'string', 'max:150'],
             'lugar_nacimiento' => ['nullable', 'string', 'max:150'],
-            'lugar_expedicion' => ['nullable', 'string', 'max:150'],
+            'lugar_celebracion' => ['nullable', 'string', 'max:150'],
             'exp_dia'          => ['nullable', 'integer', 'min:1', 'max:31'],
             'exp_mes'          => ['nullable', 'integer', 'min:1', 'max:12'],
             'exp_ano'          => ['nullable', 'integer', 'digits:4', 'min:1900', 'max:2100'],
         ], [
             'fecha_bautismo.required' => 'La fecha de bautismo es obligatoria.',
             'fecha_bautismo.date'     => 'La fecha de bautismo no es válida.',
+            'libro_bautismo.required' => 'El libro de bautismo es obligatorio.',
+            'libro_bautismo.max'      => 'El libro de bautismo no puede superar los 100 caracteres.',
+            'folio.required'          => 'El folio es obligatorio.',
+            'folio.max'               => 'El folio no puede superar los 50 caracteres.',
+            'partida_numero.required' => 'El número de partida es obligatorio.',
+            'partida_numero.max'      => 'El número de partida no puede superar los 50 caracteres.',
             'nota_marginal.max'       => 'La nota marginal no puede superar los 500 caracteres.',
-            'parroco_celebrante.max'  => 'El nombre del párroco celebrante no puede superar los 150 caracteres.',
+            'ministro_celebrante.max'  => 'El nombre del ministro celebrante no puede superar los 150 caracteres.',
             'lugar_nacimiento.max'    => 'El lugar de nacimiento no puede superar los 150 caracteres.',
-            'lugar_expedicion.max'    => 'El lugar no puede superar los 150 caracteres.',
+            'lugar_celebracion.max'         => 'El lugar de celebración no puede superar los 150 caracteres.',
             'exp_dia.min'             => 'El día debe ser entre 1 y 31.',
             'exp_mes.min'             => 'El mes debe ser entre 1 y 12.',
         ]);
@@ -519,6 +547,9 @@ class BautismoCreate extends Component
             return;
         }
 
+        $lugarCelebracion = $this->resolverLugarCelebracion();
+        $this->lugar_celebracion = $lugarCelebracion ?? '';
+
         Bautismo::create([
             'iglesia_id'     => $this->iglesia_id,
             'fecha_bautismo' => $this->fecha_bautismo,
@@ -528,14 +559,14 @@ class BautismoCreate extends Component
             'madre_id'       => $this->madre_feligres_id,
             'padrino_id'     => $this->padrino_feligres_id,
             'madrina_id'     => $this->madrina_feligres_id,
-            'libro_bautismo' => $this->libro_bautismo ?: null,
-            'folio'          => $this->folio          ?: null,
-            'partida_numero' => $this->partida_numero ?: null,
+            'libro_bautismo' => trim($this->libro_bautismo),
+            'folio'          => trim($this->folio),
+            'partida_numero' => trim($this->partida_numero),
             'observaciones'  => $this->observaciones  ?: null,
             'nota_marginal'    => $this->nota_marginal    ?: null,
-            'parroco_celebrante' => $this->parroco_celebrante ?: null,
+            'ministro_celebrante' => $this->ministro_celebrante ?: null,
             'lugar_nacimiento' => $this->lugar_nacimiento ?: null,
-            'lugar_expedicion' => $this->lugar_expedicion ?: null,
+            'lugar_celebracion' => $lugarCelebracion,
             'fecha_expedicion' => $fechaExp,
         ]);
 

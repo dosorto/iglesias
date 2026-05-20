@@ -61,7 +61,7 @@ class BautismoExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
             $bautismo->libro_bautismo ?? 'N/A',
             $bautismo->folio ?? 'N/A',
             $bautismo->partida_numero ?? 'N/A',
-            $bautismo->parroco_celebrante ?? 'N/A',
+            $bautismo->ministro_celebrante ?? 'N/A',
             $bautismo->lugar_nacimiento ?? 'N/A',
             optional($bautismo->encargado?->feligres?->persona)->nombre_completo ?? 'N/A',
             optional($bautismo->iglesia)->nombre ?? 'N/A',

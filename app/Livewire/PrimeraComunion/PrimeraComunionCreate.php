@@ -280,6 +280,12 @@ class PrimeraComunionCreate extends Component
             'mini_p_primer_apellido', 'mini_p_segundo_apellido',
             'mini_p_fecha_nacimiento', 'mini_p_sexo',
             'mini_p_telefono', 'mini_p_email',
+            'libro_comunion.required'         => 'El libro de primera comunión es obligatorio.',
+            'libro_comunion.max'              => 'El libro de primera comunión no puede superar los 100 caracteres.',
+            'folio.required'                  => 'El folio es obligatorio.',
+            'folio.max'                       => 'El folio no puede superar los 50 caracteres.',
+            'partida_numero.required'         => 'El número de partida es obligatorio.',
+            'partida_numero.max'              => 'El número de partida no puede superar los 50 caracteres.',
         ]);
 
         $this->resetErrorBag();
@@ -453,6 +459,9 @@ class PrimeraComunionCreate extends Component
 
         $this->validate([
             'fecha_primera_comunion' => ['required', 'date'],
+            'libro_comunion'         => ['required', 'string', 'max:100'],
+            'folio'                  => ['required', 'string', 'max:50'],
+            'partida_numero'         => ['required', 'string', 'max:50'],
         ], [
             'fecha_primera_comunion.required' => 'La fecha de primera comunión es obligatoria.',
             'fecha_primera_comunion.date'     => 'La fecha de primera comunión no es válida.',
@@ -489,9 +498,9 @@ class PrimeraComunionCreate extends Component
             'id_ministro'            => $this->ministro_feligres_id,
             'id_parroco'             => $encargado?->feligres?->id,
             'encargado_id'           => $encargado?->id,
-            'libro_comunion'         => $this->libro_comunion ?: null,
-            'folio'                  => $this->folio          ?: null,
-            'partida_numero'         => $this->partida_numero ?: null,
+            'libro_comunion'         => trim($this->libro_comunion),
+            'folio'                  => trim($this->folio),
+            'partida_numero'         => trim($this->partida_numero),
             'observaciones'          => $this->observaciones  ?: null,
             'nota_marginal'          => $this->nota_marginal  ?: null,
         ]);

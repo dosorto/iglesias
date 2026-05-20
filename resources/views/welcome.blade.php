@@ -1,4 +1,14 @@
-@php $appName = \App\Models\AppSetting::current()->company_name ?? config('app.name'); @endphp
+@php
+    $setting = \App\Models\AppSetting::current();
+    $appName = $setting->company_name ?? config('app.name');
+    $logoUrl = $setting->company_logo_url;
+    $landingIglesiaCentral = \App\Models\Iglesias::query()->first();
+    $landingIglesiaTenant = \App\Models\TenantIglesia::currentFromCentral();
+    $rightLogoUrl = $landingIglesiaTenant?->logo_derecha_url ?: $landingIglesiaCentral?->logo_derecha_url;
+    $hasRegisterOrganization = \Illuminate\Support\Facades\Route::has('register.organization');
+    $hasRegister = \Illuminate\Support\Facades\Route::has('register');
+    $canRegisterOrganization = ! \App\Models\Iglesias::registrationLocked();
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -9,235 +19,410 @@
     <link rel="shortcut icon" href="{{ asset('image/Logo_guest.png') }}?v=holyapp">
     <link rel="apple-touch-icon" href="{{ asset('image/Logo_guest.png') }}?v=holyapp">
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=manrope:400,500,600,700|playfair-display:600&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Figtree', sans-serif; background: radial-gradient(circle at top, #1f4f7d 0%, #0f6e46 42%, #0b3527 100%); color: #fff; }
+        :root {
+            --bg: #f7f4ec;
+            --surface: rgba(255, 255, 255, 0.86);
+            --border: rgba(18, 38, 31, 0.1);
+            --text: #12261f;
+            --muted: #587065;
+            --accent: #214b3d;
+            --accent-soft: #d9e8e1;
+            --shadow: 0 20px 45px rgba(18, 38, 31, 0.08);
+        }
 
-        /* NAV */
-        .lp-nav { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 2.5rem; border-bottom: 1px solid rgba(200,165,71,0.3); }
-        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-        .nav-logo-icon { width: 38px; height: 38px; background: #c8a547; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .nav-logo-text { font-size: 15px; font-weight: 600; color: #fff; }
-        .nav-links { display: flex; align-items: center; gap: 1.5rem; }
-        .nav-links a { font-size: 14px; color: rgba(255,255,255,0.6); text-decoration: none; transition: color .2s; }
-        .nav-links a:hover { color: #fff; }
-        .btn-nav-login { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 500; text-decoration: none; transition: background .2s; }
-        .btn-nav-login:hover { background: rgba(255,255,255,0.08); }
-        .btn-nav-register { background: #0f6e46; border: 1px solid rgba(200,165,71,0.7); color: #fff; border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 500; text-decoration: none; transition: background .2s; }
-        .btn-nav-register:hover { background: #0b5c3b; }
+        * {
+            box-sizing: border-box;
+        }
 
-        /* HERO */
-        .lp-hero { text-align: center; padding: 6rem 2rem 4rem; max-width: 720px; margin: 0 auto; }
-        .hero-badge { display: inline-flex; align-items: center; gap: 7px; background: rgba(42,121,179,0.2); border: 1px solid rgba(200,165,71,0.45); border-radius: 20px; padding: 5px 14px; font-size: 12px; color: #f4e6bc; margin-bottom: 1.75rem; }
-        .hero-badge-dot { width: 6px; height: 6px; background: #c8a547; border-radius: 50%; }
-        .lp-hero h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 600; line-height: 1.15; color: #fff; margin-bottom: 1.25rem; }
-        .lp-hero h1 span { color: #f4d780; }
-        .lp-hero p { font-size: 1.05rem; color: rgba(255,255,255,0.58); line-height: 1.75; margin-bottom: 2.5rem; }
-        .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-        .btn-primary { background: #0f6e46; color: #fff; border: 1px solid rgba(200,165,71,0.7); border-radius: 10px; padding: 13px 30px; font-size: 14px; font-weight: 600; text-decoration: none; display: inline-block; transition: background .2s; }
-        .btn-primary:hover { background: #0b5c3b; color: #fff; }
-        .btn-outline { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 13px 30px; font-size: 14px; text-decoration: none; display: inline-block; transition: background .2s; }
-        .btn-outline:hover { background: rgba(255,255,255,0.06); color: #fff; }
+        body {
+            margin: 0;
+            min-width: 320px;
+            font-family: 'Manrope', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(33, 75, 61, 0.08), transparent 28%),
+                linear-gradient(180deg, #fbf8f2 0%, var(--bg) 100%);
+        }
 
-        /* STATS */
-        .lp-stats { display: flex; justify-content: center; gap: 4rem; padding: 2.5rem 2rem; border-top: 1px solid rgba(255,255,255,0.07); border-bottom: 1px solid rgba(255,255,255,0.07); flex-wrap: wrap; }
-        .stat-item { text-align: center; }
-        .stat-num { font-size: 1.9rem; font-weight: 600; color: #fff; }
-        .stat-label { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
 
-        /* FEATURES */
-        .lp-section { padding: 5rem 2.5rem; max-width: 960px; margin: 0 auto; }
-        .section-eyebrow { font-size: 12px; color: #f4d780; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .6rem; }
-        .section-title { font-size: 1.9rem; font-weight: 600; color: #fff; margin-bottom: .85rem; }
-        .section-sub { font-size: 14px; color: rgba(255,255,255,0.48); line-height: 1.75; margin-bottom: 3rem; }
+        .container {
+            width: min(980px, calc(100% - 2rem));
+            margin: 0 auto;
+        }
 
-        .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; }
-        .feat-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 14px; padding: 1.6rem; transition: border-color .2s; }
-        .feat-card:hover { border-color: rgba(200,165,71,0.6); }
-        .feat-icon { width: 40px; height: 40px; border-radius: 9px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
-        .feat-card h3 { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 7px; }
-        .feat-card p { font-size: 13px; color: rgba(255,255,255,0.48); line-height: 1.65; }
+        .header {
+            padding: 1.2rem 0;
+        }
 
-        /* SACRAMENTOS */
-        .sacr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 2.5rem; }
-        .sacr-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 1.5rem; text-align: center; }
-        .sacr-dot { width: 44px; height: 44px; border-radius: 50%; margin: 0 auto 12px; }
-        .sacr-card h4 { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; }
-        .sacr-card p { font-size: 11px; color: rgba(255,255,255,0.38); }
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.9rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+        }
 
-        /* HOW IT WORKS */
-        .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 2.5rem; }
-        .step { text-align: center; padding: 1.5rem 1rem; }
-        .step-num { width: 42px; height: 42px; background: #0f6e46; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: #fff; margin: 0 auto 1rem; }
-        .step h3 { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 6px; }
-        .step p { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.65; }
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.9rem;
+            min-width: 0;
+        }
 
-        /* CTA */
-        .lp-cta { background: rgba(15,110,70,0.2); border: 1px solid rgba(200,165,71,0.45); border-radius: 18px; padding: 4.5rem 2rem; text-align: center; max-width: 680px; margin: 0 auto 5rem; }
-        .lp-cta h2 { font-size: 1.9rem; font-weight: 600; color: #fff; margin-bottom: 1rem; }
-        .lp-cta p { font-size: 14px; color: rgba(255,255,255,0.52); margin-bottom: 2.25rem; line-height: 1.7; }
+        .brand-mark {
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: #fff;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+        }
 
-        /* FOOTER */
-        .lp-footer { padding: 2.5rem; text-align: center; border-top: 1px solid rgba(200,165,71,0.25); }
-        .lp-footer p { font-size: 12px; color: rgba(255,255,255,0.28); }
+        .brand-mark img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .brand-mark svg {
+            width: 26px;
+            height: 26px;
+            stroke: var(--accent);
+        }
+
+        .brand-copy {
+            min-width: 0;
+        }
+
+        .brand-kicker {
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .brand-title {
+            margin-top: 0.15rem;
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            padding: 0.88rem 1.25rem;
+            font-size: 0.94rem;
+            font-weight: 700;
+            transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-1px);
+        }
+
+        .button-primary {
+            color: #fff;
+            background: var(--accent);
+        }
+
+        .button-secondary {
+            color: var(--accent);
+            background: #fff;
+            border: 1px solid var(--border);
+        }
+
+        .hero {
+            padding: 4.5rem 0 3rem;
+        }
+
+        .hero-card {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(180px, 280px);
+            gap: 2rem;
+            align-items: center;
+            padding: 3rem;
+            border-radius: 32px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.78);
+            box-shadow: var(--shadow);
+        }
+
+        .hero-copy {
+            min-width: 0;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            margin-bottom: 1rem;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .hero-title {
+            margin: 0;
+            max-width: 11ch;
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 8vw, 5.4rem);
+            line-height: 0.98;
+            color: var(--text);
+        }
+
+        .hero-description {
+            max-width: 60ch;
+            margin: 1.4rem 0 0;
+            font-size: 1rem;
+            line-height: 1.9;
+            color: var(--muted);
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .hero-logo-side {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-logo-frame {
+            width: min(100%, 250px);
+            aspect-ratio: 1;
+            display: grid;
+            place-items: center;
+            border-radius: 28px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.68);
+            padding: 1.4rem;
+        }
+
+        .hero-logo-frame img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .summary {
+            padding-bottom: 4rem;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .summary-card {
+            padding: 1.35rem;
+            border-radius: 22px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.72);
+        }
+
+        .summary-card h3 {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--text);
+        }
+
+        .summary-card p {
+            margin: 0.7rem 0 0;
+            font-size: 0.92rem;
+            line-height: 1.75;
+            color: var(--muted);
+        }
+
+        .footer {
+            padding: 0 0 2.5rem;
+        }
+
+        .footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-copy,
+        .footer-note,
+        .footer-credits {
+            font-size: 0.84rem;
+            color: var(--muted);
+        }
+
+        .footer-credits strong {
+            color: var(--text);
+        }
+
+        @media (max-width: 760px) {
+            .container {
+                width: min(100% - 1.2rem, 100%);
+            }
+
+            .header-inner,
+            .footer-inner {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-actions {
+                justify-content: flex-start;
+            }
+
+            .hero {
+                padding-top: 2.4rem;
+            }
+
+            .hero-card {
+                grid-template-columns: 1fr;
+                padding: 1.6rem;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
+    <header class="header">
+        <div class="container">
+            <div class="header-inner">
+                <a href="{{ url('/') }}" class="brand">
+                    <div class="brand-mark">
+                        @if ($logoUrl)
+                            <img src="{{ $logoUrl }}" alt="Logo de {{ $appName }}">
+                        @else
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2v20M5 7h14M7.5 12h9M9.5 17h5" />
+                            </svg>
+                        @endif
+                    </div>
+                    <div class="brand-copy">
+                        <div class="brand-kicker">Gestión Parroquial</div>
+                        <div class="brand-title">Holy App</div>
+                    </div>
+                </a>
 
-    {{-- NAVEGACIÓN --}}
-    <nav class="lp-nav">
-        <a href="/" class="nav-logo">
-            <div class="nav-logo-icon">
-                <svg width="20" height="20" fill="none" stroke="#1f4f7d" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                    <polyline points="9 22 9 12 15 12 15 22"/>
-                </svg>
-            </div>
-            <span class="nav-logo-text">{{ $appName }}</span>
-        </a>
-        <div class="nav-links">
-            <a href="#caracteristicas">Características</a>
-            <a href="#sacramentos">Sacramentos</a>
-            <a href="#como-funciona">¿Cómo funciona?</a>
-            <a href="{{ route('login') }}" class="btn-nav-login">Iniciar sesión</a>
-            <a href="{{ route('register.organization') }}" class="btn-nav-register">Registrar parroquia</a>
-        </div>
-    </nav>
-
-    {{-- HERO --}}
-    <section class="lp-hero">
-        <h1>Gestión parroquial <span>moderna y ordenada</span></h1>
-        <div class="hero-btns">
-            <a href="{{ route('register.organization') }}" class="btn-primary">Registrar mi parroquia</a>
-            <a href="{{ route('login') }}" class="btn-outline">Iniciar sesión</a>
-        </div>
-    </section>
-
-    {{-- CARACTERÍSTICAS --}}
-    <section class="lp-section" id="caracteristicas">
-        <p class="section-eyebrow">Funcionalidades</p>
-        <h2 class="section-title">Todo lo que necesita tu parroquia</h2>
-        <p class="section-sub">Desde el censo de feligreses hasta la emisión de certificados digitales, cubrimos cada proceso administrativo de tu parroquia.</p>
-        <div class="feat-grid">
-            <div class="feat-card">
-                <div class="feat-icon" style="background:rgba(42,121,179,0.22)">
-                    <svg width="20" height="20" fill="none" stroke="#f4e6bc" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                <div class="header-actions">
+                    @auth
+                        <a href="{{ url('/dashboard') }}" class="button button-secondary">Ir al panel</a>
+                    @else
+                        <a href="{{ route('login') }}" class="button button-secondary">Iniciar sesión</a>
+                        @if ($hasRegisterOrganization && $canRegisterOrganization)
+                            <a href="{{ route('register.organization') }}" class="button button-primary">Configurar parroquia</a>
+                        @elseif ($hasRegister && $canRegisterOrganization)
+                            <a href="{{ route('register') }}" class="button button-primary">Crear cuenta</a>
+                        @endif
+                    @endauth
                 </div>
-                <h3>Censo de feligreses</h3>
-                <p>Registro completo con datos personales, historial sacramental y seguimiento de actividad.</p>
-            </div>
-            <div class="feat-card">
-                <div class="feat-icon" style="background:rgba(15,110,70,0.2)">
-                    <svg width="20" height="20" fill="none" stroke="#d8f1e6" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                </div>
-                <h3>Certificados digitales</h3>
-                <p>Emite actas de bautismo, matrimonio y confirmación en formato PDF con sello parroquial.</p>
-            </div>
-            <div class="feat-card">
-                <div class="feat-icon" style="background:rgba(161,59,59,0.2)">
-                    <svg width="20" height="20" fill="none" stroke="#f0b4b4" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-                </div>
-                <h3>Registro de matrimonios</h3>
-                <p>Historial completo con datos de contrayentes, testigos y fecha de celebración.</p>
-            </div>
-            <div class="feat-card">
-                <div class="feat-icon" style="background:rgba(42,121,179,0.2)">
-                    <svg width="20" height="20" fill="none" stroke="#cbe4f6" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6.253v11.494m-5.747-8.12l11.494 4.373M6.253 14.373l11.494-4.373"/></svg>
-                </div>
-                <h3>Inscripción a cursos</h3>
-                <p>Gestiona catequesis, confirmación y otros cursos con listas de inscritos en tiempo real.</p>
-            </div>
-            <div class="feat-card">
-                <div class="feat-icon" style="background:rgba(200,165,71,0.2)">
-                    <svg width="20" height="20" fill="none" stroke="#f4d780" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                </div>
-                <h3>Dashboard de actividad</h3>
-                <p>Visualiza la actividad sacramental mensual y anual con gráficos claros y métricas clave.</p>
-            </div>
-            <div class="feat-card">
-                <div class="feat-icon" style="background:rgba(200,165,71,0.18)">
-                    <svg width="20" height="20" fill="none" stroke="#f4e6bc" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-                </div>
-                <h3>Multi-parroquia</h3>
-                <p>Cada parroquia tiene su propia base de datos aislada. Seguridad y privacidad garantizadas.</p>
             </div>
         </div>
-    </section>
+    </header>
 
-    {{-- SACRAMENTOS --}}
-    <section class="lp-section" id="sacramentos" style="padding-top: 0;">
-        <p class="section-eyebrow">Sacramentos</p>
-        <h2 class="section-title">Custodiando cada momento sagrado</h2>
-        <p class="section-sub">Registra, consulta y certifica todos los sacramentos de tu comunidad desde un solo sistema.</p>
-        <div class="sacr-grid">
-            <div class="sacr-card">
-                <div class="sacr-dot" style="background:rgba(42,121,179,0.5)"></div>
-                <h4>Bautismo</h4>
-                <p>Registro y certificado</p>
+    <main>
+        <section class="hero">
+            <div class="container">
+                <div class="hero-card">
+                    <div class="hero-copy">
+                        <div class="eyebrow">Archivo parroquial ordenado</div>
+                        <h1 class="hero-title">Una forma simple de gestionar la vida sacramental.</h1>
+                        <p class="hero-description">
+                            Registra feligreses, sacramentos, certificados y procesos parroquiales desde un solo lugar,
+                            con una interfaz clara y enfocada en el trabajo diario.
+                        </p>
+
+                        <div class="hero-actions">
+                            @auth
+                                <a href="{{ url('/dashboard') }}" class="button button-primary">Entrar al sistema</a>
+                            @else
+                                <a href="{{ route('login') }}" class="button button-primary">Abrir el sistema</a>
+                                @if ($hasRegisterOrganization && $canRegisterOrganization)
+                                    <a href="{{ route('register.organization') }}" class="button button-secondary">Registrar parroquia</a>
+                                @endif
+                            @endauth
+                        </div>
+                    </div>
+
+                    @if ($rightLogoUrl)
+                        <div class="hero-logo-side">
+                            <div class="hero-logo-frame">
+                                <img src="{{ $rightLogoUrl }}" alt="Logo derecho">
+                            </div>
+                        </div>
+                    @endif
+                </div>
             </div>
-            <div class="sacr-card">
-                <div class="sacr-dot" style="background:rgba(161,59,59,0.5)"></div>
-                <h4>Matrimonio</h4>
-                <p>Acta y testigos</p>
+        </section>
+
+        <section class="summary">
+            <div class="container">
+                <div class="summary-grid">
+                    <article class="summary-card">
+                        <h3>Feligresía</h3>
+                        <p>Expedientes personales y familiares listos para consulta y seguimiento.</p>
+                    </article>
+
+                    <article class="summary-card">
+                        <h3>Sacramentos</h3>
+                        <p>Registro ordenado de bautismos, confirmaciones, comuniones y matrimonios.</p>
+                    </article>
+
+                    <article class="summary-card">
+                        <h3>Certificados</h3>
+                        <p>Documentos en PDF con un flujo claro para emisión y resguardo.</p>
+                    </article>
+                </div>
             </div>
-            <div class="sacr-card">
-                <div class="sacr-dot" style="background:rgba(15,110,70,0.5)"></div>
-                <h4>Confirmación</h4>
-                <p>Padrinos y padrinas</p>
-            </div>
-            <div class="sacr-card">
-                <div class="sacr-dot" style="background:rgba(200,165,71,0.5)"></div>
-                <h4>Comunión</h4>
-                <p>Historial sacramental</p>
-            </div>
-            <div class="sacr-card">
-                <div class="sacr-dot" style="background:rgba(42,121,179,0.5)"></div>
-                <h4>Cursos</h4>
-                <p>Inscripciones activas</p>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-inner">
+                <div class="footer-copy">{{ $appName }}</div>
+                <div class="footer-note">Gestión parroquial para sacramentos, feligresía y certificados.</div>
+                <div class="footer-credits">Créditos: desarrollado por <strong>NekoTech</strong>.</div>
             </div>
         </div>
-    </section>
-
-    {{-- CÓMO FUNCIONA --}}
-    <section class="lp-section" id="como-funciona" style="padding-top: 0;">
-        <p class="section-eyebrow">¿Cómo funciona?</p>
-        <h2 class="section-title">En 3 pasos ya estás operando</h2>
-        <div class="steps">
-            <div class="step">
-                <div class="step-num">1</div>
-                <h3>Registra tu parroquia</h3>
-                <p>Crea tu cuenta con los datos básicos de tu parroquia y comienza a gestionar de inmediato.</p>
-            </div>
-            <div class="step">
-                <div class="step-num">2</div>
-                <h3>Configura tu equipo</h3>
-                <p>Agrega al párroco y colaboradores con sus roles y permisos específicos.</p>
-            </div>
-            <div class="step">
-                <div class="step-num">3</div>
-                <h3>Comienza a gestionar</h3>
-                <p>Registra feligreses, sacramentos y emite certificados desde el primer día.</p>
-            </div>
-        </div>
-    </section>
-
-    {{-- CTA --}}
-    <div style="padding: 0 2rem;">
-        <div class="lp-cta">
-            <h2>¿Listo para digitalizar tu parroquia?</h2>
-            <p>Crea tu cuenta en minutos. Solo necesitas el nombre de tu parroquia y los datos del administrador para comenzar de forma gratuita.</p>
-            <a href="{{ route('register.organization') }}" class="btn-primary" style="font-size: 15px; padding: 14px 38px;">
-                Crear cuenta de parroquia
-            </a>
-        </div>
-    </div>
-
-    {{-- FOOTER --}}
-    <footer class="lp-footer">
-        <p>{{ $appName }}</p>
     </footer>
-
 </body>
 </html>

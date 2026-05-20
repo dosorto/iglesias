@@ -31,36 +31,43 @@ class Persona extends BaseModel
         return $value ?? '';
     }
 
+    protected function normalizarNombre(?string $value): ?string
+    {
+        $value = trim((string) $value);
+
+        return $value !== '' ? mb_strtoupper($value, 'UTF-8') : null;
+    }
+
     /**
-     * Mutator: Capitalize primer_nombre
+     * Mutator: Uppercase primer_nombre
      */
     public function setPrimerNombreAttribute($value): void
     {
-        $this->attributes['primer_nombre'] = Str::title($value);
+        $this->attributes['primer_nombre'] = $this->normalizarNombre($value);
     }
 
     /**
-     * Mutator: Capitalize segundo_nombre
+     * Mutator: Uppercase segundo_nombre
      */
     public function setSegundoNombreAttribute($value): void
     {
-        $this->attributes['segundo_nombre'] = $value ? Str::title($value) : null;
+        $this->attributes['segundo_nombre'] = $this->normalizarNombre($value);
     }
 
     /**
-     * Mutator: Capitalize primer_apellido
+     * Mutator: Uppercase primer_apellido
      */
     public function setPrimerApellidoAttribute($value): void
     {
-        $this->attributes['primer_apellido'] = Str::title($value);
+        $this->attributes['primer_apellido'] = $this->normalizarNombre($value);
     }
 
     /**
-     * Mutator: Capitalize segundo_apellido
+     * Mutator: Uppercase segundo_apellido
      */
     public function setSegundoApellidoAttribute($value): void
     {
-        $this->attributes['segundo_apellido'] = $value ? Str::title($value) : null;
+        $this->attributes['segundo_apellido'] = $this->normalizarNombre($value);
     }
 
     /**

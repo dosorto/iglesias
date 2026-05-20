@@ -44,6 +44,11 @@ class Iglesias extends Model
         return $iglesiaId ? static::query()->find($iglesiaId) : null;
     }
 
+    public static function registrationLocked(): bool
+    {
+        return static::query()->exists();
+    }
+
     protected $fillable = [
         'nombre',
         'direccion',
@@ -188,7 +193,7 @@ class Iglesias extends Model
     }
 
     public function religion()
-{
+    {
         return $this->belongsTo(Religion::class, 'id_religion')->withTrashed();
-}
+    }
 }

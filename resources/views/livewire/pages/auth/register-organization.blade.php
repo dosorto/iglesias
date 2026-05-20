@@ -36,6 +36,13 @@ new #[Layout('layouts.guest')] class extends Component
 
     public function mount(): void
     {
+        if (Iglesias::registrationLocked()) {
+            session()->flash('status', 'Esta instalación ya tiene una parroquia registrada. Inicia sesión para continuar.');
+            $this->redirectRoute('login', navigate: true);
+
+            return;
+        }
+
         $this->ensureCatolicaReligion();
     }
 
@@ -52,6 +59,13 @@ new #[Layout('layouts.guest')] class extends Component
 
     public function registerOrganization(): void
     {
+        if (Iglesias::registrationLocked()) {
+            session()->flash('status', 'Esta instalación ya tiene una parroquia registrada. Inicia sesión para continuar.');
+            $this->redirectRoute('login', navigate: true);
+
+            return;
+        }
+
         $this->ensureCatolicaReligion();
         $this->validateStepOne();
         $validated = $this->validate([

@@ -1,4 +1,4 @@
-@php
+﻿@php
     use Illuminate\Support\Facades\Storage;
     $bautizado   = $bautismo->bautizado?->persona;
     $padre       = $bautismo->padre?->persona;
@@ -146,7 +146,7 @@
                 <div>
                     <p class="text-xs text-gray-400 dark:text-gray-500 mb-1">Libro / Tomo</p>
                     <p class="text-sm font-mono font-semibold text-gray-800 dark:text-gray-100">
-                        {{ $bautismo->libro_bautismo ?? '—' }}
+                        {{ $bautismo->libro_bautismo ?? 'â€”' }}
                     </p>
                 </div>
                 <div>
@@ -155,8 +155,7 @@
                         {{ $estadoRegistro }}
                     </span>
                 </div>
-            </div>
-        </div>
+
 
         {{-- EXPEDICIÓN CERTIFICADO --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 space-y-3">
@@ -197,8 +196,8 @@
             </div>
 
                  <div>
-                  <label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Párroco Celebrante / Anterior</label>
-                  <input wire:model="parroco_celebrante" type="text"
+                  <label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Ministro Celebrante / Anterior</label>
+                  <input wire:model="ministro_celebrante" type="text"
                       class="w-full px-2 py-1.5 text-xs rounded-md border border-gray-300 dark:border-gray-600
                           bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                           focus:ring-1 focus:ring-blue-500 focus:border-transparent">
@@ -335,5 +334,43 @@
             </div>
         </div>
     </div>
+
+    {{-- MODAL - Confirmación Ministro Celebrante --}}
+    @if($mostrarAvisoMinistroCelebrante)
+        <div class="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-sm w-full mx-4">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-yellow-50 dark:bg-yellow-900/20">
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0">
+                            <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0 0v2m0-2h2m-2 0h-2m8.5-1c.5.5.5 1.5 0 2-.5.5-1.5.5-2 0M12 8c.5.5.5 1.5 0 2s-1.5.5-2 0m7-2c.5.5.5 1.5 0 2-.5.5-1.5.5-2 0M12 4c.5.5.5 1.5 0 2s-1.5.5-2 0"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-2m0-12h2m-7 4h2m-2 8h2"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-yellow-900 dark:text-yellow-100">Aviso</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="px-6 py-4">
+                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                        {{ $avisoMinistroCelebrante }}
+                    </p>
+                </div>
+
+                <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex gap-3">
+                    <button wire:click="confirmarYGuardarConMinistroCelebrante()"
+                            class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                        Sí, llenar y guardar
+                    </button>
+                    <button wire:click="rechazarAvisoYGuardar()"
+                            class="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-700 text-gray-900 dark:text-white text-sm font-semibold rounded-lg transition-colors">
+                        No, guardar así
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 
 </div>

@@ -223,18 +223,16 @@
     $mesExp = $fechaExp ? ($mesesEs[$fechaExp->month] ?? '') : '';
     $anoExp = $fechaExp?->year ?? '';
 
-    $lugarExp = trim((string) ($iglesiaConfig?->direccion ?? ''));
-    if ($lugarExp === '') {
-        $lugarExp = trim((string) ($bautismo->iglesia?->direccion ?? ''));
+    $lugarCelebracion = trim((string) ($bautismo->lugar_celebracion ?? ''));
+    if ($lugarCelebracion === '') {
+        $lugarCelebracion = trim((string) ($bautismo->iglesia?->nombre ?? $parroquiaNombre));
     }
-    if ($lugarExp === '') {
-        $lugarExp = trim((string) ($bautismo->lugar_expedicion ?? ''));
-    }
+    $lugarExp = trim((string) ($iglesiaConfig?->direccion ?? $bautismo->iglesia?->direccion ?? ''));
     if ($lugarExp === '') {
         $lugarExp = 'Monjarás, Marcovia, Choluteca, Honduras C. A.';
     }
 
-    $parrocoCelebrante = mb_strtoupper(trim((string) ($bautismo->parroco_celebrante ?: ($encargado?->nombre_completo ?? ''))), 'UTF-8');
+    $ministroCelebrante = mb_strtoupper(trim((string) ($bautismo->ministro_celebrante ?: ($encargado?->nombre_completo ?? ''))), 'UTF-8');
     $firmaEncargadoNombre = mb_strtoupper(trim((string) ($encargado?->nombre_completo ?? '')), 'UTF-8');
 
     $firmaPath = $resolvePublicFilePath($bautismo->encargado?->path_firma_principal);
@@ -292,7 +290,7 @@
         <div class="spacer-1"></div>
 
         <p>
-            En la <span class="line line-lg">{{ $parroquiaNombre }}</span>
+            En <span class="line line-lg">{{ $lugarCelebracion }}</span>
             a los <span class="line line-xxs">{{ $diaBautismo }}</span>
             días del mes de <span class="line line-md">{{ $mesBautismo }}</span>
             bauticé  (P. <span class="line line-xl">{{ $firmaEncargadoNombre }}</span>)
@@ -315,9 +313,9 @@
     </div>
 
     <div class="signature-center">
-        <div class="signature-label">{{ $parrocoCelebrante }}</div>
+        <div class="signature-label">{{ $ministroCelebrante }}</div>
         <div class="signature-line"></div>
-        <div class="signature-sub">Cura Párroco</div>
+        <div class="signature-sub">Ministro Celebrante</div>
     </div>
 
     <div class="notes">

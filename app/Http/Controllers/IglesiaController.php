@@ -22,12 +22,22 @@ class IglesiaController extends Controller
 
     public function create()
     {
+        if (Iglesias::registrationLocked()) {
+            return redirect()->route('iglesias.index')
+                ->with('error', 'Ya existe una parroquia registrada. Esta instalación solo permite una iglesia.');
+        }
+
         $religiones = Religion::orderBy('religion')->get();
         return view('Iglesias.create', compact('religiones'));
     }
 
     public function store(StoreIglesiaRequest $request)
     {
+        if (Iglesias::registrationLocked()) {
+            return redirect()->route('iglesias.index')
+                ->with('error', 'Ya existe una parroquia registrada. Esta instalación solo permite una iglesia.');
+        }
+
         $iglesia = Iglesias::create([
             'nombre'        => $request->nombre,
             'direccion'     => $request->direccion,
