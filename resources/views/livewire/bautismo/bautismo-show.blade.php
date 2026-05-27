@@ -18,10 +18,10 @@
         'Madre'             => $bautismo->madre_id,
         'Padrino'           => $bautismo->padrino_id,
         'Madrina'           => $bautismo->madrina_id,
-        'Lugar de nacimiento' => $lugar_nacimiento,
-        'Fecha de expedición' => $diaExp && $mesExp && $anoExp ? "{$diaExp}/{$mesExp}/{$anoExp}" : null,
-        'Nota marginal'       => $nota_marginal,
-        'Ministro celebrante' => $ministro_celebrante,
+        'Lugar de nacimiento' => $bautismo->lugar_nacimiento,
+        'Fecha de expedición' => $bautismo->fecha_expedicion,
+        'Nota marginal'       => $bautismo->nota_marginal,
+        'Ministro celebrante' => $bautismo->ministro_celebrante,
     ];
     $faltantesLista = array_keys(array_filter($datosCriticos, fn($v) => ! filled($v)));
     $datosCriticosFaltantes = ! empty($faltantesLista);

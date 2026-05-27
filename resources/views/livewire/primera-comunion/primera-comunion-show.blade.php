@@ -13,8 +13,8 @@
     $datosCriticos = [
         'Fecha de primera comunión' => $primeraComunion->fecha_primera_comunion,
         'Comulgante'                => $primeraComunion->id_feligres,
-        'Fecha de expedición'       => $diaExp && $mesExp && $anoExp ? "{$diaExp}/{$mesExp}/{$anoExp}" : null,
-        'Nota marginal'             => $nota_marginal,
+        'Fecha de expedición'       => $primeraComunion->fecha_expedicion,
+        'Nota marginal'             => $primeraComunion->nota_marginal,
     ];
     $faltantesLista = array_keys(array_filter($datosCriticos, fn($v) => ! filled($v)));
     $datosCriticosFaltantes = ! empty($faltantesLista);
