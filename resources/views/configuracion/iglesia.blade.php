@@ -96,7 +96,7 @@
                         @if ($logoDerUrl && $logoDerUrl !== $logoUrl)
                             <img src="{{ $logoDerUrl }}" alt="Logo derecha" class="w-12 h-12 object-contain rounded border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 p-1">
                         @endif
-                        <a href="{{ route('iglesia.logo') }}"
+                        <a href="{{ route('configuracion.certificado-bautismo') }}"
                            class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
                             Cambiar logos →
                         </a>

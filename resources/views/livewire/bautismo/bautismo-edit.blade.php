@@ -63,7 +63,7 @@
 
                 {{-- ── Parroquia bloqueada ───────────────────────────────── --}}
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Parroquia</label>
+                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Parroquia <span class="text-red-500">*</span></label>
                     <div class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-gray-700
                                 bg-gray-50 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300
                                 flex items-center gap-2 select-none">
@@ -112,7 +112,7 @@
                 {{-- ── Libro de Bautismo ───────────────────────────────── --}}
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                        Libro de Bautismo
+                        Libro de Bautismo <span class="text-red-500">*</span>
                     </label>
                     <input type="text"
                            wire:model.live.debounce.400ms="libro_bautismo"
@@ -130,7 +130,7 @@
                 {{-- ── Folio ───────────────────────────────────────────── --}}
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                        Folio
+                        Folio <span class="text-red-500">*</span>
                     </label>
                     <input type="text"
                            wire:model.live.debounce.400ms="folio"
@@ -148,7 +148,7 @@
                 {{-- ── Partida N° ──────────────────────────────────────── --}}
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                        Partida N°
+                        Partida N° <span class="text-red-500">*</span>
                     </label>
                     <input type="text"
                            wire:model.live.debounce.400ms="partida_numero"

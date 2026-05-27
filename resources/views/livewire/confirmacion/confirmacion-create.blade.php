@@ -601,7 +601,6 @@
                              bg-violet-100 dark:bg-violet-900/60 text-violet-700 dark:text-violet-300
                              text-xs font-bold ring-2 ring-violet-200 dark:ring-violet-700/50">2</span>
                 <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-100 tracking-wide uppercase">Libro Parroquial</h2>
-                <span class="text-xs text-gray-400 font-normal normal-case tracking-normal">(opcional)</span>
             </div>
             <div class="p-6 grid grid-cols-1 sm:grid-cols-3 gap-5">
 
@@ -629,7 +628,7 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                        Libro de Confirmación
+                        Libro de Confirmación <span class="text-red-500">*</span>
                     </label>
                     <input type="text" wire:model="libro_confirmacion" placeholder="Ej: Tomo III"
                            class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600
@@ -638,7 +637,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Folio</label>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Folio <span class="text-red-500">*</span></label>
                     <input type="text" wire:model="folio" placeholder="Ej: 42"
                            class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600
                                   bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white
@@ -646,7 +645,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Partida Número</label>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Partida Número <span class="text-red-500">*</span></label>
                     <input type="text" wire:model="partida_numero" placeholder="Ej: 0125"
                            class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600
                                   bg-gray-50 dark:bg-gray-700/60 text-gray-900 dark:text-white

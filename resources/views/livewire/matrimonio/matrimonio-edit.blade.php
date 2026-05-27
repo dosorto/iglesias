@@ -54,7 +54,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Parroquia</label>
+                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Parroquia <span class="text-red-500">*</span></label>
                     <div class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-gray-700
                                 bg-gray-50 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300
                                 flex items-center gap-2 select-none">
@@ -484,7 +484,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2 border-t border-gray-100 dark:border-gray-700/60">
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Libro</label>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Libro <span class="text-red-500">*</span></label>
                     <input wire:model.lazy="libro_matrimonio" type="text" placeholder="Ej: Libro III"
                            class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600
                                   bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white placeholder-gray-400
@@ -492,7 +492,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Folio</label>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Folio <span class="text-red-500">*</span></label>
                     <input wire:model.lazy="folio" type="text" placeholder="Ej: F-10"
                            class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600
                                   bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white placeholder-gray-400
@@ -500,7 +500,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Partida N°</label>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Partida N° <span class="text-red-500">*</span></label>
                     <input wire:model.lazy="partida_numero" type="text" placeholder="Ej: P-0010"
                            class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600
                                   bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white placeholder-gray-400

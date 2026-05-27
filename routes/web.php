@@ -535,7 +535,7 @@ Route::middleware(['auth', 'encargado.pending'])->group(function () {
     ->name('instructor.inscripcion.create');
 
     
-    Route::middleware('permission:iglesias.logo')
+    Route::middleware('role:admin|root')
     ->get('/iglesia/logo', \App\Livewire\Iglesia\IglesiaLogoUpdate::class)
     ->name('iglesia.logo');
 

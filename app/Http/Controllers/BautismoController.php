@@ -44,6 +44,10 @@ class BautismoController extends Controller
             'Madre'             => $bautismo->madre_id,
             'Padrino'           => $bautismo->padrino_id,
             'Madrina'           => $bautismo->madrina_id,
+            'Lugar de nacimiento' => $bautismo->lugar_nacimiento,
+            'Fecha de expedición' => $bautismo->fecha_expedicion,
+            'Nota marginal'       => $bautismo->nota_marginal,
+            'Ministro celebrante' => $bautismo->ministro_celebrante,
         ];
         $faltantes = array_keys(array_filter($datosCriticos, fn($v) => ! filled($v)));
         if (! empty($faltantes)) {

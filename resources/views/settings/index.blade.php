@@ -206,7 +206,7 @@
         @endcan
 
         {{-- Logo de la Parroquia --}}
-       @can('iglesias.logo')
+       @if (auth()->user()?->hasAnyRole(['admin', 'root']))
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
             <div class="flex items-center mb-4">
                 <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center mr-4">
@@ -239,7 +239,7 @@
                         </span>
                     @endif
                 </span>
-                <a href="{{ route('iglesia.logo') }}"
+                <a href="{{ route('configuracion.certificado-bautismo') }}"
                    class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -264,7 +264,7 @@
         </a>
     </div>
 </div>
-@endcan
+@endif
 
         {{-- Logo e Imagen de Parroquia / Certificados --}}
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">

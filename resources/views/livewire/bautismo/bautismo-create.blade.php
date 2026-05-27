@@ -755,7 +755,6 @@
                 <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-100 tracking-wide uppercase">
                     Libro Parroquial
                 </h2>
-                <span class="text-xs text-gray-400 font-normal normal-case tracking-normal">(opcional)</span>
             </div>
 
             <div class="p-6 grid grid-cols-1 sm:grid-cols-3 gap-5">
@@ -780,7 +779,7 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                        Libro de Bautismo
+                        Libro de Bautismo <span class="text-red-500">*</span>
                     </label>
                     <input type="text" wire:model="libro_bautismo"
                            placeholder="Ej: Tomo III"
@@ -792,7 +791,7 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                        Folio
+                        Folio <span class="text-red-500">*</span>
                     </label>
                     <input type="text" wire:model="folio"
                            placeholder="Ej: 42"
@@ -804,7 +803,7 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                        Partida Número
+                        Partida Número <span class="text-red-500">*</span>
                     </label>
                     <input type="text" wire:model="partida_numero"
                            placeholder="Ej: 0125"

@@ -13,6 +13,8 @@
     $datosCriticos = [
         'Fecha de primera comunión' => $primeraComunion->fecha_primera_comunion,
         'Comulgante'                => $primeraComunion->id_feligres,
+        'Fecha de expedición'       => $diaExp && $mesExp && $anoExp ? "{$diaExp}/{$mesExp}/{$anoExp}" : null,
+        'Nota marginal'             => $nota_marginal,
     ];
     $faltantesLista = array_keys(array_filter($datosCriticos, fn($v) => ! filled($v)));
     $datosCriticosFaltantes = ! empty($faltantesLista);
@@ -154,7 +156,7 @@
             <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Expedición Certificado</p>
 
             <div>
-                <label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Día / Mes / Año</label>
+                <label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Día / Mes / Año <span class="text-red-500">*</span></label>
                 <div class="grid grid-cols-3 gap-1">
                     <input wire:model="exp_dia" type="number" min="1" max="31" placeholder="DD"
                            class="px-2 py-1.5 text-xs rounded-md border border-gray-300 dark:border-gray-600
@@ -172,7 +174,7 @@
             </div>
 
             <div>
-                <label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Nota Marginal</label>
+                <label class="block text-xs text-gray-400 dark:text-gray-500 mb-1">Nota Marginal <span class="text-red-500">*</span></label>
                 <textarea wire:model="nota_marginal" rows="2"
                           class="w-full px-2 py-1.5 text-xs rounded-md border border-gray-300 dark:border-gray-600
                                  bg-white dark:bg-gray-700 text-gray-900 dark:text-white

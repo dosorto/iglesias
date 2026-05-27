@@ -3,6 +3,7 @@
 namespace App\Livewire\Iglesia;
 
 use App\Models\TenantIglesia;
+use Illuminate\Http\UploadedFile;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
@@ -250,12 +251,8 @@ class CertificadoConfigIndex extends Component
         $columnaPath = $this->columnaPathPorOrientacion($tipo, $orientacion);
         $archivoActual = $this->iglesia->{$columnaPath};
 
-        if ($archivoActual) {
-            Storage::disk('public')->delete($archivoActual);
-        }
-
         $archivo = data_get($this->formatos_nuevos, "$tipo.$orientacion");
-        $path = $archivo->store('certificados', 'public');
+        $path = $this->storePublicUpload($archivo, 'certificados');
 
         $updates = [
             $columnaPath => $path,
@@ -267,6 +264,7 @@ class CertificadoConfigIndex extends Component
         }
 
         $this->iglesia->update($updates);
+        $this->deletePublicFileSilently($archivoActual);
 
         $this->formatos_nuevos[$tipo][$orientacion] = null;
         $this->iglesia->refresh();
@@ -305,7 +303,7 @@ class CertificadoConfigIndex extends Component
             return;
         }
 
-        Storage::disk('public')->delete($archivoActual);
+        $this->deletePublicFileSilently($archivoActual);
         $this->iglesia->update([$columnaObjetivo => null]);
         $this->iglesia->refresh();
 
@@ -363,12 +361,10 @@ class CertificadoConfigIndex extends Component
             return;
         }
 
-        if ($this->iglesia->path_logo) {
-            Storage::disk('public')->delete($this->iglesia->path_logo);
-        }
-
-        $path = $this->logo_nuevo->store('logos', 'public');
+        $pathAnterior = $this->iglesia->path_logo;
+        $path = $this->storePublicUpload($this->logo_nuevo, 'logos');
         $this->iglesia->update(['path_logo' => $path]);
+        $this->deletePublicFileSilently($pathAnterior);
 
         $this->logo_nuevo = null;
         $this->iglesia->refresh();
@@ -383,7 +379,7 @@ class CertificadoConfigIndex extends Component
             return;
         }
 
-        Storage::disk('public')->delete($this->iglesia->path_logo);
+        $this->deletePublicFileSilently($this->iglesia->path_logo);
         $this->iglesia->update(['path_logo' => null]);
         $this->iglesia->refresh();
 
@@ -407,12 +403,10 @@ class CertificadoConfigIndex extends Component
             return;
         }
 
-        if ($this->iglesia->path_logo_derecha) {
-            Storage::disk('public')->delete($this->iglesia->path_logo_derecha);
-        }
-
-        $path = $this->logo_derecha_nuevo->store('logos', 'public');
+        $pathAnterior = $this->iglesia->path_logo_derecha;
+        $path = $this->storePublicUpload($this->logo_derecha_nuevo, 'logos');
         $this->iglesia->update(['path_logo_derecha' => $path]);
+        $this->deletePublicFileSilently($pathAnterior);
 
         $this->logo_derecha_nuevo = null;
         $this->iglesia->refresh();
@@ -427,7 +421,7 @@ class CertificadoConfigIndex extends Component
             return;
         }
 
-        Storage::disk('public')->delete($this->iglesia->path_logo_derecha);
+        $this->deletePublicFileSilently($this->iglesia->path_logo_derecha);
         $this->iglesia->update(['path_logo_derecha' => null]);
         $this->iglesia->refresh();
 
@@ -456,5 +450,25 @@ class CertificadoConfigIndex extends Component
         $paperSizeOptions = self::PAPER_SIZES;
 
         return view('livewire.iglesia.certificado-config-index', compact('formatos', 'paperSizeOptions'));
+    }
+
+    private function storePublicUpload(UploadedFile $file, string $directory): string
+    {
+        Storage::disk('public')->makeDirectory($directory);
+
+        return $file->store($directory, 'public');
+    }
+
+    private function deletePublicFileSilently(?string $path): void
+    {
+        if (! filled($path)) {
+            return;
+        }
+
+        try {
+            Storage::disk('public')->delete($path);
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
     }
 }

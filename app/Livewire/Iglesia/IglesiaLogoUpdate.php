@@ -5,6 +5,7 @@ namespace App\Livewire\Iglesia;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\WithFileUploads;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Iglesias;
 
@@ -33,13 +34,10 @@ class IglesiaLogoUpdate extends Component
             'logo_nuevo.max'      => 'La imagen no debe superar los 2MB.',
         ]);
 
-        // Eliminar logo anterior si existe
-        if ($this->iglesia->path_logo) {
-            Storage::disk('public')->delete($this->iglesia->path_logo);
-        }
-
-        $path = $this->logo_nuevo->store('logos', 'public');
+        $pathAnterior = $this->iglesia->path_logo;
+        $path = $this->storePublicUpload($this->logo_nuevo, 'logos');
         $this->iglesia->update(['path_logo' => $path]);
+        $this->deletePublicFileSilently($pathAnterior);
         $this->iglesia->refresh();
 
         $this->logo_nuevo = null;
@@ -49,7 +47,7 @@ class IglesiaLogoUpdate extends Component
     public function eliminarLogo(): void
     {
         if ($this->iglesia->path_logo) {
-            Storage::disk('public')->delete($this->iglesia->path_logo);
+            $this->deletePublicFileSilently($this->iglesia->path_logo);
             $this->iglesia->update(['path_logo' => null]);
             $this->iglesia->refresh();
         }
@@ -59,5 +57,25 @@ class IglesiaLogoUpdate extends Component
     public function render()
     {
         return view('livewire.iglesia.iglesia-logo-update');
+    }
+
+    private function storePublicUpload(UploadedFile $file, string $directory): string
+    {
+        Storage::disk('public')->makeDirectory($directory);
+
+        return $file->store($directory, 'public');
+    }
+
+    private function deletePublicFileSilently(?string $path): void
+    {
+        if (! filled($path)) {
+            return;
+        }
+
+        try {
+            Storage::disk('public')->delete($path);
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
     }
 }

@@ -658,21 +658,21 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Libro</label>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Libro <span class="text-red-500">*</span></label>
                     <input wire:model="libro_matrimonio" type="text" placeholder="Ej: Libro 1"
                            class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600
                                   bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
                                   focus:ring-2 focus:ring-rose-500 focus:border-transparent">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Folio</label>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Folio <span class="text-red-500">*</span></label>
                     <input wire:model="folio" type="text" placeholder="Ej: F-01"
                            class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600
                                   bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
                                   focus:ring-2 focus:ring-rose-500 focus:border-transparent">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Partida N°</label>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Partida N° <span class="text-red-500">*</span></label>
                     <input wire:model="partida_numero" type="text" placeholder="Ej: P-0001"
                            class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-300 dark:border-gray-600
                                   bg-white dark:bg-gray-700/60 text-gray-900 dark:text-white
