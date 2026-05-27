@@ -34,28 +34,6 @@
         </div>
         @endcan
 
-        @can('matrimonio.view')
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
-            <div class="flex items-center mb-4">
-                <div class="w-12 h-12 bg-rose-100 dark:bg-rose-900/30 rounded-lg flex items-center justify-center mr-4">
-                    <svg class="w-6 h-6 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Matrimonios</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-300">Administra los registros de matrimonio</p>
-                </div>
-            </div>
-            <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-500 dark:text-gray-400">{{ \App\Models\Matrimonio::count() }} registros</span>
-                <a href="{{ route('matrimonio.index') }}" class="inline-flex items-center px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
-                    Gestionar
-                </a>
-            </div>
-        </div>
-        @endcan
-
         @can('confirmacion.view')
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
             <div class="flex items-center mb-4">
@@ -94,6 +72,28 @@
             <div class="flex justify-between items-center">
                 <span class="text-sm text-gray-500 dark:text-gray-400">{{ \App\Models\PrimeraComunion::count() }} registros</span>
                 <a href="{{ route('primera-comunion.index') }}" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+                    Gestionar
+                </a>
+            </div>
+        </div>
+        @endcan
+
+        @can('matrimonio.view')
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200">
+            <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-rose-100 dark:bg-rose-900/30 rounded-lg flex items-center justify-center mr-4">
+                    <svg class="w-6 h-6 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Matrimonios</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">Administra los registros de matrimonio</p>
+                </div>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-500 dark:text-gray-400">{{ \App\Models\Matrimonio::count() }} registros</span>
+                <a href="{{ route('matrimonio.index') }}" class="inline-flex items-center px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
                     Gestionar
                 </a>
             </div>

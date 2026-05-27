@@ -259,20 +259,6 @@
             ]);
         }
 
-        $encargadoTieneFirma = \App\Models\Encargado::query()
-            ->whereNotNull('path_firma_principal')
-            ->where('path_firma_principal', '!=', '')
-            ->exists();
-
-        if (! $encargadoTieneFirma) {
-            $dashboardAlerts->push([
-                'titulo' => 'Firma principal pendiente',
-                'descripcion' => 'Aun no hay un encargado con firma principal. Sin este dato no se pueden emitir algunos certificados.',
-                'cta' => 'Configurar encargado',
-                'route' => route('encargado.index'),
-            ]);
-        }
-
         $instructorSinFirmaCount = \App\Models\Instructor::query()
             ->where(function ($query) {
                 $query->whereNull('path_firma')
@@ -566,13 +552,6 @@
                 </div>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <div class="w-2.5 h-2.5 rounded-full bg-rose-500 flex-shrink-0"></div>
-                        <span class="text-sm text-gray-700 dark:text-gray-300">Matrimonio</span>
-                    </div>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $matrimonioMonthCount }}</span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
                         <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0"></div>
                         <span class="text-sm text-gray-700 dark:text-gray-300">Confirmación</span>
                     </div>
@@ -598,6 +577,13 @@
                         <span class="text-sm text-gray-700 dark:text-gray-300">Instructores</span>
                     </div>
                     <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $instructorMonthCount }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2.5 h-2.5 rounded-full bg-rose-500 flex-shrink-0"></div>
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Matrimonio</span>
+                    </div>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $matrimonioMonthCount }}</span>
                 </div>
             </div>
         </section>
