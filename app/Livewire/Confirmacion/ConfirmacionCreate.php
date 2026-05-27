@@ -285,12 +285,6 @@ class ConfirmacionCreate extends Component
             'mini_p_primer_nombre', 'mini_p_segundo_nombre',
             'mini_p_primer_apellido', 'mini_p_segundo_apellido',
             'mini_p_telefono', 'mini_p_email',
-            'libro_confirmacion.required' => 'El libro de confirmación es obligatorio.',
-            'libro_confirmacion.max'      => 'El libro de confirmación no puede superar los 50 caracteres.',
-            'folio.required'              => 'El folio es obligatorio.',
-            'folio.max'                   => 'El folio no puede superar los 50 caracteres.',
-            'partida_numero.required'     => 'El número de partida es obligatorio.',
-            'partida_numero.max'          => 'El número de partida no puede superar los 50 caracteres.',
         ]);
 
         $this->resetErrorBag();
@@ -468,6 +462,12 @@ class ConfirmacionCreate extends Component
         ], [
             'fecha_confirmacion.required' => 'La fecha de confirmación es obligatoria.',
             'fecha_confirmacion.date'     => 'La fecha de confirmación no es válida.',
+            'libro_confirmacion.required' => 'El libro de confirmación es obligatorio.',
+            'libro_confirmacion.max'      => 'El libro de confirmación no puede superar los 50 caracteres.',
+            'folio.required'              => 'El folio es obligatorio.',
+            'folio.max'                   => 'El folio no puede superar los 50 caracteres.',
+            'partida_numero.required'     => 'El número de partida es obligatorio.',
+            'partida_numero.max'          => 'El número de partida no puede superar los 50 caracteres.',
         ]);
 
         if (! $this->confirmado_feligres_id) {
