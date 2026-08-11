@@ -220,6 +220,12 @@
             font-size: 11pt;
             margin-top: 1px;
         }
+        .sig-title {
+            font-size: 10.5pt;
+            color: #555;
+            margin-top: 2px;
+            letter-spacing: 0.6px;
+        }
 
         /* ── ISSUANCE ── */
         .issuance {
@@ -433,7 +439,7 @@
         <div class="priest-cell">
             @if ($firmaPath && file_exists($firmaPath))
                 <div class="signature-image-wrap">
-                    <img src="{{ $firmaPath }}" alt="Firma del sacerdote" class="signature-image">
+                    <img src="{{ $firmaPath }}" alt="Firma del Encargado del Archivo" class="signature-image">
                 </div>
             @endif
             <span class="priest-sig-line"></span>

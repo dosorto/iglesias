@@ -43,9 +43,9 @@ class ConfirmacionShow extends Component
         // Si no tiene encargado asignado, tomar el encargado activo por defecto
         // igual que hace bautismo en su mount
         if (! $this->confirmacion->encargado) {
-            $encargadoDefault = Encargado::with('feligres.persona')
-                ->where('estado', 'Activo')
-                ->first();
+            $encargadoDefault = Encargado::activoParaIglesia(
+                session('tenant') ? TenantIglesia::currentId() : $this->confirmacion->iglesia_id
+            );
 
             if ($encargadoDefault) {
                 $this->confirmacion->encargado_id = $encargadoDefault->id;

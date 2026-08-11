@@ -138,7 +138,9 @@ class MatrimonioEdit extends Component
         }
 
         if (! $encargado) {
-            $encargado = Encargado::with('feligres.persona')->where('estado', 'Activo')->first();
+            $encargado = Encargado::activoParaIglesia(
+                session('tenant') ? TenantIglesia::currentId() : $this->matrimonio->iglesia_id
+            );
         }
 
         if ($encargado?->feligres?->persona) {

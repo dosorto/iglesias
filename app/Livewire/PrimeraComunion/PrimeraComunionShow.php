@@ -109,9 +109,7 @@ class PrimeraComunionShow extends Component
 
         // Si no tiene encargado asignado, tomar el encargado activo por defecto
         if (! $this->primeraComunion->encargado) {
-            $encargadoDefault = Encargado::with('feligres.persona')
-                ->where('estado', 'Activo')
-                ->first();
+            $encargadoDefault = Encargado::activoParaIglesia($this->primeraComunion->id_iglesia);
 
             if ($encargadoDefault) {
                 if (Schema::hasColumn('primeras_comuniones', 'encargado_id')) {

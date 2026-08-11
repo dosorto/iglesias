@@ -8,6 +8,7 @@ use App\Models\Feligres;
 use App\Models\Iglesias;
 use App\Models\TenantIglesia;
 use App\Models\Confirmacion;
+use App\Models\Encargado;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -19,6 +20,7 @@ class ConfirmacionCreate extends Component
 
     // Paso 1
     public $iglesia_id           = null;
+    public $encargado_id         = null;
     public string $fecha_confirmacion = '';
     public string $lugar_confirmacion = '';
     public $ministro_feligres_id = null;
@@ -91,6 +93,7 @@ class ConfirmacionCreate extends Component
         $this->lugar_confirmacion   = $parroquia !== '' ? $parroquia : 'Monjarás, Marcovia';
         $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
         $this->iglesia_id           = TenantIglesia::currentId();
+        $this->encargado_id         = Encargado::activoParaIglesia($this->iglesia_id)?->id;
     }
 
     // Navegación
@@ -490,6 +493,7 @@ class ConfirmacionCreate extends Component
 
         Confirmacion::create([
             'iglesia_id'          => $this->iglesia_id,
+            'encargado_id'        => $this->encargado_id ?: null,
             'fecha_confirmacion'  => $this->fecha_confirmacion,
             'lugar_confirmacion'  => $this->lugar_confirmacion ?: null,
             'feligres_id'         => $this->confirmado_feligres_id,

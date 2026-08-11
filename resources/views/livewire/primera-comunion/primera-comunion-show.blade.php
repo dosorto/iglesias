@@ -274,12 +274,12 @@
 
         {{-- MINISTROS --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">Catequista, Ministro y Párroco</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">Catequista, Ministro y Encargado del Archivo</p>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 @foreach ([
                     ['label' => 'Catequista', 'persona' => $catequista, 'color' => 'violet'],
                     ['label' => 'Ministro', 'persona' => $ministro, 'color' => 'teal'],
-                    ['label' => 'Párroco', 'persona' => $parroco, 'color' => 'amber'],
+                    ['label' => 'Encargado del Archivo', 'persona' => $parroco, 'color' => 'amber'],
                 ] as $item)
                     <div class="p-3 rounded-lg border bg-{{ $item['color'] }}-50 dark:bg-{{ $item['color'] }}-900/20 border-{{ $item['color'] }}-200 dark:border-{{ $item['color'] }}-700/40">
                         <p class="text-xs font-semibold uppercase tracking-wide text-{{ $item['color'] }}-600 dark:text-{{ $item['color'] }}-400">{{ $item['label'] }}</p>

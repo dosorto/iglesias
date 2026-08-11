@@ -89,10 +89,23 @@ class PrimeraComunionController extends Controller
             ?: ''
         );
 
+        // Encargado activo de la iglesia (fallback histórico si el registro no tiene encargado_id)
+        $encargadoFallback = Encargado::whereHas('feligres', function ($q) use ($primeraComunion) {
+                $q->where('id_iglesia', $primeraComunion->id_iglesia);
+            })
+            ->where('estado', 'Activo')
+            ->whereNull('deleted_at')
+            ->latest()
+            ->first();
+
+        $encargadoEfectivo = $primeraComunion->encargado ?? $encargadoFallback;
+
         $dataVersion = hash('sha256', implode('|', [
             (string) ($primeraComunion->updated_at?->timestamp ?? 0),
             (string) ($iglesiaConfig?->updated_at?->timestamp ?? 0),
-            (string) ($primeraComunion->encargado?->path_firma_principal ?? ''),
+            (string) ($encargadoEfectivo?->id ?? ''),
+            (string) ($encargadoEfectivo?->feligres?->persona?->nombre_completo ?? ''),
+            (string) ($encargadoEfectivo?->path_firma_principal ?? ''),
             (string) ($iglesiaConfig?->path_logo ?? ''),
             (string) ($iglesiaConfig?->path_logo_derecha ?? ''),
             $pathFormatoPrimeraComunion,
@@ -128,15 +141,6 @@ class PrimeraComunionController extends Controller
             'parroco.persona',
         ]);
 
-        // Encargado activo de la iglesia (para su firma en el PDF)
-        $encargado = Encargado::whereHas('feligres', function ($q) use ($primeraComunion) {
-                $q->where('id_iglesia', $primeraComunion->id_iglesia);
-            })
-            ->where('estado', 'Activo')
-            ->whereNull('deleted_at')
-            ->latest()
-            ->first();
-
         $libroN   = $num($primeraComunion->libro_comunion);
         $folioN   = $num($primeraComunion->folio);
         $partidaN = $num($primeraComunion->partida_numero);
@@ -148,7 +152,7 @@ class PrimeraComunionController extends Controller
         $nombreArchivo = sprintf('primera-comunion-%s-%s-%s.pdf', $ref, $apellido, $anio);
 
         $plantillaCertificadoPath = $pathFormatoPrimeraComunion;
-        $html = view('primera-comunion.certificado-pdf', compact('primeraComunion', 'encargado', 'iglesiaConfig', 'plantillaCertificadoPath'))->render();
+        $html = view('primera-comunion.certificado-pdf', compact('primeraComunion', 'encargadoEfectivo', 'iglesiaConfig', 'plantillaCertificadoPath'))->render();
 
         $pdf = Pdf::loadHTML($html)
             ->setPaper($paperSizePrimeraComunion, $orientation);
@@ -169,7 +173,7 @@ class PrimeraComunionController extends Controller
                 'layout_version' => $layoutVersion,
                 'data_version' => $dataVersion,
                 'registro' => $primeraComunion->toArray(),
-                'encargado' => $encargado?->toArray(),
+                'encargado' => $encargadoEfectivo?->toArray(),
                 'iglesia_config' => $iglesiaConfig?->toArray(),
             ],
             Auth::id()

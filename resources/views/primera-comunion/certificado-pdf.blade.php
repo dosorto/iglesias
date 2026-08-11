@@ -127,7 +127,7 @@
 
     $iglesia         = $primeraComunion->iglesia;
     $comulgante      = $primeraComunion->feligres?->persona;
-    $encargadoModel  = $primeraComunion->encargado;
+    $encargadoModel  = $primeraComunion->encargado ?? ($encargadoEfectivo ?? null);
     $encargadoPersn  = $encargadoModel?->feligres?->persona;
     $iglesiaNombre   = $iglesiaConfig?->nombre ?? $iglesia?->nombre ?? '';
     $headerDiocesis = $iglesiaConfig?->header_diocesis ?: '';

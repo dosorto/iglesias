@@ -89,7 +89,7 @@ class MatrimonioCreate extends Component
         $this->iglesia_id           = TenantIglesia::currentId();
         $this->aplicarLugarExpedicionPorDefecto();
 
-        $encargadoDefault   = Encargado::with('feligres.persona')->where('estado', 'Activo')->first();
+        $encargadoDefault   = Encargado::activoParaIglesia($this->iglesia_id);
         $this->encargado_id = $encargadoDefault?->id;
     }
 
@@ -448,7 +448,7 @@ class MatrimonioCreate extends Component
 
         // Estos datos se manejan automaticamente en creacion.
         $this->fecha_matrimonio = now()->format('Y-m-d');
-        $this->encargado_id = Encargado::where('estado', 'Activo')->value('id');
+        $this->encargado_id = Encargado::activoParaIglesia($this->iglesia_id)?->id;
 
         $this->validate([
             'fecha_matrimonio' => ['required', 'date'],

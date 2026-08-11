@@ -28,6 +28,9 @@ class EncargadoEdit extends Component
         $data = [];
 
         if ($this->firma) {
+            if ($this->encargado->path_firma_principal) {
+                Storage::disk('public')->delete($this->encargado->path_firma_principal);
+            }
             $data['path_firma_principal'] = $this->firma->store('firmas-encargado', 'public');
         }
 

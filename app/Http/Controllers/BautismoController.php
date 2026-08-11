@@ -35,7 +35,7 @@ class BautismoController extends Controller
     
     public function certificadoPdf(Bautismo $bautismo)
     {
-        $bautismo->loadMissing('encargado');
+        $bautismo->loadMissing('encargado.feligres.persona');
 
         $datosCriticos = [
             'Fecha de bautismo' => $bautismo->fecha_bautismo,
@@ -87,6 +87,8 @@ class BautismoController extends Controller
         $dataVersion = hash('sha256', implode('|', [
             (string) ($bautismo->updated_at?->timestamp ?? 0),
             (string) ($iglesiaConfig?->updated_at?->timestamp ?? 0),
+            (string) ($bautismo->encargado?->id ?? ''),
+            (string) ($bautismo->encargado?->feligres?->persona?->nombre_completo ?? ''),
             (string) ($bautismo->encargado?->path_firma_principal ?? ''),
             (string) ($iglesiaConfig?->path_logo ?? ''),
             (string) ($iglesiaConfig?->path_logo_derecha ?? ''),

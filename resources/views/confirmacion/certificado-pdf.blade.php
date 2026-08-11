@@ -116,6 +116,7 @@
             padding-top: 4px;
         }
         .sig-name { font-size: 11pt; font-weight: bold; color: #1a1a1a; margin-top: 4px; }
+        .sig-title { font-size: 10.5pt; color: #555; margin-top: 2px; letter-spacing: 0.6px; }
     </style>
 </head>
 @php

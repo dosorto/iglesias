@@ -33,7 +33,7 @@ class MatrimonioController extends Controller
 
     public function certificadoPdf(Matrimonio $matrimonio)
     {
-        $matrimonio->loadMissing('encargado');
+        $matrimonio->loadMissing('encargado.feligres.persona');
 
         $datosCriticos = [
             'Fecha de matrimonio' => $matrimonio->fecha_matrimonio,
@@ -86,6 +86,8 @@ class MatrimonioController extends Controller
         $dataVersion = hash('sha256', implode('|', [
             (string) ($matrimonio->updated_at?->timestamp ?? 0),
             (string) ($iglesiaConfig?->updated_at?->timestamp ?? 0),
+            (string) ($matrimonio->encargado?->id ?? ''),
+            (string) ($matrimonio->encargado?->feligres?->persona?->nombre_completo ?? ''),
             (string) ($matrimonio->encargado?->path_firma_principal ?? ''),
             (string) ($iglesiaConfig?->path_logo ?? ''),
             (string) ($iglesiaConfig?->path_logo_derecha ?? ''),

@@ -89,9 +89,7 @@ class PrimeraComunionCreate extends Component
 
     private function cargarEncargado(): void
     {
-        $encargado = Encargado::with('feligres.persona')
-            ->where('estado', 'Activo')
-            ->first();
+        $encargado = Encargado::activoParaIglesia($this->iglesia_id);
 
         if ($encargado?->feligres?->persona) {
             $persona = $encargado->feligres->persona;
@@ -486,9 +484,7 @@ class PrimeraComunionCreate extends Component
         }
 
         // Obtener el encargado activo para guardarlo como párroco
-        $encargado = Encargado::with('feligres')
-            ->where('estado', 'Activo')
-            ->first();
+        $encargado = Encargado::activoParaIglesia($this->iglesia_id);
 
         PrimeraComunion::create([
             'id_iglesia'             => $this->iglesia_id,

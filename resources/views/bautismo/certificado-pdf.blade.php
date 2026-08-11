@@ -164,6 +164,13 @@
             font-weight: 700;
         }
 
+        .sig-title {
+            font-size: 10.5pt;
+            color: #555;
+            margin-top: 2px;
+            letter-spacing: 0.6px;
+        }
+
     </style>
 </head>
 @php

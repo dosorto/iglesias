@@ -3,6 +3,7 @@
 namespace App\Livewire\Confirmacion;
 
 use App\Models\Confirmacion;
+use App\Models\Encargado;
 use App\Models\Iglesias;
 use App\Models\Feligres;
 use App\Models\Persona;
@@ -17,6 +18,7 @@ class ConfirmacionEdit extends Component
 
     // Campos principales
     public ?int   $iglesia_id         = null;
+    public $encargado_id              = null;
     public string $fecha_confirmacion = '';
     public string $lugar_confirmacion = '';
     public string $libro_confirmacion = '';
@@ -97,6 +99,8 @@ class ConfirmacionEdit extends Component
         $this->partida_numero     = $confirmacion->partida_numero ?? '';
         $this->observaciones      = $confirmacion->observaciones ?? '';
         $this->nota_marginal      = $confirmacion->nota_marginal  ?? '';
+        $this->encargado_id       = $confirmacion->encargado_id
+            ?: Encargado::activoParaIglesia($this->iglesia_id)?->id;
         $this->lugar_expedicion   = $confirmacion->lugar_expedicion ?? '';
         $this->aplicarLugarExpedicionPorDefecto();
 
@@ -479,6 +483,7 @@ class ConfirmacionEdit extends Component
 
         $this->confirmacion->update([
             'iglesia_id'          => $this->confirmacion->iglesia_id,
+            'encargado_id'        => $this->encargado_id ?: null,
             'ministro_id'         => $this->ministro_feligres_id,
             'fecha_confirmacion'  => $this->fecha_confirmacion,
             'lugar_confirmacion'  => $this->lugar_confirmacion ?: null,

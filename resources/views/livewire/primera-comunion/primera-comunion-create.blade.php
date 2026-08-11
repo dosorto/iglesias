@@ -673,14 +673,14 @@
             </div>
         @endforeach
 
-        {{-- PÁRROCO AUTOMÁTICO (encargado activo) --}}
+        {{-- ENCARGADO DEL ARCHIVO AUTOMÁTICO (encargado activo) --}}
         <div class="bg-white dark:bg-gray-800/80 rounded-xl shadow-sm border overflow-hidden
                     ring-1 ring-black/5 dark:ring-white/5
                     {{ $encargado_info ? 'border-teal-200 dark:border-teal-700/50' : 'border-gray-200 dark:border-gray-700/60' }}">
 
             <div class="flex items-center gap-2.5 px-6 py-3.5 border-b border-gray-100 dark:border-gray-700/60
                         {{ $encargado_info ? 'bg-teal-50/60 dark:bg-teal-900/10' : 'bg-gray-50/80 dark:bg-gray-800/80' }}">
-                <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Párroco</h3>
+                <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Encargado del Archivo</h3>
                 <span class="px-2 py-0.5 rounded-full text-xs font-medium
                              bg-teal-100 dark:bg-teal-900/40 text-teal-600 dark:text-teal-400">
                     Automático
@@ -789,9 +789,9 @@
                     </div>
                 @endforeach
 
-                {{-- Párroco (encargado) en el resumen --}}
+                {{-- Encargado del Archivo (encargado) en el resumen --}}
                 <div class="p-3 rounded-lg {{ $encargado_info ? 'bg-teal-50 dark:bg-teal-900/15' : 'bg-gray-50 dark:bg-gray-700/40' }}">
-                    <span class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide">Párroco</span>
+                    <span class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wide">Encargado del Archivo</span>
                     <p class="font-semibold text-gray-900 dark:text-white mt-0.5">
                         @if ($encargado_info)
                             {{ $encargado_info['nombre_completo'] }}

@@ -99,8 +99,8 @@ class BautismoCreate extends Component
 
         $this->iglesia_id = TenantIglesia::currentId();
 
-        // Encargado por defecto: primer encargado disponible
-        $encargadoDefault   = Encargado::with('feligres.persona')->where('estado', 'Activo')->first();
+        // Encargado por defecto: primer encargado disponible de la iglesia
+        $encargadoDefault   = Encargado::activoParaIglesia($this->iglesia_id);
         $this->encargado_id = $encargadoDefault?->id;
     }
 

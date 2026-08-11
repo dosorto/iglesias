@@ -131,7 +131,9 @@ class BautismoEdit extends Component
         }
 
         if (! $encargado) {
-            $encargado = Encargado::with('feligres.persona')->where('estado', 'Activo')->first();
+            $encargado = Encargado::activoParaIglesia(
+                session('tenant') ? TenantIglesia::currentId() : $this->bautismo->iglesia_id
+            );
         }
 
         if ($encargado?->feligres?->persona) {

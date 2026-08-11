@@ -431,7 +431,7 @@
             @error('esposo_feligres_id') <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
             @error('esposa_feligres_id') <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
 
-            {{-- ══ PÁRROCO AUTOMÁTICO (encargado activo) ══ --}}
+            {{-- ══ ENCARGADO DEL ARCHIVO AUTOMÁTICO (encargado activo) ══ --}}
             <input type="hidden" wire:model="encargado_id">
             <div class="border {{ $encargado_info ? 'border-teal-200 dark:border-teal-700/50' : 'border-gray-200 dark:border-gray-700/60' }} rounded-xl overflow-hidden">
                 <div class="flex items-center gap-3 px-5 py-3.5
@@ -444,7 +444,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">Párroco</p>
+                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">Encargado del Archivo</p>
                     </div>
                     @if ($encargado_info)
                         <span class="ml-auto text-[10px] px-2 py-0.5 rounded-full font-semibold bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300">

@@ -14,7 +14,6 @@
     $datosCriticos = [
         'Fecha de bautismo' => $bautismo->fecha_bautismo,
         'Bautizado'         => $bautismo->bautizado_id,
-        'Madre'             => $bautismo->madre_id,
         'Padrino'           => $bautismo->padrino_id,
         'Madrina'           => $bautismo->madrina_id,
         'Lugar de nacimiento' => $bautismo->lugar_nacimiento,
@@ -157,7 +156,8 @@
                         {{ $estadoRegistro }}
                     </span>
                 </div>
-
+            </div>
+        </div>
 
         {{-- EXPEDICIÓN CERTIFICADO --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 space-y-3">

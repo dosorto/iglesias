@@ -145,9 +145,11 @@ class PrimeraComunionEdit extends Component
             $encargado = Encargado::with('feligres.persona')->find($this->primeraComunion->encargado_id);
         }
 
-        // Si no tiene asignado, tomar el activo del sistema
+        // Si no tiene asignado, tomar el activo de la iglesia
         if (! $encargado) {
-            $encargado = Encargado::with('feligres.persona')->where('estado', 'Activo')->first();
+            $encargado = Encargado::activoParaIglesia(
+                session('tenant') ? TenantIglesia::currentId() : $this->primeraComunion->id_iglesia
+            );
         }
 
         if ($encargado?->feligres?->persona) {
@@ -430,7 +432,9 @@ class PrimeraComunionEdit extends Component
             $encargado = Encargado::with('feligres')->find($this->primeraComunion->encargado_id);
         }
         if (! $encargado) {
-            $encargado = Encargado::with('feligres')->where('estado', 'Activo')->first();
+            $encargado = Encargado::activoParaIglesia(
+                session('tenant') ? TenantIglesia::currentId() : $this->primeraComunion->id_iglesia
+            );
         }
 
         $this->primeraComunion->update([

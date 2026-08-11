@@ -34,7 +34,7 @@ class ConfirmacionController extends Controller
 
     public function certificadoPdf(Confirmacion $confirmacion)
     {
-        $confirmacion->loadMissing('encargado');
+        $confirmacion->loadMissing('encargado.feligres.persona');
 
         $datosCriticos = [
             'Fecha de confirmación' => $confirmacion->fecha_confirmacion,
@@ -91,6 +91,8 @@ class ConfirmacionController extends Controller
         $dataVersion = hash('sha256', implode('|', [
             (string) ($confirmacion->updated_at?->timestamp ?? 0),
             (string) ($iglesiaConfig?->updated_at?->timestamp ?? 0),
+            (string) ($confirmacion->encargado?->id ?? ''),
+            (string) ($confirmacion->encargado?->feligres?->persona?->nombre_completo ?? ''),
             (string) ($confirmacion->encargado?->path_firma_principal ?? ''),
             (string) ($iglesiaConfig?->path_logo ?? ''),
             (string) ($iglesiaConfig?->path_logo_derecha ?? ''),
