@@ -79,6 +79,21 @@
                     <img src="{{ asset('storage/' . $encargado->path_firma_principal) }}"
                          alt="Firma actual"
                          class="h-20 object-contain rounded-lg border border-indigo-200 dark:border-indigo-700 bg-white p-1.5 shadow-sm">
+                    <div class="mt-3">
+                        <button type="button" wire:click="eliminarFirma"
+                                wire:confirm="¿Seguro que deseas eliminar la firma principal?"
+                                wire:loading.attr="disabled" wire:target="eliminarFirma"
+                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold
+                                       bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30
+                                       text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800
+                                       transition-colors duration-150 disabled:opacity-60">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            <span wire:loading.remove wire:target="eliminarFirma">Eliminar firma</span>
+                            <span wire:loading wire:target="eliminarFirma">Eliminando...</span>
+                        </button>
+                    </div>
                 </div>
             @endif
 

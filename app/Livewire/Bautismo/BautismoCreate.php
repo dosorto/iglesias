@@ -53,6 +53,11 @@ class BautismoCreate extends Component
     public ?int   $madrina_feligres_id = null;
     public string $madrina_estado      = 'idle';
 
+    public string $ministro_dni         = '';
+    public ?array $ministro_persona     = null;
+    public ?int   $ministro_feligres_id = null;
+    public string $ministro_estado      = 'idle';
+
     // Mini-form compartido
     public ?string $mini_rol  = null;
     public ?string $mini_tipo = null;
@@ -80,6 +85,7 @@ class BautismoCreate extends Component
     public string $observaciones  = '';
     public string $nota_marginal    = '';
     public string $ministro_celebrante = '';
+    public string $parroco_celebrante  = '';
     public string $lugar_nacimiento = '';
     public string $lugar_celebracion = '';
     public string $exp_dia          = '';
@@ -92,49 +98,15 @@ class BautismoCreate extends Component
         $this->mini_f_fecha_ingreso = now()->format('Y-m-d');
 
         $this->iglesia_id = TenantIglesia::currentId();
-        $this->aplicarLugarCelebracionPorDefecto();
 
         // Encargado por defecto: primer encargado disponible
         $encargadoDefault   = Encargado::with('feligres.persona')->where('estado', 'Activo')->first();
         $this->encargado_id = $encargadoDefault?->id;
     }
 
-    private function aplicarLugarCelebracionPorDefecto(): void
-    {
-        if (trim($this->lugar_celebracion) !== '') {
-            return;
-        }
-
-        $nombreIglesia = '';
-
-        if (session('tenant')) {
-            $nombreIglesia = trim((string) (TenantIglesia::current()?->nombre ?? ''));
-        } elseif ($this->iglesia_id) {
-            $nombreIglesia = trim((string) (Iglesias::query()->find($this->iglesia_id)?->nombre ?? ''));
-        }
-
-        if ($nombreIglesia !== '') {
-            $this->lugar_celebracion = $nombreIglesia;
-        }
-    }
-
     private function resolverLugarCelebracion(): ?string
     {
-        $lugarCelebracion = trim($this->lugar_celebracion);
-
-        if ($lugarCelebracion !== '') {
-            return $lugarCelebracion;
-        }
-
-        $nombreIglesia = '';
-
-        if (session('tenant')) {
-            $nombreIglesia = trim((string) (TenantIglesia::current()?->nombre ?? ''));
-        } elseif ($this->iglesia_id) {
-            $nombreIglesia = trim((string) (Iglesias::query()->find($this->iglesia_id)?->nombre ?? ''));
-        }
-
-        return $nombreIglesia !== '' ? $nombreIglesia : null;
+        return trim($this->lugar_celebracion) !== '' ? trim($this->lugar_celebracion) : null;
     }
 
     // Navegacion
@@ -240,13 +212,14 @@ class BautismoCreate extends Component
 
     private function asignarPersonaARol(string $rol, Persona $persona): void
     {
-        $roles = ['bautizado', 'padre', 'madre', 'padrino', 'madrina'];
+        $roles = ['bautizado', 'padre', 'madre', 'padrino', 'madrina', 'ministro'];
         $labels = [
             'bautizado' => 'Bautizado',
             'padre'     => 'Padre',
             'madre'     => 'Madre',
             'padrino'   => 'Padrino',
             'madrina'   => 'Madrina',
+            'ministro'  => 'Sacerdote que bautizó',
         ];
 
         foreach ($roles as $r) {
@@ -278,7 +251,11 @@ class BautismoCreate extends Component
         ];
         $this->{"{$rol}_dni"} = $persona->dni;
 
-        if ($feligres) {
+        // El ministro (sacerdote que bautizó) no necesita ser feligrés obligatoriamente
+        if ($rol === 'ministro') {
+            $this->ministro_feligres_id = $feligres?->id;
+            $this->ministro_estado      = 'found';
+        } elseif ($feligres) {
             $this->{"{$rol}_feligres_id"} = $feligres->id;
             $this->{"{$rol}_estado"}      = 'found';
         } else {
@@ -302,6 +279,10 @@ class BautismoCreate extends Component
         $this->{"{$rol}_persona"}     = null;
         $this->{"{$rol}_feligres_id"} = null;
         $this->{"{$rol}_estado"}      = 'idle';
+
+        if ($rol === 'ministro') {
+            $this->ministro_feligres_id = null;
+        }
 
         if ($this->busqueda_rol === $rol) {
             $this->busqueda_resultados = [];
@@ -447,7 +428,12 @@ class BautismoCreate extends Component
                 'email'           => $persona->email    ?? null,
             ];
 
-            $this->{"{$rol}_feligres_id"} = $feligres->id;
+            if ($rol === 'ministro') {
+                $this->ministro_feligres_id = $feligres->id;
+            } else {
+                $this->{"{$rol}_feligres_id"} = $feligres->id;
+            }
+
             $this->{"{$rol}_estado"}      = 'found';
             $this->{"{$rol}_dni"}         = $persona->dni;
         });
@@ -481,7 +467,12 @@ class BautismoCreate extends Component
             'estado'        => $this->mini_f_estado,
         ]);
 
-        $this->{"{$rol}_feligres_id"} = $feligres->id;
+        if ($rol === 'ministro') {
+            $this->ministro_feligres_id = $feligres->id;
+        } else {
+            $this->{"{$rol}_feligres_id"} = $feligres->id;
+        }
+
         $this->{"{$rol}_estado"}      = 'found';
 
         $this->cancelarMini();
@@ -502,8 +493,9 @@ class BautismoCreate extends Component
             'partida_numero' => ['required', 'string', 'max:50'],
             'nota_marginal'    => ['nullable', 'string', 'max:500'],
             'ministro_celebrante' => ['nullable', 'string', 'max:150'],
+            'parroco_celebrante'  => ['nullable', 'string', 'max:150'],
             'lugar_nacimiento' => ['nullable', 'string', 'max:150'],
-            'lugar_celebracion' => ['nullable', 'string', 'max:150'],
+            'lugar_celebracion' => ['required', 'string', 'max:255'],
             'exp_dia'          => ['nullable', 'integer', 'min:1', 'max:31'],
             'exp_mes'          => ['nullable', 'integer', 'min:1', 'max:12'],
             'exp_ano'          => ['nullable', 'integer', 'digits:4', 'min:1900', 'max:2100'],
@@ -518,8 +510,10 @@ class BautismoCreate extends Component
             'partida_numero.max'      => 'El número de partida no puede superar los 50 caracteres.',
             'nota_marginal.max'       => 'La nota marginal no puede superar los 500 caracteres.',
             'ministro_celebrante.max'  => 'El nombre del ministro celebrante no puede superar los 150 caracteres.',
+            'parroco_celebrante.max'   => 'El párroco del momento no puede superar los 150 caracteres.',
             'lugar_nacimiento.max'    => 'El lugar de nacimiento no puede superar los 150 caracteres.',
-            'lugar_celebracion.max'         => 'El lugar de celebración no puede superar los 150 caracteres.',
+            'lugar_celebracion.required' => 'El lugar de la celebración es obligatorio.',
+            'lugar_celebracion.max'         => 'El lugar de celebración no puede superar los 255 caracteres.',
             'exp_dia.min'             => 'El día debe ser entre 1 y 31.',
             'exp_mes.min'             => 'El mes debe ser entre 1 y 12.',
         ]);
@@ -527,6 +521,12 @@ class BautismoCreate extends Component
         if (! $this->bautizado_feligres_id) {
             $this->addError('bautizado_dni', 'El bautizado es obligatorio.');
             return;
+        }
+
+        if ($this->ministro_feligres_id) {
+            $this->validate([
+                'ministro_feligres_id' => ['integer', 'exists:feligres,id'],
+            ]);
         }
 
         if (! $this->validarGeneroRoles()) {
@@ -559,12 +559,14 @@ class BautismoCreate extends Component
             'madre_id'       => $this->madre_feligres_id,
             'padrino_id'     => $this->padrino_feligres_id,
             'madrina_id'     => $this->madrina_feligres_id,
+            'ministro_id'    => $this->ministro_feligres_id,
             'libro_bautismo' => trim($this->libro_bautismo),
             'folio'          => trim($this->folio),
             'partida_numero' => trim($this->partida_numero),
             'observaciones'  => $this->observaciones  ?: null,
             'nota_marginal'    => $this->nota_marginal    ?: null,
             'ministro_celebrante' => $this->ministro_celebrante ?: null,
+            'parroco_celebrante'  => $this->parroco_celebrante  ?: null,
             'lugar_nacimiento' => $this->lugar_nacimiento ?: null,
             'lugar_celebracion' => $lugarCelebracion,
             'fecha_expedicion' => $fechaExp,

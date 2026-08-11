@@ -40,13 +40,10 @@ class BautismoController extends Controller
         $datosCriticos = [
             'Fecha de bautismo' => $bautismo->fecha_bautismo,
             'Bautizado'         => $bautismo->bautizado_id,
-            'Padre'             => $bautismo->padre_id,
-            'Madre'             => $bautismo->madre_id,
             'Padrino'           => $bautismo->padrino_id,
             'Madrina'           => $bautismo->madrina_id,
             'Lugar de nacimiento' => $bautismo->lugar_nacimiento,
             'Fecha de expedición' => $bautismo->fecha_expedicion,
-            'Nota marginal'       => $bautismo->nota_marginal,
             'Ministro celebrante' => $bautismo->ministro_celebrante,
         ];
         $faltantes = array_keys(array_filter($datosCriticos, fn($v) => ! filled($v)));
@@ -66,7 +63,7 @@ class BautismoController extends Controller
 
         $tipoDocumento = 'bautismo_certificado';
         $nombreArchivo = 'certificado-bautismo-' . $bautismo->id . '.pdf';
-        $layoutVersion = 'header-config-v8';
+        $layoutVersion = 'header-config-v9';
         $servicioDocumentos = app(DocumentosGeneradosService::class);
         $iglesiaDocumentoId = (int) $bautismo->iglesia_id;
         $orientacionBautismo = (string) ($iglesiaConfig?->orientacion_certificado_bautismo
@@ -125,6 +122,7 @@ class BautismoController extends Controller
             'madre.persona',
             'padrino.persona',
             'madrina.persona',
+            'ministro.persona',
             'encargado.feligres.persona',
         ]);
 

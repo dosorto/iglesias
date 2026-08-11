@@ -438,7 +438,7 @@
             @endif
             <span class="priest-sig-line"></span>
             <div class="priest-name">{{ $firmaEncargadoNombre }}</div>
-            <div class="sig-title">Párroco</div>
+            <div class="sig-title">Encargado del Archivo</div>
         </div>
     </div>
 

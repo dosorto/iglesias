@@ -224,15 +224,21 @@
     $anoExp = $fechaExp?->year ?? '';
 
     $lugarCelebracion = trim((string) ($bautismo->lugar_celebracion ?? ''));
-    if ($lugarCelebracion === '') {
-        $lugarCelebracion = trim((string) ($bautismo->iglesia?->nombre ?? $parroquiaNombre));
-    }
     $lugarExp = trim((string) ($iglesiaConfig?->direccion ?? $bautismo->iglesia?->direccion ?? ''));
     if ($lugarExp === '') {
         $lugarExp = 'Monjarás, Marcovia, Choluteca, Honduras C. A.';
     }
 
-    $ministroCelebrante = mb_strtoupper(trim((string) ($bautismo->ministro_celebrante ?: ($encargado?->nombre_completo ?? ''))), 'UTF-8');
+    $ministroBautismo = $bautismo->ministro?->persona;
+    $sacerdoteBautizo = mb_strtoupper(trim((string) (
+        $ministroBautismo?->nombre_completo
+        ?: ($bautismo->ministro_celebrante ?? '')
+        ?: ($encargado?->nombre_completo ?? '')
+    )), 'UTF-8');
+    $ministroCelebrante = mb_strtoupper(trim((string) (
+        ($bautismo->parroco_celebrante ?? '')
+        ?: ($bautismo->ministro_celebrante ?? '')
+    )), 'UTF-8');
     $firmaEncargadoNombre = mb_strtoupper(trim((string) ($encargado?->nombre_completo ?? '')), 'UTF-8');
 
     $firmaPath = $resolvePublicFilePath($bautismo->encargado?->path_firma_principal);
@@ -245,6 +251,9 @@
     $nombreMadre = mb_strtoupper(trim((string) ($madre?->nombre_completo ?? '')), 'UTF-8');
     $nombrePadrino = mb_strtoupper(trim((string) ($padrino?->nombre_completo ?? '')), 'UTF-8');
     $nombreMadrina = mb_strtoupper(trim((string) ($madrina?->nombre_completo ?? '')), 'UTF-8');
+
+    $filiacion = collect([$nombrePadre, $nombreMadre])->filter()->implode(' y ');
+    $padrinos = collect([$nombrePadrino, $nombreMadrina])->filter()->implode(' y ');
 @endphp
 <body @if($certBgPath && file_exists($certBgPath)) style="background-image: url('{{ $certBgPath }}'); background-size: cover; background-position: center; background-repeat: no-repeat;" @endif>
 @if($logoIglesiaPath)
@@ -293,7 +302,7 @@
             En <span class="line line-lg">{{ $lugarCelebracion }}</span>
             a los <span class="line line-xxs">{{ $diaBautismo }}</span>
             días del mes de <span class="line line-md">{{ $mesBautismo }}</span>
-            bauticé  (P. <span class="line line-xl">{{ $firmaEncargadoNombre }}</span>)
+            bauticé  (P. <span class="line line-xl">{{ $sacerdoteBautizo }}</span>)
         </p>
         <p>
             a: <span class="line line-xl">{{ $nombreBautizado }}</span>
@@ -302,20 +311,22 @@
             de <span class="line line-md">{{ $anoNac }}</span>.
         </p>
 
+        @if($filiacion)
         <p>
-            Hijo(a) de <span class="line line-lg">{{ $nombrePadre }}</span>
-            y <span class="line line-lg">{{ $nombreMadre }}</span>
+            Hijo(a) de <span class="line line-lg">{{ $filiacion }}</span>
         </p>
+        @endif
+        @if($padrinos)
         <p>
-            Padrinos: <span class="line line-lg">{{ $nombrePadrino }}</span>
-            y <span class="line line-lg">{{ $nombreMadrina }}</span>
+            Padrinos: <span class="line line-lg">{{ $padrinos }}</span>
         </p>
+        @endif
     </div>
 
     <div class="signature-center">
         <div class="signature-label">{{ $ministroCelebrante }}</div>
         <div class="signature-line"></div>
-        <div class="signature-sub">Ministro Celebrante</div>
+        <div class="signature-sub">Párroco</div>
     </div>
 
     <div class="notes">
@@ -343,7 +354,7 @@
                     @endif
                     <div class="signature-line"></div>
                     <div class="firma-nombre">{{ $firmaEncargadoNombre }}</div>
-                    <div class="sig-title">Párroco</div>
+                    <div class="sig-title">Encargado del Archivo</div>
                 </div>
             </div>
         </div>

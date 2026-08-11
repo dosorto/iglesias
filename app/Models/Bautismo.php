@@ -19,12 +19,14 @@ class Bautismo extends BaseModel
         'madre_id',
         'padrino_id',
         'madrina_id',
+        'ministro_id',
         'libro_bautismo',
         'folio',
         'partida_numero',
         'observaciones',
         'nota_marginal',
         'ministro_celebrante',
+        'parroco_celebrante',
         'lugar_nacimiento',
         'lugar_celebracion',
         'fecha_expedicion',
@@ -68,5 +70,10 @@ class Bautismo extends BaseModel
     public function madrina()
     {
         return $this->belongsTo(Feligres::class, 'madrina_id')->withTrashed();
+    }
+
+    public function ministro()
+    {
+        return $this->belongsTo(Feligres::class, 'ministro_id')->withTrashed();
     }
 }

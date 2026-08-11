@@ -261,7 +261,7 @@
                     <span class="sig-line"></span>
                 </div>
                 <div class="sig-name">{{ $encargadoNombre }}</div>
-                <div class="sig-title">Párroco</div>
+                <div class="sig-title">Encargado del Archivo</div>
             </div>
         </div>
     </div>
