@@ -157,6 +157,12 @@
     $monthStart = $now->copy()->startOfMonth();
     $monthEnd = $now->copy()->endOfMonth();
     $feligresCount = \App\Models\Feligres::count();
+    $bautismoTotalCount = \App\Models\Bautismo::count();
+    $matrimonioTotalCount = \App\Models\Matrimonio::count();
+    $confirmacionTotalCount = \App\Models\Confirmacion::count();
+    $comunionTotalCount = \App\Models\PrimeraComunion::count();
+    $cursoTotalCount = \App\Models\InscripcionCurso::count();
+    $instructorTotalCount = \App\Models\Instructor::count();
     $bautismoMonthCount = \App\Models\Bautismo::query()->whereBetween('fecha_bautismo', [$monthStart, $monthEnd])->count();
     $matrimonioMonthCount = \App\Models\Matrimonio::query()->whereBetween('fecha_matrimonio', [$monthStart, $monthEnd])->count();
     $cursoMonthCount = \App\Models\InscripcionCurso::query()->whereBetween('created_at', [$monthStart, $monthEnd])->count();
@@ -415,8 +421,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>
             </svg>
         </div>
-        <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $bautismoMonthCount }}</p>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Bautismos (mes)</p>
+        <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $bautismoTotalCount }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Bautismos</p>
     </div>
 
     <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 border-b-4 border-b-rose-400">
@@ -425,8 +431,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
             </svg>
         </div>
-        <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $matrimonioMonthCount }}</p>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Matrimonios (mes)</p>
+        <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $matrimonioTotalCount }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Matrimonios</p>
     </div>
 
     <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 border-b-4 border-b-amber-400">
@@ -435,8 +441,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v11.494m-5.747-8.12l11.494 4.373M6.253 14.373l11.494-4.373"/>
             </svg>
         </div>
-        <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $cursoMonthCount }}</p>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Inscritos en cursos (mes)</p>
+        <p class="text-3xl font-serif font-bold text-gray-900 dark:text-white">{{ $cursoTotalCount }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Inscritos en cursos</p>
     </div>
 </div>
 
@@ -548,42 +554,42 @@
                         <div class="w-2.5 h-2.5 rounded-full bg-sky-500 flex-shrink-0"></div>
                         <span class="text-sm text-gray-700 dark:text-gray-300">Bautismo</span>
                     </div>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $bautismoMonthCount }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $bautismoTotalCount }}</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0"></div>
                         <span class="text-sm text-gray-700 dark:text-gray-300">Confirmación</span>
                     </div>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $confirmacionMonthCount }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $confirmacionTotalCount }}</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <div class="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0"></div>
                         <span class="text-sm text-gray-700 dark:text-gray-300">Comunión</span>
                     </div>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $comunionMonthCount }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $comunionTotalCount }}</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <div class="w-2.5 h-2.5 rounded-full bg-blue-500 flex-shrink-0"></div>
                         <span class="text-sm text-gray-700 dark:text-gray-300">Cursos</span>
                     </div>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $cursoMonthCount }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $cursoTotalCount }}</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 flex-shrink-0"></div>
                         <span class="text-sm text-gray-700 dark:text-gray-300">Instructores</span>
                     </div>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $instructorMonthCount }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $instructorTotalCount }}</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <div class="w-2.5 h-2.5 rounded-full bg-rose-500 flex-shrink-0"></div>
                         <span class="text-sm text-gray-700 dark:text-gray-300">Matrimonio</span>
                     </div>
-                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $matrimonioMonthCount }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $matrimonioTotalCount }}</span>
                 </div>
             </div>
         </section>
