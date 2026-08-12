@@ -17,7 +17,6 @@
         'Padrino'           => $bautismo->padrino_id,
         'Madrina'           => $bautismo->madrina_id,
         'Lugar de nacimiento' => $bautismo->lugar_nacimiento,
-        'Ministro celebrante' => $bautismo->ministro_celebrante,
     ];
     $faltantesLista = array_keys(array_filter($datosCriticos, fn($v) => ! filled($v)));
     $datosCriticosFaltantes = ! empty($faltantesLista);
