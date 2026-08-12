@@ -333,7 +333,7 @@
     $mesM = $fm ? $mesesEs[$fm->month] : '__________';
     $anoM = $fm ? substr((string)$fm->year, 2) : '____';
 
-    $fe = $matrimonio->fecha_expedicion;
+    $fe = $matrimonio->fecha_expedicion ?: now();
     $diaE = $fe?->day ?? '__';
     $mesE = $fe ? $mesesEs[$fe->month] : '__________';
     $anoE = $fe ? substr((string)$fe->year, 2) : '____';

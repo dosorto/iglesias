@@ -42,7 +42,6 @@ class ConfirmacionController extends Controller
             'Padrino'               => $confirmacion->padrino_id,
             'Madrina'               => $confirmacion->madrina_id,
             'Ministro'              => $confirmacion->ministro_id,
-            'Fecha de expedición'   => $confirmacion->fecha_expedicion,
         ];
         $faltantes = array_keys(array_filter($datosCriticos, fn($v) => ! filled($v)));
         if (! empty($faltantes)) {

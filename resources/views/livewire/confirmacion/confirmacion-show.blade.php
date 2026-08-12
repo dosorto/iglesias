@@ -18,7 +18,6 @@
         'Padrino'               => $confirmacion->padrino_id,
         'Madrina'               => $confirmacion->madrina_id,
         'Ministro'              => $confirmacion->ministro_id,
-        'Fecha de expedición'   => $confirmacion->fecha_expedicion,
     ];
     $faltantesLista = array_keys(array_filter($datosCriticos, fn($v) => ! filled($v)));
     $datosCriticosFaltantes = ! empty($faltantesLista);

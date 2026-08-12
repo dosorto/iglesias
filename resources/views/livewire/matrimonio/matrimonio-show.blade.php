@@ -16,7 +16,6 @@
         'Esposa'              => $matrimonio->esposa_id,
         'Testigo 1'           => $matrimonio->testigo1_id,
         'Testigo 2'           => $matrimonio->testigo2_id,
-        'Fecha de expedición' => $matrimonio->fecha_expedicion,
         'Nota marginal'       => $matrimonio->nota_marginal,
     ];
     $faltantesLista = array_keys(array_filter($datosCriticos, fn($v) => ! filled($v)));
