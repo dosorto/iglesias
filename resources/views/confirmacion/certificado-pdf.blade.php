@@ -234,7 +234,9 @@
         </p>
         <p>En la {{ $lugarConf }}</p>
         <p>Por Mons. {{ $ministroNombre }}</p>
-        <p>Siendo sus padrinos: {{ $padrinosStr }}</p>
+        @if ($padrinosStr)
+            <p>Siendo sus padrinos: {{ $padrinosStr }}</p>
+        @endif
     </div>
 
     @if ($notaMarginal)

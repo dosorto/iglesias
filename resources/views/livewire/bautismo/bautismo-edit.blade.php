@@ -173,7 +173,6 @@
                     ['key' => 'madre',     'label' => 'Madre',      'short' => 'M',   'required' => false],
                     ['key' => 'padrino',   'label' => 'Padrino',    'short' => 'Pd',  'required' => false],
                     ['key' => 'madrina',   'label' => 'Madrina',    'short' => 'Md',  'required' => false],
-                    ['key' => 'ministro',  'label' => 'Sacerdote que bautizó', 'short' => 'S', 'required' => false],
                 ];
                 $asignadosBau = collect($rolesConfig)->filter(fn($r) => $this->{"{$r['key']}_estado"} === 'found');
             @endphp
@@ -730,8 +729,6 @@
         </div>
     </div>
 
-    </div>
-
             {{-- ── Barra de acciones ───────────────────────────────────── --}}
             <div class="flex items-center justify-between pt-5 border-t border-gray-100 dark:border-gray-700/50">
                 <a href="{{ route('bautismo.index') }}"
@@ -771,6 +768,3 @@
             </div>
 
         </div>
-    </div>
-
-</div>

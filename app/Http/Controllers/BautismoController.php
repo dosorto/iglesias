@@ -40,8 +40,6 @@ class BautismoController extends Controller
         $datosCriticos = [
             'Fecha de bautismo' => $bautismo->fecha_bautismo,
             'Bautizado'         => $bautismo->bautizado_id,
-            'Padrino'           => $bautismo->padrino_id,
-            'Madrina'           => $bautismo->madrina_id,
             'Lugar de nacimiento' => $bautismo->lugar_nacimiento,
         ];
         $faltantes = array_keys(array_filter($datosCriticos, fn($v) => ! filled($v)));

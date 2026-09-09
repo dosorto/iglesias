@@ -94,7 +94,6 @@
                 ['key' => 'madre',     'label' => 'Madre',     'required' => false, 'accent' => 'pink'],
                 ['key' => 'padrino',   'label' => 'Padrino',   'required' => false, 'accent' => 'indigo'],
                 ['key' => 'madrina',   'label' => 'Madrina',   'required' => false, 'accent' => 'teal'],
-                ['key' => 'ministro',  'label' => 'Sacerdote que bautizó', 'required' => false, 'accent' => 'amber'],
             ];
         @endphp
 
@@ -724,7 +723,6 @@
                         ['key' => 'madre',     'label' => 'Madre'],
                         ['key' => 'padrino',   'label' => 'Padrino'],
                         ['key' => 'madrina',   'label' => 'Madrina'],
-                        ['key' => 'ministro',  'label' => 'Sacerdote que bautizó'],
                     ];
                 @endphp
 

@@ -39,8 +39,6 @@ class ConfirmacionController extends Controller
         $datosCriticos = [
             'Fecha de confirmación' => $confirmacion->fecha_confirmacion,
             'Confirmado'            => $confirmacion->feligres_id,
-            'Padrino'               => $confirmacion->padrino_id,
-            'Madrina'               => $confirmacion->madrina_id,
             'Ministro'              => $confirmacion->ministro_id,
         ];
         $faltantes = array_keys(array_filter($datosCriticos, fn($v) => ! filled($v)));
